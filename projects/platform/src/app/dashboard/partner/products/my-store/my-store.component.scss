@@ -487,9 +487,7 @@
 }
 
 .toggle-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.55em;
+  display: block;
   padding: 0.7em 0.8em;
   border: 1px solid var(--ms-line);
   border-radius: var(--ms-radius-md);
@@ -497,14 +495,11 @@
   font-size: 0.85em;
 }
 
-.toggle-row input {
-  margin-top: 0.2em;
-}
-
 .toggle-row span {
   display: flex;
   flex-direction: column;
   gap: 0.1em;
+  padding-left: 0.25em;
 }
 
 .toggle-row small {

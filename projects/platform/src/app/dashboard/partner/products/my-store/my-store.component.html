@@ -249,10 +249,9 @@
           <mat-form-field appearance="outline" class="span-2"><mat-label>Return policy</mat-label><textarea matInput rows="2" [value]="form().returnPolicy" (input)="setForm('returnPolicy', $any($event.target).value)" maxlength="2000"></textarea></mat-form-field>
         </div>
 
-        <label class="toggle-row">
-          <input type="checkbox" [checked]="form().autoPublish" (change)="setForm('autoPublish', $any($event.target).checked)" />
+        <mat-checkbox class="toggle-row" [checked]="form().autoPublish" (change)="setForm('autoPublish', $event.checked)">
           <span><strong>Auto-publish new stock</strong><small>When stock is received, publish new listings immediately. Default is off so you can review first.</small></span>
-        </label>
+        </mat-checkbox>
 
         <div class="panel-actions">
           <button mat-flat-button color="primary" type="button" (click)="saveSettings()" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save settings' }}</button>

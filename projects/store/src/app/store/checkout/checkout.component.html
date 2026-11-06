@@ -20,17 +20,17 @@
             <div><h2>Contact</h2><p>We use this for payment and delivery updates.</p></div>
           </div>
           <div class="field-grid">
-            <mat-form-field appearance="outline" class="field span-2">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field span-2">
               <mat-label>Full name</mat-label>
               <input matInput name="name" [(ngModel)]="form.name" required minlength="2" maxlength="120" autocomplete="name" placeholder="Ada Obi" />
               <mat-icon matSuffix>person</mat-icon>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="field">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field">
               <mat-label>Email</mat-label>
               <input matInput name="email" type="email" [(ngModel)]="form.email" required maxlength="254" autocomplete="email" placeholder="ada@example.com" />
               <mat-icon matSuffix>mail_outline</mat-icon>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="field">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field">
               <mat-label>Phone</mat-label>
               <input matInput name="phone" type="tel" [(ngModel)]="form.phone" required minlength="7" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="0803 000 0000" />
               <mat-icon matSuffix>call</mat-icon>
@@ -44,24 +44,24 @@
             <div><h2>Delivery</h2><p>Your partner fulfils this order directly.</p></div>
           </div>
           <div class="field-grid">
-            <mat-form-field appearance="outline" class="field span-2">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field span-2">
               <mat-label>Street address</mat-label>
               <input matInput name="street" [(ngModel)]="form.street" required minlength="3" maxlength="300" autocomplete="street-address" placeholder="54 Nkpor Road" />
               <mat-icon matSuffix>location_on</mat-icon>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="field">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field">
               <mat-label>City</mat-label>
               <input matInput name="city" [(ngModel)]="form.city" required minlength="2" maxlength="120" autocomplete="address-level2" placeholder="Port Harcourt" />
             </mat-form-field>
-            <mat-form-field appearance="outline" class="field">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field">
               <mat-label>State</mat-label>
               <input matInput name="state" [(ngModel)]="form.state" required minlength="2" maxlength="120" autocomplete="address-level1" placeholder="Rivers" />
             </mat-form-field>
-            <mat-form-field appearance="outline" class="field">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field">
               <mat-label>Country</mat-label>
               <input matInput name="country" [(ngModel)]="form.country" maxlength="80" autocomplete="country-name" />
             </mat-form-field>
-            <mat-form-field appearance="outline" class="field">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field">
               <mat-label>Order note (optional)</mat-label>
               <input matInput name="note" [(ngModel)]="form.note" maxlength="1000" placeholder="Landmark, preferred time, etc." />
             </mat-form-field>

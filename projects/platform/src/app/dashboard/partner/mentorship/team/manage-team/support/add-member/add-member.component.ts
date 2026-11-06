@@ -45,6 +45,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
           }
         </mat-chip-grid>
         <input
+          matInput
           name="currentPartner"
           placeholder="New Partner..."
           #partnerInput

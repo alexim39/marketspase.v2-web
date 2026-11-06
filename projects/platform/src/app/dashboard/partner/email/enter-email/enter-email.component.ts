@@ -87,7 +87,10 @@ template:`
     <button mat-button type="button" (click)="sendMode = 'now'" [color]="sendMode === 'now' ? 'primary' : undefined">Send now</button>
     <button mat-button type="button" (click)="sendMode = 'later'" [color]="sendMode === 'later' ? 'primary' : undefined">Schedule</button>
     @if (sendMode === 'later') {
-      <input type="datetime-local" [(ngModel)]="scheduledAt" [ngModelOptions]="{standalone: true}" aria-label="Scheduled date and time" />
+      <mat-form-field appearance="outline" class="schedule-field">
+        <mat-label>Schedule date and time</mat-label>
+        <input matInput type="datetime-local" [(ngModel)]="scheduledAt" [ngModelOptions]="{standalone: true}" />
+      </mat-form-field>
     }
   </div>
 
@@ -182,15 +185,7 @@ form {
 
     .send-row button { min-height: 44px; }
 
-    .send-row input[type="datetime-local"] {
-        min-height: 44px;
-        border: 1px solid var(--ms-line);
-        border-radius: 4px;
-        padding: 0 0.6em;
-        background: transparent;
-        color: inherit;
-        font: inherit;
-    }
+    .schedule-field { min-width: 220px; }
 
     .scheduled { margin-top: 1em; }
     .scheduled h4 { margin: 0 0 0.4em; }

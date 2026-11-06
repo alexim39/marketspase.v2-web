@@ -2,7 +2,9 @@ import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnIni
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -78,7 +80,7 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
 @Component({
   selector: 'async-notifications-center',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatChipsModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [MatButtonModule, MatChipsModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -125,15 +127,19 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
       </header>
 
       <div class="toolbar">
-        <input
-          type="search"
-          class="search"
-          placeholder="Search notifications…"
-          aria-label="Search notifications"
-          [value]="search()"
-          (input)="onSearch($event)"
-          (keyup.enter)="reload()"
-        />
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search notifications</mat-label>
+          <input
+            matInput
+            type="search"
+            placeholder="Search notifications…"
+            aria-label="Search notifications"
+            [value]="search()"
+            (input)="onSearch($event)"
+            (keyup.enter)="reload()"
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
         <button
           mat-button
           [color]="unreadOnly() ? 'primary' : undefined"
@@ -365,7 +371,7 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
       display: flex; gap: 0.5em; flex-wrap: wrap; align-items: center;
       background: var(--ms-canvas); padding: 0.6em 0;
     }
-    .search { flex: 1 1 220px; min-height: 44px; padding: 0 0.9em; border-radius: 8px; border: 1px solid var(--ms-line); background: var(--ms-surface); color: inherit; font: inherit; }
+    .search-field { flex: 1 1 220px; }
     .filters { display: flex; gap: 0.25em; flex-wrap: wrap; }
     .filters button { min-height: 44px; }
     .group-head { margin: 0.5em 0 0; font-size: 1em; display: flex; align-items: center; gap: 0.5em; }
