@@ -1,16 +1,14 @@
 <section class="checkout-page ms-store-page">
-  <header class="checkout-head">
-    <p class="eyebrow">Secure checkout</p>
-    <h1>Almost yours.</h1>
-    <p class="subtitle">Add your delivery details. You’ll finish payment on Paystack.</p>
-  </header>
+  <async-page-header
+    eyebrow="Secure checkout"
+    title="Almost yours."
+    subtitle="Add your delivery details. You'll finish payment on Paystack."
+  />
 
   @if (cart.isEmpty()) {
-    <div class="empty-card">
-      <h2>Your cart is empty</h2>
-      <p>Add a product from a partner store before checking out.</p>
+    <async-empty-state icon="shopping_bag" title="Your cart is empty" message="Add a product from a partner store before checking out.">
       <a class="btn primary" routerLink="/stores">Browse stores</a>
-    </div>
+    </async-empty-state>
   } @else {
     <div class="checkout-layout">
       <form class="checkout-form" #checkoutForm="ngForm" (ngSubmit)="submit(checkoutForm)" novalidate>
@@ -57,7 +55,7 @@
               <mat-label>State</mat-label>
               <input matInput name="state" [(ngModel)]="form.state" required minlength="2" maxlength="120" autocomplete="address-level1" placeholder="Rivers" />
             </mat-form-field>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field" floatLabel="always">
               <mat-label>Country</mat-label>
               <input matInput name="country" [(ngModel)]="form.country" maxlength="80" autocomplete="country-name" />
             </mat-form-field>
@@ -81,7 +79,7 @@
       </form>
 
       <aside class="order-summary">
-        <p class="eyebrow">Your order</p>
+        <p class="ms-eyebrow">Your order</p>
         <a class="store-line" [routerLink]="['/', cart.storeSlug()]">{{ cart.storeName() }}</a>
         <div class="summary-items">
           @for (item of cart.items(); track item.storeProductId) {
