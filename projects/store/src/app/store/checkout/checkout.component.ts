@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
 import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
+import { FieldErrorComponent } from '@marketspase/shared/ui/field-error/field-error.component';
 import { finalize } from 'rxjs';
 import { CartService } from '../cart/cart.service';
 import { storeError, storeProductImage, StoreService } from '../store.service';
@@ -18,7 +19,7 @@ import { storeError, storeProductImage, StoreService } from '../store.service';
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CurrencyPipe, EmptyStateComponent, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, PageHeaderComponent, RouterModule],
+  imports: [CurrencyPipe, EmptyStateComponent, FieldErrorComponent, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, PageHeaderComponent, RouterModule],
 })
 export class StoreCheckoutComponent {
   private readonly cartApi = inject(CartService);

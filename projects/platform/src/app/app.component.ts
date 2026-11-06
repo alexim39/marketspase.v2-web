@@ -2,15 +2,18 @@ import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/cor
 import { RouterOutlet } from '@angular/router';
 import { ThemeTogglerService } from './_common/services/theme-toggler.service';
 import { OfflineBannerComponent } from './core/offline/offline-banner.component';
+import { ConnectionBannerComponent } from '@marketspase/shared/ui/connection-banner/connection-banner.component';
+import { SessionRecoveryService } from '@marketspase/shared/core/ui/session-recovery.service';
 
 
 
 @Component({
 selector: 'async-root',
-imports: [RouterOutlet, OfflineBannerComponent],
+imports: [RouterOutlet, OfflineBannerComponent, ConnectionBannerComponent],
 template: `
   <div id="container">
     <div class="body">
+      <async-connection-banner/>
       <async-offline-banner/>
       <router-outlet/>
     </div>
@@ -40,8 +43,10 @@ styles: [`
 })
 export class AppComponent implements OnInit {
   private readonly themes = inject(ThemeTogglerService);
+  private readonly recovery = inject(SessionRecoveryService);
 
   ngOnInit(): void {
     this.themes.init();
+    this.recovery.restorePending();
   }
 }

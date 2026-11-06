@@ -35,21 +35,41 @@
       }
     </div>
   } @else if (error()) {
-    <async-empty-state icon="cloud_off" title="Could not load stores" [message]="error() ?? ''">
+    <async-error-state [message]="error() ?? ''" context="the partner store directory">
       <button mat-stroked-button type="button" (click)="search()">Try again</button>
-    </async-empty-state>
+      <a mat-button routerLink="/">Back to home</a>
+    </async-error-state>
   } @else if (stores().length === 0) {
-    <async-empty-state
-      icon="search_off"
-      [title]="query().trim() ? 'No stores match that search' : 'Partner stores are opening soon'"
-      [message]="query().trim()
-        ? 'Try a different name, or clear the search to see every store.'
-        : 'The first MarketSpase partner shops are being prepared. Check back shortly.'"
-    >
-      @if (query().trim()) {
-        <button mat-stroked-button type="button" (click)="setQuery(''); search()">Clear search</button>
-      }
-    </async-empty-state>
+    @if (query().trim()) {
+      <async-state-panel
+        kind="search"
+        icon="search_off"
+        eyebrow="No match"
+        [title]="'No stores match “' + query().trim() + '”'"
+        message="The name may be misspelled, shortened, or that store may not be published yet."
+        reason="The search only matched store names, slugs and taglines."
+        [fix]="suggestions().length
+          ? 'Pick a suggestion below, use a shorter name, or browse every store.'
+          : 'Try a shorter name, check the spelling, or browse every store.'"
+        [suggestions]="suggestions()"
+        (suggestionSelected)="applySuggestion($event)"
+      >
+        <button mat-stroked-button type="button" (click)="clearAndSearch()">Search all stores</button>
+        <a mat-button routerLink="/support">Ask support</a>
+      </async-state-panel>
+    } @else {
+      <async-state-panel
+        kind="empty"
+        icon="storefront"
+        title="Partner stores are opening soon"
+        message="No partner has published a storefront yet."
+        reason="MarketSpase Store is new; storefronts appear here as partners open them."
+        fix="Open your own store now, or check back shortly."
+      >
+        <a mat-flat-button color="primary" [href]="platformUrl + '/partner/signup'">Open a store</a>
+        <a mat-button routerLink="/support">Contact support</a>
+      </async-state-panel>
+    }
   } @else {
     <div class="store-grid">
       @for (store of stores(); track store.slug) {

@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
 import { forkJoin, finalize } from 'rxjs';
+import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { StoreEarnings, StoreOrderSummary } from '../../../../core/store/store.models';
 import { StoreService } from '../../../../core/store/store.service';
@@ -27,6 +28,7 @@ type Filter = 'action' | 'delivered' | 'all';
     MatIconModule,
     MatInputModule,
     PageSkeletonComponent,
+    ErrorStateComponent,
     RouterModule,
   ],
 })
@@ -58,8 +60,11 @@ export class StoreOrdersComponent implements OnInit {
     this.load();
   }
 
-  protected setFilter(filter: Filter): void {
-    this.filter.set(filter);
+  protected reload(): void {
+    this.load();
+  }
+
+  protected setFilter(filter: Filter): void {    this.filter.set(filter);
   }
 
   protected draft(order: StoreOrderSummary): { courier: string; trackingNumber: string } {

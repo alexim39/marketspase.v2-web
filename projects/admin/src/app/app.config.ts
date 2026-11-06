@@ -6,11 +6,15 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { environment } from '../environments/environment';
 import { API_BASE_URL, AUTH_TOKEN_KEY } from './core/config/api-tokens';
+import { MS_SESSION_LOGIN_PATH } from '@marketspase/shared/core/config/api-tokens';
 import { routes } from './app.routes';
 import { credentialsInterceptor } from './core/http/credentials.interceptor';
 import { authTokenInterceptor } from './core/http/auth-token.interceptor';
 import { apiErrorInterceptor } from './core/http/api-error.interceptor';
 import { adminSessionScopeInterceptor } from './core/http/admin-session-scope.interceptor';
+import { httpCacheInterceptor } from '@marketspase/shared/core/http/http-cache.interceptor';
+import { networkStatusInterceptor } from '@marketspase/shared/core/http/network-status.interceptor';
+import { sessionExpiryInterceptor } from '@marketspase/shared/core/http/session-expiry.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,13 +25,17 @@ export const appConfig: ApplicationConfig = {
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { floatLabel: 'always' } },
     { provide: API_BASE_URL, useFactory: () => environment.apiUrl.replace(/\/+$/, '') },
     { provide: AUTH_TOKEN_KEY, useValue: 'ms_admin_session_token' },
+    { provide: MS_SESSION_LOGIN_PATH, useValue: '/signin' },
     provideHttpClient(
       withXhr(),
       withInterceptors([
         adminSessionScopeInterceptor,
         credentialsInterceptor,
         authTokenInterceptor,
+        httpCacheInterceptor,
+        networkStatusInterceptor,
         apiErrorInterceptor,
+        sessionExpiryInterceptor,
       ]),
     ),
   ],

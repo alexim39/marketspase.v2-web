@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
+import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
 import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { StatCardComponent } from '@marketspase/shared/ui/stat-card/stat-card.component';
@@ -17,7 +18,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, EmptyStateComponent, MatButtonModule, MatIconModule, PageHeaderComponent, PageSkeletonComponent, RouterModule, StatCardComponent],
+  imports: [DatePipe, DecimalPipe, EmptyStateComponent, ErrorStateComponent, MatButtonModule, MatIconModule, PageHeaderComponent, PageSkeletonComponent, RouterModule, StatCardComponent],
 })
 export class AdminDashboardComponent implements OnInit {
   private readonly admin = inject(AdminService);

@@ -11,17 +11,12 @@ import { OutboxService } from './outbox.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule],
   template: `
-    @if (!outbox.online()) {
-      <p class="offline-bar" role="status">
-        <mat-icon aria-hidden="true">cloud_off</mat-icon>
-        You're offline — reads still work, changes will sync.
-      </p>
-    } @else if (outbox.queued().length > 0 && !outbox.syncing()) {
+    @if (outbox.online() && outbox.queued().length > 0 && !outbox.syncing()) {
       <p class="offline-bar queued" role="status">
         <mat-icon aria-hidden="true">sync</mat-icon>
         {{ outbox.queued().length }} change{{ outbox.queued().length === 1 ? '' : 's' }} waiting to sync.
       </p>
-    } @else if (outbox.notice(); as note) {
+    } @else if (outbox.online() && outbox.notice(); as note) {
       <p class="offline-bar synced" role="status">{{ note }}</p>
     }
   `,

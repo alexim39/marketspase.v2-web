@@ -16,6 +16,7 @@ import { MyCompensation } from '../../../core/compensation/compensation.models';
 import { CampaignsService } from '../../../core/campaigns/campaigns.service';
 import { GrowthCampaign } from '../../../core/campaigns/campaigns.models';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
+import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
 import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { ApiError } from '../../../core/http/api-error';
@@ -29,7 +30,7 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
 @Component({
   selector: 'async-wallet-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, EmptyStateComponent, MatButtonModule, MatCardModule, MatIconModule, PageHeaderComponent, PageSkeletonComponent, RouterModule],
+  imports: [DatePipe, DecimalPipe, EmptyStateComponent, ErrorStateComponent, MatButtonModule, MatCardModule, MatIconModule, PageHeaderComponent, PageSkeletonComponent, RouterModule],
   template: `
     <section class="wallet-page">
       <async-page-header
@@ -45,10 +46,10 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
       }
 
       @if (error(); as err) {
-        <p class="error" role="alert">
-          {{ err }}
-          <button mat-button (click)="reload()">Retry</button>
-        </p>
+        <async-error-state [message]="err" context="your wallet">
+          <button mat-stroked-button type="button" (click)="reload()">Try again</button>
+          <a mat-button routerLink="/dashboard">Back to dashboard</a>
+        </async-error-state>
       }
 
       @if (!loading() && !error()) {
@@ -116,7 +117,13 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
           <a mat-button routerLink="/dashboard/wallet/history">View all</a>
         </div>
         @if (recent().length === 0) {
-          <async-empty-state icon="receipt_long" title="No wallet movements yet" message="Deposit funds to start funding campaigns and buying products." />
+          <async-empty-state
+            icon="receipt_long"
+            title="No wallet movements yet"
+            message="No money has moved through this wallet."
+            reason="No deposit, commission or campaign charge has been recorded."
+            next="Deposit funds or open a campaign to create the first entry."
+          />
         } @else {
           <ul class="tx-list">
             @for (tx of recent(); track tx.id) {

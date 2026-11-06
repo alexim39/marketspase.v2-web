@@ -1,15 +1,17 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
+import { ConnectionBannerComponent } from '@marketspase/shared/ui/connection-banner/connection-banner.component';
 import { FooterComponent } from './footer/footer.component';
 import { CookieConsentComponent } from './cookie-consent.component';
 import { SiteHeaderComponent } from './_common/components/site-header.component';
 
 @Component({
     selector: 'async-root',
-    imports: [RouterModule, FooterComponent, CookieConsentComponent, SiteHeaderComponent],
+    imports: [RouterModule, FooterComponent, CookieConsentComponent, SiteHeaderComponent, ConnectionBannerComponent],
     template: `
     <div id="container">
+      <async-connection-banner />
       <a class="skip-link" href="#main">Skip to content</a>
       <async-site-header />
       <main id="main">

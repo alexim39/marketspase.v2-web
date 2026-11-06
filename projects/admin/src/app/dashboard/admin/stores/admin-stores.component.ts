@@ -13,7 +13,8 @@ import { AdminStoreService } from '../../../core/store-admin/admin-store.service
 import { AdminStoreSummary } from '../../../core/store-admin/admin-store.models';
 import { ApiError, userError } from '../../../core/http/api-error';
 import { UiFeedbackService } from '../../../core/ui/ui-feedback.service';
-import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
+import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
+import { StatePanelComponent } from '@marketspase/shared/ui/state-panel/state-panel.component';
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -29,9 +30,10 @@ import { RouterModule } from '@angular/router';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    EmptyStateComponent,
+    ErrorStateComponent,
     PageSkeletonComponent,
     RouterModule,
+    StatePanelComponent,
   ],
 })
 export class AdminStoresComponent implements OnInit {
@@ -66,6 +68,12 @@ export class AdminStoresComponent implements OnInit {
 
   protected setStatus(status: 'all' | 'published' | 'draft' | 'suspended'): void {
     this.status.set(status);
+    this.load();
+  }
+
+  protected clearFilters(): void {
+    this.query = '';
+    this.status.set('all');
     this.load();
   }
 

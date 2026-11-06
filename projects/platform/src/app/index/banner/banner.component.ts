@@ -30,7 +30,7 @@ template: `
         aria-label="Chat with an admin on WhatsApp at 0808 038 6208"
       ><mat-icon aria-hidden="true">chat</mat-icon> Chat with an admin on WhatsApp</a>
     </p>
-    <div class="video-card">
+    <div class="video-card ms-lite-hide">
       <div class="video-frame">
         @if (showVideo()) {
           <iframe

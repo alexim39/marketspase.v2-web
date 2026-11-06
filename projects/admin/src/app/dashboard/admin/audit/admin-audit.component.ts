@@ -12,6 +12,7 @@ import { AdminService } from '../../../core/admin/admin.service';
 import { AuditEntry } from '../../../core/admin/admin.models';
 import { ApiError } from '../../../core/http/api-error';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
+import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
 import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 
@@ -62,7 +63,7 @@ const ACTIONS = [
 @Component({
   selector: 'async-admin-audit',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatTableModule, EmptyStateComponent, PageHeaderComponent, PageSkeletonComponent, RouterModule],
+  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatTableModule, EmptyStateComponent, ErrorStateComponent, PageHeaderComponent, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -97,10 +98,10 @@ const ACTIONS = [
       </div>
 
       @if (error(); as err) {
-        <p class="error" role="alert">
-          {{ err }}
-          <button mat-button (click)="reload()">Retry</button>
-        </p>
+        <async-error-state [message]="err" context="the audit log">
+          <button mat-stroked-button type="button" (click)="reload()">Try again</button>
+          <a mat-button routerLink="/dashboard">Back to dashboard</a>
+        </async-error-state>
       }
 
       @if (loading()) {
@@ -140,7 +141,15 @@ const ACTIONS = [
           <button mat-button (click)="page(1)" [disabled]="skip() + limit() >= total() || loading()">Next</button>
         </div>
       } @else if (!loading() && !error()) {
-        <async-empty-state icon="history" title="No audit entries yet" message="Admin decisions will appear here as your team works." />
+        <async-empty-state
+          icon="history"
+          title="No audit entries yet"
+          message="No admin decision has been recorded for these filters."
+          reason="No audited action matches this action or actor filter."
+          next="Clear the filters or check again after your team works."
+        >
+          <button mat-stroked-button type="button" (click)="clearFilters()">Clear filters</button>
+        </async-empty-state>
       }
     </section>
   `,
@@ -176,6 +185,13 @@ export class AdminAuditComponent implements OnInit {
   protected readonly displayedColumns = ['at', 'actor', 'action', 'target', 'detail'];
 
   ngOnInit(): void {
+    this.reload();
+  }
+
+  protected clearFilters(): void {
+    this.action.set('');
+    this.actorId.set('');
+    this.skip.set(0);
     this.reload();
   }
 

@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
+import { clearHttpCache } from '@marketspase/shared/core/http/http-cache.interceptor';
 import { AuthUser, ErasureScheduleResponse, ApiEnvelope, MeResponse, SigninRequest, SigninResponse, SignupRequest, SignupResponse, UserRole } from './auth.models';
 
 /** Canonical roles — absorbs legacy 'User'/'admin' casing; legacy G8 reads as Leader. */
@@ -118,6 +119,7 @@ export class AuthService {
         this.setToken(null);
         this.userSignal.set(null);
         this.hydrated = false;
+        clearHttpCache();
       }),
     );
   }

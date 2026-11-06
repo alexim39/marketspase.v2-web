@@ -3,6 +3,8 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { StoreOrder } from '../store.models';
 import { storeError, StoreService } from '../store.service';
 
@@ -11,7 +13,7 @@ import { storeError, StoreService } from '../store.service';
   templateUrl: './checkout-result.component.html',
   styleUrls: ['./checkout-result.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CurrencyPipe, DatePipe, MatIconModule, RouterModule],
+  imports: [CurrencyPipe, DatePipe, ErrorStateComponent, MatIconModule, PageSkeletonComponent, RouterModule],
 })
 export class StoreCheckoutResultComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

@@ -245,7 +245,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
             dobDatePicker: profileObject.dobDatePicker,
             address: profileObject.address,
           });
-          this.ui.success(response.message || 'Profile updated.');
+          this.ui.success(response.message || 'Profile updated. Your public page and team view now show the latest details.');
         },
         error: (error: HttpErrorResponse) => {
           this.ui.error(userError(error));
@@ -268,7 +268,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
             hobby: professionalForm.hobby,
             skill: professionalForm.skill,
           });
-          this.ui.success(response.message || 'Profile updated.');
+          this.ui.success(response.message || 'Profile updated. Your public page and team view now show the latest details.');
         },
         error: (error: HttpErrorResponse) => {
           this.ui.error(userError(error));
@@ -286,7 +286,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
 
         next: (response) => {
           this.refreshShared({ username: usernameObject.username });
-          this.ui.success(response.message || 'Profile updated.');
+          this.ui.success(response.message || 'Profile updated. Your public page and team view now show the latest details.');
         },
         error: (error: HttpErrorResponse) => {
           this.ui.error(userError(error));
@@ -303,7 +303,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
       this.profileService.changePassword(passwordObject).subscribe( {
 
         next: (response) => {
-          this.ui.success(response.message || 'Profile updated.');
+          this.ui.success(response.message || 'Profile updated. Your public page and team view now show the latest details.');
         },
         error: (error: HttpErrorResponse) => {
           this.ui.error(userError(error));

@@ -5,11 +5,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Router, RouterModule } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/auth/auth.service';
 import { SigninRequest } from '../../core/auth/auth.models';
 import { ApiError } from '../../core/http/api-error';
+import { SessionRecoveryService } from '@marketspase/shared/core/ui/session-recovery.service';
+import { StatePanelComponent } from '@marketspase/shared/ui/state-panel/state-panel.component';
 
 /**
  * @title Partner signin
@@ -22,10 +24,28 @@ import { ApiError } from '../../core/http/api-error';
 @Component({
   selector: 'async-partner-signin',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatProgressBarModule, ReactiveFormsModule, RouterModule],
+  imports: [MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatProgressBarModule, ReactiveFormsModule, RouterModule, StatePanelComponent],
   template: `
     <div class="page">
       <div class="login-panel dp-card">
+        @if (accessState(); as notice) {
+          <async-state-panel
+            [kind]="notice === 'expired' ? 'session' : 'permission'"
+            [compact]="true"
+            [title]="notice === 'expired' ? 'Your session expired' : 'This account needs a different role'"
+            [message]="notice === 'expired'
+              ? 'We saved the work on the page you were using.'
+              : 'The account signed in does not have permission for the page you requested.'"
+            [reason]="notice === 'expired'
+              ? 'Your secure sign-in window ended.'
+              : 'The page is protected by a role your account does not hold.'"
+            [fix]="notice === 'expired'
+              ? 'Sign in again and we will return you to the same page, with your saved work restored.'
+              : 'Sign in with a permitted account, or return to the dashboard.'"
+          >
+            <a mat-stroked-button routerLink="/">Go to dashboard</a>
+          </async-state-panel>
+        }
         @if (isSubmitting()) {
           <mat-progress-bar mode="indeterminate" class="auth-progress" aria-label="Signing you in"></mat-progress-bar>
         }
@@ -38,10 +58,10 @@ import { ApiError } from '../../core/http/api-error';
             <mat-label>Email address</mat-label>
             <input matInput type="email" formControlName="email" autocomplete="email" />
             @if (email?.hasError('email') && email?.touched) {
-              <mat-error>Email is invalid</mat-error>
+              <mat-error>Use a valid email, like ada@example.com.</mat-error>
             }
             @if (email?.hasError('required') && email?.touched) {
-              <mat-error>Email is required</mat-error>
+              <mat-error>Enter the email address you signed up with.</mat-error>
             }
           </mat-form-field>
 
@@ -49,7 +69,7 @@ import { ApiError } from '../../core/http/api-error';
             <mat-label>Enter your password</mat-label>
             <input matInput [type]="hide() ? 'password' : 'text'" formControlName="password" autocomplete="current-password" />
             @if (password?.hasError('required') && password?.touched) {
-              <mat-error>Password is required</mat-error>
+              <mat-error>Enter your password to continue.</mat-error>
             }
             <button mat-icon-button matSuffix type="button" (click)="hide.set(!hide())" [attr.aria-label]="hide() ? 'Show password' : 'Hide password'" [attr.aria-pressed]="hide()">
               <mat-icon>{{ hide() ? 'visibility_off' : 'visibility' }}</mat-icon>
@@ -122,6 +142,7 @@ import { ApiError } from '../../core/http/api-error';
       position: relative;
       overflow: hidden;
     }
+    .login-panel async-state-panel { text-align: left; margin-bottom: 1em; }
     .auth-progress {
       position: absolute;
       inset: 0 0 auto;
@@ -206,8 +227,10 @@ import { ApiError } from '../../core/http/api-error';
 })
 export class PartnerSigninComponent {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly recovery = inject(SessionRecoveryService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly hide = signal(true);
@@ -216,6 +239,11 @@ export class PartnerSigninComponent {
   protected readonly serverError = signal<string | null>(null);
   protected readonly info = signal<string | null>(null);
   protected readonly needsVerification = signal(false);
+  protected readonly accessState = signal<'expired' | 'permission' | null>(
+    this.route.snapshot.queryParamMap.get('reason') === 'expired'
+      ? 'expired'
+      : this.route.snapshot.queryParamMap.get('reason') === 'forbidden' ? 'permission' : null,
+  );
 
   protected readonly signInForm = this.fb.nonNullable.group({
     email: ['', [Validators.email, Validators.required]],
@@ -249,13 +277,22 @@ export class PartnerSigninComponent {
       .signin(credentials)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.router.navigateByUrl('dashboard'),
+        next: () => {
+          const target = this.returnUrl();
+          this.recovery.clearNotice();
+          void this.router.navigateByUrl(target).then(() => this.recovery.restorePending());
+        },
         error: (error: ApiError) => {
           this.isSubmitting.set(false);
           this.serverError.set(error.message);
           if (error.code === 'EMAIL_NOT_VERIFIED') this.needsVerification.set(true);
         },
       });
+  }
+
+  private returnUrl(): string {
+    const target = String(this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard');
+    return target.startsWith('/') && !target.startsWith('//') ? target : '/dashboard';
   }
 
   protected resendVerification(): void {

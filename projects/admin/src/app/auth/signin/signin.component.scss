@@ -145,6 +145,8 @@
   width: min(100%, 410px);
 }
 
+.form-wrap async-state-panel { text-align: left; margin-bottom: 1.1em; }
+
 .form-wrap h2 {
   margin: 0.22em 0 0.3em;
   font-size: clamp(1.8rem, 3vw, 2.4rem);

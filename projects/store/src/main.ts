@@ -10,6 +10,8 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { API_BASE_URL } from '@marketspase/shared/core/config/api-tokens';
 import { apiErrorInterceptor } from '@marketspase/shared/core/http/api-error.interceptor';
 import { credentialsInterceptor } from '@marketspase/shared/core/http/credentials.interceptor';
+import { httpCacheInterceptor } from '@marketspase/shared/core/http/http-cache.interceptor';
+import { networkStatusInterceptor } from '@marketspase/shared/core/http/network-status.interceptor';
 
 if (environment.production) {
   enableProdMode();
@@ -22,6 +24,11 @@ bootstrapApplication(AppComponent, {
     provideAnimations(),
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { floatLabel: 'always' } },
     { provide: API_BASE_URL, useFactory: () => environment.apiUrl.replace(/\/+$/, '') },
-    provideHttpClient(withXhr(), withInterceptors([credentialsInterceptor, apiErrorInterceptor])),
+    provideHttpClient(withXhr(), withInterceptors([
+      credentialsInterceptor,
+      httpCacheInterceptor,
+      networkStatusInterceptor,
+      apiErrorInterceptor,
+    ])),
   ]
 }).catch(err => console.error(err));

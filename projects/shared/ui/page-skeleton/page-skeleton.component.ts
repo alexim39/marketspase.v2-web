@@ -10,7 +10,8 @@ export type PageSkeletonLayout =
   | 'product'
   | 'form'
   | 'checkout'
-  | 'profile';
+  | 'profile'
+  | 'result';
 
 /**
  * Page-aware loading skeleton.
@@ -184,6 +185,20 @@ export type PageSkeletonLayout =
           </div>
         }
 
+        @case ('result') {
+          <div class="sk-result">
+            <span class="sk-avatar"></span>
+            <span class="sk-bar eyebrow"></span>
+            <span class="sk-bar title"></span>
+            <span class="sk-bar line"></span>
+            <span class="sk-bar line short"></span>
+            <div class="sk-result-grid">
+              @for (item of four(); track $index) { <span class="sk-summary-row"></span> }
+            </div>
+            <span class="sk-button"></span>
+          </div>
+        }
+
         @case ('profile') {
           <div class="sk-profile-card">
             <span class="sk-avatar"></span>
@@ -259,7 +274,7 @@ export type PageSkeletonLayout =
     .sk-bar, .sk-tile, .sk-shortcut, .sk-row, .sk-flow, .sk-field, .sk-button,
     .sk-table-head, .sk-table-row, .sk-media, .sk-hero, .sk-pill, .sk-pill-row,
     .sk-card, .sk-panel, .sk-avatar, .sk-accordion, .sk-summary-row,
-    .sk-product-media, .sk-profile-card, .sk-balance, .sk-stat, .sk-product {
+    .sk-product-media, .sk-profile-card, .sk-balance, .sk-stat, .sk-product, .sk-result {
       position: relative;
       overflow: hidden;
       background: var(--ms-surface-3);
@@ -269,7 +284,7 @@ export type PageSkeletonLayout =
     .sk-field::after, .sk-button::after, .sk-table-head::after, .sk-table-row::after,
     .sk-media::after, .sk-hero::after, .sk-pill::after, .sk-pill-row::after, .sk-card::after,
     .sk-avatar::after, .sk-accordion::after, .sk-summary-row::after, .sk-product-media::after,
-    .sk-product::after, .sk-balance::after, .sk-stat::after, .sk-profile-card::after {
+    .sk-product::after, .sk-balance::after, .sk-stat::after, .sk-profile-card::after, .sk-result::after {
       content: '';
       position: absolute;
       inset: 0;
@@ -343,6 +358,13 @@ export type PageSkeletonLayout =
     .sk-summary-row { height: 34px; background: var(--ms-surface-3); }
     .sk-summary-row.total { height: 44px; background: var(--ms-primary-soft); }
     .sk-profile-card { display: flex; align-items: center; gap: 16px; padding: 20px; background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); }
+    .sk-result { max-width: 720px; margin: 0 auto; padding: 34px 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-xl); }
+    .sk-result .sk-avatar { width: 64px; height: 64px; border-radius: 50%; }
+    .sk-result .sk-bar.title { width: min(440px, 72%); height: 32px; }
+    .sk-result .sk-bar.line { width: min(500px, 86%); }
+    .sk-result .sk-bar.line.short { width: min(340px, 58%); }
+    .sk-result-grid { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+    .sk-result .sk-button { margin-top: 8px; }
     .sk-profile-copy { flex: 1; display: flex; flex-direction: column; gap: 9px; }
     .sk-avatar { width: 64px; height: 64px; border-radius: 50%; flex: none; }
     .sk-avatar.small { width: 42px; height: 42px; }
@@ -357,7 +379,7 @@ export type PageSkeletonLayout =
       .sk-product-media { min-height: 240px; }
     }
     @media (max-width: 560px) {
-      .sk-stat-grid, .sk-form-grid, .sk-shortcut-grid { grid-template-columns: 1fr; }
+      .sk-stat-grid, .sk-form-grid, .sk-shortcut-grid, .sk-result-grid { grid-template-columns: 1fr; }
       .sk-bar.title { width: 82%; height: 32px; }
       .sk-hero { min-height: 240px; }
     }

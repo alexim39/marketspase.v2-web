@@ -25,7 +25,13 @@ export function toApiError(error: unknown): ApiError {
           ? body.message
           : error.status === 0
             ? 'Cannot reach the server. Check your connection.'
-            : 'Server error occurred, please try again.',
+            : error.status === 401
+              ? 'Your session expired. Sign in again.'
+              : error.status === 403
+                ? 'You do not have permission for this action.'
+                : error.status === 429
+                  ? 'Too many attempts. Wait a moment, then try again.'
+                  : 'Server error occurred, please try again.',
       ...(body.details !== undefined ? { details: body.details } : {}),
     };
   }
@@ -76,6 +82,10 @@ const NEXT_STEP_BY_CODE: Record<string, string> = {
   INSUFFICIENT_BALANCE: 'Fund your wallet from the Wallet page, then retry.',
   SMS_NOT_CONFIGURED: 'SMS sending is off right now — try email instead or contact support.',
   DEPOSITS_DISABLED: 'Deposits are unavailable right now — try again later.',
+  FORBIDDEN: 'Go back to your dashboard, or ask a MarketSpase admin for the role you need.',
+  UNAUTHORIZED: 'Sign in again. Your current page entries have been saved locally.',
+  SESSION_EXPIRED: 'Sign in again. We saved the work on this page before ending the session.',
+  RATE_LIMITED: 'Wait a minute, then try once more.',
 };
 
 const NEXT_STEP_BY_TEXT: Array<[RegExp, string]> = [

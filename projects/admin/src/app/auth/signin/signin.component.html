@@ -24,6 +24,24 @@
 
   <section class="form-panel">
     <div class="form-wrap">
+      @if (accessState(); as notice) {
+        <async-state-panel
+          [kind]="notice === 'expired' ? 'session' : 'permission'"
+          [compact]="true"
+          [title]="notice === 'expired' ? 'Your session expired' : 'Admin access needed'"
+          [message]="notice === 'expired'
+            ? 'We saved the work on the admin page you were using.'
+            : 'The signed-in account does not have admin access.'"
+          [reason]="notice === 'expired'
+            ? 'Your secure admin session ended.'
+            : 'The admin console is available only to accounts with the admin role.'"
+          [fix]="notice === 'expired'
+            ? 'Sign in again and we will return you to the same page, with your saved work restored.'
+            : 'Sign in with an admin account, or return to the partner platform.'"
+        >
+          <a mat-stroked-button [href]="platformUrl">Back to the platform</a>
+        </async-state-panel>
+      }
       <p class="eyebrow">Admin access</p>
       <h2>Sign in to continue.</h2>
       <p class="subtitle">Use your MarketSpase admin account. Partner and member accounts cannot open this console.</p>
@@ -39,14 +57,16 @@
       <form (ngSubmit)="submit()" novalidate>
         <mat-form-field appearance="outline">
           <mat-label>Email</mat-label>
-          <input matInput name="email" type="email" [(ngModel)]="email" autocomplete="username" required />
+          <input matInput #emailModel="ngModel" name="email" type="email" [(ngModel)]="email" autocomplete="username" required />
           <mat-icon matSuffix>mail_outline</mat-icon>
         </mat-form-field>
+        <async-field-error [control]="emailModel.control" label="email" />
 
         <mat-form-field appearance="outline">
           <mat-label>Password</mat-label>
           <input
             matInput
+            #passwordModel="ngModel"
             name="password"
             [type]="showPassword ? 'text' : 'password'"
             [(ngModel)]="password"
@@ -57,6 +77,7 @@
             <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
         </mat-form-field>
+        <async-field-error [control]="passwordModel.control" label="password" />
 
         <button mat-flat-button color="primary" class="submit" type="submit" [disabled]="loading() || !email.trim() || !password">
           {{ loading() ? 'Signing in…' : 'Sign in to admin' }}

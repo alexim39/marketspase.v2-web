@@ -9,6 +9,9 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { finalize } from 'rxjs';
 import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo.component';
+import { FieldErrorComponent } from '@marketspase/shared/ui/field-error/field-error.component';
+import { StatePanelComponent } from '@marketspase/shared/ui/state-panel/state-panel.component';
+import { SessionRecoveryService } from '@marketspase/shared/core/ui/session-recovery.service';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/auth/auth.service';
 import { ApiError, userError } from '../../core/http/api-error';
@@ -27,6 +30,8 @@ import { ApiError, userError } from '../../core/http/api-error';
     MatProgressBarModule,
     RouterModule,
     BrandLogoComponent,
+    FieldErrorComponent,
+    StatePanelComponent,
   ],
 })
 export class AdminSigninComponent implements OnInit {
@@ -37,15 +42,17 @@ export class AdminSigninComponent implements OnInit {
 
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly accessState = signal<'expired' | 'permission' | null>(null);
+  private readonly recovery = inject(SessionRecoveryService);
   protected readonly platformUrl = environment.platformUrl;
   protected email = '';
   protected password = '';
   protected showPassword = false;
 
   ngOnInit(): void {
-    if (this.route.snapshot.queryParamMap.get('reason') === 'forbidden') {
-      this.error.set('This account does not have admin access.');
-    }
+    const reason = this.route.snapshot.queryParamMap.get('reason');
+    if (reason === 'forbidden') this.accessState.set('permission');
+    if (reason === 'expired') this.accessState.set('expired');
     this.auth.resolve().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((ok) => {
       if (!ok) return;
       if (this.auth.isAdmin()) {
@@ -53,7 +60,7 @@ export class AdminSigninComponent implements OnInit {
         return;
       }
       this.auth.signOut().subscribe({ next: () => undefined, error: () => undefined });
-      this.error.set('This account does not have admin access.');
+      this.accessState.set('permission');
     });
   }
 
@@ -66,11 +73,13 @@ export class AdminSigninComponent implements OnInit {
       .subscribe({
         next: () => {
           if (this.auth.isAdmin()) {
-            void this.router.navigateByUrl(this.returnUrl());
+            const target = this.returnUrl();
+            this.recovery.clearNotice();
+            void this.router.navigateByUrl(target).then(() => this.recovery.restorePending());
             return;
           }
           this.auth.signOut().subscribe({ next: () => undefined, error: () => undefined });
-          this.error.set('This account does not have admin access.');
+          this.accessState.set('permission');
         },
         error: (err: ApiError) => this.error.set(userError(err)),
       });

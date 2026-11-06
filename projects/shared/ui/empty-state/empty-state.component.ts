@@ -13,6 +13,12 @@ import { MatIconModule } from '@angular/material/icon';
       @if (message()) {
         <p>{{ message() }}</p>
       }
+      @if (reason()) {
+        <p class="empty-detail"><strong>Why:</strong> {{ reason() }}</p>
+      }
+      @if (next()) {
+        <p class="empty-detail empty-next"><strong>Next:</strong> {{ next() }}</p>
+      }
       <ng-content />
     </div>
   `,
@@ -21,4 +27,6 @@ export class EmptyStateComponent {
   readonly icon = input<string>('inbox');
   readonly title = input.required<string>();
   readonly message = input<string>('');
+  readonly reason = input<string>('');
+  readonly next = input<string>('');
 }

@@ -18,9 +18,10 @@ import { UserRole } from '../../../core/auth/auth.models';
 import { MatDialog } from '@angular/material/dialog';
 import { Member360DialogComponent } from './member-360-dialog.component';
 import { AvatarComponent } from '../../../_common/avatar.component';
-import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
+import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
 import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
+import { StatePanelComponent } from '@marketspase/shared/ui/state-panel/state-panel.component';
 
 const ROLE_META: Record<UserRole, { label: string; color: string; text: string }> = {
   user: { label: 'Partner', color: '#e0e0e0', text: '#424242' },
@@ -41,7 +42,7 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
   imports: [
     DecimalPipe, FormsModule, MatTableModule, MatChipsModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatSelectModule, MatTooltipModule, RouterModule,
-    AvatarComponent, EmptyStateComponent, PageHeaderComponent, PageSkeletonComponent,
+    AvatarComponent, ErrorStateComponent, PageHeaderComponent, PageSkeletonComponent, StatePanelComponent,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -113,10 +114,10 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
       }
 
       @if (error(); as err) {
-        <p class="error" role="alert">
-          {{ err }}
-          <button mat-button (click)="reload()">Retry</button>
-        </p>
+        <async-error-state [message]="err" context="the partner directory">
+          <button mat-stroked-button type="button" (click)="reload()">Try again</button>
+          <button mat-button type="button" (click)="clearFilters()">Clear filters</button>
+        </async-error-state>
       }
 
       @if (loading()) {
@@ -244,7 +245,16 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
           <button mat-button (click)="page(1)" [disabled]="skip() + limit() >= total() || loading()">Next</button>
         </div>
       } @else if (!loading() && !error()) {
-        <async-empty-state icon="group_off" title="No partners found" message="Try clearing the filters or searching a different name." />
+        <async-state-panel
+          kind="search"
+          icon="group_off"
+          title="No partners match those filters"
+          message="We could not find a partner for this search."
+          reason="The name may be misspelled, or the role, status or activity filter may hide the account."
+          fix="Use a shorter name, check the spelling, or clear the filters."
+        >
+          <button mat-stroked-button type="button" (click)="clearFilters()">Clear filters</button>
+        </async-state-panel>
       }
     </section>
   `,

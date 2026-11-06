@@ -10,13 +10,14 @@ import { AdminSettlements, AdminStoreOrder } from '../../../core/store-admin/adm
 import { ApiError, userError } from '../../../core/http/api-error';
 import { UiFeedbackService } from '../../../core/ui/ui-feedback.service';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
+import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
 
 @Component({
   selector: 'async-admin-store-settlements',
   templateUrl: './admin-store-settlements.component.html',
   styleUrls: ['./admin-store-settlements.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CurrencyPipe, DatePipe, EmptyStateComponent, MatButtonModule, MatIconModule, PageSkeletonComponent, RouterModule],
+  imports: [CurrencyPipe, DatePipe, EmptyStateComponent, ErrorStateComponent, MatButtonModule, MatIconModule, PageSkeletonComponent, RouterModule],
 })
 export class AdminStoreSettlementsComponent implements OnInit {
   private readonly storeApi = inject(AdminStoreService);
@@ -32,8 +33,11 @@ export class AdminStoreSettlementsComponent implements OnInit {
     this.load();
   }
 
-  protected release(order: AdminStoreOrder): void {
-    if (this.busyId()) return;
+  protected reload(): void {
+    this.load();
+  }
+
+  protected release(order: AdminStoreOrder): void {    if (this.busyId()) return;
     if (!window.confirm(`Release ${this.money(order.amounts.partnerPending)} to ${order.store.name}?`)) return;
     this.busyId.set(order.id);
     this.error.set(null);

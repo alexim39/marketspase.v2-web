@@ -14,6 +14,8 @@ import { AdminSettlements, AdminStoreOrder } from '../../../core/store-admin/adm
 import { ApiError, userError } from '../../../core/http/api-error';
 import { UiFeedbackService } from '../../../core/ui/ui-feedback.service';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
+import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
+import { StatePanelComponent } from '@marketspase/shared/ui/state-panel/state-panel.component';
 
 @Component({
   selector: 'async-admin-store-orders',
@@ -29,8 +31,9 @@ import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-st
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    EmptyStateComponent,
+    ErrorStateComponent,
     PageSkeletonComponent,
+    StatePanelComponent,
   ],
 })
 export class AdminStoreOrdersComponent implements OnInit {
@@ -69,6 +72,12 @@ export class AdminStoreOrdersComponent implements OnInit {
 
   protected setStatus(status: string): void {
     this.status.set(status);
+    this.load();
+  }
+
+  protected clearFilters(): void {
+    this.query = '';
+    this.status.set('all');
     this.load();
   }
 

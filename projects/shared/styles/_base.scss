@@ -260,6 +260,24 @@ body {
   padding: 0 !important;
 }
 
+/* Lite mode: a real low-bandwidth path, not a fake toggle. */
+html[data-lite="true"] *,
+html[data-lite="true"] *::before,
+html[data-lite="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+html[data-lite="true"] video,
+html[data-lite="true"] iframe,
+html[data-lite="true"] .ms-lite-hide {
+  display: none !important;
+}
+html[data-lite="true"] .ms-lite-static {
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
 /* Accessible utility used by links/status text that need extra context. */
 .sr-only {
   position: absolute !important;
@@ -478,6 +496,8 @@ body {
 .ms-empty mat-icon { font-size: 34px; width: 34px; height: 34px; color: var(--ms-primary); }
 .ms-empty strong { color: var(--ms-text); font-family: var(--ms-font-display); font-size: 1.1rem; letter-spacing: -0.02em; }
 .ms-empty p { margin: 0; font-size: 0.86rem; line-height: 1.55; max-width: 36em; }
+.ms-empty .empty-detail { font-size: 0.82rem; }
+.ms-empty .empty-next { color: var(--ms-primary-strong); font-weight: 600; }
 
 /* Avatar + toolbar helpers */
 .ms-avatar {

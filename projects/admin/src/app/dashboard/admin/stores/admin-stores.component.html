@@ -11,7 +11,10 @@
   </header>
 
   @if (error(); as message) {
-    <p class="error" role="alert">{{ message }}</p>
+    <async-error-state [message]="message" context="the partner stores list">
+      <button mat-stroked-button type="button" (click)="search()">Try again</button>
+      <a mat-button routerLink="/dashboard">Back to dashboard</a>
+    </async-error-state>
   }
 
   <section class="stats-grid">
@@ -42,7 +45,16 @@
   @if (loading()) {
     <async-page-skeleton layout="cards" [rows]="4" label="partner stores" [showHeader]="false" />
   } @else if (stores().length === 0) {
-    <async-empty-state icon="storefront" title="No stores found" message="Try a different search or status." />
+    <async-state-panel
+      kind="search"
+      icon="search_off"
+      title="No stores match those filters"
+      message="We could not find a partner store for this search."
+      reason="The name may be misspelled, or the status filter may be hiding the store."
+      fix="Use a shorter name, clear the search, or switch status to All stores."
+    >
+      <button mat-stroked-button type="button" (click)="clearFilters()">Clear filters</button>
+    </async-state-panel>
   } @else {
     <div class="store-list">
       @for (store of stores(); track store.id) {

@@ -1,24 +1,18 @@
 <section class="result-page ms-store-page">
   @if (loading()) {
-    <div class="state-card">
-      <span class="spinner" aria-hidden="true"></span>
-      <h1>Confirming your payment…</h1>
-      <p>We’re checking with Paystack. This only takes a moment.</p>
-    </div>
+    <async-page-skeleton layout="result" [showHeader]="false" label="payment confirmation" />
   } @else if (!order()) {
-    <div class="state-card">
-      <mat-icon aria-hidden="true">error_outline</mat-icon>
-      <h1>We couldn’t confirm this payment</h1>
-      <p>{{ error() }}</p>
-      <div class="state-actions">
-        @if (reference) {
-          <button class="btn primary" type="button" (click)="verify()" [disabled]="checking()">
-            {{ checking() ? 'Checking…' : 'Check again' }}
-          </button>
-        }
-        <a class="btn ghost" routerLink="/support">Contact support</a>
-      </div>
-    </div>
+    <async-error-state
+      [message]="error() ?? 'We could not confirm this payment.'"
+      context="your payment confirmation"
+    >
+      @if (reference) {
+        <button class="btn primary" type="button" (click)="verify()" [disabled]="checking()">
+          {{ checking() ? 'Checking…' : 'Check again' }}
+        </button>
+      }
+      <a class="btn ghost" routerLink="/support">Contact support</a>
+    </async-error-state>
   } @else if (order(); as o) {
     <div class="result-card" [class.paid]="paid" [class.pending]="!paid && !refunded && o.status !== 'cancelled'" [class.cancelled]="o.status === 'cancelled'" [class.refunded]="refunded">
       <div class="result-icon">
@@ -65,6 +59,29 @@
         <div class="order-line muted"><span>Delivery</span><strong>{{ o.amounts.delivery | currency:'₦':'symbol':'1.0-0' }}</strong></div>
         <div class="order-line total"><span>Total</span><strong>{{ o.amounts.total | currency:'₦':'symbol':'1.0-0' }}</strong></div>
       </div>
+
+      <section class="next-steps" aria-label="What happens next">
+        <h2>What happens next</h2>
+        <ol>
+          @if (paid) {
+            <li><strong>{{ o.store.name }} confirms your order.</strong><span>The partner packs it and adds tracking details.</span></li>
+            <li><strong>You get delivery updates.</strong><span>Watch your email and the store page for dispatch information.</span></li>
+            <li><strong>Escrow releases after delivery.</strong><span>The return window must pass before the partner receives the money.</span></li>
+          } @else if (refunded) {
+            <li><strong>The refund was recorded.</strong><span>It returns to your original payment method.</span></li>
+            <li><strong>Your bank posts it.</strong><span>Card refunds usually take 3–5 business days.</span></li>
+            <li><strong>Still waiting?</strong><span>Contact support with order {{ o.orderNumber }}.</span></li>
+          } @else if (o.status === 'cancelled') {
+            <li><strong>No charge was completed.</strong><span>MarketSpase Store did not capture this payment.</span></li>
+            <li><strong>Your cart is still saved.</strong><span>You can return to checkout and try again.</span></li>
+            <li><strong>Need a hand?</strong><span>Contact support with reference {{ reference || o.orderNumber }}.</span></li>
+          } @else {
+            <li><strong>We are waiting for Paystack.</strong><span>Complete the payment window if it is still open.</span></li>
+            <li><strong>Then check again.</strong><span>This page will update when the payment is confirmed.</span></li>
+            <li><strong>Paid but still pending?</strong><span>Contact support with reference {{ reference || o.orderNumber }}.</span></li>
+          }
+        </ol>
+      </section>
 
       @if (!refunded) {
         <div class="delivery-card">

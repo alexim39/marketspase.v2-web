@@ -14,3 +14,9 @@ export const AUTH_TOKEN_KEY = new InjectionToken<string>('AUTH_TOKEN_KEY', {
   providedIn: 'root',
   factory: () => 'ms_session_token',
 });
+
+/** Route used when an authenticated session expires. */
+export const MS_SESSION_LOGIN_PATH = new InjectionToken<string>('MS_SESSION_LOGIN_PATH', {
+  providedIn: 'root',
+  factory: () => '/partner/signin',
+});

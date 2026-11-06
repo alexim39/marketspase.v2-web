@@ -21,7 +21,10 @@
   </header>
 
   @if (error(); as message) {
-    <p class="error" role="alert">{{ message }}</p>
+    <async-error-state [message]="message" context="your store orders">
+      <button mat-stroked-button type="button" (click)="reload()">Try again</button>
+      <a mat-button routerLink="/dashboard/products">Back to products</a>
+    </async-error-state>
   }
 
   @if (loading()) {
@@ -51,12 +54,12 @@
       </p>
     }
 
-    <div class="tabs" role="tablist" aria-label="Order filters">
-      <button type="button" [class.active]="filter() === 'action'" (click)="setFilter('action')">
+    <div class="tabs" role="group" aria-label="Order filters">
+      <button type="button" [class.active]="filter() === 'action'" [attr.aria-pressed]="filter() === 'action'" (click)="setFilter('action')">
         Needs action <span>{{ actionCount() }}</span>
       </button>
-      <button type="button" [class.active]="filter() === 'delivered'" (click)="setFilter('delivered')">Delivered</button>
-      <button type="button" [class.active]="filter() === 'all'" (click)="setFilter('all')">All orders</button>
+      <button type="button" [class.active]="filter() === 'delivered'" [attr.aria-pressed]="filter() === 'delivered'" (click)="setFilter('delivered')">Delivered</button>
+      <button type="button" [class.active]="filter() === 'all'" [attr.aria-pressed]="filter() === 'all'" (click)="setFilter('all')">All orders</button>
     </div>
 
     @if (visibleOrders().length === 0) {

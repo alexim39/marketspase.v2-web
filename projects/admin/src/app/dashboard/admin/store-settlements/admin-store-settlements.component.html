@@ -9,7 +9,10 @@
   </header>
 
   @if (error(); as message) {
-    <p class="error" role="alert">{{ message }}</p>
+    <async-error-state [message]="message" context="escrow and settlements">
+      <button mat-stroked-button type="button" (click)="reload()">Try again</button>
+      <a mat-button routerLink="/dashboard">Back to dashboard</a>
+    </async-error-state>
   }
 
   @if (loading()) {

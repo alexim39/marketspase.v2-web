@@ -68,7 +68,7 @@ instead of showing a generic progress bar or spinner.
 Available layouts:
 
 `dashboard`, `wallet`, `list`, `table`, `cards`, `storefront`, `product`,
-`form`, `checkout`, `profile`.
+`form`, `checkout`, `profile`, `result`.
 
 - Use `[showHeader]="false"` when the real page header is already visible and
   only the data region is loading.
@@ -77,17 +77,62 @@ Available layouts:
 - The skeleton has a status role and a visually hidden live label for assistive
   technology.
 
+## State language
+
+Every non-happy path answers **what happened, why, and what to do next**.
+
+- `async-state-panel` — one surface for empty, error, offline, permission,
+  session, search, slow and success states. Always include a reason and a next
+  step where the state is not self-explanatory.
+- `async-error-state` — rich inline error for a page or panel. Project a retry
+  or back action into the slot.
+- `async-empty-state` — lightweight empty content with a clear action.
+- `async-field-error` — inline validation under a Material field. Pass the
+  `AbstractControl`; it waits until the user has interacted, then names the
+  exact problem and how to fix it.
+- `async-connection-banner` — shared offline/slow/lite/cached surface.
+
+### Connectivity
+
+`NetworkStatusService` tracks real request activity and exposes offline, slow,
+progress and lite-mode state. `httpCacheInterceptor` keeps successful GET
+responses in session storage and serves them only when the network cannot
+reach the API; mutations, identity and payment endpoints are never cached.
+The banner explains what still works offline and offers a real lite mode.
+Lite mode disables animation/backdrop effects and hides heavy embeds marked
+with `.ms-lite-hide`.
+
+### Session recovery
+
+`sessionExpiryInterceptor` captures named form fields before redirecting an
+expired session to sign-in. `SessionRecoveryService` restores those values when
+the user returns to the same route after signing in. Passwords, payment fields
+and named sensitive values are never stored. The sign-in surface explains what
+was saved and why the session ended.
+
+### Forms
+
+All apps use `MAT_FORM_FIELD_DEFAULT_OPTIONS` with `floatLabel: 'always'` so
+labels never overlap programmatically filled values. Add `async-field-error`
+under required fields for precise, friendly corrections.
+
 ## Reusable UI
 
 `projects/shared/ui` contains:
 
 - `async-brand-logo`
 - `async-page-header`
+- shared shell navigation tokens
 - `async-stat-card`
 - `async-page-skeleton`
 - `async-progress-ring`
 - `async-status-chip`
 - `async-empty-state`
+- `async-state-panel`
+- `async-error-state`
+- `async-field-error`
+- `async-connection-banner`
 
-Use these before building a one-off card, header, status pill, empty state or
-loading screen.
+Use these before building a one-off card, header, status pill, empty state,
+error surface or loading screen.
+

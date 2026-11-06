@@ -24,6 +24,7 @@ import { CollectCodeComponent } from '../../contacts/manage/details/collect-code
 import { RateLeadDialogComponent } from './rate-lead-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
+import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
 import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { forkJoin, map, of, switchMap } from 'rxjs';
@@ -108,7 +109,7 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
   imports: [
     MatTableModule, MatChipsModule, MatButtonModule, MatCheckboxModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatPaginatorModule, MatTooltipModule,
-    MatSnackBarModule, EmptyStateComponent, PageHeaderComponent, PageSkeletonComponent, RouterModule,
+    MatSnackBarModule, EmptyStateComponent, ErrorStateComponent, PageHeaderComponent, PageSkeletonComponent, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -227,17 +228,19 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
       }
 
       @if (error(); as err) {
-        <p class="error" role="alert">
-          {{ err }}
-          <button mat-button (click)="reload()">Retry</button>
-        </p>
+        <async-error-state [message]="err" context="your lead pipeline">
+          <button mat-stroked-button type="button" (click)="reload()">Try again</button>
+          <a mat-button routerLink="/dashboard">Back to dashboard</a>
+        </async-error-state>
       }
 
       @if (!loading() && filtered().length === 0 && !error()) {
         <async-empty-state
           icon="person_search"
           title="No leads yet"
-          message="Add prospects to start building your pipeline and moving them toward conversion."
+          message="Your pipeline has no leads yet."
+          reason="No prospect has been added, or the current filter hides them."
+          next="Add a prospect or import a CSV to start building the pipeline."
         >
           <a mat-flat-button color="primary" routerLink="/dashboard/tools/contacts/new">Add prospect</a>
         </async-empty-state>

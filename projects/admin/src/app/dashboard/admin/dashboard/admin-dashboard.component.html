@@ -10,7 +10,9 @@
   </async-page-header>
 
   @if (error(); as message) {
-    <p class="error" role="alert">{{ message }}</p>
+    <async-error-state [message]="message" context="the command centre">
+      <button mat-stroked-button type="button" (click)="reload()">Try again</button>
+    </async-error-state>
   }
 
   @if (loading()) {
