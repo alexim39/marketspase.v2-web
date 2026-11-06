@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
@@ -14,6 +13,7 @@ import { AuditEntry } from '../../../core/admin/admin.models';
 import { ApiError } from '../../../core/http/api-error';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
 import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 
 const ACTIONS = [
   'role.set',
@@ -62,7 +62,7 @@ const ACTIONS = [
 @Component({
   selector: 'async-admin-audit',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatTableModule, EmptyStateComponent, PageHeaderComponent, RouterModule],
+  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatTableModule, EmptyStateComponent, PageHeaderComponent, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -94,9 +94,6 @@ const ACTIONS = [
           <input matInput [value]="actorId()" (input)="actorId.set($any($event.target).value.trim())" placeholder="Filter by admin id" />
         </mat-form-field>
         <button mat-button (click)="skip.set(0); reload()">Apply</button>
-        @if (loading()) {
-          <mat-progress-bar mode="indeterminate" class="loader" aria-label="Loading" />
-        }
       </div>
 
       @if (error(); as err) {
@@ -106,7 +103,11 @@ const ACTIONS = [
         </p>
       }
 
-      @if (rows().length > 0) {
+      @if (loading()) {
+        <async-page-skeleton layout="table" [rows]="6" label="audit log" [showHeader]="false" />
+      }
+
+      @if (rows().length > 0 && !loading()) {
         <div class="table-wrap">
           <table mat-table [dataSource]="rows()" class="mat-elevation-z2">
             <ng-container matColumnDef="at">
@@ -149,7 +150,6 @@ const ACTIONS = [
     .queue-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
     .toolbar { display: flex; gap: 0.75em; align-items: center; flex-wrap: wrap; }
     .toolbar mat-form-field { min-width: 200px; }
-    .loader { flex: 2; min-width: 120px; }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
     .mono { font-family: ui-monospace, monospace; font-size: 0.85em; }

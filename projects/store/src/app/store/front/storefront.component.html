@@ -1,6 +1,6 @@
 <section class="storefront-page">
   @if (loading()) {
-    <div class="ms-store-page loading-state" aria-label="Loading store">
+    <div class="ms-store-page loading-state" role="status" aria-label="Loading store">
       <div class="skeleton hero-skeleton"></div>
       <div class="product-grid">
         @for (placeholder of [1, 2, 3, 4]; track placeholder) {

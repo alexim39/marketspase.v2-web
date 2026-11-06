@@ -7,7 +7,6 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -21,6 +20,7 @@ import { Member360DialogComponent } from './member-360-dialog.component';
 import { AvatarComponent } from '../../../_common/avatar.component';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
 import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 
 const ROLE_META: Record<UserRole, { label: string; color: string; text: string }> = {
   user: { label: 'Partner', color: '#e0e0e0', text: '#424242' },
@@ -40,8 +40,8 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DecimalPipe, FormsModule, MatTableModule, MatChipsModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatTooltipModule, RouterModule,
-    AvatarComponent, EmptyStateComponent, PageHeaderComponent,
+    MatFormFieldModule, MatInputModule, MatSelectModule, MatTooltipModule, RouterModule,
+    AvatarComponent, EmptyStateComponent, PageHeaderComponent, PageSkeletonComponent,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -99,9 +99,6 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
         @if (hasFilters()) {
           <button mat-button (click)="clearFilters()">Clear</button>
         }
-        @if (loading()) {
-          <mat-progress-bar mode="indeterminate" class="loader" aria-label="Loading" />
-        }
       </div>
 
       @if (stats(); as s) {
@@ -122,7 +119,11 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
         </p>
       }
 
-      @if (rows().length > 0) {
+      @if (loading()) {
+        <async-page-skeleton layout="table" [rows]="6" label="partners" [showHeader]="false" />
+      }
+
+      @if (rows().length > 0 && !loading()) {
         <div class="table-wrap">
           <table mat-table [dataSource]="rows()" class="mat-elevation-z2">
             <ng-container matColumnDef="name">
@@ -254,7 +255,6 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
     .notice { color: var(--ms-success); }
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
     .toolbar mat-form-field { flex: 1; min-width: 220px; }
-    .loader { flex: 2; min-width: 120px; }
     .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6em; }
     .stat { display: flex; flex-direction: column; gap: 0.1em; padding: 0.7em 0.9em; }
     .stat-value { font-size: 1.4em; font-weight: 700; }

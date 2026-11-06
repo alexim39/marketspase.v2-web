@@ -25,7 +25,7 @@
   }
 
   @if (loading()) {
-    <mat-progress-bar mode="indeterminate" aria-label="Loading store orders" />
+    <async-page-skeleton layout="list" [rows]="4" label="store orders" [showHeader]="false" />
   } @else {
     @if (earnings(); as e) {
       <section class="earnings-grid">

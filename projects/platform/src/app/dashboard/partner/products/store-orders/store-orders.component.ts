@@ -4,9 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { forkJoin, finalize } from 'rxjs';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { StoreEarnings, StoreOrderSummary } from '../../../../core/store/store.models';
 import { StoreService } from '../../../../core/store/store.service';
 import { ApiError, userError } from '../../../../core/http/api-error';
@@ -26,7 +26,7 @@ type Filter = 'action' | 'delivered' | 'all';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatProgressBarModule,
+    PageSkeletonComponent,
     RouterModule,
   ],
 })

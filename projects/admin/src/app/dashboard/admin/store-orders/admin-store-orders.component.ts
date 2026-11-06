@@ -5,14 +5,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { finalize, forkJoin } from 'rxjs';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { environment } from '../../../../environments/environment';
 import { AdminStoreService } from '../../../core/store-admin/admin-store.service';
 import { AdminSettlements, AdminStoreOrder } from '../../../core/store-admin/admin-store.models';
 import { ApiError, userError } from '../../../core/http/api-error';
 import { UiFeedbackService } from '../../../core/ui/ui-feedback.service';
+import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
 
 @Component({
   selector: 'async-admin-store-orders',
@@ -27,8 +28,9 @@ import { UiFeedbackService } from '../../../core/ui/ui-feedback.service';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatProgressBarModule,
     MatSelectModule,
+    EmptyStateComponent,
+    PageSkeletonComponent,
   ],
 })
 export class AdminStoreOrdersComponent implements OnInit {

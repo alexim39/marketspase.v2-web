@@ -4,7 +4,6 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { catchError, forkJoin, of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -18,6 +17,7 @@ import { CampaignsService } from '../../../core/campaigns/campaigns.service';
 import { GrowthCampaign } from '../../../core/campaigns/campaigns.models';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
 import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { ApiError } from '../../../core/http/api-error';
 import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/format/money';
 
@@ -29,7 +29,7 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
 @Component({
   selector: 'async-wallet-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, EmptyStateComponent, MatButtonModule, MatCardModule, MatIconModule, MatProgressBarModule, PageHeaderComponent, RouterModule],
+  imports: [DatePipe, DecimalPipe, EmptyStateComponent, MatButtonModule, MatCardModule, MatIconModule, PageHeaderComponent, PageSkeletonComponent, RouterModule],
   template: `
     <section class="wallet-page">
       <async-page-header
@@ -38,11 +38,10 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
         subtitle="Available balance, commissions, campaign budget held and every movement in one place."
       >
         <a mat-flat-button color="primary" routerLink="/dashboard/wallet/deposit"><mat-icon>add_card</mat-icon> Deposit</a>
-        <a mat-stroked-button routerLink="/dashboard/settings/billing">Withdraw</a>
       </async-page-header>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="wallet" [rows]="3" label="wallet" [showHeader]="false" />
       }
 
       @if (error(); as err) {
@@ -52,6 +51,7 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
         </p>
       }
 
+      @if (!loading() && !error()) {
       <!-- Balance hero -->
       <div class="balance-hero">
         <div class="balance-main">
@@ -75,12 +75,11 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
         </div>
       </div>
 
-      <!-- Primary actions -->
+      <!-- Money tools -->
       <div class="dp-card actions-card">
-        <h2>Do something with it</h2>
+        <h2>Money tools</h2>
         <div class="actions-row">
-          <a mat-flat-button color="primary" routerLink="/dashboard/wallet/deposit"><mat-icon>add_card</mat-icon> Deposit funds</a>
-          <a mat-button routerLink="/dashboard/settings/billing"><mat-icon>account_balance</mat-icon> Withdraw</a>
+          <a mat-stroked-button routerLink="/dashboard/settings/billing"><mat-icon>account_balance</mat-icon> Withdraw</a>
           <a mat-button routerLink="/dashboard/compensation"><mat-icon>workspace_premium</mat-icon> Commissions</a>
           <a mat-button routerLink="/dashboard/wallet/history"><mat-icon>history</mat-icon> Full history</a>
         </div>
@@ -135,6 +134,7 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
           </ul>
         }
       </div>
+      }
     </section>
   `,
   styles: [`

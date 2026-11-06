@@ -3,20 +3,29 @@ html, body { height: 100%; }
 body {
   margin: 0;
   font-family: var(--ms-font-sans);
+  font-size: 1rem;
+  font-weight: 450;
+  line-height: var(--ms-leading-body);
   background: var(--ms-canvas);
   color: var(--ms-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  font-feature-settings: 'ss01' 1, 'cv11' 1;
 }
 
 /* - Global type & motion - */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--ms-font-sans);
-  letter-spacing: -0.02em;
-  line-height: 1.18;
+  font-family: var(--ms-font-display);
+  font-weight: 700;
+  letter-spacing: var(--ms-tracking-display);
+  line-height: var(--ms-leading-tight);
 }
-p { line-height: 1.6; }
+h1 { font-size: var(--ms-display-md); }
+h2 { font-size: var(--ms-display-sm); }
+h3 { font-size: var(--ms-text-xl); letter-spacing: -0.025em; }
+h4 { font-size: var(--ms-text-lg); letter-spacing: -0.02em; }
+p { line-height: var(--ms-leading-body); }
 a { color: var(--ms-primary-strong); }
 ::selection { background: color-mix(in srgb, var(--ms-primary) 28%, transparent); }
 
@@ -76,12 +85,13 @@ a { color: var(--ms-primary-strong); }
 .mat-mdc-unelevated-button,
 .mat-mdc-outlined-button,
 .mat-mdc-raised-button {
-  border-radius: 12px !important;
-  font-weight: 600;
-  letter-spacing: 0;
-  --mdc-text-button-label-text-weight: 600;
-  --mdc-filled-button-label-text-weight: 600;
-  --mdc-outlined-button-label-text-weight: 600;
+  border-radius: 14px !important;
+  font-family: var(--ms-font-sans);
+  font-weight: 650;
+  letter-spacing: 0.005em;
+  --mdc-text-button-label-text-weight: 650;
+  --mdc-filled-button-label-text-weight: 650;
+  --mdc-outlined-button-label-text-weight: 650;
 }
 .mat-mdc-button-base mat-icon { font-size: 20px; height: 20px; width: 20px; }
 
@@ -96,11 +106,12 @@ html[data-theme="light"] .mat-mdc-mini-fab.mat-primary {
 }
 
 .mat-mdc-form-field {
-  --mdc-outlined-text-field-container-shape: 12px;
-  --mdc-filled-text-field-container-shape: 12px;
+  --mdc-outlined-text-field-container-shape: 14px;
+  --mdc-filled-text-field-container-shape: 14px;
   --mdc-outlined-text-field-outline-color: var(--ms-line);
   --mdc-outlined-text-field-label-text-color: var(--ms-text-muted);
   --mdc-outlined-text-field-input-text-color: var(--ms-text);
+  font-family: var(--ms-font-sans);
 }
 
 .mat-mdc-dialog-surface,
@@ -249,6 +260,19 @@ body {
   padding: 0 !important;
 }
 
+/* Accessible utility used by links/status text that need extra context. */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 /* Brand utilities for feature pages (both themes). */
 .dp-muted { color: var(--ms-text-muted); }
 /* Shell brand lockups sit flush; the standalone logo keeps its public offset. */
@@ -293,27 +317,30 @@ body {
 }
 .ms-page-head > div:first-child { min-width: 0; }
 .ms-eyebrow {
-  margin: 0 0 5px;
+  margin: 0 0 6px;
   color: var(--ms-primary-strong);
-  font-size: 0.7rem;
+  font-family: var(--ms-font-sans);
+  font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--ms-tracking-label);
   text-transform: uppercase;
 }
 .ms-page-title {
   margin: 0;
-  font-size: clamp(1.7rem, 3.1vw, 2.35rem);
-  line-height: 1.08;
-  letter-spacing: -0.035em;
-  font-weight: 750;
+  font-family: var(--ms-font-display);
+  font-size: var(--ms-display-sm);
+  line-height: var(--ms-leading-tight);
+  letter-spacing: var(--ms-tracking-display);
+  font-weight: 720;
   color: var(--ms-text);
+  text-wrap: balance;
 }
 .ms-subtitle {
-  margin: 7px 0 0;
+  margin: 8px 0 0;
   max-width: 52em;
   color: var(--ms-text-muted);
-  font-size: 0.9rem;
-  line-height: 1.6;
+  font-size: 0.92rem;
+  line-height: var(--ms-leading-body);
 }
 .ms-head-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ms-section { margin-top: 22px; }
@@ -325,9 +352,9 @@ body {
   flex-wrap: wrap;
   margin-bottom: 12px;
 }
-.ms-section-title { margin: 0; font-size: 1.08rem; font-weight: 700; letter-spacing: -0.015em; }
+.ms-section-title { margin: 0; font-family: var(--ms-font-display); font-size: 1.18rem; font-weight: 700; letter-spacing: -0.025em; }
 .ms-section-sub { margin: 4px 0 0; color: var(--ms-text-muted); font-size: 0.82rem; line-height: 1.5; }
-.ms-text-link { color: var(--ms-primary-strong); font-weight: 650; text-decoration: none; font-size: 0.82rem; }
+.ms-text-link { color: var(--ms-primary-strong); font-weight: 700; text-decoration: none; font-size: 0.82rem; }
 .ms-text-link:hover { text-decoration: underline; }
 
 /* KPI cards: label + number on the left, tinted icon tile on the right. */
@@ -363,10 +390,11 @@ body {
   text-transform: uppercase;
 }
 .ms-stat-value {
-  font-size: clamp(1.55rem, 2.4vw, 2rem);
-  line-height: 1.1;
-  font-weight: 750;
-  letter-spacing: -0.035em;
+  font-family: var(--ms-font-display);
+  font-size: clamp(1.65rem, 2.5vw, 2.15rem);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.04em;
   color: var(--ms-text);
   font-variant-numeric: tabular-nums;
 }
@@ -414,8 +442,8 @@ body {
 }
 .ms-list-icon mat-icon { font-size: 21px; width: 21px; height: 21px; }
 .ms-list-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.ms-list-title { font-size: 0.88rem; font-weight: 650; color: var(--ms-text); }
-.ms-list-meta { font-size: 0.74rem; color: var(--ms-text-muted); line-height: 1.4; }
+.ms-list-title { font-size: 0.9rem; font-weight: 700; color: var(--ms-text); }
+.ms-list-meta { font-size: 0.76rem; color: var(--ms-text-muted); line-height: 1.45; }
 .ms-list-end { flex: none; display: flex; align-items: center; gap: 10px; color: var(--ms-text-muted); }
 
 .ms-chip {
@@ -448,8 +476,8 @@ body {
   color: var(--ms-text-muted);
 }
 .ms-empty mat-icon { font-size: 34px; width: 34px; height: 34px; color: var(--ms-primary); }
-.ms-empty strong { color: var(--ms-text); font-size: 0.95rem; }
-.ms-empty p { margin: 0; font-size: 0.82rem; line-height: 1.5; max-width: 36em; }
+.ms-empty strong { color: var(--ms-text); font-family: var(--ms-font-display); font-size: 1.1rem; letter-spacing: -0.02em; }
+.ms-empty p { margin: 0; font-size: 0.86rem; line-height: 1.55; max-width: 36em; }
 
 /* Avatar + toolbar helpers */
 .ms-avatar {

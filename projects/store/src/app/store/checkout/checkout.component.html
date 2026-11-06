@@ -55,9 +55,15 @@
               <mat-label>State</mat-label>
               <input matInput name="state" [(ngModel)]="form.state" required minlength="2" maxlength="120" autocomplete="address-level1" placeholder="Rivers" />
             </mat-form-field>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field" floatLabel="always">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field">
               <mat-label>Country</mat-label>
-              <input matInput name="country" [(ngModel)]="form.country" maxlength="80" autocomplete="country-name" />
+              <mat-select name="country" [(ngModel)]="form.country">
+                <mat-option value="Nigeria">Nigeria</mat-option>
+                <mat-option value="Ghana">Ghana</mat-option>
+                <mat-option value="Kenya">Kenya</mat-option>
+                <mat-option value="South Africa">South Africa</mat-option>
+                <mat-option value="Other">Other</mat-option>
+              </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field">
               <mat-label>Order note (optional)</mat-label>

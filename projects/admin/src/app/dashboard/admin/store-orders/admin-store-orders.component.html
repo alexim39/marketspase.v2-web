@@ -65,11 +65,9 @@
   </div>
 
   @if (loading()) {
-    <mat-progress-bar mode="indeterminate" aria-label="Loading store orders" />
-  }
-
-  @if (orders().length === 0 && !loading()) {
-    <section class="dp-card empty"><mat-icon>receipt_long</mat-icon><h2>No store orders found</h2><p>Try a different filter or search.</p></section>
+    <async-page-skeleton layout="list" [rows]="4" label="store orders" [showHeader]="false" />
+  } @else if (orders().length === 0) {
+    <async-empty-state icon="receipt_long" title="No store orders found" message="Try a different filter or search." />
   } @else {
     <div class="order-list">
       @for (order of orders(); track order.id) {

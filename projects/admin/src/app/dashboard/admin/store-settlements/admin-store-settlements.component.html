@@ -13,8 +13,8 @@
   }
 
   @if (loading()) {
-    <mat-progress-bar mode="indeterminate" aria-label="Loading settlements" />
-  }
+    <async-page-skeleton layout="list" [rows]="4" label="settlements" [showHeader]="false" />
+  } @else {
 
   @if (summary(); as s) {
     <section class="stats-grid">
@@ -33,7 +33,7 @@
     </div>
 
     @if (heldOrders().length === 0) {
-      <div class="empty"><mat-icon>verified</mat-icon><p>No delivered orders are waiting for release.</p></div>
+      <async-empty-state icon="verified" title="No delivered orders waiting" message="Delivered orders appear here until their escrow is released." />
     } @else {
       <div class="settlement-list">
         @for (order of heldOrders(); track order.id) {
@@ -56,4 +56,5 @@
       </div>
     }
   </section>
+  }
 </section>

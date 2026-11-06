@@ -14,8 +14,8 @@
   }
 
   @if (loading()) {
-    <mat-progress-bar mode="indeterminate" aria-label="Loading platform overview" />
-  }
+    <async-page-skeleton layout="dashboard" [rows]="4" label="command centre" [showHeader]="false" />
+  } @else {
 
   @if (stats(); as s) {
     <section class="ms-stat-grid">
@@ -76,4 +76,5 @@
     <p>Every admin action is server-authorized, audited and reversible where the domain allows it. Money changes are explicit, never silent.</p>
     <a mat-flat-button color="primary" routerLink="/audit">Inspect audit trail</a>
   </section>
+  }
 </section>

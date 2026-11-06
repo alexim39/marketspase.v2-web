@@ -5,7 +5,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import { AnalyticsService } from '../../core/analytics/analytics.service';
@@ -28,6 +27,7 @@ import { MyCompensation } from '../../core/compensation/compensation.models';
 import { StoreService } from '../../core/store/store.service';
 import { StoreEarnings } from '../../core/store/store.models';
 import { ProgressRingComponent } from '@marketspase/shared/ui/progress-ring/progress-ring.component';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { FeedPost } from '../../core/community/community.models';
 import { Journey } from '../../core/progression/progression.models';
 import { ApiError } from '../../core/http/api-error';
@@ -55,7 +55,7 @@ interface ActivityItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AvatarComponent, DatePipe, DecimalPipe, MatButtonModule, MatCardModule, MatChipsModule,
-    MatIconModule, MatProgressBarModule, RouterModule, ProgressRingComponent,
+    MatIconModule, RouterModule, ProgressRingComponent, PageSkeletonComponent,
   ],
   template: `
     <section class="home-page">
@@ -273,7 +273,7 @@ interface ActivityItem {
                 <span>{{ item.label }}</span>
                 <span class="spacer"></span>
                 @if (!item.done) {
-                  <a mat-button [routerLink]="item.link">Start</a>
+                  <a mat-button [routerLink]="item.link">Start<span class="sr-only"> {{ item.label }}</span></a>
                 }
               </li>
             }
@@ -282,7 +282,7 @@ interface ActivityItem {
       }
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="dashboard" [rows]="3" label="dashboard details" [showHeader]="false" />
       }
 
       @if (error(); as err) {

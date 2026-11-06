@@ -39,8 +39,8 @@
   /* Shape, elevation, spacing */
   --ms-radius-sm: 8px;
   --ms-radius-md: 12px;
-  --ms-radius-lg: 16px;
-  --ms-radius-xl: 24px;
+  --ms-radius-lg: 18px;
+  --ms-radius-xl: 26px;
   --ms-radius-pill: 999px;
   --ms-shadow-sm: 0 1px 2px rgba(18, 19, 26, 0.04);
   --ms-shadow-md: 0 12px 32px rgba(18, 19, 26, 0.08);
@@ -54,10 +54,26 @@
   --ms-space-6: 24px;
   --ms-space-7: 32px;
   --ms-space-8: 40px;
+  --ms-space-9: 56px;
+  --ms-space-10: 72px;
 
-  /* Type + brand gradient */
-  --ms-font-sans: 'Inter Variable', 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  --ms-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  /* Type system: characterful display + highly legible geometric UI face. */
+  --ms-font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', 'Manrope Variable', 'Segoe UI', sans-serif;
+  --ms-font-sans: 'Manrope Variable', 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --ms-font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --ms-text-2xs: 0.68rem;
+  --ms-text-xs: 0.75rem;
+  --ms-text-sm: 0.82rem;
+  --ms-text-md: 0.95rem;
+  --ms-text-lg: 1.08rem;
+  --ms-text-xl: 1.3rem;
+  --ms-display-sm: clamp(1.8rem, 3vw, 2.4rem);
+  --ms-display-md: clamp(2.2rem, 4.4vw, 3.4rem);
+  --ms-display-lg: clamp(2.6rem, 6vw, 4.6rem);
+  --ms-leading-tight: 1.02;
+  --ms-leading-body: 1.62;
+  --ms-tracking-display: -0.045em;
+  --ms-tracking-label: 0.16em;
   --ms-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 62%, #a855f7 100%);
   --ms-gradient-soft: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.08));
 
@@ -90,7 +106,7 @@
   --dp-cream: var(--ms-surface-3);
   --dp-error: var(--ms-error);
   --dp-error-bg: var(--ms-error-soft);
-  --dp-font-display: var(--ms-font-sans);
+  --dp-font-display: var(--ms-font-display);
   --dp-font-body: var(--ms-font-sans);
 
   color-scheme: light;
@@ -134,8 +150,8 @@ html[data-theme="dark"] {
 
   --ms-radius-sm: 8px;
   --ms-radius-md: 12px;
-  --ms-radius-lg: 16px;
-  --ms-radius-xl: 24px;
+  --ms-radius-lg: 18px;
+  --ms-radius-xl: 26px;
   --ms-radius-pill: 999px;
   --ms-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --ms-shadow-md: 0 14px 36px rgba(0, 0, 0, 0.5);
@@ -149,9 +165,12 @@ html[data-theme="dark"] {
   --ms-space-6: 24px;
   --ms-space-7: 32px;
   --ms-space-8: 40px;
+  --ms-space-9: 56px;
+  --ms-space-10: 72px;
 
-  --ms-font-sans: 'Inter Variable', 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  --ms-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --ms-font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', 'Manrope Variable', 'Segoe UI', sans-serif;
+  --ms-font-sans: 'Manrope Variable', 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --ms-font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --ms-gradient: linear-gradient(135deg, #818cf8 0%, #a78bfa 62%, #e879f9 100%);
   --ms-gradient-soft: linear-gradient(135deg, rgba(129, 140, 248, 0.16), rgba(167, 139, 250, 0.1));
 

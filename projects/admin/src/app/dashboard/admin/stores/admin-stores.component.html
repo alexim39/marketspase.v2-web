@@ -40,11 +40,9 @@
   </div>
 
   @if (loading()) {
-    <mat-progress-bar mode="indeterminate" aria-label="Loading stores" />
-  }
-
-  @if (stores().length === 0 && !loading()) {
-    <section class="dp-card empty"><mat-icon>storefront</mat-icon><h2>No stores found</h2><p>Try a different search or status.</p></section>
+    <async-page-skeleton layout="cards" [rows]="4" label="partner stores" [showHeader]="false" />
+  } @else if (stores().length === 0) {
+    <async-empty-state icon="storefront" title="No stores found" message="Try a different search or status." />
   } @else {
     <div class="store-list">
       @for (store of stores(); track store.id) {

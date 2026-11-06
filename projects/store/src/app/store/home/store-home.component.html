@@ -50,7 +50,7 @@
     </div>
 
     @if (loading()) {
-      <div class="store-grid" aria-label="Loading stores">
+      <div class="store-grid" role="status" aria-label="Loading stores">
         @for (placeholder of [1, 2, 3]; track placeholder) {
           <div class="store-card skeleton-card" aria-hidden="true">
             <div class="skeleton skeleton-banner"></div>

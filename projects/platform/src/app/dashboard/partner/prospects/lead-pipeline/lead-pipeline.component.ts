@@ -1,13 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -27,6 +25,7 @@ import { RateLeadDialogComponent } from './rate-lead-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
 import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { forkJoin, map, of, switchMap } from 'rxjs';
 
 /**
@@ -107,9 +106,9 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
   selector: 'async-lead-pipeline',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTableModule, MatChipsModule, MatButtonModule, MatButtonToggleModule, MatCheckboxModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatProgressBarModule, MatPaginatorModule, MatTooltipModule,
-    MatSnackBarModule, EmptyStateComponent, PageHeaderComponent, RouterModule,
+    MatTableModule, MatChipsModule, MatButtonModule, MatCheckboxModule, MatIconModule,
+    MatFormFieldModule, MatInputModule, MatPaginatorModule, MatTooltipModule,
+    MatSnackBarModule, EmptyStateComponent, PageHeaderComponent, PageSkeletonComponent, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -126,14 +125,12 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
         title="Lead Pipeline"
         subtitle="Work your leads from first contact to converted partner."
       >
-        <mat-button-toggle-group aria-label="Prospect sources">
-          <mat-button-toggle routerLink="../personal-list" title="My Page Leads — submissions from your public page">
-            <mat-icon>inbox</mat-icon> My Page Leads
-          </mat-button-toggle>
-          <mat-button-toggle routerLink="/dashboard/tools/contacts/new" title="Add someone to your contact list">
-            <mat-icon>person_add</mat-icon> Add someone
-          </mat-button-toggle>
-        </mat-button-toggle-group>
+        <a mat-stroked-button routerLink="../personal-list" title="My Page Leads — submissions from your public page">
+          <mat-icon>inbox</mat-icon> My Page Leads
+        </a>
+        <a mat-flat-button color="primary" routerLink="/dashboard/tools/contacts/new" title="Add someone to your contact list">
+          <mat-icon>person_add</mat-icon> Add someone
+        </a>
       </async-page-header>
 
       @if (convertedNotice(); as converted) {
@@ -148,6 +145,10 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
           </button>
         </div>
       }
+
+      @if (loading()) {
+        <async-page-skeleton layout="table" [rows]="5" label="lead pipeline" [showHeader]="false" />
+      } @else {
 
       <div class="stage-cards">
         @for (entry of stageCounts(); track entry.stage) {
@@ -183,9 +184,6 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
         <button mat-button (click)="showImport.set(!showImport())" title="Bulk-add contacts from a CSV file">
           <mat-icon>upload</mat-icon> Import
         </button>
-        @if (loading()) {
-          <mat-progress-bar mode="indeterminate" class="loader" aria-label="Loading" />
-        }
       </div>
 
       @if (showImport()) {
@@ -367,6 +365,7 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
         />
         <p class="total muted">Showing {{ filtered().length }} of {{ total() }} leads</p>
       }
+      }
     </section>
   `,
   styles: [`
@@ -406,7 +405,6 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
     .file-pick input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     .notice { color: var(--ms-success); }
     .skip-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25em; font-size: 0.9em; }
-    .loader { flex: 2; min-width: 120px; }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
     .name-cell { font-weight: 600; text-transform: capitalize; }
@@ -424,7 +422,7 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
     @media only screen and (max-width: 600px) {
       /* Paginator controls overflow 360px viewports — page-size stays 50. */
       .mat-mdc-paginator-page-size { display: none; }
-      .ms-head-actions mat-button-toggle-group { max-width: 100%; overflow-x: auto; }
+      .ms-head-actions { width: 100%; }
       .stage-cards { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.5em; }
       /* Mobile card layout: rows become labeled cards, no sideways scroll. */
       .table-wrap { overflow-x: visible; }

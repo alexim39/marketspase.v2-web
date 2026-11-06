@@ -2,20 +2,21 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { finalize, forkJoin } from 'rxjs';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { AdminStoreService } from '../../../core/store-admin/admin-store.service';
 import { AdminSettlements, AdminStoreOrder } from '../../../core/store-admin/admin-store.models';
 import { ApiError, userError } from '../../../core/http/api-error';
 import { UiFeedbackService } from '../../../core/ui/ui-feedback.service';
+import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
 
 @Component({
   selector: 'async-admin-store-settlements',
   templateUrl: './admin-store-settlements.component.html',
   styleUrls: ['./admin-store-settlements.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CurrencyPipe, DatePipe, MatButtonModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [CurrencyPipe, DatePipe, EmptyStateComponent, MatButtonModule, MatIconModule, PageSkeletonComponent, RouterModule],
 })
 export class AdminStoreSettlementsComponent implements OnInit {
   private readonly storeApi = inject(AdminStoreService);
