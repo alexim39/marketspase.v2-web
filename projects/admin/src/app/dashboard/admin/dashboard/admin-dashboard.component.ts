@@ -4,6 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
+import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
+import { StatCardComponent } from '@marketspase/shared/ui/stat-card/stat-card.component';
+import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
 import { finalize, forkJoin } from 'rxjs';
 import { AdminService } from '../../../core/admin/admin.service';
 import { AuditEntry, PlatformStats } from '../../../core/admin/admin.models';
@@ -14,7 +17,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, MatButtonModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [DatePipe, DecimalPipe, EmptyStateComponent, MatButtonModule, MatIconModule, MatProgressBarModule, PageHeaderComponent, RouterModule, StatCardComponent],
 })
 export class AdminDashboardComponent implements OnInit {
   private readonly admin = inject(AdminService);

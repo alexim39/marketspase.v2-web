@@ -1,19 +1,14 @@
 <section class="cart-page ms-store-page">
-  <header class="cart-head">
-    <p class="eyebrow">Your cart</p>
-    <h1>Ready when you are.</h1>
-    <p class="subtitle">
-      One partner store per checkout. Your payment is held in escrow until delivery and the return window ends.
-    </p>
-  </header>
+  <async-page-header
+    eyebrow="Your cart"
+    title="Ready when you are."
+    subtitle="One partner store per checkout. Your payment is held in escrow until delivery and the return window ends."
+  />
 
   @if (cart.isEmpty()) {
-    <div class="empty-card">
-      <mat-icon aria-hidden="true">shopping_bag</mat-icon>
-      <h2>Your cart is empty</h2>
-      <p>Find a partner store and add something you love.</p>
+    <async-empty-state icon="shopping_bag" title="Your cart is empty" message="Find a partner store and add something you love.">
       <a class="btn primary" routerLink="/stores">Browse stores</a>
-    </div>
+    </async-empty-state>
   } @else {
     <div class="cart-layout">
       <section class="cart-list">
@@ -52,7 +47,7 @@
       </section>
 
       <aside class="summary">
-        <p class="eyebrow">Order summary</p>
+        <p class="ms-eyebrow">Order summary</p>
         <div class="summary-row"><span>Subtotal</span><strong>{{ cart.subtotal() | currency:'₦':'symbol':'1.0-0' }}</strong></div>
         <div class="summary-row"><span>Delivery</span><strong>{{ cart.deliveryFee() | currency:'₦':'symbol':'1.0-0' }}</strong></div>
         <div class="summary-row total"><span>Total</span><strong>{{ cart.total() | currency:'₦':'symbol':'1.0-0' }}</strong></div>

@@ -16,7 +16,7 @@ template: `
         <a mat-flat-button color="primary" routerLink="partner/signin" (click)="scrollToTop()">Sign in</a>
         <a mat-stroked-button routerLink="partner/signup" (click)="scrollToTop()">Create account</a>
       </div>
-      <p class="fine">New to MarketSpase? <a href="https://marketspase.com/" target="_blank" rel="noopener">Explore the public MarketSpase site</a> first — or <a href="https://wa.me/2348080386208?text=Hello%20MarketSpase%20admin%2C%20I%20need%20help%20getting%20started." target="_blank" rel="noopener" aria-label="Chat with a MarketSpase admin on WhatsApp at 0808 038 6208">chat with an admin on WhatsApp</a>.</p>
+      <p class="fine">New to MarketSpase? <a href="https://marketspase.com/" target="_blank" rel="noopener">Explore the public MarketSpase site</a> first - or <a href="https://wa.me/2348080386208?text=Hello%20MarketSpase%20admin%2C%20I%20need%20help%20getting%20started." target="_blank" rel="noopener">chat with an admin on WhatsApp</a>.</p>
     </div>
   </section>
   `,

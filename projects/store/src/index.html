@@ -160,6 +160,16 @@
     "areaServed": "Nigeria"
   }
   </script>
+  <script>
+    // Apply the stored (or OS) MarketSpase theme before Angular boots (no flash).
+    try {
+      const stored = localStorage.getItem('selectedTheme');
+      const theme = stored === 'light' || stored === 'dark'
+        ? stored
+        : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch (e) { /* private mode: stay dark */ }
+  </script>
 </head>
 <body class="mat-typography">
   <async-root>

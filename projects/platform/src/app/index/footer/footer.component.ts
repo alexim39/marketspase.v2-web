@@ -1,85 +1,140 @@
-import {Component, ChangeDetectionStrategy} from '@angular/core';
-import {MatToolbarModule} from '@angular/material/toolbar';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
+import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo.component';
+
 @Component({
-selector: 'async-footer',
-template: `
+  selector: 'async-footer',
+  imports: [MatIconModule, RouterModule, BrandLogoComponent],
+  template: `
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a routerLink="/" class="brand" aria-label="MarketSpase home">
+            <async-brand-logo variant="full-white" height="30px" alt="" />
+          </a>
+          <p>The operating platform for independent network marketing partners.</p>
+          <a class="footer-cta" routerLink="partner/signup">
+            Start your business <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+          </a>
+        </div>
 
-<footer>
-<mat-toolbar>
-    <div class="courtesy">© {{ currentYear }} MarketSpase. 
-        <div>All Rights Reserved</div>
-    </div>
-    <span class="nav-spacer"></span>
-   <p>
-    <span>MarketSpase platform powered by <a href="http://async.ng/" target="_blank">Async Groups</a></span> 
-    </p>
-</mat-toolbar>
-</footer>
+        <nav class="footer-col" aria-label="Platform">
+          <h2>Platform</h2>
+          <a routerLink="/">Home</a>
+          <a routerLink="partner/signin">Partner sign in</a>
+          <a routerLink="partner/signup">Create account</a>
+        </nav>
 
-`,
-styles: `
+        <nav class="footer-col" aria-label="Company">
+          <h2>Company</h2>
+          <a href="https://wa.me/2348080386208" target="_blank" rel="noopener">Talk to us</a>
+          <a routerLink="/">Why MarketSpase</a>
+          <a routerLink="/">How it works</a>
+        </nav>
+      </div>
 
-
-mat-toolbar {
-    width: 100%;
-    .nav-spacer {
-        flex: 1 1 auto;
+      <div class="footer-base">
+        <span>&copy; {{ currentYear }} MarketSpase. All rights reserved.</span>
+        <span>Built by Async Groups.</span>
+      </div>
+    </footer>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [`
+    .site-footer {
+      margin-top: 4em;
+      background: var(--ms-ink);
+      color: var(--ms-ink-text);
     }
-    
-    p {
-        font-size: 0.6em;
-        a {
-            text-decoration: none;
-            color: inherit;
-            font-weight: bold;
-        }
-    }
-    
-    .courtesy {
-        font-size: 0.6em;
-        div {
-            margin-left: 2em;
-            font-size: 0.8em;
-        }
-    }
-    
-}
 
-/* Extra small devices (phones, 600px and down) */
-@media only screen and (max-width: 600px) {
-    mat-toolbar {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: auto;
-
-        p {
-            width: 100%;
-            display: block;
-            span {
-                font-size: 0.8em;
-                
-            }
-        }
-        .courtesy {
-            
-            div {
-                margin-left: 5em;
-            }
-        }
+    .footer-inner {
+      width: min(1180px, calc(100% - 2.5em));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(0, 0.7fr));
+      gap: 2em;
+      padding: 3em 0 2.4em;
     }
-}
 
-`,
-changeDetection: ChangeDetectionStrategy.Eager,
-imports: [MatToolbarModule,]
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .footer-brand p {
+      max-width: 26em;
+      margin: 1em 0;
+      color: color-mix(in srgb, var(--ms-ink-text) 62%, transparent);
+      font-size: 0.86em;
+      line-height: 1.55;
+    }
+
+    .footer-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35em;
+      color: var(--ms-ink-icon);
+      font-size: 0.86em;
+      font-weight: 750;
+      text-decoration: none;
+    }
+
+    .footer-cta:hover { color: var(--ms-ink-text); }
+
+    .footer-cta mat-icon {
+      font-size: 17px;
+      width: 17px;
+      height: 17px;
+    }
+
+    .footer-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45em;
+      font-size: 0.84em;
+    }
+
+    .footer-col h2 {
+      margin: 0 0 0.2em;
+      color: color-mix(in srgb, var(--ms-ink-text) 50%, transparent);
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .footer-col a {
+      color: color-mix(in srgb, var(--ms-ink-text) 78%, transparent);
+      text-decoration: none;
+    }
+
+    .footer-col a:hover { color: var(--ms-ink-text); }
+
+    .footer-base {
+      width: min(1180px, calc(100% - 2.5em));
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 1em;
+      flex-wrap: wrap;
+      padding: 1.1em 0 1.4em;
+      border-top: 1px solid color-mix(in srgb, var(--ms-ink-text) 12%, transparent);
+      color: color-mix(in srgb, var(--ms-ink-text) 58%, transparent);
+      font-size: 0.72em;
+    }
+
+    @media (max-width: 900px) {
+      .footer-inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .footer-brand { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 600px) {
+      .footer-inner { grid-template-columns: 1fr; padding: 2.2em 0 1.8em; }
+    }
+  `],
 })
 export class FooterComponent {
-  currentYear: number;
-
-  constructor() {
-    this.currentYear = new Date().getFullYear();
-  }
-
+  protected readonly currentYear = new Date().getFullYear();
 }

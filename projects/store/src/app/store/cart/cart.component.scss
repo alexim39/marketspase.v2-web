@@ -4,29 +4,6 @@
   padding: 3em 0 4em;
 }
 
-.eyebrow {
-  margin: 0;
-  color: var(--ms-primary-strong);
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-}
-
-.cart-head h1 {
-  margin: 0.15em 0 0.25em;
-  font-size: clamp(2rem, 4.5vw, 3rem);
-  line-height: 1.04;
-  letter-spacing: -0.04em;
-}
-
-.subtitle {
-  max-width: 42em;
-  margin: 0;
-  color: var(--ms-text-muted);
-  line-height: 1.55;
-}
-
 .cart-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
@@ -292,35 +269,6 @@
   font-weight: 700;
   text-align: center;
   text-decoration: none;
-}
-
-.empty-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5em;
-  margin-top: 2em;
-  padding: 3em 1.2em;
-  border: 1px dashed var(--ms-line);
-  border-radius: var(--ms-radius-lg);
-  background: var(--ms-surface);
-  text-align: center;
-}
-
-.empty-card mat-icon {
-  width: 46px;
-  height: 46px;
-  font-size: 46px;
-  color: var(--ms-primary-strong);
-}
-
-.empty-card h2,
-.empty-card p {
-  margin: 0;
-}
-
-.empty-card p {
-  color: var(--ms-text-muted);
 }
 
 @media (max-width: 800px) {

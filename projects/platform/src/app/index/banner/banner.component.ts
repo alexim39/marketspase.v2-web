@@ -27,7 +27,7 @@ template: `
         href="https://wa.me/2348080386208?text=Hello%20MarketSpase%20admin%2C%20I%20need%20help%20getting%20started."
         target="_blank"
         rel="noopener"
-        aria-label="Chat with a MarketSpase admin on WhatsApp at 0808 038 6208"
+        aria-label="Chat with an admin on WhatsApp at 0808 038 6208"
       ><mat-icon aria-hidden="true">chat</mat-icon> Chat with an admin on WhatsApp</a>
     </p>
     <div class="video-card">
@@ -40,7 +40,7 @@ template: `
             allowfullscreen
           ></iframe>
         } @else {
-          <button type="button" class="video-facade" (click)="showVideo.set(true)" aria-label="Play the MarketSpase introduction video">
+          <button type="button" class="video-facade" (click)="showVideo.set(true)">
             <span class="play"><mat-icon aria-hidden="true">play_arrow</mat-icon></span>
             <strong>Watch the introduction</strong>
             <small>Short overview of the opportunity</small>

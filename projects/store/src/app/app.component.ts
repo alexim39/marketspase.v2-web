@@ -1,5 +1,6 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
 import { FooterComponent } from './footer/footer.component';
 import { CookieConsentComponent } from './cookie-consent.component';
 import { SiteHeaderComponent } from './_common/components/site-header.component';
@@ -53,6 +54,10 @@ import { SiteHeaderComponent } from './_common/components/site-header.component'
     }
   `]
 })
-export class AppComponent {
-  // Public storefront: header and footer are always available.
+export class AppComponent implements OnInit {
+  private readonly themes = inject(ThemeService);
+
+  ngOnInit(): void {
+    this.themes.init();
+  }
 }

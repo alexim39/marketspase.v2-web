@@ -1,9 +1,9 @@
 <section class="directory-page ms-store-page">
-  <header class="directory-head">
-    <p class="eyebrow">MarketSpase Store</p>
-    <h1>Find a partner store.</h1>
-    <p class="subtitle">Every store is run by an independent MarketSpase partner. Search by name or browse below.</p>
-
+  <async-page-header
+    eyebrow="MarketSpase Store"
+    title="Find a partner store."
+    subtitle="Every store is run by an independent MarketSpase partner. Search by name or browse below."
+  >
     <form class="search-row" (ngSubmit)="search()">
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
         <mat-label>Search stores</mat-label>
@@ -20,7 +20,7 @@
       </mat-form-field>
       <button mat-flat-button color="primary" type="submit">Search</button>
     </form>
-  </header>
+  </async-page-header>
 
   @if (loading()) {
     <div class="store-grid" aria-label="Loading stores">
@@ -35,21 +35,21 @@
       }
     </div>
   } @else if (error()) {
-    <div class="state-card">
-      <h2>Could not load stores</h2>
-      <p>{{ error() }}</p>
-      <button type="button" class="btn" (click)="search()">Try again</button>
-    </div>
+    <async-empty-state icon="cloud_off" title="Could not load stores" [message]="error() ?? ''">
+      <button mat-stroked-button type="button" (click)="search()">Try again</button>
+    </async-empty-state>
   } @else if (stores().length === 0) {
-    <div class="state-card">
-      <h2>{{ query().trim() ? 'No stores match that search' : 'Partner stores are opening soon' }}</h2>
-      <p>{{ query().trim()
+    <async-empty-state
+      icon="search_off"
+      [title]="query().trim() ? 'No stores match that search' : 'Partner stores are opening soon'"
+      [message]="query().trim()
         ? 'Try a different name, or clear the search to see every store.'
-        : 'The first MarketSpase partner shops are being prepared. Check back shortly.' }}</p>
+        : 'The first MarketSpase partner shops are being prepared. Check back shortly.'"
+    >
       @if (query().trim()) {
-        <button type="button" class="btn" (click)="setQuery(''); search()">Clear search</button>
+        <button mat-stroked-button type="button" (click)="setQuery(''); search()">Clear search</button>
       }
-    </div>
+    </async-empty-state>
   } @else {
     <div class="store-grid">
       @for (store of stores(); track store.slug) {

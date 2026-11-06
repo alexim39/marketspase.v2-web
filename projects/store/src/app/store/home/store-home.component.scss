@@ -268,7 +268,7 @@
   inset: 0;
   background:
     radial-gradient(300px 160px at 80% 0%, rgba(118, 75, 162, 0.32), transparent 70%),
-    linear-gradient(135deg, #eef0ff, #f2ecfa);
+    linear-gradient(135deg, var(--ms-primary-soft), var(--ms-secondary-soft));
 }
 
 .store-logo {

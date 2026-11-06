@@ -19,20 +19,20 @@ import { environment } from '../../environments/environment';
         </div>
 
         <div class="footer-col">
-          <h3>Shop</h3>
+          <h2>Shop</h2>
           <a routerLink="/stores">Find a store</a>
           <a routerLink="/support">Support</a>
         </div>
 
         <div class="footer-col">
-          <h3>Partners</h3>
+          <h2>Partners</h2>
           <a [href]="platformUrl + '/partner/signin'">Partner sign in</a>
           <a [href]="platformUrl + '/partner/signup'">Become a partner</a>
           <a [href]="platformUrl">Platform</a>
         </div>
 
         <div class="footer-col">
-          <h3>Legal</h3>
+          <h2>Legal</h2>
           <a routerLink="/legal/terms">Terms</a>
           <a routerLink="/legal/privacy">Privacy</a>
           <a routerLink="/legal/cookies">Cookies</a>
@@ -109,7 +109,7 @@ import { environment } from '../../environments/environment';
       font-size: 0.84em;
     }
 
-    .footer-col h3 {
+    .footer-col h2 {
       margin: 0 0 0.2em;
       color: rgba(244, 243, 255, 0.5);
       font-size: 0.7rem;
@@ -132,7 +132,7 @@ import { environment } from '../../environments/environment';
       flex-wrap: wrap;
       padding: 1.1em 0 1.4em;
       border-top: 1px solid rgba(244, 243, 255, 0.12);
-      color: rgba(244, 243, 255, 0.45);
+      color: rgba(244, 243, 255, 0.58);
       font-size: 0.72em;
     }
 

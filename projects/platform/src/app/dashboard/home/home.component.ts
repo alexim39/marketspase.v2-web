@@ -27,6 +27,7 @@ import { CompensationService } from '../../core/compensation/compensation.servic
 import { MyCompensation } from '../../core/compensation/compensation.models';
 import { StoreService } from '../../core/store/store.service';
 import { StoreEarnings } from '../../core/store/store.models';
+import { ProgressRingComponent } from '@marketspase/shared/ui/progress-ring/progress-ring.component';
 import { FeedPost } from '../../core/community/community.models';
 import { Journey } from '../../core/progression/progression.models';
 import { ApiError } from '../../core/http/api-error';
@@ -54,7 +55,7 @@ interface ActivityItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AvatarComponent, DatePipe, DecimalPipe, MatButtonModule, MatCardModule, MatChipsModule,
-    MatIconModule, MatProgressBarModule, RouterModule,
+    MatIconModule, MatProgressBarModule, RouterModule, ProgressRingComponent,
   ],
   template: `
     <section class="home-page">
@@ -219,7 +220,11 @@ interface ActivityItem {
 
         <mat-card class="cc-widget">
           <mat-card-content>
-            <div class="cc-widget-head"><mat-icon>school</mat-icon><span>Rank &amp; training</span></div>
+            <div class="cc-widget-head">
+              <mat-icon>school</mat-icon><span>Rank &amp; training</span>
+              <span class="spacer"></span>
+              <async-progress-ring [value]="trainingPercent()" [size]="38" tone="teal" label="Core training" />
+            </div>
             <strong class="cc-widget-value">{{ rankLabel() }}</strong>
             <span class="muted">{{ trainingSummary() }}</span>
             <a mat-button routerLink="training">Continue learning</a>
@@ -424,11 +429,22 @@ interface ActivityItem {
       grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
       gap: 0.75em;
     }
-    .cc-widget { border-radius: var(--ms-radius-lg); }
-    .cc-widget mat-card-content { display: flex; flex-direction: column; gap: 0.2em; }
+    .cc-widget {
+      border-radius: var(--ms-radius-lg);
+      border: 1px solid var(--ms-line);
+      box-shadow: var(--ms-shadow-sm);
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+    .cc-widget:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--ms-primary) 22%, var(--ms-line));
+      box-shadow: var(--ms-shadow-md);
+    }
+    .cc-widget mat-card-content { display: flex; flex-direction: column; gap: 0.2em; min-height: 108px; }
     .cc-widget-head { display: flex; align-items: center; gap: 0.4em; color: var(--ms-text-muted); font-size: 0.82em; font-weight: 700; }
+    .cc-widget-head .spacer { flex: 1; }
     .cc-widget-head mat-icon { color: var(--ms-primary-strong); font-size: 19px; height: 19px; width: 19px; }
-    .cc-widget-value { font-size: 1.5em; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .cc-widget-value { font-size: 1.8em; font-weight: 750; letter-spacing: -0.035em; font-variant-numeric: tabular-nums; }
     .cc-widget a { align-self: flex-start; min-height: 40px; margin-top: 0.2em; }
     /* Two-column content below the widgets. */
     .cc-columns { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); gap: 1.25em; align-items: start; }
@@ -661,6 +677,15 @@ export class HomeComponent implements OnInit {
       return stamp?.done === true;
     }).length;
     return `${done} of ${keys.length} core trainings recorded`;
+  }
+
+  protected trainingPercent(): number {
+    const keys = ['ipo', 'qsg', 'smo'];
+    const done = keys.filter((key) => {
+      const stamp = this.journey()?.milestones?.[key] as { done?: boolean } | undefined;
+      return stamp?.done === true;
+    }).length;
+    return Math.round((done / keys.length) * 100);
   }
 
   protected nextAction(): DailyAction | null {

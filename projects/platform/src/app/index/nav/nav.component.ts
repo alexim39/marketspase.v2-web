@@ -1,92 +1,220 @@
-import { Component, OnInit, HostListener, ChangeDetectionStrategy } from '@angular/core';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
+import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { LogoComponent } from '../../_common/logo.component';
-
-import { DeviceDetectorService } from 'ngx-device-detector';
-import { Router, RouterModule, } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
+import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo.component';
+import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
 
 @Component({
   selector: 'async-nav',
-  imports: [MatToolbarModule, MatIconModule, MatButtonModule, LogoComponent, RouterModule],
+  imports: [MatButtonModule, MatIconModule, RouterModule, BrandLogoComponent],
   template: `
+    <header class="site-nav">
+      <div class="nav-inner">
+        <a class="logo" routerLink="/" (click)="scrollToTop()" aria-label="MarketSpase home">
+          <async-brand-logo
+            [variant]="theme() === 'light' ? 'full-dark' : 'full-white'"
+            height="30px"
+            alt=""
+          />
+        </a>
 
-<header>
-<mat-toolbar class="brand-nav">
-  <mat-toolbar-row>
-    <span class="logo">
-      <async-logo/>
-    </span>
-    <span class="nav-spacer"></span>
+        <nav class="nav-links" aria-label="Primary navigation">
+          <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Home</a>
+          <a mat-button routerLink="partner/signin" routerLinkActive="active" (click)="scrollToTop()">Sign in</a>
+          <a mat-flat-button color="primary" routerLink="partner/signup" routerLinkActive="active" (click)="scrollToTop()">Create account</a>
+          <button
+            class="theme-toggle"
+            type="button"
+            (click)="toggleTheme()"
+            [attr.aria-label]="theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+          >
+            <mat-icon aria-hidden="true">{{ theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          </button>
+        </nav>
 
-    @if (isDesktop) {
-      <ng-content>
-        <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-          Home
-        </a>
-        <a mat-button routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-          <mat-icon>output</mat-icon> Sign In
-        </a>
-        <a mat-button routerLink="partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-          <mat-icon>input</mat-icon> Sign Up
-        </a>
-      </ng-content>
+        <div class="nav-mobile-actions">
+          <button
+            class="theme-toggle"
+            type="button"
+            (click)="toggleTheme()"
+            [attr.aria-label]="theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+          >
+            <mat-icon aria-hidden="true">{{ theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          </button>
+          <button
+            class="menu-toggle"
+            type="button"
+            (click)="menuOpen.set(!menuOpen())"
+            [attr.aria-expanded]="menuOpen()"
+            aria-controls="platform-mobile-nav"
+            aria-label="Open navigation menu"
+          >
+            <mat-icon aria-hidden="true">{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      @if (menuOpen()) {
+        <nav id="platform-mobile-nav" class="mobile-nav" aria-label="Mobile navigation">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeAndScroll()">Home</a>
+          <a routerLink="partner/signin" routerLinkActive="active" (click)="closeAndScroll()">Sign in</a>
+          <a class="mobile-cta" routerLink="partner/signup" routerLinkActive="active" (click)="closeAndScroll()">Create account</a>
+        </nav>
+      }
+    </header>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [`
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: color-mix(in srgb, var(--ms-surface) 92%, transparent);
+      border-bottom: 1px solid var(--ms-line);
+      backdrop-filter: blur(18px) saturate(160%);
     }
-  </mat-toolbar-row>
 
-  @if (isMobile) {
-    <mat-toolbar-row>
-      <!-- <span>Second Line</span> -->
-      <span class="nav-spacer"></span>
-      <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Home</a>
-      <a mat-button routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-        <mat-icon>output</mat-icon> Sign In
-      </a>
-      <a mat-button routerLink="partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-        <mat-icon>input</mat-icon> Sign Up
-      </a>
-    </mat-toolbar-row>
-  }
+    .nav-inner {
+      width: min(1180px, calc(100% - 2.5em));
+      min-height: 68px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 1em;
+    }
 
-</mat-toolbar>
-</header>
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      flex: none;
+      text-decoration: none;
+    }
 
-`,
-changeDetection: ChangeDetectionStrategy.Eager,
-styles: `
-.brand-nav {
-    --mat-toolbar-container-background-color: var(--ms-ink);
-    --mat-toolbar-container-text-color: var(--ms-ink-text);
-    background: var(--ms-ink);
-    color: var(--ms-ink-text);
-}
-.brand-nav a[mat-button] {
-    --mat-button-text-label-text-color: var(--ms-ink-text);
-    color: var(--ms-ink-text);
-}
-.nav-spacer {
-    flex: 1 1 auto;
-}
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25em;
+      margin-left: auto;
+    }
 
-`
+    .nav-links a[mat-button] {
+      color: var(--ms-text-muted);
+      font-weight: 600;
+    }
+
+    .nav-links a[mat-button]:hover,
+    .nav-links a[mat-button].active {
+      color: var(--ms-primary-strong);
+    }
+
+    .nav-links a[mat-flat-button] {
+      margin-left: 0.35em;
+    }
+
+    .theme-toggle,
+    .menu-toggle {
+      display: inline-grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: 1px solid var(--ms-line);
+      border-radius: 12px;
+      background: var(--ms-surface);
+      color: var(--ms-text-muted);
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover,
+    .menu-toggle:hover {
+      color: var(--ms-primary-strong);
+      border-color: var(--ms-primary);
+    }
+
+    .theme-toggle mat-icon,
+    .menu-toggle mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .nav-mobile-actions {
+      display: none;
+      align-items: center;
+      gap: 0.4em;
+      margin-left: auto;
+    }
+
+    .mobile-nav {
+      display: none;
+    }
+
+    @media (max-width: 760px) {
+      .nav-inner {
+        min-height: 62px;
+        width: calc(100% - 1.5em);
+      }
+
+      .nav-links { display: none; }
+
+      .nav-mobile-actions { display: flex; }
+
+      .mobile-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25em;
+        padding: 0.5em 0.75em 1em;
+        border-top: 1px solid var(--ms-line);
+        background: var(--ms-surface);
+      }
+
+      .mobile-nav a {
+        display: flex;
+        align-items: center;
+        min-height: 46px;
+        padding: 0 0.75em;
+        border-radius: 10px;
+        color: var(--ms-text);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .mobile-nav a:hover,
+      .mobile-nav a.active {
+        background: var(--ms-primary-soft);
+        color: var(--ms-primary-strong);
+      }
+
+      .mobile-nav .mobile-cta {
+        justify-content: center;
+        background: var(--ms-primary-strong);
+        color: #fff;
+      }
+    }
+  `],
 })
-export class NavComponent implements OnInit {
-  isMobile!: boolean;
-  isTablet!: boolean;
-  isDesktop!: boolean;
+export class NavComponent {
+  private readonly themes = inject(ThemeService);
 
-  constructor(private deviceService: DeviceDetectorService,  private router: Router  ) {}
+  protected readonly theme = this.themes.theme;
+  protected readonly menuOpen = signal(false);
 
-  ngOnInit(): void {
-    this.isMobile = this.deviceService.isMobile();
-    this.isTablet = this.deviceService.isTablet();
-    this.isDesktop = this.deviceService.isDesktop();
+  protected toggleTheme(): void {
+    this.themes.toggle();
   }
 
-   // scroll to top when clicked
-   scrollToTop() {
+  protected closeAndScroll(): void {
+    this.menuOpen.set(false);
+    this.scrollToTop();
+  }
+
+  protected scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  @HostListener('document:keydown.escape')
+  protected onEscape(): void {
+    this.menuOpen.set(false);
+  }
 }

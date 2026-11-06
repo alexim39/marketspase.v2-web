@@ -6,6 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
+import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
+import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
 import { SeoService } from '../../_common/services/seo.service';
 import { StorePublic } from '../store.models';
 import { StoreService, storeAssetUrl, storeError } from '../store.service';
@@ -15,7 +17,7 @@ import { StoreService, storeAssetUrl, storeError } from '../store.service';
   templateUrl: './store-directory.component.html',
   styleUrls: ['./store-directory.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterModule],
+  imports: [EmptyStateComponent, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, PageHeaderComponent, RouterModule],
 })
 export class StoreDirectoryComponent implements OnInit {
   private readonly storesApi = inject(StoreService);

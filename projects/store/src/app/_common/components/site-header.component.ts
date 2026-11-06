@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo.component';
+import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
 import { environment } from '../../../environments/environment';
 import { CartService } from '../../store/cart/cart.service';
 
@@ -12,7 +13,7 @@ import { CartService } from '../../store/cart/cart.service';
     <header class="ms-header">
       <div class="bar ms-store-page">
         <a routerLink="/" class="brand" aria-label="MarketSpase Store home">
-          <async-brand-logo class="brand-logo" variant="full-dark" height="30px" alt="" />
+          <async-brand-logo class="brand-logo" [variant]="theme() === 'light' ? 'full-dark' : 'full-white'" height="30px" alt="" />
           <span class="brand-store" aria-hidden="true">Store</span>
         </a>
 
@@ -26,6 +27,9 @@ import { CartService } from '../../store/cart/cart.service';
               <span class="cart-count" [attr.aria-label]="cart.itemCount() + ' items in cart'">{{ cart.itemCount() }}</span>
             }
           </a>
+          <button class="theme-toggle" type="button" (click)="toggleTheme()" [attr.aria-label]="theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+            <mat-icon aria-hidden="true">{{ theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          </button>
           <a [href]="platformUrl + '/partner/signin'">Partner sign in</a>
           <a class="cta" [href]="platformUrl + '/partner/signup'">Become a partner</a>
         </nav>
@@ -53,6 +57,10 @@ import { CartService } from '../../store/cart/cart.service';
             }
           </a>
           <a [href]="platformUrl + '/partner/signin'" (click)="close()">Partner sign in</a>
+          <button class="theme-toggle mobile-theme" type="button" (click)="toggleTheme(); close()" [attr.aria-label]="theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+            <mat-icon aria-hidden="true">{{ theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+            {{ theme() === 'dark' ? 'Light mode' : 'Dark mode' }}
+          </button>
           <a class="mobile-cta" [href]="platformUrl + '/partner/signup'" (click)="close()">Become a partner</a>
         </nav>
       }
@@ -167,6 +175,35 @@ import { CartService } from '../../store/cart/cart.service';
       color: #fff;
     }
 
+    .theme-toggle {
+      display: inline-grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--ms-line);
+      border-radius: 11px;
+      background: var(--ms-surface);
+      color: var(--ms-text-muted);
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover {
+      color: var(--ms-primary-strong);
+      border-color: var(--ms-primary);
+    }
+
+    .mobile-theme {
+      width: 100%;
+      grid-auto-flow: column;
+      gap: 0.5em;
+      height: auto;
+      min-height: 44px;
+      padding: 0 0.8em;
+      font: inherit;
+      font-size: 0.86em;
+      font-weight: 650;
+    }
+
     .menu-btn {
       display: none;
       margin-left: auto;
@@ -210,7 +247,7 @@ import { CartService } from '../../store/cart/cart.service';
       color: #fff;
     }
 
-    @media (max-width: 780px) {
+    @media (max-width: 900px) {
       .desktop-nav { display: none; }
       .menu-btn { display: grid; }
       .mobile-nav { display: flex; flex-direction: column; }
@@ -224,9 +261,15 @@ import { CartService } from '../../store/cart/cart.service';
 })
 export class SiteHeaderComponent {
   protected readonly cart = inject(CartService);
+  private readonly themes = inject(ThemeService);
   protected readonly menuOpen = signal(false);
+  protected readonly theme = this.themes.theme;
   protected readonly platformUrl = String((environment as { platformUrl?: string }).platformUrl ?? '')
     .replace(/\/+$/, '');
+
+  protected toggleTheme(): void {
+    this.themes.toggle();
+  }
 
   protected close(): void {
     this.menuOpen.set(false);
