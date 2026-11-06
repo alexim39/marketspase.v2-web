@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { TutorialGroup, TutorialService } from '../../../core/tutorials/tutorial.service';
 import { ApiError } from '../../../core/http/api-error';
 
@@ -19,7 +19,7 @@ import { ApiError } from '../../../core/http/api-error';
 @Component({
   selector: 'async-tutorials',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [MatButtonModule, MatIconModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -39,7 +39,7 @@ import { ApiError } from '../../../core/http/api-error';
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading tutorials" />
+        <async-page-skeleton layout="cards" [rows]="4" label="tutorials" [showHeader]="false" />
       }
 
       @if (error(); as err) {

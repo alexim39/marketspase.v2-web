@@ -8,16 +8,7 @@
   </nav>
 
   @if (loading()) {
-    <mat-progress-bar mode="indeterminate" aria-label="Loading product" />
-    <section class="loading-grid" aria-hidden="true">
-      <div class="skeleton skeleton-image"></div>
-      <div class="loading-copy">
-        <div class="skeleton skeleton-line short"></div>
-        <div class="skeleton skeleton-line title"></div>
-        <div class="skeleton skeleton-line"></div>
-        <div class="skeleton skeleton-line medium"></div>
-      </div>
-    </section>
+    <async-page-skeleton layout="product" label="product" [showHeader]="false" />
   } @else if (failed() || !product()) {
     <section class="dp-card state-card">
       <mat-icon>search_off</mat-icon>

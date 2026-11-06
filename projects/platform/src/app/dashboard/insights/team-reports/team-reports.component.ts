@@ -8,9 +8,9 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { forkJoin } from 'rxjs';
 import { ReportService } from '../../../core/reports/report.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
@@ -30,7 +30,7 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AvatarComponent, DatePipe, MatButtonModule, MatChipsModule, MatDatepickerModule, MatNativeDateModule,
-    MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule,
+    MatIconModule, MatInputModule, MatSelectModule, PageSkeletonComponent,
     ReactiveFormsModule, RouterModule,
   ],
   template: `
@@ -56,7 +56,7 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="table" [rows]="5" label="team reports" [showHeader]="false" />
       }
 
       @if (error(); as err) {

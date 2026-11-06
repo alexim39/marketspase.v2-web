@@ -59,19 +59,7 @@
     </section>
 
     @if (loading()) {
-      <mat-progress-bar mode="indeterminate" aria-label="Loading resale products" />
-      <section class="product-grid" aria-hidden="true">
-        @for (placeholder of [1, 2, 3, 4]; track placeholder) {
-          <div class="resale-card dp-card skeleton-card">
-            <div class="skeleton skeleton-image"></div>
-            <div class="skeleton-body">
-              <div class="skeleton skeleton-line short"></div>
-              <div class="skeleton skeleton-line"></div>
-              <div class="skeleton skeleton-line medium"></div>
-            </div>
-          </div>
-        }
-      </section>
+      <async-page-skeleton layout="cards" [rows]="4" label="resale products" [showHeader]="false" />
     } @else if (error()) {
       <section class="dp-card state-card">
         <div class="state-icon"><mat-icon>cloud_off</mat-icon></div>

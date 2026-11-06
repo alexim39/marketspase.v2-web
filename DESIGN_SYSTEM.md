@@ -68,8 +68,10 @@ instead of showing a generic progress bar or spinner.
 Available layouts:
 
 `dashboard`, `wallet`, `list`, `table`, `cards`, `storefront`, `product`,
-`form`, `checkout`, `profile`, `result`.
+`form`, `checkout`, `profile`, `result`, `board`, `inbox`, `network`.
 
+- Use `board` for Kanban and activation boards, `inbox` for messaging and chat
+  surfaces, and `network` for org/tree views.
 - Use `[showHeader]="false"` when the real page header is already visible and
   only the data region is loading.
 - Keep action-level progress (uploads, sending a message) as a progress bar;

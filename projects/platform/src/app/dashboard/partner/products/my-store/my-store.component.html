@@ -46,7 +46,7 @@
       <a mat-flat-button color="primary" routerLink="/dashboard/activate">Continue verification</a>
     </section>
   } @else if (loading()) {
-    <mat-progress-bar mode="indeterminate" aria-label="Loading store" />
+    <async-page-skeleton layout="dashboard" [rows]="3" label="your store" [showHeader]="false" />
   } @else if (store(); as s) {
     <section class="store-summary dp-card">
       <div class="summary-main">
@@ -76,10 +76,10 @@
     </section>
 
     <div class="tabs" role="tablist" aria-label="Store sections">
-      <button type="button" [class.active]="tab() === 'overview'" (click)="setTab('overview')"><mat-icon>space_dashboard</mat-icon> Overview</button>
-      <button type="button" [class.active]="tab() === 'listings'" (click)="setTab('listings')"><mat-icon>inventory_2</mat-icon> Listings</button>
-      <button type="button" [class.active]="tab() === 'receipts'" (click)="setTab('receipts')"><mat-icon>local_shipping</mat-icon> Stock receipts</button>
-      <button type="button" [class.active]="tab() === 'settings'" (click)="setTab('settings')"><mat-icon>settings</mat-icon> Store settings</button>
+      <button type="button" role="tab" [attr.aria-selected]="tab() === 'overview'" [class.active]="tab() === 'overview'" (click)="setTab('overview')"><mat-icon>space_dashboard</mat-icon> Overview</button>
+      <button type="button" role="tab" [attr.aria-selected]="tab() === 'listings'" [class.active]="tab() === 'listings'" (click)="setTab('listings')"><mat-icon>inventory_2</mat-icon> Listings</button>
+      <button type="button" role="tab" [attr.aria-selected]="tab() === 'receipts'" [class.active]="tab() === 'receipts'" (click)="setTab('receipts')"><mat-icon>local_shipping</mat-icon> Stock receipts</button>
+      <button type="button" role="tab" [attr.aria-selected]="tab() === 'settings'" [class.active]="tab() === 'settings'" (click)="setTab('settings')"><mat-icon>settings</mat-icon> Store settings</button>
     </div>
 
     @if (tab() === 'overview') {

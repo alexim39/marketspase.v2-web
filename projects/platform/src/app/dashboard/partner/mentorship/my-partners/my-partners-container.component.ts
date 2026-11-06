@@ -8,8 +8,8 @@ import { LeadPipelineService } from '../../prospects/lead-pipeline/lead-pipeline
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { userError } from '../../../../core/http/api-error';
 
 /**
@@ -24,7 +24,7 @@ import { userError } from '../../../../core/http/api-error';
     selector: 'async-my-partners-container',
     template: `
 @if (loading()) {
-  <mat-progress-bar mode="indeterminate" aria-label="Loading partners" />
+  <async-page-skeleton layout="list" [rows]="5" label="your partners" [showHeader]="false" />
 }
 @if (error(); as err) {
   <section class="dp-card container-error" role="alert">
@@ -56,7 +56,7 @@ import { userError } from '../../../../core/http/api-error';
     `],
     providers: [MyPartnersService],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [MyPartnersComponent, MatButtonModule, MatIconModule, MatProgressBarModule, RouterModule]
+    imports: [MyPartnersComponent, MatButtonModule, MatIconModule, PageSkeletonComponent, RouterModule]
 })
 export class MyPartnersContainerComponent implements OnInit {
   protected readonly partner = signal<PartnerInterface | null>(null);

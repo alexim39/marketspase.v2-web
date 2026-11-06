@@ -127,8 +127,7 @@
       </div>
     </div>
   } @else if (loadingContact) {
-    <mat-progress-bar mode="indeterminate" aria-label="Loading" />
-    <p class="muted center">Loading contact…</p>
+    <async-page-skeleton layout="profile" [rows]="3" label="contact" [showHeader]="false" />
   } @else {
     <div class="dp-card empty-card">
       <mat-icon>person_search</mat-icon>

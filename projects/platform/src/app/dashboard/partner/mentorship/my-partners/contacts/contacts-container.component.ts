@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnIni
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { catchError, distinctUntilChanged, forkJoin, map, of, switchMap } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { MyPartnersService } from '../my-partners.service';
@@ -27,12 +27,12 @@ import { ApiError, userError } from '../../../../../core/http/api-error';
  */
 @Component({
   selector: 'async-manage-contacts-container',
-  imports: [MyPartnersContactsComponent, MatButtonModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [MyPartnersContactsComponent, MatButtonModule, MatIconModule, PageSkeletonComponent, RouterModule],
   providers: [ContactsService, MyPartnersService],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (loading()) {
-      <mat-progress-bar mode="indeterminate" aria-label="Loading contact list" />
+      <async-page-skeleton layout="table" [rows]="5" label="contact list" [showHeader]="false" />
     }
 
     @if (error(); as err) {

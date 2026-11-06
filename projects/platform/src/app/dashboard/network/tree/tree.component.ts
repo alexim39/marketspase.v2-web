@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CompensationService } from '../../../core/compensation/compensation.service';
 import { CommissionRank, CompensationPlan } from '../../../core/compensation/compensation.models';
@@ -67,7 +68,7 @@ const FALLBACK_PLAN: CompensationPlan = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AvatarComponent, MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule, MatInputModule,
-    MatProgressBarModule, MatSelectModule, RouterModule,
+    MatProgressBarModule, MatSelectModule, PageSkeletonComponent, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -187,7 +188,7 @@ const FALLBACK_PLAN: CompensationPlan = {
           </button>
         </div>
         @if (loading()) {
-          <mat-progress-bar mode="indeterminate" class="loader" aria-label="Loading" />
+          <async-page-skeleton layout="network" [rows]="5" label="network tree" [showHeader]="false" />
         }
       </div>
 

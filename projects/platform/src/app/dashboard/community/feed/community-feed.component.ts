@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { CommunityService } from '../../../core/community/community.service';
 import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -50,7 +51,7 @@ const KIND_STYLES: Record<PostKind, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AvatarComponent, DatePipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
-    MatProgressBarModule, MatSelectModule, ReactiveFormsModule, RouterModule,
+    MatProgressBarModule, MatSelectModule, PageSkeletonComponent, ReactiveFormsModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -70,7 +71,7 @@ const KIND_STYLES: Record<PostKind, string> = {
       </div>
 
       @if (loading() && posts().length === 0) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="list" [rows]="4" label="community feed" [showHeader]="false" />
       }
 
       @if (error(); as err) {

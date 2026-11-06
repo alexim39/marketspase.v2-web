@@ -11,7 +11,10 @@ export type PageSkeletonLayout =
   | 'form'
   | 'checkout'
   | 'profile'
-  | 'result';
+  | 'result'
+  | 'board'
+  | 'inbox'
+  | 'network';
 
 /**
  * Page-aware loading skeleton.
@@ -185,6 +188,64 @@ export type PageSkeletonLayout =
           </div>
         }
 
+        @case ('board') {
+          <div class="sk-board">
+            @for (col of five(); track $index) {
+              <div class="sk-board-col">
+                <span class="sk-bar label"></span>
+                @for (card of three(); track $index) { <span class="sk-board-card"></span> }
+              </div>
+            }
+          </div>
+        }
+
+        @case ('inbox') {
+          <div class="sk-inbox">
+            <div class="sk-panel sk-inbox-list">
+              <span class="sk-bar heading"></span>
+              @for (item of rowsRange(); track $index) {
+                <div class="sk-inbox-row">
+                  <span class="sk-avatar small"></span>
+                  <div class="sk-list-copy">
+                    <span class="sk-bar line"></span>
+                    <span class="sk-bar line short"></span>
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="sk-panel sk-inbox-thread">
+              <span class="sk-bar heading"></span>
+              <div class="sk-bubble-row"><span class="sk-row"></span></div>
+              <div class="sk-bubble-row mine"><span class="sk-row"></span></div>
+              <div class="sk-bubble-row"><span class="sk-row"></span></div>
+              <div class="sk-bubble-row mine"><span class="sk-row"></span></div>
+              <span class="sk-field sk-composer"></span>
+            </div>
+          </div>
+        }
+
+        @case ('network') {
+          <div class="sk-network">
+            <div class="sk-network-level">
+              <span class="sk-network-node root"><span class="sk-avatar small"></span><span class="sk-bar line short"></span></span>
+            </div>
+            <div class="sk-network-level">
+              @for (node of three(); track $index) {
+                <span class="sk-network-node"><span class="sk-avatar small"></span><span class="sk-bar line short"></span></span>
+              }
+            </div>
+            <div class="sk-network-level">
+              @for (node of five(); track $index) {
+                <span class="sk-network-node"><span class="sk-avatar small"></span><span class="sk-bar line short"></span></span>
+              }
+            </div>
+          </div>
+          <div class="sk-panel">
+            <span class="sk-bar heading"></span>
+            @for (item of rowsRange(); track $index) { <span class="sk-row"></span> }
+          </div>
+        }
+
         @case ('result') {
           <div class="sk-result">
             <span class="sk-avatar"></span>
@@ -274,7 +335,7 @@ export type PageSkeletonLayout =
     .sk-bar, .sk-tile, .sk-shortcut, .sk-row, .sk-flow, .sk-field, .sk-button,
     .sk-table-head, .sk-table-row, .sk-media, .sk-hero, .sk-pill, .sk-pill-row,
     .sk-card, .sk-panel, .sk-avatar, .sk-accordion, .sk-summary-row,
-    .sk-product-media, .sk-profile-card, .sk-balance, .sk-stat, .sk-product, .sk-result {
+    .sk-product-media, .sk-profile-card, .sk-balance, .sk-stat, .sk-product, .sk-result, .sk-board-card, .sk-network-node {
       position: relative;
       overflow: hidden;
       background: var(--ms-surface-3);
@@ -284,7 +345,7 @@ export type PageSkeletonLayout =
     .sk-field::after, .sk-button::after, .sk-table-head::after, .sk-table-row::after,
     .sk-media::after, .sk-hero::after, .sk-pill::after, .sk-pill-row::after, .sk-card::after,
     .sk-avatar::after, .sk-accordion::after, .sk-summary-row::after, .sk-product-media::after,
-    .sk-product::after, .sk-balance::after, .sk-stat::after, .sk-profile-card::after, .sk-result::after {
+    .sk-product::after, .sk-balance::after, .sk-stat::after, .sk-profile-card::after, .sk-result::after, .sk-board-card::after, .sk-network-node::after {
       content: '';
       position: absolute;
       inset: 0;
@@ -365,6 +426,28 @@ export type PageSkeletonLayout =
     .sk-result .sk-bar.line.short { width: min(340px, 58%); }
     .sk-result-grid { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
     .sk-result .sk-button { margin-top: 8px; }
+    .sk-board { display: grid; grid-template-columns: repeat(5, minmax(180px, 1fr)); gap: 12px; overflow: hidden; }
+    .sk-board-col { display: flex; flex-direction: column; gap: 9px; padding: 12px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-surface); }
+    .sk-board-col .sk-bar.label { width: 64%; height: 11px; }
+    .sk-board-card { height: 92px; border-radius: 12px; }
+
+    .sk-inbox { display: grid; grid-template-columns: minmax(240px, 320px) minmax(0, 1fr); gap: 14px; min-height: 520px; }
+    .sk-inbox-list { align-self: stretch; }
+    .sk-inbox-row { display: flex; align-items: center; gap: 10px; }
+    .sk-inbox-row .sk-avatar.small { width: 36px; height: 36px; }
+    .sk-inbox-thread { justify-content: flex-start; }
+    .sk-bubble-row { display: flex; }
+    .sk-bubble-row.mine { justify-content: flex-end; }
+    .sk-bubble-row .sk-row { width: 62%; height: 58px; }
+    .sk-bubble-row.mine .sk-row { width: 48%; background: var(--ms-primary-soft); }
+    .sk-composer { flex: none; height: 56px; margin-top: auto; }
+
+    .sk-network { display: flex; flex-direction: column; gap: 18px; padding: 22px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-surface); }
+    .sk-network-level { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+    .sk-network-node { width: 150px; height: 64px; border-radius: 12px; display: flex; align-items: center; gap: 8px; padding: 0 10px; }
+    .sk-network-node.root { width: 190px; height: 76px; background: var(--ms-primary-soft); }
+    .sk-network-node .sk-avatar.small { width: 30px; height: 30px; }
+    .sk-network-node .sk-bar { margin: 0; }
     .sk-profile-copy { flex: 1; display: flex; flex-direction: column; gap: 9px; }
     .sk-avatar { width: 64px; height: 64px; border-radius: 50%; flex: none; }
     .sk-avatar.small { width: 42px; height: 42px; }
@@ -377,11 +460,17 @@ export type PageSkeletonLayout =
       .sk-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .sk-two-col, .sk-checkout, .sk-product, .sk-balance { grid-template-columns: 1fr; }
       .sk-product-media { min-height: 240px; }
+      .sk-board { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .sk-inbox { grid-template-columns: 1fr; }
+      .sk-inbox-list { display: none; }
     }
     @media (max-width: 560px) {
       .sk-stat-grid, .sk-form-grid, .sk-shortcut-grid, .sk-result-grid { grid-template-columns: 1fr; }
       .sk-bar.title { width: 82%; height: 32px; }
       .sk-hero { min-height: 240px; }
+      .sk-board { grid-template-columns: 1fr; }
+      .sk-network { padding: 14px; }
+      .sk-network-node { width: 100%; }
     }
   `],
 })
@@ -393,5 +482,6 @@ export class PageSkeletonComponent {
 
   protected readonly three = computed(() => Array.from({ length: 3 }, (_, i) => i));
   protected readonly four = computed(() => Array.from({ length: 4 }, (_, i) => i));
+  protected readonly five = computed(() => Array.from({ length: 5 }, (_, i) => i));
   protected readonly rowsRange = computed(() => Array.from({ length: Math.max(1, Number(this.rows()) || 4) }, (_, i) => i));
 }

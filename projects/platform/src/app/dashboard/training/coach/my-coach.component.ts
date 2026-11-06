@@ -7,8 +7,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { CoachingService, CoachingNote, MyCoach } from '../../../core/coaching/coaching.service';
 import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -24,7 +24,7 @@ import { AvatarComponent } from '../../../_common/avatar.component';
 @Component({
   selector: 'async-my-coach',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AvatarComponent, DatePipe, FormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, RouterModule],
+  imports: [AvatarComponent, DatePipe, FormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -44,7 +44,7 @@ import { AvatarComponent } from '../../../_common/avatar.component';
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="dashboard" [rows]="3" label="your coach" [showHeader]="false" />
       }
 
       @if (error(); as err) {

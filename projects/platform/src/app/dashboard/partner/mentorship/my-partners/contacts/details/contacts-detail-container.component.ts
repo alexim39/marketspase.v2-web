@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { MyPartnerContactsDetailComponent } from './contacts-detail.component';
 import { ContactsInterface, ContactsService } from '../contacts.service';
 import { MyPartnersService } from '../../my-partners.service';
@@ -23,7 +23,7 @@ import { userError } from '../../../../../../core/http/api-error';
 selector: 'async-manage-contacts-detail-container',
 template: `
   @if (loading()) {
-    <mat-progress-bar mode="indeterminate" aria-label="Loading prospect" />
+    <async-page-skeleton layout="profile" [rows]="3" label="prospect" [showHeader]="false" />
   }
   @if (error(); as err) {
     <div class="container">
@@ -38,7 +38,7 @@ template: `
   }
   `,
 providers: [ContactsService, MyPartnersService],
-imports: [MyPartnerContactsDetailComponent, MatButtonModule, MatIconModule, MatProgressBarModule],
+imports: [MyPartnerContactsDetailComponent, MatButtonModule, MatIconModule, PageSkeletonComponent],
 changeDetection: ChangeDetectionStrategy.OnPush,
 styles: `
   .container {

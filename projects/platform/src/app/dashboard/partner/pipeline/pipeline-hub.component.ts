@@ -13,7 +13,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { LeadPipelineService } from '../prospects/lead-pipeline/lead-pipeline.service';
 import {
@@ -45,7 +45,7 @@ interface StageRow {
     DecimalPipe,
     MatButtonModule,
     MatIconModule,
-    MatProgressBarModule,
+    PageSkeletonComponent,
     RouterModule,
   ],
   template: `
@@ -63,7 +63,7 @@ interface StageRow {
       </header>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="dashboard" [rows]="3" label="your pipeline" [showHeader]="false" />
       }
 
       @if (error(); as err) {

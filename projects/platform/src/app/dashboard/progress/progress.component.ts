@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { ProgressionService } from '../../core/progression/progression.service';
 import { APP_RANKS, AppRank, Journey, TRAINING_TRACK, appRankIndex } from '../../core/progression/progression.models';
 import { AuthService } from '../../core/auth/auth.service';
@@ -21,7 +21,7 @@ import { ApiError } from '../../core/http/api-error';
 @Component({
   selector: 'async-progress',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, MatButtonModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [DatePipe, MatButtonModule, MatIconModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -43,7 +43,7 @@ import { ApiError } from '../../core/http/api-error';
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="dashboard" [rows]="3" label="your progress" [showHeader]="false" />
       }
 
       @if (error(); as err) {

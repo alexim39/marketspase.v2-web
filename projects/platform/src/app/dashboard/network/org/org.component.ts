@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { ApiError } from '../../../core/http/api-error';
@@ -33,7 +34,7 @@ interface OrgLevel {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AvatarComponent, MatButtonModule, MatChipsModule, MatFormFieldModule, MatIconModule, MatInputModule,
-    MatProgressBarModule, MatSelectModule, RouterModule,
+    MatProgressBarModule, MatSelectModule, PageSkeletonComponent, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -70,7 +71,7 @@ interface OrgLevel {
           </mat-select>
         </mat-form-field>
         @if (loading()) {
-          <mat-progress-bar mode="indeterminate" class="loader" aria-label="Loading" />
+          <async-page-skeleton layout="network" [rows]="5" label="organisation chart" [showHeader]="false" />
         }
       </div>
 

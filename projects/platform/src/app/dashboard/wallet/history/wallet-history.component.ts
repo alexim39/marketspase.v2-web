@@ -6,10 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { WalletService } from '../../../core/wallet/wallet.service';
 import { WalletTransaction } from '../../../core/wallet/wallet.models';
 import { ApiError } from '../../../core/http/api-error';
@@ -25,7 +25,7 @@ import { formatSignedMoney, isWalletCredit } from '../../../core/format/money';
 @Component({
   selector: 'async-wallet-history',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatProgressBarModule, MatSelectModule, MatTableModule, RouterModule],
+  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatSelectModule, MatTableModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -69,7 +69,7 @@ import { formatSignedMoney, isWalletCredit } from '../../../core/format/money';
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="table" [rows]="6" label="wallet history" [showHeader]="false" />
       }
 
       @if (error(); as err) {

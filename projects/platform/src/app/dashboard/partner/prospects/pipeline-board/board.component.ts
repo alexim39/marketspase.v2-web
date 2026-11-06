@@ -6,8 +6,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { forkJoin } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ApiError } from '../../../../core/http/api-error';
@@ -30,7 +30,7 @@ import { formatStuckDuration } from '../stuck-duration';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DragDropModule, MatButtonModule, MatChipsModule, MatFormFieldModule,
-    MatIconModule, MatInputModule, MatProgressBarModule, RouterModule,
+    MatIconModule, MatInputModule, PageSkeletonComponent, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -81,9 +81,6 @@ import { formatStuckDuration } from '../stuck-duration';
           <input matInput type="search" placeholder="Name, phone or email" (input)="search.set($any($event.target).value)" />
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
-        @if (loading()) {
-          <mat-progress-bar mode="indeterminate" class="loader" aria-label="Loading" />
-        }
       </div>
 
       @if (error(); as err) {
@@ -93,6 +90,9 @@ import { formatStuckDuration } from '../stuck-duration';
         </p>
       }
 
+      @if (loading()) {
+        <async-page-skeleton layout="board" [rows]="3" label="pipeline board" [showHeader]="false" />
+      } @else {
       <div class="board">
         @for (col of columns(); track col.stage) {
           <div class="column">
@@ -124,6 +124,7 @@ import { formatStuckDuration } from '../stuck-duration';
           </div>
         }
       </div>
+      }
     </section>
   `,
   styles: [`

@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { LeadPipelineService } from '../../../prospects/lead-pipeline/lead-pipeline.service';
 import { DownlineContact, DownlineContactListItem } from '../../../prospects/lead-pipeline/lead.models';
 import { ApiError } from '../../../../../core/http/api-error';
@@ -46,7 +47,7 @@ interface MemberGroup {
 @Component({
   selector: 'async-downline-contact-lists',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DatePipe, MatButtonModule, MatChipsModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule, RouterModule],
+  imports: [CommonModule, DatePipe, MatButtonModule, MatChipsModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -76,7 +77,7 @@ interface MemberGroup {
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="list" [rows]="5" label="warm contact lists" [showHeader]="false" />
       }
 
       @if (error(); as err) {

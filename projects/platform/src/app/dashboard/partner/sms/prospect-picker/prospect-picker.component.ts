@@ -6,8 +6,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { Subscription } from 'rxjs';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
@@ -26,7 +26,7 @@ import { ApiError } from '../../../../core/http/api-error';
 @Component({
   selector: 'async-prospect-picker',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatCheckboxModule, MatChipsModule, MatFormFieldModule, MatInputModule, MatProgressBarModule, RouterModule],
+  imports: [CommonModule, FormsModule, MatButtonModule, MatCheckboxModule, MatChipsModule, MatFormFieldModule, MatInputModule, PageSkeletonComponent, RouterModule],
   template: `
     <div class="picker">
       <mat-form-field appearance="outline">
@@ -43,7 +43,7 @@ import { ApiError } from '../../../../core/http/api-error';
         </button>
       </div>
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="list" [rows]="4" label="prospects" [showHeader]="false" />
       }
       @if (error(); as err) {
         <p class="error" role="alert">{{ err }}</p>

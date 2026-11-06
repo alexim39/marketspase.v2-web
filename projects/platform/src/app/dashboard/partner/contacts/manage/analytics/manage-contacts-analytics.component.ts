@@ -3,9 +3,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
@@ -35,7 +35,7 @@ import { SMSService } from '../../../sms/sms.service';
         MatFormFieldModule,
         MatInputModule,
         MatIconModule, MatButtonModule,
-        MatDividerModule, MatListModule, CommonModule, RouterModule, MatProgressBarModule
+        MatDividerModule, MatListModule, CommonModule, RouterModule, PageSkeletonComponent
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
     providers: [ContactsService, SMSService, ProspectService]

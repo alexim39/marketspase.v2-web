@@ -3,7 +3,7 @@ import { CurrencyPipe } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UiFeedbackService } from '../../../../core/ui/ui-feedback.service';
@@ -37,7 +37,7 @@ import {
     CurrencyPipe,
     MatButtonModule,
     MatIconModule,
-    MatProgressBarModule,
+    PageSkeletonComponent,
     RouterModule,
   ],
 })

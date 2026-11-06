@@ -7,6 +7,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -42,7 +43,7 @@ interface Step {
 @Component({
   selector: 'async-my-business',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DecimalPipe, MatButtonModule, MatCardModule, MatChipsModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [CommonModule, DecimalPipe, MatButtonModule, MatCardModule, MatChipsModule, MatIconModule, MatProgressBarModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -65,7 +66,7 @@ interface Step {
       </div>
 
       @if (loading() && !loadedOnce()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="dashboard" [rows]="3" label="your business" [showHeader]="false" />
       }
       @if (error(); as err) {
         <p class="error" role="alert">{{ err }} <button mat-button (click)="reload()">Retry</button></p>

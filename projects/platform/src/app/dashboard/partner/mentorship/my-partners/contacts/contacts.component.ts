@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
@@ -48,7 +49,7 @@ const EMPTY_STATS: ContactListStats = { total: 0, attention: 0, unworked: 0, hot
     AvatarComponent, DatePipe, MatButtonModule, MatCheckboxModule, MatChipsModule,
     MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule,
     MatProgressBarModule, MatSelectModule, MatSnackBarModule, MatTableModule,
-    MatTooltipModule, RouterModule,
+    MatTooltipModule, PageSkeletonComponent, RouterModule,
   ],
 })
 export class MyPartnersContactsComponent {

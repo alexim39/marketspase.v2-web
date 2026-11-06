@@ -10,6 +10,7 @@ import {
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,7 +20,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { OnboardingService } from '../../core/onboarding/onboarding.service';
@@ -48,9 +48,9 @@ type CampaignTab = 'studio' | 'campaigns' | 'placement';
     MatIconModule,
     MatInputModule,
     MatNativeDateModule,
-    MatProgressBarModule,
     MatSelectModule,
     MatTooltipModule,
+    PageSkeletonComponent,
     ReactiveFormsModule,
     RouterModule,
   ],
@@ -68,7 +68,7 @@ type CampaignTab = 'studio' | 'campaigns' | 'placement';
       </header>
 
       @if (loading()) {
-        <div class="panel loading"><mat-progress-bar mode="indeterminate" aria-label="Loading" /><p class="muted">Loading campaigns…</p></div>
+        <async-page-skeleton layout="cards" [rows]="4" label="your campaigns" [showHeader]="false" />
       } @else {
         @if (error(); as err) {
           <div class="alert" role="alert">

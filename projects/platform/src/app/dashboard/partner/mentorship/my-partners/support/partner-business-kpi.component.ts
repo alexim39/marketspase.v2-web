@@ -5,8 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
@@ -37,7 +37,7 @@ import { ApiError, userError } from '../../../../../core/http/api-error';
 @Component({
   selector: 'async-partner-business-kpi',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatButtonModule, MatCardModule, MatChipsModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [CommonModule, MatButtonModule, MatCardModule, MatChipsModule, MatIconModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="dp-card kpi-section" aria-label="Business KPI">
       <div class="kpi-head">
@@ -49,7 +49,7 @@ import { ApiError, userError } from '../../../../../core/http/api-error';
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="dashboard" [rows]="2" label="business KPI" [showHeader]="false" />
       }
       @if (error(); as err) {
         <p class="error" role="alert">{{ err }} <button mat-button (click)="reload()">Retry</button></p>

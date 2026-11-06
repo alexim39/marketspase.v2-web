@@ -37,7 +37,7 @@ type OrderShipping = {
   notes?: string;
 };
 
-type Order = {
+export type Order = {
   _id: string;
   orderNumber?: string;
   orderStatus: string;

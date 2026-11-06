@@ -12,7 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { CommunityService } from '../../../core/community/community.service';
 import { FeedPost } from '../../../core/community/community.models';
 import { EventService } from '../../../core/events/event.service';
@@ -29,7 +29,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
     DatePipe,
     MatButtonModule,
     MatIconModule,
-    MatProgressBarModule,
+    PageSkeletonComponent,
     RouterModule,
   ],
   template: `
@@ -47,7 +47,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
       </header>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="cards" [rows]="4" label="community" [showHeader]="false" />
       }
 
       @if (error(); as err) {

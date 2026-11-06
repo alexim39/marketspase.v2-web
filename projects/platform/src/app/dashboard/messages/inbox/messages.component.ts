@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { forkJoin, interval, fromEvent, Observable } from 'rxjs';
 import { MessageService } from '../../../core/messaging/message.service';
 import { CommunityService } from '../../../core/community/community.service';
@@ -51,7 +52,7 @@ const TYPING_CLEAR_MS = 3500;
   imports: [
     AvatarComponent, DatePipe, MatButtonModule, MatButtonToggleModule, MatChipsModule,
     MatDialogModule, MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule,
-    ReactiveFormsModule, RouterModule,
+    PageSkeletonComponent, ReactiveFormsModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -84,7 +85,7 @@ const TYPING_CLEAR_MS = 3500;
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="inbox" [rows]="6" label="messages" [showHeader]="false" />
       }
       @if (error(); as err) {
         <p class="error" role="alert">

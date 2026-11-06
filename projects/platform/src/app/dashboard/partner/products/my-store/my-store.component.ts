@@ -20,6 +20,7 @@ import {
   StoreReceipt,
 } from '../../../../core/store/store.models';
 import { UiFeedbackService } from '../../../../core/ui/ui-feedback.service';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 
 type Tab = 'overview' | 'listings' | 'receipts' | 'settings';
 
@@ -80,6 +81,7 @@ const EMPTY_FORM: StoreForm = {
     MatIconModule,
     MatInputModule,
     MatProgressBarModule,
+    PageSkeletonComponent,
     RouterModule,
   ],
 })

@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { NotificationService } from '../../../core/notifications/notification.service';
 import { PushSubscriptionService } from '../../../core/notifications/push-subscription.service';
 import {
@@ -32,7 +32,7 @@ const DIGEST_OPTIONS: Array<{ label: string; value: Digest }> = [
 @Component({
   selector: 'async-notification-preferences',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatProgressBarModule, RouterModule],
+  imports: [MatButtonModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -51,7 +51,7 @@ const DIGEST_OPTIONS: Array<{ label: string; value: Digest }> = [
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="form" [rows]="6" label="notification preferences" [showHeader]="false" />
       }
 
       @if (error(); as err) {

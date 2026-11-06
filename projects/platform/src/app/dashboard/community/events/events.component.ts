@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { environment } from '../../../../environments/environment';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ExportContactAndEmailService } from '../../../_common/services/exportContactAndEmail.service';
@@ -68,7 +69,7 @@ const withDetail = (err: ApiError): string => {
   imports: [
     AvatarComponent, DatePipe, MatButtonModule, MatButtonToggleModule, MatDatepickerModule, MatNativeDateModule,
     MatTimepickerModule, MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatSnackBarModule,
-    ReactiveFormsModule, RouterModule,
+    PageSkeletonComponent, ReactiveFormsModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -95,7 +96,7 @@ const withDetail = (err: ApiError): string => {
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="cards" [rows]="4" label="community events" [showHeader]="false" />
       }
 
       @if (error(); as err) {

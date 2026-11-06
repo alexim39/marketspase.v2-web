@@ -28,7 +28,7 @@
   </div>
 
   @if (loading()) {
-    <mat-progress-bar mode="indeterminate" aria-label="Loading member support view" />
+    <async-page-skeleton layout="dashboard" [rows]="3" label="member support view" [showHeader]="false" />
   }
 
   @if (error(); as err) {

@@ -5,8 +5,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { forkJoin } from 'rxjs';
 import { NotificationService } from '../../../core/notifications/notification.service';
 import {
@@ -80,7 +80,7 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
 @Component({
   selector: 'async-notifications-center',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatChipsModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, RouterModule],
+  imports: [MatButtonModule, MatChipsModule, MatFormFieldModule, MatIconModule, MatInputModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -159,7 +159,7 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="list" [rows]="5" label="notifications" [showHeader]="false" />
       }
 
       @if (error(); as err) {

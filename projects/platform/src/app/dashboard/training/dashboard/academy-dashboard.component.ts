@@ -7,6 +7,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { TrainingService } from '../../../core/training/training.service';
@@ -30,7 +31,7 @@ import { ApiError } from '../../../core/http/api-error';
 @Component({
   selector: 'async-academy-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, SlicePipe, MatButtonModule, MatCardModule, MatChipsModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [DatePipe, SlicePipe, MatButtonModule, MatCardModule, MatChipsModule, MatIconModule, MatProgressBarModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -55,7 +56,7 @@ import { ApiError } from '../../../core/http/api-error';
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="dashboard" [rows]="3" label="academy" [showHeader]="false" />
       }
 
       @if (error(); as err) {

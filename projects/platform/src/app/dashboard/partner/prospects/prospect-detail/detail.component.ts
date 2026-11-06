@@ -11,6 +11,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
 import { ProspectService } from '../prospects.service';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -78,7 +79,7 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
   providers: [ProspectService],
   imports: [
     DatePipe, MatButtonModule, MatChipsModule, MatDatepickerModule, MatIconModule, MatInputModule,
-    MatProgressBarModule, MatSelectModule, MatTimepickerModule, ReactiveFormsModule, RouterModule,
+    MatProgressBarModule, MatSelectModule, MatTimepickerModule, PageSkeletonComponent, ReactiveFormsModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -91,7 +92,7 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
 
     <section class="detail-page">
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="profile" [rows]="3" label="prospect" [showHeader]="false" />
       }
 
       @if (error(); as err) {

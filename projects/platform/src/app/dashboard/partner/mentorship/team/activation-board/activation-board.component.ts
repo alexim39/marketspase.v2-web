@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { LeadPipelineService } from '../../../prospects/lead-pipeline/lead-pipeline.service';
 import { ActivationBoardItem } from '../../../prospects/lead-pipeline/lead.models';
 import { ApiError } from '../../../../../core/http/api-error';
@@ -27,7 +28,7 @@ const PAGE_SIZE = 10;
 @Component({
   selector: 'async-activation-board',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DatePipe, MatButtonModule, MatChipsModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, RouterModule],
+  imports: [CommonModule, DatePipe, MatButtonModule, MatChipsModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -50,7 +51,7 @@ const PAGE_SIZE = 10;
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="board" [rows]="3" label="activation board" [showHeader]="false" />
       }
 
       @if (error(); as err) {

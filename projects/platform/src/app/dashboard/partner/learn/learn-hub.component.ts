@@ -14,6 +14,7 @@ import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { ProgressionService } from '../../../core/progression/progression.service';
 import { APP_RANKS, AppRank, Journey, appRankIndex } from '../../../core/progression/progression.models';
 import { GoalService } from '../../../core/goals/goal.service';
@@ -35,6 +36,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
+    PageSkeletonComponent,
     RouterModule,
   ],
   template: `
@@ -52,7 +54,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
       </header>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading your learning plan" />
+        <async-page-skeleton layout="dashboard" [rows]="3" label="your learning plan" [showHeader]="false" />
       }
 
       @if (error(); as err) {

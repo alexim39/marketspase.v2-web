@@ -12,6 +12,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { NgxEchartsDirective } from 'ngx-echarts';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { ChartThemeService } from '../../../core/charts/chart-theme.service';
 import type { EChartsCoreOption } from '../../../core/charts/echarts-setup';
 import { forkJoin } from 'rxjs';
@@ -41,7 +42,7 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
   imports: [
     DatePipe, DecimalPipe, MatButtonModule, MatChipsModule, MatDatepickerModule, MatNativeDateModule,
     MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule, NgxEchartsDirective,
-    ReactiveFormsModule, RouterModule,
+    PageSkeletonComponent, ReactiveFormsModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -134,7 +135,7 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
       }
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="dashboard" [rows]="3" label="your goals" [showHeader]="false" />
       }
 
       @if (error(); as err) {

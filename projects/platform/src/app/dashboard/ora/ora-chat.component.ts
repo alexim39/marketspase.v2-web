@@ -9,6 +9,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { OraService } from '../../core/ora/ora.service';
 import { OraAction, OraContext, OraConversationSummary, OraMessage } from '../../core/ora/ora.models';
 import { ApiError } from '../../core/http/api-error';
@@ -54,7 +55,7 @@ interface ChatMsg extends OraMessage {
 @Component({
   selector: 'async-ora-chat',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, MatButtonModule, MatChipsModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [FormsModule, MatButtonModule, MatChipsModule, MatIconModule, MatProgressBarModule, PageSkeletonComponent, RouterModule],
   template: `
     <div class="ora-chat">
       <header class="ora-head">
@@ -80,7 +81,7 @@ interface ChatMsg extends OraMessage {
       </header>
 
       @if (booting()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="inbox" [rows]="5" label="Ora" [showHeader]="false" />
       }
 
       @if (view() === 'history') {

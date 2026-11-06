@@ -1,12 +1,12 @@
-﻿import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { userError } from '../../../../core/http/api-error';
 import { ProductService } from '../monthly-purchase.service';
-import { PurchasesComponent } from './purchases.component';
+import { Order, PurchasesComponent } from './purchases.component';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 
 /**
  * Loads the signed-in buyer's orders and leaves presentation to the card
@@ -15,19 +15,19 @@ import { PurchasesComponent } from './purchases.component';
 @Component({
   selector: 'async-purchases-container',
   template: `
-    @if (loading) {
-      <mat-progress-bar mode="indeterminate" aria-label="Loading orders" />
-    } @else if (error) {
+    @if (loading()) {
+      <async-page-skeleton layout="list" [rows]="4" label="your orders" [showHeader]="false" />
+    } @else if (error(); as err) {
       <section class="load-error dp-card" role="alert">
         <mat-icon>cloud_off</mat-icon>
         <div>
           <h2>Could not load your orders</h2>
-          <p>{{ error }}</p>
+          <p>{{ err }}</p>
         </div>
         <button mat-flat-button color="primary" type="button" (click)="load()">Retry</button>
       </section>
     } @else {
-      <async-purchases [cartObject]="orders" />
+      <async-purchases [cartObject]="orders()" />
     }
   `,
   styles: [`
@@ -46,16 +46,16 @@ import { PurchasesComponent } from './purchases.component';
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ProductService],
-  imports: [MatButtonModule, MatIconModule, MatProgressBarModule, PurchasesComponent],
+  imports: [MatButtonModule, MatIconModule, PageSkeletonComponent, PurchasesComponent],
 })
 export class PurchaseContainerComponent implements OnInit {
   private readonly partnerService = inject(PartnerService);
   private readonly productService = inject(ProductService);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected loading = true;
-  protected error: string | null = null;
-  protected orders: any[] = [];
+  protected readonly loading = signal(true);
+  protected readonly error = signal<string | null>(null);
+  protected readonly orders = signal<Order[]>([]);
 
   private partnerId = '';
 
@@ -72,18 +72,18 @@ export class PurchaseContainerComponent implements OnInit {
 
   protected load(): void {
     if (!this.partnerId) return;
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);
+    this.error.set(null);
     this.productService.getAllOrderBy(this.partnerId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.orders = response?.data ?? [];
-          this.loading = false;
+          this.orders.set((response?.data ?? []) as unknown as Order[]);
+          this.loading.set(false);
         },
         error: (err: unknown) => {
-          this.error = userError(err);
-          this.loading = false;
+          this.error.set(userError(err));
+          this.loading.set(false);
         },
       });
   }

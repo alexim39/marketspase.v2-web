@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRadioModule } from '@angular/material/radio';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { TrainingService } from '../../../core/training/training.service';
 import { CourseDetail } from '../../../core/training/training.models';
 import { ApiError, userError } from '../../../core/http/api-error';
@@ -20,7 +21,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
 @Component({
   selector: 'async-training-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, FormsModule, MatButtonModule, MatIconModule, MatProgressBarModule, MatRadioModule, RouterModule],
+  imports: [DecimalPipe, FormsModule, MatButtonModule, MatIconModule, MatProgressBarModule, MatRadioModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -32,7 +33,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
 
     <section class="course-page">
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="product" label="course" [showHeader]="false" />
       }
 
       @if (error(); as err) {

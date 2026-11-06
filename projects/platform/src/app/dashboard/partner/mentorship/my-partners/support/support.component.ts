@@ -6,8 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { catchError, forkJoin, of } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { AvatarComponent } from '../../../../../_common/avatar.component';
@@ -38,7 +38,7 @@ import { ApiError, userError } from '../../../../../core/http/api-error';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AvatarComponent, DatePipe, FormsModule, LowerCasePipe, MatButtonModule, MatChipsModule,
-    MatIconModule, MatInputModule, MatProgressBarModule, RouterModule,
+    MatIconModule, MatInputModule, PageSkeletonComponent, RouterModule,
     PartnerBusinessKpiComponent,
   ],
 })

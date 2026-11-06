@@ -12,7 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { CompensationService } from '../../core/compensation/compensation.service';
 import {
   MentorBonus,
@@ -24,7 +24,7 @@ import { formatMoney } from '../../core/format/money';
 @Component({
   selector: 'async-compensation',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, MatButtonModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [DatePipe, DecimalPipe, MatButtonModule, MatIconModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="comp-page">
       <div class="page-head">
@@ -37,7 +37,7 @@ import { formatMoney } from '../../core/format/money';
       </div>
 
       @if (loading()) {
-        <div class="panel loading"><mat-progress-bar mode="indeterminate" aria-label="Loading" /><p class="muted">Loading compensation…</p></div>
+        <async-page-skeleton layout="wallet" [rows]="3" label="your compensation" [showHeader]="false" />
       } @else {
         @if (error(); as err) {
           <div class="alert" role="alert"><mat-icon>error_outline</mat-icon><p>{{ err }}</p></div>

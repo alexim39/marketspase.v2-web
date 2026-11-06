@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { catchError, forkJoin, of } from 'rxjs';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
 import { GoalService } from '../../../core/goals/goal.service';
@@ -26,7 +27,7 @@ import { ApiError } from '../../../core/http/api-error';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AvatarComponent, MatButtonModule,
-    MatIconModule, MatProgressBarModule, RouterModule,
+    MatIconModule, MatProgressBarModule, PageSkeletonComponent, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -46,7 +47,7 @@ import { ApiError } from '../../../core/http/api-error';
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading member view" />
+        <async-page-skeleton layout="dashboard" [rows]="3" label="member view" [showHeader]="false" />
       }
 
       @if (error(); as err) {

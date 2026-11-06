@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
 import { ReminderEntry, RemindersData } from '../lead-pipeline/lead.models';
 import { ApiError } from '../../../../core/http/api-error';
@@ -20,7 +20,7 @@ import { ApiError } from '../../../../core/http/api-error';
 @Component({
   selector: 'async-reminders',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, MatButtonModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [DatePipe, MatButtonModule, MatIconModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -40,18 +40,7 @@ import { ApiError } from '../../../../core/http/api-error';
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading reminders" />
-        <div class="dp-card bucket sk" aria-hidden="true">
-          <span class="sk-title"></span>
-          <ul class="reminder-list">
-            @for (i of [1, 2, 3]; track i) {
-              <li>
-                <span class="sk-dot"></span>
-                <span class="sk-text"><span class="sk-line"></span><span class="sk-line short"></span></span>
-              </li>
-            }
-          </ul>
-        </div>
+        <async-page-skeleton layout="list" [rows]="4" label="reminders" [showHeader]="false" />
       }
 
       @if (error(); as err) {

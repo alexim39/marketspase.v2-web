@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { Observable } from 'rxjs';
 import { DepositMethod, WalletService } from '../../../core/wallet/wallet.service';
 import { ApiError, userError } from '../../../core/http/api-error';
@@ -27,7 +28,7 @@ const MAX_NGN = 1000000;
 @Component({
   selector: 'async-wallet-deposit',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, RouterModule],
+  imports: [DecimalPipe, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -46,7 +47,7 @@ const MAX_NGN = 1000000;
       </div>
 
       @if (loadingMethods()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="form" [rows]="4" label="deposit methods" [showHeader]="false" />
       }
       <div class="methods" role="group" aria-label="Deposit method">
         @for (m of methods(); track m.id) {

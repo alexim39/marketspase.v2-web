@@ -11,13 +11,13 @@ import {
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { AuthService } from '../../core/auth/auth.service';
 import { ApiError, userError } from '../../core/http/api-error';
@@ -40,8 +40,8 @@ import { States } from '../../_common/services/countries';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatProgressBarModule,
     MatSelectModule,
+    PageSkeletonComponent,
     ReactiveFormsModule,
     RouterModule,
   ],
@@ -64,10 +64,7 @@ import { States } from '../../_common/services/countries';
       </div>
 
       @if (loading()) {
-        <div class="panel loading-panel">
-          <mat-progress-bar mode="indeterminate" aria-label="Loading" />
-          <p class="muted">Loading your activation status…</p>
-        </div>
+        <async-page-skeleton layout="form" [rows]="8" label="your activation status" [showHeader]="false" />
       } @else {
         @if (error(); as err) {
           <div class="alert" role="alert">

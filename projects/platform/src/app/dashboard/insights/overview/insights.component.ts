@@ -5,10 +5,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { NgxEchartsDirective } from 'ngx-echarts';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
 import { ExportFormat, ExportKind, ExportService } from '../../../core/analytics/export.service';
 import { ChartThemeService } from '../../../core/charts/chart-theme.service';
@@ -34,7 +34,7 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DecimalPipe, MatButtonModule, MatCardModule, MatChipsModule, MatIconModule,
-    MatProgressBarModule, MatSelectModule, NgxEchartsDirective, RouterModule,
+    MatSelectModule, NgxEchartsDirective, PageSkeletonComponent, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -61,7 +61,7 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+        <async-page-skeleton layout="dashboard" [rows]="3" label="insights" [showHeader]="false" />
       }
 
       @if (error(); as err) {

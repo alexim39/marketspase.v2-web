@@ -8,9 +8,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { ProspectListInterface, ProspectService } from '../prospects.service';
 import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
@@ -67,7 +67,7 @@ const STATUS_TONE: Record<string, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe, FormsModule, MatButtonModule, MatChipsModule, MatFormFieldModule, MatIconModule,
-    MatInputModule, MatProgressBarModule, MatSelectModule, RouterModule,
+    MatInputModule, MatSelectModule, PageSkeletonComponent, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -88,9 +88,8 @@ const STATUS_TONE: Record<string, string> = {
       </div>
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading" />
-      }
-
+        <async-page-skeleton layout="list" [rows]="4" label="your sessions" [showHeader]="false" />
+      } @else {
       @if (error(); as err) {
         <p class="error" role="alert">
           {{ err }}
@@ -119,9 +118,6 @@ const STATUS_TONE: Record<string, string> = {
             }
           </mat-select>
         </mat-form-field>
-        @if (loading()) {
-          <mat-progress-bar mode="indeterminate" class="loader" aria-label="Loading" />
-        }
       </div>
 
       <div class="chip-row">
@@ -167,6 +163,7 @@ const STATUS_TONE: Record<string, string> = {
           <p>No sessions match — book your first chat from the pipeline and it lands here.</p>
           <a mat-button routerLink="/dashboard/prospects/pipeline">Open pipeline</a>
         </div>
+      }
       }
     </section>
   `,

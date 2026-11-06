@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { KitGroup, KitService, KitStats } from '../../../../core/kits/kit.service';
 import { ApiError } from '../../../../core/http/api-error';
 
@@ -18,7 +18,7 @@ import { ApiError } from '../../../../core/http/api-error';
 @Component({
   selector: 'async-kits',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule, MatProgressBarModule, MatTooltipModule, RouterModule],
+  imports: [MatButtonModule, MatIconModule, MatTooltipModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -49,7 +49,7 @@ import { ApiError } from '../../../../core/http/api-error';
       }
 
       @if (loading()) {
-        <mat-progress-bar mode="indeterminate" aria-label="Loading presentations" />
+        <async-page-skeleton layout="cards" [rows]="4" label="presentations" [showHeader]="false" />
       }
 
       @if (error(); as err) {

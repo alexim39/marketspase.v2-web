@@ -8,8 +8,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { RouterModule } from '@angular/router';
 import { LeadPipelineService } from '../../prospects/lead-pipeline/lead-pipeline.service';
@@ -47,7 +47,7 @@ const nigerianPhoneValidator = (control: AbstractControl): ValidationErrors | nu
 selector: 'async-create-contatcs',
 imports: [
   CommonModule, DatePipe, MatButtonModule, MatButtonToggleModule, MatCheckboxModule, MatChipsModule, MatIconModule,
-  MatInputModule, MatProgressBarModule, MatSelectModule, MatTimepickerModule, ReactiveFormsModule, RouterModule,
+  MatInputModule, MatSelectModule, MatTimepickerModule, PageSkeletonComponent, ReactiveFormsModule, RouterModule,
 ],
 template: `
 <section class="breadcrumb-wrapper">
@@ -67,7 +67,7 @@ template: `
   </div>
 
   @if (loading()) {
-    <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+    <async-page-skeleton layout="form" [rows]="8" label="contact form" [showHeader]="false" />
   }
 
   @if (error(); as err) {

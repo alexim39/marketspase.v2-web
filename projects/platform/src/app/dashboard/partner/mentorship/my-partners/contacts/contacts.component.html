@@ -130,10 +130,7 @@
 
   <!-- List -->
   @if (loadingList() && !responded()) {
-    <div class="dp-card empty" role="status">
-      <mat-progress-bar mode="indeterminate" aria-label="Loading contacts" />
-      <p class="dp-muted">Loading contact list…</p>
-    </div>
+    <async-page-skeleton layout="table" [rows]="5" label="contacts" [showHeader]="false" />
   } @else if (stats().total === 0) {
     <div class="dp-card empty" role="status">
       <mat-icon>group_add</mat-icon>
