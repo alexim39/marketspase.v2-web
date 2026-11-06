@@ -1,16 +1,17 @@
 ﻿import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo.component';
 import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'async-footer',
-  imports: [RouterModule],
+  imports: [RouterModule, BrandLogoComponent],
   template: `
     <footer class="ms-footer">
       <div class="footer-inner ms-store-page">
         <div class="footer-brand">
           <a routerLink="/" class="brand" aria-label="MarketSpase Store home">
-            <img class="brand-logo" src="/logo/marketspase-logo-white.png" alt="" width="1200" height="337" />
+            <async-brand-logo class="brand-logo" variant="full-white" height="34px" alt="" />
             <span class="brand-store" aria-hidden="true">Store</span>
           </a>
           <p>Independent partner stores. Real people. Secure checkout.</p>

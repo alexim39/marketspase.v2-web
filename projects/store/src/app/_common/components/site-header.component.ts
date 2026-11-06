@@ -1,17 +1,18 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
+import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo.component';
 import { environment } from '../../../environments/environment';
 import { CartService } from '../../store/cart/cart.service';
 
 @Component({
   selector: 'async-site-header',
-  imports: [RouterModule, MatIconModule],
+  imports: [RouterModule, MatIconModule, BrandLogoComponent],
   template: `
     <header class="ms-header">
       <div class="bar ms-store-page">
         <a routerLink="/" class="brand" aria-label="MarketSpase Store home">
-          <img class="brand-logo" src="/logo/marketspase-logo-dark.png" alt="" width="1200" height="337" />
+          <async-brand-logo class="brand-logo" variant="full-dark" height="30px" alt="" />
           <span class="brand-store" aria-hidden="true">Store</span>
         </a>
 

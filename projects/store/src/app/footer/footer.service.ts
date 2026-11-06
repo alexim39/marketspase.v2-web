@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../_common/services/api.service';
+import { ApiClient } from '@marketspase/shared/core/http/api-client.service';
 
 export interface emailSubscriptionInterface {
   email: string;
@@ -8,8 +8,7 @@ export interface emailSubscriptionInterface {
 
 @Injectable()
 export class FooterService {
-
-  constructor(private apiService: ApiService) {}
+  private readonly api = inject(ApiClient);
  
 
   /**
@@ -18,7 +17,7 @@ export class FooterService {
  * @returns An Observable that emits the API response or an error.
  */
   submit(formObject: emailSubscriptionInterface): Observable<any> {
-    return this.apiService.post<emailSubscriptionInterface>(`emailSubscription/subscribe`, formObject, undefined, true);
+    return this.api.post<emailSubscriptionInterface>('emailSubscription/subscribe', formObject);
   }
 
 

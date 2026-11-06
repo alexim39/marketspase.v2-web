@@ -1,0 +1,186 @@
+/* MarketSpase design system - brand tokens on top of Angular Material.
+ * Primary: #667eea (violet blue) - #764ba2 (purple). Material handles
+ * component contrast; these tokens drive shell chrome, status semantics
+ * and dark mode.
+ */
+@use "@angular/material" as mat;
+
+
+$ms-secondary-tones: (
+  0: #000000,
+  10: #241235,
+  20: #3d1f59,
+  25: #4a286a,
+  30: #57317c,
+  35: #653b8f,
+  40: #6d3f9e,
+  50: #764ba2,
+  60: #946bc0,
+  70: #b394d6,
+  80: #d1bbe7,
+  90: #ebddf7,
+  95: #f5eefb,
+  98: #fcf8fe,
+  99: #fefbff,
+  100: #ffffff,
+);
+
+$ms-neutral: (
+  0: #000000,
+  4: #0d0d12,
+  6: #121218,
+  10: #1b1b22,
+  12: #202028,
+  17: #2a2a33,
+  20: #303039,
+  22: #35353f,
+  24: #3a3a45,
+  25: #3d3d48,
+  30: #474751,
+  35: #53535d,
+  40: #5e5e68,
+  50: #777780,
+  60: #91919a,
+  70: #ababb4,
+  80: #c7c7cf,
+  87: #dedee3,
+  90: #e6e6ec,
+  92: #ececf1,
+  94: #f2f2f6,
+  95: #f5f5f8,
+  96: #f8f8fa,
+  98: #fcfcfd,
+  99: #fefeff,
+  100: #ffffff,
+);
+
+$ms-neutral-variant: (
+  0: #000000,
+  10: #1c1b23,
+  20: #31303a,
+  25: #3c3b45,
+  30: #484650,
+  35: #54525c,
+  40: #605e69,
+  50: #797783,
+  60: #93919d,
+  70: #aeacb8,
+  80: #cac7d3,
+  90: #e6e3ef,
+  95: #f4f1fb,
+  98: #fdf9ff,
+  99: #fffbff,
+  100: #ffffff,
+);
+
+$ms-error: (
+  0: #000000,
+  10: #410002,
+  20: #690005,
+  25: #7e0007,
+  30: #93000a,
+  35: #a80710,
+  40: #ba1a1a,
+  50: #de3730,
+  60: #ff5449,
+  70: #ff897d,
+  80: #ffb4ab,
+  90: #ffdad6,
+  95: #ffedea,
+  98: #fff8f7,
+  99: #fffbff,
+  100: #ffffff,
+);
+
+$ms-secondary: (
+  0: #000000,
+  10: #241235,
+  20: #3d1f59,
+  25: #4a286a,
+  30: #57317c,
+  35: #653b8f,
+  40: #6d3f9e,
+  50: #764ba2,
+  60: #946bc0,
+  70: #b394d6,
+  80: #d1bbe7,
+  90: #ebddf7,
+  95: #f5eefb,
+  98: #fcf8fe,
+  99: #fefbff,
+  100: #ffffff,
+  secondary: $ms-secondary-tones,
+  neutral: $ms-neutral,
+  neutral-variant: $ms-neutral-variant,
+  error: $ms-error,
+);
+
+$ms-primary: (
+  0: #000000,
+  10: #0b0f2e,
+  20: #182050,
+  25: #1f2a63,
+  30: #273475,
+  35: #313f89,
+  40: #4a5bc4,
+  50: #667eea,
+  60: #8192ee,
+  70: #a0adf3,
+  80: #c3cbf8,
+  90: #e1e5fc,
+  95: #f0f2fe,
+  98: #f9faff,
+  99: #fdfdff,
+  100: #ffffff,
+  secondary: $ms-secondary-tones,
+  neutral: $ms-neutral,
+  neutral-variant: $ms-neutral-variant,
+  error: $ms-error,
+);
+
+$ms-typography: (
+  plain-family: ('Inter Variable', 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif),
+  brand-family: ('Inter Variable', 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif),
+  bold-weight: 700,
+  medium-weight: 500,
+  regular-weight: 400,
+);
+
+$ms-light-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: $ms-primary,
+      tertiary: $ms-secondary,
+    ),
+    typography: $ms-typography,
+    density: (
+      scale: 0,
+    ),
+  )
+);
+
+$ms-dark-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: dark,
+      primary: $ms-primary,
+      tertiary: $ms-secondary,
+    ),
+    typography: $ms-typography,
+    density: (
+      scale: 0,
+    ),
+  )
+);
+
+
+/* Emit Material's theme at module load so app entrypoints can load this
+ * module first and keep their token/base overrides later in the cascade. */
+@include mat.elevation-classes();
+@include mat.app-background();
+@include mat.all-component-themes($ms-light-theme);
+
+html[data-theme="dark"] {
+  @include mat.all-component-colors($ms-dark-theme);
+}

@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { ApiClient } from '@marketspase/shared/core/http/api-client.service';
 import { environment } from '../../environments/environment';
-import { ApiService } from '../_common/services/api.service';
 import {
   StoreDetailEnvelope,
   StoreListEnvelope,
@@ -13,7 +13,7 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class StoreService {
-  constructor(private api: ApiService) {}
+  private readonly api = inject(ApiClient);
 
   listStores(query = ''): Observable<StoreListEnvelope> {
     const q = query.trim();

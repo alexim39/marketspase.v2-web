@@ -5,7 +5,10 @@ import { environment } from './environments/environment';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { routes } from './app/app-routing';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideHttpClient, withXhr } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
+import { API_BASE_URL } from '@marketspase/shared/core/config/api-tokens';
+import { apiErrorInterceptor } from '@marketspase/shared/core/http/api-error.interceptor';
+import { credentialsInterceptor } from '@marketspase/shared/core/http/credentials.interceptor';
 
 if (environment.production) {
   enableProdMode();
@@ -13,8 +16,10 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideZoneChangeDetection(),provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })),
+    provideZoneChangeDetection(),
+    provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })),
     provideAnimations(),
-    provideHttpClient(withXhr())
+    { provide: API_BASE_URL, useFactory: () => environment.apiUrl.replace(/\/+$/, '') },
+    provideHttpClient(withXhr(), withInterceptors([credentialsInterceptor, apiErrorInterceptor])),
   ]
 }).catch(err => console.error(err));

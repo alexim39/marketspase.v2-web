@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterModule } from '@angular/router';
+import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo.component';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/auth/auth.service';
 import { ADMIN_NAV } from '../../dashboard/admin/admin-nav.config';
@@ -10,7 +11,7 @@ import { ADMIN_NAV } from '../../dashboard/admin/admin-nav.config';
   templateUrl: './admin-shell.component.html',
   styleUrls: ['./admin-shell.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule, RouterModule],
+  imports: [MatIconModule, RouterModule, BrandLogoComponent],
 })
 export class AdminShellComponent {
   private readonly auth = inject(AuthService);

@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": "1b5fc0db-4f2b-49c1-bb14-2f32671056fa"
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -32,6 +33,16 @@
               {
                 "glob": "**/*",
                 "input": "projects/platform/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/shared/assets/brand",
+                "output": "/logo"
+              },
+              {
+                "glob": "favicon.ico",
+                "input": "projects/shared/assets/brand",
+                "output": "/"
               }
             ],
             "styles": [
@@ -115,6 +126,16 @@
               {
                 "glob": "**/*",
                 "input": "projects/store/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/shared/assets/brand",
+                "output": "/logo"
+              },
+              {
+                "glob": "favicon.ico",
+                "input": "projects/shared/assets/brand",
+                "output": "/"
               }
             ],
             "styles": [
@@ -185,6 +206,16 @@
               {
                 "glob": "**/*",
                 "input": "projects/store/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/shared/assets/brand",
+                "output": "/logo"
+              },
+              {
+                "glob": "favicon.ico",
+                "input": "projects/shared/assets/brand",
+                "output": "/"
               }
             ],
             "styles": [
@@ -222,6 +253,16 @@
               {
                 "glob": "**/*",
                 "input": "projects/admin/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/shared/assets/brand",
+                "output": "/logo"
+              },
+              {
+                "glob": "favicon.ico",
+                "input": "projects/shared/assets/brand",
+                "output": "/"
               }
             ],
             "styles": [

@@ -1,6 +1,8 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
+import { environment } from '../environments/environment';
+import { API_BASE_URL, AUTH_TOKEN_KEY } from './core/config/api-tokens';
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
@@ -18,6 +20,8 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideAnimationsAsync(),
     // Single DateAdapter for every date/time picker (pages no longer each provide their own).
     provideNativeDateAdapter(),
+    { provide: API_BASE_URL, useFactory: () => environment.apiUrl.replace(/\/+$/, '') },
+    { provide: AUTH_TOKEN_KEY, useValue: 'dp_session_token' },
     // Single HttpClient: cookie transport + bearer fallback + top progress + normalized errors.
     // Offline queue runs last (closest to transport) so it sees raw network failures.
     provideHttpClient(withXhr(), withInterceptors([credentialsInterceptor, authTokenInterceptor, progressInterceptor, apiErrorInterceptor, offlineQueueInterceptor])),

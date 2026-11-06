@@ -1,0 +1,128 @@
+:root {
+
+  /* MarketSpase design tokens */
+  --ms-ink: #0e0c1d;
+  --ms-ink-text: #f4f3ff;
+  --ms-ink-icon: #8b9cf5;
+  --ms-canvas: #f5f6fb;
+  --ms-surface: #ffffff;
+  --ms-surface-2: #fbfbfe;
+  --ms-surface-3: #f0f1f8;
+  --ms-line: #e6e8f1;
+  --ms-text: #111426;
+  --ms-text-muted: #676c7e;
+  --ms-text-soft: #8a8fa3;
+  --ms-primary: #667eea;
+  --ms-primary-strong: #4c5bd4;
+  --ms-primary-soft: #eef0ff;
+  --ms-secondary: #764ba2;
+  --ms-secondary-soft: #f2ecfa;
+  --ms-success: #047857;
+  --ms-success-soft: #d1fae5;
+  --ms-warning: #92400e;
+  --ms-warning-soft: #fef3c7;
+  --ms-error: #b91c1c;
+  --ms-error-soft: #fee2e2;
+  --ms-info: #1d4ed8;
+  --ms-info-soft: #dbeafe;
+  --ms-radius-sm: 8px;
+  --ms-radius-md: 12px;
+  --ms-radius-lg: 16px;
+  --ms-radius-xl: 24px;
+  --ms-shadow-sm: 0 1px 2px rgba(17, 20, 38, 0.05);
+  --ms-shadow-md: 0 10px 30px rgba(17, 20, 38, 0.09);
+  --ms-shadow-lg: 0 22px 60px rgba(17, 20, 38, 0.14);
+  --ms-font-sans: 'Inter Variable', 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  --ms-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --ms-gradient: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+
+  /* Sidenav rail - light surface in light mode, ink in dark mode. */
+  --ms-nav-bg: #ffffff;
+  --ms-nav-text: #111426;
+  --ms-nav-muted: #676c7e;
+  --ms-nav-icon: #676c7e;
+  --ms-nav-line: #e6e8f1;
+  --ms-nav-hover: #f0f1f8;
+  --ms-nav-active-bg: linear-gradient(100deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.06));
+  --ms-nav-active-text: #4c5bd4;
+  --ms-nav-active-icon: #4c5bd4;
+  --ms-nav-sub-text: #676c7e;
+  --ms-nav-pill-bg: #667eea;
+  --ms-nav-pill-text: #ffffff;
+
+  /* Legacy Diamond aliases still referenced by older store policy pages.
+   * They point at the live MarketSpase tokens, so dark mode updates them too. */
+  --dp-gold: var(--ms-primary);
+  --dp-gold-bright: var(--ms-primary);
+  --dp-gold-soft: var(--ms-primary-soft);
+  --dp-gold-ink: var(--ms-primary-strong);
+  --dp-ink: var(--ms-ink);
+  --dp-night: var(--ms-ink);
+  --dp-paper: var(--ms-canvas);
+  --dp-surface: var(--ms-surface);
+  --dp-text: var(--ms-text);
+  --dp-muted: var(--ms-text-muted);
+  --dp-line: var(--ms-line);
+  --dp-cream: var(--ms-surface-3);
+  --dp-error: var(--ms-error);
+  --dp-error-bg: var(--ms-error-soft);
+  --dp-font-display: var(--ms-font-sans);
+  --dp-font-body: var(--ms-font-sans);
+
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+html[data-theme="dark"] {
+
+  /* MarketSpase design tokens - dark */
+  --ms-ink: #080610;
+  --ms-ink-text: #f4f3ff;
+  --ms-ink-icon: #aab8ff;
+  --ms-canvas: #0b0916;
+  --ms-surface: #151226;
+  --ms-surface-2: #1b1730;
+  --ms-surface-3: #221d3a;
+  --ms-line: #2a2542;
+  --ms-text: #f4f2ff;
+  --ms-text-muted: #a59fbb;
+  --ms-text-soft: #8f89a6;
+  --ms-primary: #667eea;
+  --ms-primary-strong: #aab8ff;
+  --ms-primary-soft: #211c3d;
+  --ms-secondary: #946bc0;
+  --ms-secondary-soft: #2b1f3d;
+  --ms-success: #6ee7b7;
+  --ms-success-soft: #064e3b;
+  --ms-warning: #fcd34d;
+  --ms-warning-soft: #451a03;
+  --ms-error: #fca5a5;
+  --ms-error-soft: #450a0a;
+  --ms-info: #93c5fd;
+  --ms-info-soft: #172554;
+  --ms-radius-sm: 8px;
+  --ms-radius-md: 12px;
+  --ms-radius-lg: 16px;
+  --ms-radius-xl: 24px;
+  --ms-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --ms-shadow-md: 0 12px 34px rgba(0, 0, 0, 0.55);
+  --ms-shadow-lg: 0 28px 70px rgba(0, 0, 0, 0.65);
+  --ms-font-sans: 'Inter Variable', 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  --ms-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --ms-gradient: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+
+  --ms-nav-bg: #080610;
+  --ms-nav-text: #f4f3ff;
+  --ms-nav-muted: #a59fbb;
+  --ms-nav-icon: rgba(244, 243, 255, 0.68);
+  --ms-nav-line: #2a2542;
+  --ms-nav-hover: rgba(244, 243, 255, 0.08);
+  --ms-nav-active-bg: linear-gradient(100deg, rgba(102, 126, 234, 0.26), rgba(118, 75, 162, 0.16));
+  --ms-nav-active-text: #dbe2ff;
+  --ms-nav-active-icon: #aab8ff;
+  --ms-nav-sub-text: rgba(244, 243, 255, 0.72);
+  --ms-nav-pill-bg: #667eea;
+  --ms-nav-pill-text: #ffffff;
+
+  color-scheme: dark;
+}

@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { finalize } from 'rxjs';
+import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo.component';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/auth/auth.service';
 import { ApiError, userError } from '../../core/http/api-error';
@@ -25,6 +26,7 @@ import { ApiError, userError } from '../../core/http/api-error';
     MatInputModule,
     MatProgressBarModule,
     RouterModule,
+    BrandLogoComponent,
   ],
 })
 export class AdminSigninComponent implements OnInit {
