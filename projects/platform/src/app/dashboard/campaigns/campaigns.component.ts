@@ -307,6 +307,12 @@ type CampaignTab = 'studio' | 'campaigns' | 'placement';
                           <p class="muted small">Awaiting AI Admin review. Budget is held and refundable.</p>
                         }
                         <div class="campaign-actions">
+                          @if (campaign.trackingUrl) {
+                            <a mat-button [href]="campaign.trackingUrl" target="_blank" rel="noopener">Open join page</a>
+                            <button mat-button type="button" (click)="copyTracking(campaign)">
+                              {{ copiedCampaignId() === campaign.id ? 'Copied' : 'Copy link' }}
+                            </button>
+                          }
                           @if (campaign.status === 'Active') {
                             <button mat-button type="button" (click)="pause(campaign)" [disabled]="busy()">Pause</button>
                           }
@@ -483,6 +489,7 @@ export class CampaignsComponent implements OnInit {
   protected readonly campaigns = signal<GrowthCampaign[]>([]);
   protected readonly allocation = signal<MyAllocation | null>(null);
   protected readonly placedPartners = signal<PlacedPartner[]>([]);
+  protected readonly copiedCampaignId = signal<string | null>(null);
   protected readonly tab = signal<CampaignTab>('studio');
   protected readonly partner = computed(() => this.status()?.partner ?? null);
   protected readonly wallet = computed(() => Number(this.partner()?.balance ?? 0));
@@ -668,6 +675,24 @@ export class CampaignsComponent implements OnInit {
     const noEnd = this.form.controls.noEndDate.value;
     if (noEnd) this.form.controls.endAt.disable({ emitEvent: false });
     else this.form.controls.endAt.enable({ emitEvent: false });
+  }
+
+  protected copyTracking(campaign: GrowthCampaign): void {
+    const url = String(campaign.trackingUrl ?? '').trim();
+    if (!url) return;
+    if (!navigator.clipboard?.writeText) {
+      this.error.set('Copying is not available in this browser. Open the join page and copy the address instead.');
+      return;
+    }
+    navigator.clipboard.writeText(url).then(
+      () => {
+        this.copiedCampaignId.set(campaign.id);
+        globalThis.setTimeout(() => {
+          if (this.copiedCampaignId() === campaign.id) this.copiedCampaignId.set(null);
+        }, 2000);
+      },
+      () => this.error.set('Could not copy the campaign link. Open the join page and copy the address instead.'),
+    );
   }
 
   protected cancel(campaign: GrowthCampaign): void {

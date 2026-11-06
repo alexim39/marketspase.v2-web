@@ -25,6 +25,8 @@ import { GrowthCampaign, MyAllocation } from '../../core/campaigns/campaigns.mod
 import { DailyAction, DashboardOverview } from '../../core/analytics/analytics.models';
 import { CompensationService } from '../../core/compensation/compensation.service';
 import { MyCompensation } from '../../core/compensation/compensation.models';
+import { StoreService } from '../../core/store/store.service';
+import { StoreEarnings } from '../../core/store/store.models';
 import { FeedPost } from '../../core/community/community.models';
 import { Journey } from '../../core/progression/progression.models';
 import { ApiError } from '../../core/http/api-error';
@@ -119,7 +121,7 @@ interface ActivityItem {
             <a mat-flat-button color="primary" routerLink="prospects/pipeline">Add a prospect</a>
           }
           @if (overview(); as o) {
-            <span class="cc-next-count">{{ o.actions.total }} action{{ o.actions.total === 1 ? '' : 's' }} today</span>
+            <span class="cc-next-count">{{ o.actions.total + (storeActionCount() > 0 ? 1 : 0) }} action{{ o.actions.total + (storeActionCount() > 0 ? 1 : 0) === 1 ? '' : 's' }} today</span>
           }
         </div>
       </header>
@@ -157,6 +159,11 @@ interface ActivityItem {
 
       <div class="cc-quick" aria-label="Quick actions">
         <a mat-stroked-button routerLink="tools/contacts/new"><mat-icon>person_add</mat-icon> Add prospect</a>
+        @if (storeActionCount() > 0) {
+          <a mat-stroked-button routerLink="products/store-orders">
+            <mat-icon>local_shipping</mat-icon> Fulfil {{ storeActionCount() }} store order{{ storeActionCount() === 1 ? '' : 's' }}
+          </a>
+        }
         <a mat-stroked-button routerLink="campaigns"><mat-icon>campaign</mat-icon> Fund acquisition</a>
         <a mat-stroked-button routerLink="messages"><mat-icon>forum</mat-icon> Send message</a>
         <a mat-stroked-button routerLink="prospects/bookings"><mat-icon>event</mat-icon> Book session</a>
@@ -171,6 +178,15 @@ interface ActivityItem {
             <strong class="cc-widget-value">₦{{ walletBalance() | number }}</strong>
             <span class="muted">₦{{ pendingCommissions() | number }} pending · ₦{{ releasedCommissions() | number }} released</span>
             <a mat-button routerLink="wallet">Open wallet</a>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="cc-widget">
+          <mat-card-content>
+            <div class="cc-widget-head"><mat-icon>storefront</mat-icon><span>Store</span></div>
+            <strong class="cc-widget-value">₦{{ storePendingEarnings() | number }}</strong>
+            <span class="muted">{{ storeActionCount() }} to fulfil · ₦{{ storeReleasedEarnings() | number }} released</span>
+            <a mat-button routerLink="products/store-orders">Open store orders</a>
           </mat-card-content>
         </mat-card>
 
@@ -275,7 +291,7 @@ interface ActivityItem {
         <div class="cc-columns">
           <div class="cc-col-main">
         <div class="home-section">
-          <h3>Today's plan <span class="muted">({{ o.actions.total }})</span></h3>
+          <h3>Today's plan <span class="muted">({{ o.actions.total + (storeActionCount() > 0 ? 1 : 0) }})</span></h3>
           @if (topActions().length > 0) {
             <ul class="action-list">
               @for (action of topActions(); track action.id) {
@@ -290,8 +306,8 @@ interface ActivityItem {
                 </li>
               }
             </ul>
-            @if (o.actions.total > topActions().length) {
-              <a mat-button routerLink="insights">View all {{ o.actions.total }} actions</a>
+            @if (o.actions.total + (storeActionCount() > 0 ? 1 : 0) > topActions().length) {
+              <a mat-button routerLink="insights">View all {{ o.actions.total + (storeActionCount() > 0 ? 1 : 0) }} actions</a>
             }
           } @else {
             <p class="empty">Nothing needs you right now. Momentum is yours to make.</p>
@@ -526,6 +542,7 @@ export class HomeComponent implements OnInit {
   private readonly bonuses = inject(BonusService);
   private readonly onboardingSvc = inject(OnboardingService);
   private readonly campaignsSvc = inject(CampaignsService);
+  private readonly storeSvc = inject(StoreService);
   private readonly trainingSvc = inject(TrainingService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -548,6 +565,7 @@ export class HomeComponent implements OnInit {
   protected readonly onboarding = signal<OnboardingStatus | null>(null);
   protected readonly allocation = signal<MyAllocation | null>(null);
   protected readonly campaigns = signal<GrowthCampaign[]>([]);
+  protected readonly storeEarnings = signal<StoreEarnings | null>(null);
   protected readonly growthLoaded = signal(false);
   /** Follow-up bucket counts for the momentum card. */
   protected readonly reminders = signal<{ overdue: number; today: number } | null>(null);
@@ -665,6 +683,19 @@ export class HomeComponent implements OnInit {
     return this.campaigns().reduce((sum, c) => sum + Number(c.budget?.remaining ?? 0), 0);
   }
 
+  /** Paid store orders that still need a partner fulfilment action. */
+  protected storeActionCount(): number {
+    return Number(this.storeEarnings()?.awaitingDelivery ?? 0);
+  }
+
+  protected storePendingEarnings(): number {
+    return Number(this.storeEarnings()?.pending ?? 0);
+  }
+
+  protected storeReleasedEarnings(): number {
+    return Number(this.storeEarnings()?.released ?? 0);
+  }
+
   protected followUpsDue(): number {
     const r = this.reminders();
     return r ? r.overdue + r.today : 0;
@@ -741,13 +772,26 @@ export class HomeComponent implements OnInit {
   }
 
   protected topActions(): DailyAction[] {
-    return (this.overview()?.actions.actions ?? []).slice(0, 5);
+    const base = this.overview()?.actions.actions ?? [];
+    const storeCount = this.storeActionCount();
+    const storeAction: DailyAction | null = storeCount > 0
+      ? {
+          id: 'store-fulfilment',
+          priority: 'high',
+          category: 'store',
+          title: `${storeCount} store order${storeCount === 1 ? '' : 's'} need${storeCount === 1 ? 's' : ''} fulfilment`,
+          detail: 'Start processing, add tracking and mark delivery to release escrow.',
+          link: 'products/store-orders',
+        }
+      : null;
+    return [...(storeAction ? [storeAction] : []), ...base].slice(0, 5);
   }
 
   protected headline(): string {
     const o = this.overview();
     if (!o) return 'Loading your business…';
-    const urgent = o.actions.actions.filter((a) => a.priority === 'high').length;
+    const urgent = o.actions.actions.filter((a) => a.priority === 'high').length
+      + (this.storeActionCount() > 0 ? 1 : 0);
     if (urgent > 0) return `${urgent} item${urgent === 1 ? '' : 's'} need${urgent === 1 ? 's' : ''} you first.`;
     if (o.goals.behind > 0) return 'Calm inbox — but a goal needs pace.';
     return 'All clear. Today is a prospecting day.';
@@ -845,12 +889,13 @@ export class HomeComponent implements OnInit {
       onboarding: this.onboardingSvc.status().pipe(catchError(() => of(null))),
       allocation: this.campaignsSvc.myAllocation().pipe(catchError(() => of(null))),
       campaignList: this.campaignsSvc.mine().pipe(catchError(() => of(null))),
+      storeEarnings: this.storeSvc.earnings().pipe(catchError(() => of(null))),
       reminders: this.leads.reminders().pipe(catchError(() => of(null))),
       certificates: this.trainingSvc.certificates().pipe(catchError(() => of(null))),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ overview, compensation, journey, feed, prospects, bonus, onboarding, allocation, campaignList, reminders, certificates }) => {
+        next: ({ overview, compensation, journey, feed, prospects, bonus, onboarding, allocation, campaignList, storeEarnings, reminders, certificates }) => {
           this.overview.set(overview.data ?? null);
           this.compensation.set(compensation?.data ?? null);
           this.journey.set(journey?.data ?? null);
@@ -860,6 +905,7 @@ export class HomeComponent implements OnInit {
           this.onboarding.set(onboarding?.data ?? null);
           this.allocation.set(allocation?.data ?? null);
           this.campaigns.set(campaignList?.data ?? []);
+          this.storeEarnings.set(storeEarnings?.data ?? null);
           this.reminders.set(reminders?.data ? { overdue: reminders.data.overdue.length, today: reminders.data.today.length } : null);
           this.certificates.set(certificates?.data ?? []);
           this.growthLoaded.set(true);

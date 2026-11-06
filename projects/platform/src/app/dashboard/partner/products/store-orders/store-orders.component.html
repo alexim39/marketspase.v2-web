@@ -61,10 +61,20 @@
 
     @if (visibleOrders().length === 0) {
       <section class="dp-card empty-state">
-        <mat-icon>receipt_long</mat-icon>
-        <h2>No store orders here yet</h2>
-        <p>When a customer buys from your public store, the order appears here for fulfilment.</p>
-        <a mat-flat-button color="primary" routerLink="/dashboard/products/my-store">Review my store</a>
+        <mat-icon>{{ filter() === 'action' ? 'task_alt' : 'receipt_long' }}</mat-icon>
+        @if (filter() === 'action') {
+          <h2>Nothing needs action</h2>
+          <p>You are clear for now. Delivered orders and their escrow windows are under the Delivered tab.</p>
+          <button mat-stroked-button type="button" (click)="setFilter('delivered')">View delivered orders</button>
+        } @else if (filter() === 'delivered') {
+          <h2>No delivered orders yet</h2>
+          <p>When you mark an order delivered, it appears here with its escrow release date.</p>
+          <button mat-stroked-button type="button" (click)="setFilter('all')">View all orders</button>
+        } @else {
+          <h2>No store orders yet</h2>
+          <p>When a customer buys from your public store, the order appears here for fulfilment.</p>
+          <a mat-flat-button color="primary" routerLink="/dashboard/products/my-store">Review my store</a>
+        }
       </section>
     } @else {
       <div class="order-list">
