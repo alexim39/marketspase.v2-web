@@ -498,6 +498,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.01em;
   border: 1px solid transparent;
+  white-space: nowrap;
 }
 .dp-status--ok { background: var(--ms-success-soft); color: var(--ms-success); border-color: color-mix(in srgb, var(--ms-success) 25%, transparent); }
 .dp-status--warn { background: var(--ms-warning-soft); color: var(--ms-warning); border-color: color-mix(in srgb, var(--ms-warning) 25%, transparent); }

@@ -12,6 +12,8 @@ import { RouterModule } from '@angular/router';
 import { AdminService } from '../../../core/admin/admin.service';
 import { AuditEntry } from '../../../core/admin/admin.models';
 import { ApiError } from '../../../core/http/api-error';
+import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
+import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
 
 const ACTIONS = [
   'role.set',
@@ -60,7 +62,7 @@ const ACTIONS = [
 @Component({
   selector: 'async-admin-audit',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatTableModule, RouterModule],
+  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatTableModule, EmptyStateComponent, PageHeaderComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -71,12 +73,11 @@ const ACTIONS = [
     </section>
 
     <section class="queue-page">
-      <div class="page-head">
-        <div>
-          <h2>Audit log</h2>
-          <p class="subtitle">Every admin decision, newest first — roles, payouts, withdrawals, campaigns, orders, training.</p>
-        </div>
-      </div>
+      <async-page-header
+        eyebrow="Trust · Audit trail"
+        title="Audit log."
+        subtitle="Every admin decision, newest first — roles, payouts, withdrawals, campaigns, orders, training."
+      />
 
       <div class="toolbar">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -138,7 +139,7 @@ const ACTIONS = [
           <button mat-button (click)="page(1)" [disabled]="skip() + limit() >= total() || loading()">Next</button>
         </div>
       } @else if (!loading() && !error()) {
-        <p class="empty">No audit entries yet — admin decisions will appear here.</p>
+        <async-empty-state icon="history" title="No audit entries yet" message="Admin decisions will appear here as your team works." />
       }
     </section>
   `,
@@ -146,8 +147,6 @@ const ACTIONS = [
     .breadcrumb-wrapper { margin-bottom: 1em; }
     .breadcrumb a { text-decoration: none; }
     .queue-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
-    .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: var(--ms-text-muted); max-width: 44em; }
     .toolbar { display: flex; gap: 0.75em; align-items: center; flex-wrap: wrap; }
     .toolbar mat-form-field { min-width: 200px; }
     .loader { flex: 2; min-width: 120px; }
@@ -155,7 +154,6 @@ const ACTIONS = [
     table { width: 100%; }
     .mono { font-family: ui-monospace, monospace; font-size: 0.85em; }
     .muted { color: var(--ms-text-muted); font-size: 0.85em; }
-    .empty { color: var(--ms-text-muted); }
     .error { color: var(--ms-error); display: flex; align-items: center; gap: 0.5em; }
     .pager { display: flex; align-items: center; gap: 1em; }
     button { min-height: 44px; }

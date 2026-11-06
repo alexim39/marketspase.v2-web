@@ -56,7 +56,6 @@ styles: [`
 .handle {
   font-size: 0.82em;
   color: var(--ms-nav-muted);
-  opacity: 0.9;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -64,7 +63,7 @@ styles: [`
 .nudge {
   font-size: 0.8em;
   font-weight: 700;
-  color: var(--ms-nav-icon);
+  color: var(--ms-nav-muted);
   text-decoration: none;
   margin-top: 0.3em;
   align-self: flex-start;

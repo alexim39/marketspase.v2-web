@@ -25,6 +25,8 @@ import { formatStuckDuration } from '../stuck-duration';
 import { CollectCodeComponent } from '../../contacts/manage/details/collect-code.component';
 import { RateLeadDialogComponent } from './rate-lead-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
+import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
 import { forkJoin, map, of, switchMap } from 'rxjs';
 
 /**
@@ -107,7 +109,7 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
   imports: [
     MatTableModule, MatChipsModule, MatButtonModule, MatButtonToggleModule, MatCheckboxModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatProgressBarModule, MatPaginatorModule, MatTooltipModule,
-    MatSnackBarModule, RouterModule,
+    MatSnackBarModule, EmptyStateComponent, PageHeaderComponent, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -119,11 +121,11 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
     </section>
 
     <section class="pipeline-page">
-      <div class="page-head">
-        <div>
-          <h2>Lead Pipeline</h2>
-          <p class="subtitle">Work your leads from first contact to converted partner.</p>
-        </div>
+      <async-page-header
+        eyebrow="Prospects · Lead pipeline"
+        title="Lead Pipeline"
+        subtitle="Work your leads from first contact to converted partner."
+      >
         <mat-button-toggle-group aria-label="Prospect sources">
           <mat-button-toggle routerLink="../personal-list" title="My Page Leads — submissions from your public page">
             <mat-icon>inbox</mat-icon> My Page Leads
@@ -132,7 +134,7 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
             <mat-icon>person_add</mat-icon> Add someone
           </mat-button-toggle>
         </mat-button-toggle-group>
-      </div>
+      </async-page-header>
 
       @if (convertedNotice(); as converted) {
         <div class="code-banner" role="status">
@@ -234,7 +236,13 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
       }
 
       @if (!loading() && filtered().length === 0 && !error()) {
-        <p class="empty">No leads match. Add prospects to start building your pipeline.</p>
+        <async-empty-state
+          icon="person_search"
+          title="No leads yet"
+          message="Add prospects to start building your pipeline and moving them toward conversion."
+        >
+          <a mat-flat-button color="primary" routerLink="/dashboard/tools/contacts/new">Add prospect</a>
+        </async-empty-state>
       }
 
       @if (selectionCount() > 0) {
@@ -365,9 +373,6 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
     .breadcrumb-wrapper { margin-bottom: 1em; }
     .breadcrumb a { text-decoration: none; }
     .pipeline-page { display: flex; flex-direction: column; gap: 1.25em; }
-    .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
-    .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: var(--ms-text-muted); }
     .code-banner {
       display: flex; align-items: center; gap: 0.75em;
       background: var(--ms-success-soft); border: 1px solid var(--ms-success); border-radius: 8px; padding: 0.75em 1em;
@@ -377,10 +382,14 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
     .stage-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75em; }
     .stage-card {
       display: flex; flex-direction: column; align-items: center; gap: 0.15em;
-      background: var(--chip-bg); color: var(--chip-fg);
+      background: color-mix(in srgb, var(--chip-bg) 20%, var(--ms-surface));
+      color: var(--chip-fg);
       border: 2px solid transparent; border-radius: 10px; padding: 0.8em 0.5em; cursor: pointer;
+      transition: border-color 140ms ease, transform 140ms ease;
     }
-    .stage-card.active { border-color: currentColor; }
+    .stage-card:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--chip-fg) 36%, transparent); }
+    .stage-card.active { border-color: var(--ms-primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ms-primary) 20%, transparent); }
+    :host-context(html[data-theme="dark"]) .stage-card { color: var(--ms-text); }
     .stage-card .count { font-size: 1.6em; font-weight: 700; }
     .stage-card .label { font-size: 0.85em; }
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
@@ -411,12 +420,11 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
     .muted { color: var(--ms-text-muted); font-size: 0.85em; }
     .interest-cell { text-transform: capitalize; }
     .error { color: var(--ms-error); display: flex; align-items: center; gap: 0.5em; }
-    .empty { color: var(--ms-text-muted); }
     .total { margin: 0; }
     @media only screen and (max-width: 600px) {
       /* Paginator controls overflow 360px viewports — page-size stays 50. */
       .mat-mdc-paginator-page-size { display: none; }
-      .page-head mat-button-toggle-group { max-width: 100%; overflow-x: auto; }
+      .ms-head-actions mat-button-toggle-group { max-width: 100%; overflow-x: auto; }
       .stage-cards { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.5em; }
       /* Mobile card layout: rows become labeled cards, no sideways scroll. */
       .table-wrap { overflow-x: visible; }

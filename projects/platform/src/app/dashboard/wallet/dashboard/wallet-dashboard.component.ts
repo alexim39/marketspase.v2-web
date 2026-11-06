@@ -16,6 +16,8 @@ import { CompensationService } from '../../../core/compensation/compensation.ser
 import { MyCompensation } from '../../../core/compensation/compensation.models';
 import { CampaignsService } from '../../../core/campaigns/campaigns.service';
 import { GrowthCampaign } from '../../../core/campaigns/campaigns.models';
+import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
+import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
 import { ApiError } from '../../../core/http/api-error';
 import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/format/money';
 
@@ -27,20 +29,17 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
 @Component({
   selector: 'async-wallet-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, MatButtonModule, MatCardModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [DatePipe, DecimalPipe, EmptyStateComponent, MatButtonModule, MatCardModule, MatIconModule, MatProgressBarModule, PageHeaderComponent, RouterModule],
   template: `
     <section class="wallet-page">
-      <header class="page-head">
-        <div>
-          <p class="eyebrow">Wallet · Money clarity</p>
-          <h1>Every naira, accounted for</h1>
-          <p class="subtitle">Available balance, commissions, campaign budget held and every movement in one place.</p>
-        </div>
-        <div class="head-actions">
-          <a mat-flat-button color="primary" routerLink="/dashboard/wallet/deposit"><mat-icon>add_card</mat-icon> Deposit</a>
-          <a mat-stroked-button routerLink="/dashboard/settings/billing">Withdraw</a>
-        </div>
-      </header>
+      <async-page-header
+        eyebrow="Wallet · Money clarity"
+        title="Every naira, accounted for."
+        subtitle="Available balance, commissions, campaign budget held and every movement in one place."
+      >
+        <a mat-flat-button color="primary" routerLink="/dashboard/wallet/deposit"><mat-icon>add_card</mat-icon> Deposit</a>
+        <a mat-stroked-button routerLink="/dashboard/settings/billing">Withdraw</a>
+      </async-page-header>
 
       @if (loading()) {
         <mat-progress-bar mode="indeterminate" aria-label="Loading" />
@@ -78,7 +77,7 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
 
       <!-- Primary actions -->
       <div class="dp-card actions-card">
-        <h3>Do something with it</h3>
+        <h2>Do something with it</h2>
         <div class="actions-row">
           <a mat-flat-button color="primary" routerLink="/dashboard/wallet/deposit"><mat-icon>add_card</mat-icon> Deposit funds</a>
           <a mat-button routerLink="/dashboard/settings/billing"><mat-icon>account_balance</mat-icon> Withdraw</a>
@@ -114,11 +113,11 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
       <!-- Recent activity -->
       <div class="dp-card recent-card">
         <div class="recent-head">
-          <h3>Recent transactions</h3>
+          <h2>Recent transactions</h2>
           <a mat-button routerLink="/dashboard/wallet/history">View all</a>
         </div>
         @if (recent().length === 0) {
-          <p class="empty">No wallet movements yet. Deposit funds to start funding campaigns and buying products.</p>
+          <async-empty-state icon="receipt_long" title="No wallet movements yet" message="Deposit funds to start funding campaigns and buying products." />
         } @else {
           <ul class="tx-list">
             @for (tx of recent(); track tx.id) {
@@ -140,12 +139,7 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
   `,
   styles: [`
     .wallet-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; margin-top: 1em; }
-    .page-head { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1em; }
-    .page-head h1 { margin: 4px 0 8px; font-size: clamp(1.7rem, 3vw, 2.4rem); line-height: 1.1; letter-spacing: -0.03em; }
-    .eyebrow { margin: 0; color: var(--ms-primary-strong); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
-    .subtitle { margin: 0; color: var(--ms-text-muted); max-width: 44em; line-height: 1.5; }
-    .head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .head-actions a, .actions-row a { text-decoration: none; min-height: 44px; }
+    .actions-row a { text-decoration: none; min-height: 44px; }
     .balance-hero { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, 1fr); gap: 1.5em; padding: 1.4em 1.5em; border-radius: var(--ms-radius-xl); background: linear-gradient(125deg, #667eea 0%, #764ba2 70%); color: #fff; box-shadow: var(--ms-shadow-md); }
     .balance-main { display: flex; flex-direction: column; gap: 0.3em; justify-content: center; }
     .balance-label { font-size: 0.76em; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.82); }
@@ -156,7 +150,7 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
     .balance-split span { font-size: 0.82em; color: rgba(255,255,255,0.85); }
     .balance-split strong { font-variant-numeric: tabular-nums; white-space: nowrap; }
     .actions-card { padding: 1em 1.1em; }
-    .actions-card h3 { margin: 0 0 0.6em; }
+    .actions-card h2 { margin: 0 0 0.6em; font-size: 1.15rem; }
     .actions-row { display: flex; gap: 0.5em; flex-wrap: wrap; }
     .flow-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75em; }
     .flow-card { display: flex; flex-direction: column; gap: 0.15em; padding: 0.9em 1em; background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-md); }
@@ -165,7 +159,7 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
     .flow-card strong { font-size: 1.25em; font-variant-numeric: tabular-nums; }
     .recent-card { padding: 1em 1.1em; }
     .recent-head { display: flex; justify-content: space-between; align-items: center; gap: 1em; flex-wrap: wrap; }
-    .recent-head h3 { margin: 0; }
+    .recent-head h2 { margin: 0; font-size: 1.15rem; }
     .tx-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
     .tx-list li { display: flex; align-items: center; gap: 10px; padding: 10px 2px; border-top: 1px solid var(--ms-line); }
     .tx-list li:first-child { border-top: none; }
@@ -177,7 +171,6 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
     .tx-amount { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ms-error); }
     .tx-amount.credit { color: var(--ms-success); }
     .muted { color: var(--ms-text-muted); }
-    .empty { color: var(--ms-text-muted); margin: 0.5em 0; }
     .error { color: var(--ms-error); display: flex; align-items: center; gap: 0.5em; }
     @media (max-width: 800px) {
       .balance-hero { grid-template-columns: 1fr; }

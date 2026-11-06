@@ -3,6 +3,7 @@ import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { environment } from '../environments/environment';
 import { API_BASE_URL, AUTH_TOKEN_KEY } from './core/config/api-tokens';
 import { routes } from './app.routes';
@@ -17,6 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
     provideAnimationsAsync(),
     provideNativeDateAdapter(),
+    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { floatLabel: 'always' } },
     { provide: API_BASE_URL, useFactory: () => environment.apiUrl.replace(/\/+$/, '') },
     { provide: AUTH_TOKEN_KEY, useValue: 'ms_admin_session_token' },
     provideHttpClient(

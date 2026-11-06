@@ -48,7 +48,9 @@
         <a routerLink="/audit" class="ms-text-link">Full audit log →</a>
       </div>
       @if (audit().length === 0) {
-        <async-empty-state icon="history" title="No admin actions recorded yet." message="Server-authorized actions will appear here as your team works." />
+        @if (!loading()) {
+          <async-empty-state icon="history" title="No admin actions recorded yet." message="Server-authorized actions will appear here as your team works." />
+        }
       } @else {
         <div class="audit-list">
           @for (entry of audit(); track entry.id) {

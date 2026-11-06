@@ -314,6 +314,7 @@
 
 .content {
   flex: 1;
+  box-sizing: border-box;
   width: 100%;
   max-width: 1500px;
   margin: 0 auto;

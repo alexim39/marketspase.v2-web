@@ -6,6 +6,7 @@ import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { routes } from './app/app-routing';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { API_BASE_URL } from '@marketspase/shared/core/config/api-tokens';
 import { apiErrorInterceptor } from '@marketspase/shared/core/http/api-error.interceptor';
 import { credentialsInterceptor } from '@marketspase/shared/core/http/credentials.interceptor';
@@ -19,6 +20,7 @@ bootstrapApplication(AppComponent, {
     provideZoneChangeDetection(),
     provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })),
     provideAnimations(),
+    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { floatLabel: 'always' } },
     { provide: API_BASE_URL, useFactory: () => environment.apiUrl.replace(/\/+$/, '') },
     provideHttpClient(withXhr(), withInterceptors([credentialsInterceptor, apiErrorInterceptor])),
   ]

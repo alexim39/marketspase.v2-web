@@ -19,6 +19,8 @@ import { UserRole } from '../../../core/auth/auth.models';
 import { MatDialog } from '@angular/material/dialog';
 import { Member360DialogComponent } from './member-360-dialog.component';
 import { AvatarComponent } from '../../../_common/avatar.component';
+import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
+import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
 
 const ROLE_META: Record<UserRole, { label: string; color: string; text: string }> = {
   user: { label: 'Partner', color: '#e0e0e0', text: '#424242' },
@@ -39,7 +41,7 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
   imports: [
     DecimalPipe, FormsModule, MatTableModule, MatChipsModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatTooltipModule, RouterModule,
-    AvatarComponent,
+    AvatarComponent, EmptyStateComponent, PageHeaderComponent,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -51,12 +53,11 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
     </section>
 
     <section class="roles-page">
-      <div class="page-head">
-        <div>
-          <h2>Manage Roles</h2>
-          <p class="subtitle">Promote partners to leaders, grant or revoke admin access.</p>
-        </div>
-      </div>
+      <async-page-header
+        eyebrow="People · Access control"
+        title="Manage roles."
+        subtitle="Promote partners to leaders, grant or revoke admin access."
+      />
 
       @if (notice(); as note) {
         <p class="notice" role="status">{{ note }}</p>
@@ -105,13 +106,12 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
 
       @if (stats(); as s) {
         <div class="stat-grid" role="group" aria-label="Platform totals">
-          <div class="dp-card stat"><span class="stat-value">{{ s.total | number }}</span><span class="muted">Partners</span></div>
+          <div class="dp-card stat"><span class="stat-value">{{ s.total | number }}</span><span class="muted">Total</span></div>
           <div class="dp-card stat"><span class="stat-value">+{{ s.new7d | number }}</span><span class="muted">New 7d</span></div>
           <div class="dp-card stat"><span class="stat-value">+{{ s.new30d | number }}</span><span class="muted">New 30d</span></div>
-          <div class="dp-card stat"><span class="stat-value">{{ s.roles.admin | number }}</span><span class="muted">Admins</span></div>
+          <div class="dp-card stat"><span class="stat-value">{{ s.roles.user | number }}</span><span class="muted">Members</span></div>
           <div class="dp-card stat"><span class="stat-value">{{ s.roles.leader | number }}</span><span class="muted">Leaders</span></div>
           <div class="dp-card stat"><span class="stat-value">{{ s.roles.admin | number }}</span><span class="muted">Admins</span></div>
-          <div class="dp-card stat"><span class="stat-value">{{ s.suspended | number }}</span><span class="muted">Suspended</span></div>
         </div>
       }
 
@@ -243,7 +243,7 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
           <button mat-button (click)="page(1)" [disabled]="skip() + limit() >= total() || loading()">Next</button>
         </div>
       } @else if (!loading() && !error()) {
-        <p class="empty">No partners found.</p>
+        <async-empty-state icon="group_off" title="No partners found" message="Try clearing the filters or searching a different name." />
       }
     </section>
   `,
@@ -251,13 +251,11 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
     .breadcrumb-wrapper { margin-bottom: 1em; }
     .breadcrumb a { text-decoration: none; }
     .roles-page { display: flex; flex-direction: column; gap: 1.25em; }
-    .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: var(--ms-text-muted); }
     .notice { color: var(--ms-success); }
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
     .toolbar mat-form-field { flex: 1; min-width: 220px; }
     .loader { flex: 2; min-width: 120px; }
-    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.6em; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6em; }
     .stat { display: flex; flex-direction: column; gap: 0.1em; padding: 0.7em 0.9em; }
     .stat-value { font-size: 1.4em; font-weight: 700; }
     .ranks-card { padding: 1em; display: flex; flex-direction: column; gap: 0.5em; }
@@ -272,6 +270,7 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
       .bar-row { grid-template-columns: 110px 1fr 48px; }
     }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
+    .table-wrap table { min-width: 1080px; }
     .presence-pulse { animation: presence-ping 1.8s ease-out infinite; }
     @keyframes presence-ping {
       0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.55); }
@@ -283,7 +282,7 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
     }
     table { width: 100%; }
     .table-wrap .mat-mdc-header-cell { color: var(--ms-text-muted); font-size: 0.8em; letter-spacing: 0.04em; }
-    .table-wrap .mat-mdc-cell { vertical-align: middle; }
+    .table-wrap .mat-mdc-cell { vertical-align: middle; white-space: nowrap; }
     .name-cell .name-text { display: inline-flex; flex-direction: column; min-width: 0; vertical-align: middle; }
     .name-cell async-avatar { margin-right: 0.7em; vertical-align: middle; }
     .name-cell .name-text button {
@@ -296,7 +295,6 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
     .name-cell .handle { text-transform: none; }
     .muted { color: var(--ms-text-muted); font-size: 0.85em; }
     .error { color: var(--ms-error); display: flex; align-items: center; gap: 0.5em; }
-    .empty { color: var(--ms-text-muted); }
     .features-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 0.2em; }
     .pager { display: flex; align-items: center; gap: 1em; }
   `],
