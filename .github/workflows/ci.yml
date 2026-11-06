@@ -1,0 +1,35 @@
+name: Web CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build all apps
+        run: npm run build
+
+      - name: Store tests
+        run: npm run test:store
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+
+      - name: Admin tests
+        run: npm run test:admin

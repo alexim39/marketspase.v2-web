@@ -14,8 +14,9 @@
     "watch:platform": "ng build platform --watch --configuration development",
     "watch:store": "ng build store --watch --configuration development",
     "watch:admin": "ng build admin --watch --configuration development",
-    "test:store": "ng test store --watch=false --browsers=ChromeHeadless",
-    "test:admin": "ng test admin --watch=false"
+    "test:store": "ng test store --watch=false --browsers=ChromeHeadlessNoSandbox",
+    "test:admin": "ng test admin --watch=false",
+    "ci": "npm run build && npm run test:store && npm run test:admin"
   },
   "private": true,
   "packageManager": "npm@11.20.0",

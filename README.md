@@ -51,6 +51,7 @@ npm run build:admin      # dist/admin/browser
 
 npm run test:store
 npm run test:admin
+npm run ci              # build all apps plus both test suites
 ```
 
 ## API
