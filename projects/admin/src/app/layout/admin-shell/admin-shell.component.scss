@@ -19,10 +19,10 @@
   flex-direction: column;
   overflow: hidden;
   background:
-    radial-gradient(340px 220px at 50% 0%, rgba(118, 75, 162, 0.34), transparent 75%),
-    var(--ms-ink);
-  color: var(--ms-ink-text);
-  border-right: 1px solid rgba(244, 243, 255, 0.08);
+    radial-gradient(340px 220px at 50% 0%, color-mix(in srgb, var(--ms-primary) 14%, transparent), transparent 75%),
+    var(--ms-nav-bg);
+  color: var(--ms-nav-text);
+  border-right: 1px solid var(--ms-nav-line);
 }
 
 .brand {
@@ -32,9 +32,9 @@
   gap: 0.55em;
   min-height: 76px;
   padding: 0 1.1em;
-  color: var(--ms-ink-text);
+  color: var(--ms-nav-text);
   text-decoration: none;
-  border-bottom: 1px solid rgba(244, 243, 255, 0.1);
+  border-bottom: 1px solid var(--ms-nav-line);
 }
 
 .brand img {
@@ -44,8 +44,8 @@
 
 .brand span {
   padding-left: 0.55em;
-  border-left: 1px solid rgba(244, 243, 255, 0.22);
-  color: rgba(244, 243, 255, 0.55);
+  border-left: 1px solid var(--ms-nav-line);
+  color: var(--ms-nav-muted);
   font-size: 0.62rem;
   font-weight: 800;
   letter-spacing: 0.16em;
@@ -57,7 +57,7 @@
   overflow-y: auto;
   padding: 0.8em 0.65em 1.2em;
   scrollbar-width: thin;
-  scrollbar-color: rgba(244, 243, 255, 0.16) transparent;
+  scrollbar-color: var(--ms-nav-line) transparent;
 }
 
 .rail-nav {
@@ -78,7 +78,7 @@
   gap: 0.4em;
   margin: 0 0 0.25em;
   padding: 0 0.55em;
-  color: rgba(244, 243, 255, 0.38);
+  color: var(--ms-nav-muted);
   font-size: 0.64rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -98,7 +98,7 @@
   min-height: 38px;
   padding: 0 0.55em;
   border-radius: 9px;
-  color: rgba(244, 243, 255, 0.72);
+  color: var(--ms-nav-muted);
   text-decoration: none;
   font-size: 0.82em;
   font-weight: 550;
@@ -110,29 +110,29 @@
   height: 18px;
   font-size: 18px;
   flex: none;
-  color: rgba(244, 243, 255, 0.46);
+  color: var(--ms-nav-icon);
 }
 
 .rail-item:hover {
-  background: rgba(244, 243, 255, 0.07);
-  color: #fff;
+  background: var(--ms-nav-hover);
+  color: var(--ms-nav-text);
 }
 
 .rail-item.active {
-  background: linear-gradient(100deg, rgba(102, 126, 234, 0.28), rgba(118, 75, 162, 0.16));
-  color: #fff;
-  box-shadow: inset 0 0 0 1px rgba(170, 184, 255, 0.16);
+  background: var(--ms-nav-active-bg);
+  color: var(--ms-nav-active-text);
+  box-shadow: inset 3px 0 0 var(--ms-nav-active-icon);
 }
 
 .rail-item.active mat-icon {
-  color: #aab8ff;
+  color: var(--ms-nav-active-icon);
 }
 
 .side-foot {
   flex: none;
   padding: 0.8em 0.8em 1em;
-  border-top: 1px solid rgba(244, 243, 255, 0.1);
-  background: rgba(0, 0, 0, 0.12);
+  border-top: 1px solid var(--ms-nav-line);
+  background: var(--ms-nav-hover);
 }
 
 .user-card {
@@ -170,7 +170,7 @@
 
 .user-card small {
   overflow: hidden;
-  color: rgba(244, 243, 255, 0.42);
+  color: var(--ms-nav-muted);
   font-size: 0.64em;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -192,7 +192,7 @@
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: rgba(244, 243, 255, 0.5);
+  color: var(--ms-nav-muted);
   font: inherit;
   font-size: 0.74em;
   text-align: left;
@@ -202,8 +202,8 @@
 
 .side-actions a:hover,
 .side-actions button:hover {
-  color: #fff;
-  background: rgba(244, 243, 255, 0.06);
+  color: var(--ms-nav-text);
+  background: var(--ms-nav-hover);
 }
 
 .side-actions mat-icon {

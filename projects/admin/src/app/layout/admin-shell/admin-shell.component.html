@@ -3,7 +3,7 @@
 
   <aside class="side" [class.open]="menuOpen()" aria-label="Admin navigation">
     <a class="brand" routerLink="/dashboard" (click)="close()" aria-label="MarketSpase Admin dashboard">
-      <async-brand-logo variant="full-white" height="28px" alt="" />
+      <async-brand-logo [variant]="theme() === 'light' ? 'full-dark' : 'full-white'" height="28px" alt="" />
       <span>Admin</span>
     </a>
 
