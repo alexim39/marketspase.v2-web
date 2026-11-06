@@ -5,15 +5,20 @@
     <p class="subtitle">Every store is run by an independent MarketSpase partner. Search by name or browse below.</p>
 
     <form class="search-row" (ngSubmit)="search()">
-      <input
-        type="search"
-        name="storeSearch"
-        placeholder="Search stores by name…"
-        [ngModel]="query()"
-        (ngModelChange)="setQuery($event)"
-        aria-label="Search stores"
-      />
-      <button type="submit">Search</button>
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search stores</mat-label>
+        <input
+          matInput
+          type="search"
+          name="storeSearch"
+          placeholder="Search stores by name…"
+          [ngModel]="query()"
+          (ngModelChange)="setQuery($event)"
+          aria-label="Search stores"
+        />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="submit">Search</button>
     </form>
   </header>
 

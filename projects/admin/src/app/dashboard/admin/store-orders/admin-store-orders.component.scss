@@ -149,6 +149,12 @@
 
 .actions { display: flex; gap: 0.35em; flex-wrap: wrap; }
 .actions > a, .actions > button { min-height: 38px; font-size: 0.78em; }
+.refund-note { margin: 0.5em 0 0; font-size: 0.72em !important; }
+.refund-panel { display: flex; flex-direction: column; gap: 0.8em; padding: 1em; margin-bottom: 1em; border-left: 4px solid var(--ms-warning); }
+.refund-panel h2 { margin: 0.15em 0; font-size: 1.1em; }
+.refund-panel p { margin: 0; }
+.refund-reason { width: 100%; }
+.refund-panel .actions { justify-content: flex-start; }
 
 .empty { display: flex; flex-direction: column; align-items: center; gap: 0.4em; padding: 2.6em 1em; text-align: center; }
 .empty mat-icon { color: var(--ms-primary-strong); }

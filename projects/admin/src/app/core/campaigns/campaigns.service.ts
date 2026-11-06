@@ -2,6 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 import {
+  AdminAllocationActionEnvelope,
+  AdminAllocationsEnvelope,
   AdminGrowthCampaignEnvelope,
   AdminGrowthCampaignsEnvelope,
   AllocatePartnersEnvelope,
@@ -93,5 +95,26 @@ export class CampaignsService {
       ? `v1/admin/campaigns/${campaignId}/allocate`
       : 'v1/admin/campaigns/allocate';
     return this.api.post<AllocatePartnersEnvelope>(path, { limit });
+  }
+
+  adminAllocations(status = 'active', limit = 100): Observable<AdminAllocationsEnvelope> {
+    return this.api.get<AdminAllocationsEnvelope>(
+      `v1/admin/campaigns/allocations?status=${encodeURIComponent(status)}&limit=${limit}`,
+    );
+  }
+
+  adminOverrideAllocation(campaignId: string, partnerId: string, reason: string): Observable<AdminAllocationActionEnvelope> {
+    return this.api.post<AdminAllocationActionEnvelope>('v1/admin/campaigns/allocations/override', {
+      campaignId,
+      partnerId,
+      reason,
+    });
+  }
+
+  adminReverseAllocation(allocationId: string, reason: string): Observable<AdminAllocationActionEnvelope> {
+    return this.api.post<AdminAllocationActionEnvelope>(
+      `v1/admin/campaigns/allocations/${allocationId}/reverse`,
+      { reason },
+    );
   }
 }

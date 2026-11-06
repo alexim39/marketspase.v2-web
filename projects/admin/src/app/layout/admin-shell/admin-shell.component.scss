@@ -280,6 +280,27 @@
   color: var(--ms-primary-strong);
 }
 
+.top-actions .theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--ms-line);
+  border-radius: 10px;
+  background: var(--ms-surface);
+  color: var(--ms-text-muted);
+  cursor: pointer;
+}
+.top-actions .theme-toggle:hover {
+  color: var(--ms-primary-strong);
+  border-color: var(--ms-primary);
+}
+.top-actions .theme-toggle mat-icon {
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+}
+
 .admin-badge {
   padding: 0.3em 0.6em;
   border-radius: 999px;

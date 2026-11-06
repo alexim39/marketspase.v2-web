@@ -52,6 +52,10 @@ export class AdminStoreService {
     return this.api.post<AdminStoreOrderEnvelope>(`v1/admin/store-orders/${id}/release-escrow`, {});
   }
 
+  refundOrder(id: string, reason: string): Observable<AdminStoreOrderEnvelope> {
+    return this.api.post<AdminStoreOrderEnvelope>(`v1/admin/store-orders/${id}/refund`, { reason });
+  }
+
   settlements(): Observable<AdminSettlementsEnvelope> {
     return this.api.get<AdminSettlementsEnvelope>('v1/admin/store-settlements');
   }

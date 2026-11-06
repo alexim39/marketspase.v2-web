@@ -211,3 +211,37 @@ export interface CampaignAttributionRow {
 export interface CampaignAttributionEnvelope extends ApiEnvelope<CampaignAttributionRow[]> {
   data: CampaignAttributionRow[];
 }
+
+export interface AdminAllocationRow {
+  id: string;
+  status: 'active' | 'ended' | 'reversed';
+  allocatedAt: string;
+  score: { fairness: number; contribution: number; fit: number; capacitySupport: number; total: number };
+  explanation: string[];
+  campaign: { id: string; name: string; status: GrowthCampaignStatus } | null;
+  owner: { id: string; name: string; username: string } | null;
+  partner: {
+    id: string;
+    name: string;
+    username: string;
+    email: string;
+    phone: string;
+    state: string;
+  } | null;
+}
+
+export interface AdminAllocationsEnvelope extends ApiEnvelope<AdminAllocationRow[]> {
+  data: AdminAllocationRow[];
+}
+
+export interface AdminAllocationActionEnvelope extends ApiEnvelope<{
+  allocation: { id: string; status: string };
+  queueRestored?: boolean;
+  reason?: string;
+}> {
+  data: {
+    allocation: { id: string; status: string };
+    queueRestored?: boolean;
+    reason?: string;
+  };
+}

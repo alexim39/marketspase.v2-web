@@ -121,6 +121,9 @@ export interface StoreOrder {
   shippedAt: string | null;
   deliveredAt: string | null;
   cancelledAt: string | null;
+  refundedAt: string | null;
+  refundReference: string;
+  refundReason: string;
   settledAt: string | null;
   escrow: {
     status: string;

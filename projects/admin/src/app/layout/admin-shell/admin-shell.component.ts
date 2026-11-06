@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterModule } from '@angular/router';
 import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo.component';
+import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/auth/auth.service';
 import { ADMIN_NAV } from '../../dashboard/admin/admin-nav.config';
@@ -16,12 +17,14 @@ import { ADMIN_NAV } from '../../dashboard/admin/admin-nav.config';
 export class AdminShellComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly themes = inject(ThemeService);
 
   protected readonly nav = ADMIN_NAV;
   protected readonly menuOpen = signal(false);
   protected readonly platformUrl = environment.platformUrl;
   protected readonly storeUrl = environment.storeUrl;
   protected readonly user = this.auth.currentUser;
+  protected readonly theme = this.themes.theme;
 
   protected initials(): string {
     const user = this.user();
@@ -30,6 +33,10 @@ export class AdminShellComponent {
 
   protected close(): void {
     this.menuOpen.set(false);
+  }
+
+  protected toggleTheme(): void {
+    this.themes.toggle();
   }
 
   protected signOut(): void {

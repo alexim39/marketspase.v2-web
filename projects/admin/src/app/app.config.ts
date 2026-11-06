@@ -9,6 +9,7 @@ import { routes } from './app.routes';
 import { credentialsInterceptor } from './core/http/credentials.interceptor';
 import { authTokenInterceptor } from './core/http/auth-token.interceptor';
 import { apiErrorInterceptor } from './core/http/api-error.interceptor';
+import { adminSessionScopeInterceptor } from './core/http/admin-session-scope.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,7 +21,12 @@ export const appConfig: ApplicationConfig = {
     { provide: AUTH_TOKEN_KEY, useValue: 'ms_admin_session_token' },
     provideHttpClient(
       withXhr(),
-      withInterceptors([credentialsInterceptor, authTokenInterceptor, apiErrorInterceptor]),
+      withInterceptors([
+        adminSessionScopeInterceptor,
+        credentialsInterceptor,
+        authTokenInterceptor,
+        apiErrorInterceptor,
+      ]),
     ),
   ],
 };

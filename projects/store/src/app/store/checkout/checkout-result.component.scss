@@ -71,6 +71,7 @@
 
 .result-card.paid .result-icon { background: var(--ms-success-soft); color: var(--ms-success); }
 .result-card.cancelled .result-icon { background: var(--ms-error-soft); color: var(--ms-error); }
+.result-card.refunded .result-icon { background: var(--ms-warning-soft); color: var(--ms-warning); }
 
 .result-icon mat-icon {
   width: 36px;
@@ -89,6 +90,7 @@
 
 .result-card.paid .eyebrow { color: var(--ms-success); }
 .result-card.cancelled .eyebrow { color: var(--ms-error); }
+.result-card.refunded .eyebrow { color: var(--ms-warning); }
 
 .result-card h1 {
   margin: 0.25em 0 0.4em;
@@ -112,10 +114,10 @@
   min-height: 46px;
   padding: 0 1.1em;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: 12px;
   font: inherit;
   font-size: 0.86em;
-  font-weight: 750;
+  font-weight: 650;
   text-decoration: none;
   cursor: pointer;
 }

@@ -20,6 +20,29 @@
     </section>
   }
 
+  @if (refundTarget(); as target) {
+    <section class="dp-card refund-panel" aria-label="Refund order">
+      <div>
+        <p class="eyebrow">Refund order</p>
+        <h2>{{ target.orderNumber }}</h2>
+        <p class="muted">
+          Refund <strong>{{ money(target.amounts.total) }}</strong> to {{ target.customer.name }}
+          through Paystack. This cannot be undone.
+        </p>
+      </div>
+      <mat-form-field appearance="outline" class="refund-reason">
+        <mat-label>Reason for refund</mat-label>
+        <textarea matInput rows="2" maxlength="500" [ngModel]="refundReason()" (ngModelChange)="refundReason.set($event)" placeholder="Item returned, damaged in transit, customer request…"></textarea>
+      </mat-form-field>
+      <div class="actions">
+        <button mat-flat-button color="warn" type="button" (click)="submitRefund()" [disabled]="refundingId() === target.id || refundReason().trim().length < 3">
+          {{ refundingId() === target.id ? 'Refunding…' : 'Refund ' + money(target.amounts.total) }}
+        </button>
+        <button mat-button type="button" (click)="cancelRefund()" [disabled]="refundingId() === target.id">Cancel</button>
+      </div>
+    </section>
+  }
+
   <div class="toolbar">
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Search orders</mat-label>
@@ -92,12 +115,24 @@
               @if (order.deliveredAt) { <span class="done">Delivered {{ order.deliveredAt | date:'mediumDate' }}</span> }
               @if (order.escrow.releaseAt) { <span [class.done]="order.escrow.status === 'released'">Release {{ order.escrow.releaseAt | date:'mediumDate' }}</span> }
               @if (order.escrow.releasedAt) { <span class="done">Released {{ order.escrow.releasedAt | date:'mediumDate' }}</span> }
+              @if (order.refundedAt) { <span class="done">Refunded {{ order.refundedAt | date:'mediumDate' }}</span> }
             </div>
+            @if (order.refundReason) {
+              <p class="muted small refund-note">
+                Refund reason: {{ order.refundReason }}
+                @if (order.refundReference) { · Reference {{ order.refundReference }} }
+              </p>
+            }
             <div class="actions">
               <a mat-stroked-button [href]="storeUrl + '/' + order.store.slug" target="_blank" rel="noopener">View store</a>
               @if (order.status === 'delivered' && order.escrow.status === 'held') {
                 <button mat-flat-button color="primary" type="button" (click)="releaseEscrow(order)" [disabled]="busyId() === order.id">
                   Release escrow
+                </button>
+              }
+              @if (order.payment.status === 'paid' && order.status !== 'refunded' && order.status !== 'cancelled') {
+                <button mat-stroked-button color="warn" type="button" (click)="refund(order)" [disabled]="refundingId() === order.id">
+                  {{ refundingId() === order.id ? 'Refunding…' : 'Refund customer' }}
                 </button>
               }
             </div>

@@ -6,10 +6,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { CampaignsService } from '../../../core/campaigns/campaigns.service';
 import {
+  AdminAllocationRow,
   AdminGrowthCampaign,
   CampaignAttributionRow,
   CampaignQueueRow,
@@ -28,6 +30,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
     MatIconModule,
     MatInputModule,
     MatProgressBarModule,
+    MatSelectModule,
     MatSnackBarModule,
   ],
   template: `
@@ -138,6 +141,77 @@ import { ApiError, userError } from '../../../core/http/api-error';
         </div>
       </div>
 
+      <div class="panel allocation-panel">
+        <div class="panel-head">
+          <div><p class="eyebrow">Placement controls</p><h2>Manual allocation and reversal</h2></div>
+          <span class="count">{{ allocations().length }} active</span>
+        </div>
+        <p class="muted small">Manual placement bypasses the fairness score but still obeys campaign capacity, budget, weekly caps and partner eligibility. Every override and reversal is audited.</p>
+        <div class="placement-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Active campaign</mat-label>
+            <mat-select [ngModel]="overrideCampaignId()" (ngModelChange)="overrideCampaignId.set($event)">
+              @for (campaign of activeCampaigns(); track campaign.id) {
+                <mat-option [value]="campaign.id">{{ campaign.name }} · {{ campaign.owner?.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Eligible queued partner</mat-label>
+            <mat-select [ngModel]="overridePartnerId()" (ngModelChange)="overridePartnerId.set($event)">
+              @for (row of eligibleQueue(); track row.queueEntryId) {
+                <mat-option [value]="row.partner?.id">{{ row.partner?.name }} · {{ row.partner?.state || 'State unknown' }} · {{ row.waitDays }}d</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="reason-field">
+            <mat-label>Override reason</mat-label>
+            <input matInput [ngModel]="overrideReason()" (ngModelChange)="overrideReason.set($event)" maxlength="500" placeholder="Phone placement correction, verified by ops" />
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="button" (click)="overridePlacement()" [disabled]="!overrideCampaignId() || !overridePartnerId() || overrideReason().trim().length < 3">
+            Place manually
+          </button>
+        </div>
+
+        @if (allocationsLoading()) { <mat-progress-bar mode="indeterminate" aria-label="Loading allocations" /> }
+        @if (allocations().length === 0 && !allocationsLoading()) {
+          <div class="empty"><mat-icon>hub</mat-icon><p>No active placements.</p></div>
+        } @else {
+          <div class="allocation-list">
+            @for (row of allocations(); track row.id) {
+              <article class="allocation-row">
+                <div class="allocation-main">
+                  <strong>{{ row.partner?.name || 'Partner' }}</strong>
+                  <span class="muted small">{{ row.partner?.email }} · placed {{ row.allocatedAt | date: 'mediumDate' }}</span>
+                  <span class="muted small">Campaign: {{ row.campaign?.name || '—' }} · Owner: {{ row.owner?.name || '—' }}</span>
+                </div>
+                <span class="muted small">Score {{ row.score?.total ?? 0 }}</span>
+                <button mat-stroked-button color="warn" type="button" (click)="reversePlacement(row)" [disabled]="reversingId() === row.id">
+                  {{ reversingId() === row.id ? 'Reversing…' : 'Reverse' }}
+                </button>
+              </article>
+            }
+          </div>
+        }
+      </div>
+
+      @if (reverseTarget(); as target) {
+        <div class="panel action-panel">
+          <div>
+            <p class="eyebrow">Reverse placement</p>
+            <h3>{{ target.partner?.name || 'Partner' }} · {{ target.campaign?.name || 'Campaign' }}</h3>
+            <p class="muted">The partner returns to the queue and the campaign slot/cost is released. This is audited.</p>
+          </div>
+          <mat-form-field appearance="outline"><mat-label>Reason</mat-label><textarea matInput rows="2" [ngModel]="reverseReason()" (ngModelChange)="reverseReason.set($event)" maxlength="500" placeholder="Wrong owner, duplicate allocation, data correction…"></textarea></mat-form-field>
+          <div class="actions">
+            <button mat-flat-button color="warn" type="button" (click)="submitReverse()" [disabled]="reversingId() === target.id || reverseReason().trim().length < 3">
+              {{ reversingId() === target.id ? 'Reversing…' : 'Reverse allocation' }}
+            </button>
+            <button mat-button type="button" (click)="cancelReverse()" [disabled]="reversingId() === target.id">Cancel</button>
+          </div>
+        </div>
+      }
+
       <div class="panel attribution-panel">
         <div class="panel-head">
           <div><p class="eyebrow">Attribution</p><h2>Signups by campaign link</h2></div>
@@ -222,6 +296,16 @@ import { ApiError, userError } from '../../../core/http/api-error';
     .danger { color: var(--ms-error); }
     .queue-row { display: flex; gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--ms-line); border-radius: 10px; }
     .attribution-panel { margin-top: 4px; }
+    .allocation-panel { margin-top: 14px; }
+    .placement-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) auto; gap: 10px; align-items: center; margin: 10px 0 14px; }
+    .placement-form mat-form-field { width: 100%; }
+    .placement-form button { min-height: 44px; white-space: nowrap; }
+    .allocation-list { display: flex; flex-direction: column; }
+    .allocation-row { display: flex; gap: 12px; align-items: center; padding: 10px 2px; border-top: 1px solid var(--ms-line); flex-wrap: wrap; }
+    .allocation-row:first-child { border-top: none; }
+    .allocation-main { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 2px; }
+    .allocation-row button { min-height: 38px; }
+    @media (max-width: 900px) { .placement-form { grid-template-columns: 1fr; } }
     .attribution-list { display: flex; flex-direction: column; }
     .attribution-row { display: flex; gap: 12px; align-items: center; padding: 10px 2px; border-top: 1px solid var(--ms-line); flex-wrap: wrap; }
     .attribution-row:first-child { border-top: none; }
@@ -264,13 +348,22 @@ export class AdminGrowthComponent implements OnInit {
 
   protected readonly status = signal('Pending');
   protected readonly campaigns = signal<AdminGrowthCampaign[]>([]);
+  protected readonly activeCampaignList = signal<AdminGrowthCampaign[]>([]);
   protected readonly queue = signal<CampaignQueueRow[]>([]);
   protected readonly attribution = signal<CampaignAttributionRow[]>([]);
+  protected readonly allocations = signal<AdminAllocationRow[]>([]);
   protected readonly loading = signal(false);
   protected readonly queueLoading = signal(false);
   protected readonly attributionLoading = signal(false);
+  protected readonly allocationsLoading = signal(false);
   protected readonly allocating = signal(false);
   protected readonly busyId = signal<string | null>(null);
+  protected readonly reversingId = signal<string | null>(null);
+  protected readonly reverseTarget = signal<AdminAllocationRow | null>(null);
+  protected readonly reverseReason = signal('');
+  protected readonly overrideCampaignId = signal('');
+  protected readonly overridePartnerId = signal('');
+  protected readonly overrideReason = signal('');
   protected readonly error = signal<string | null>(null);
   protected readonly rejectTarget = signal<AdminGrowthCampaign | null>(null);
   protected readonly rejectReason = signal('');
@@ -289,8 +382,77 @@ export class AdminGrowthComponent implements OnInit {
 
   protected reload(): void {
     this.loadCampaigns();
+    this.loadActiveCampaigns();
     this.loadQueue();
+    this.loadAllocations();
     this.loadAttribution();
+  }
+
+  protected activeCampaigns(): AdminGrowthCampaign[] {
+    return this.activeCampaignList();
+  }
+
+  protected eligibleQueue(): CampaignQueueRow[] {
+    return this.queue().filter((row) => row.eligible && row.partner);
+  }
+
+  protected overridePlacement(): void {
+    const campaignId = this.overrideCampaignId();
+    const partnerId = this.overridePartnerId();
+    const reason = this.overrideReason().trim();
+    if (!campaignId || !partnerId) {
+      this.error.set('Choose a campaign and a queued partner.');
+      return;
+    }
+    if (reason.length < 3) {
+      this.error.set('Add a reason for the manual placement.');
+      return;
+    }
+    this.busyId.set(campaignId);
+    this.error.set(null);
+    this.campaignsService.adminOverrideAllocation(campaignId, partnerId, reason).pipe(
+      finalize(() => this.busyId.set(null)),
+    ).subscribe({
+      next: () => {
+        this.snack.open('Partner placed manually', 'Close', { duration: 4000 });
+        this.overridePartnerId.set('');
+        this.overrideReason.set('');
+        this.reload();
+      },
+      error: (err: ApiError) => this.error.set(userError(err)),
+    });
+  }
+
+  protected reversePlacement(allocation: AdminAllocationRow): void {
+    if (this.reversingId()) return;
+    this.reverseTarget.set(allocation);
+    this.reverseReason.set('');
+  }
+
+  protected cancelReverse(): void {
+    this.reverseTarget.set(null);
+    this.reverseReason.set('');
+  }
+
+  protected submitReverse(): void {
+    const target = this.reverseTarget();
+    const reason = this.reverseReason().trim();
+    if (!target || reason.length < 3) {
+      this.snack.open('Add a short reason before reversing.', 'Close', { duration: 3000 });
+      return;
+    }
+    this.reversingId.set(target.id);
+    this.error.set(null);
+    this.campaignsService.adminReverseAllocation(target.id, reason).pipe(
+      finalize(() => this.reversingId.set(null)),
+    ).subscribe({
+      next: () => {
+        this.snack.open('Allocation reversed and partner returned to the queue', 'Close', { duration: 4000 });
+        this.cancelReverse();
+        this.reload();
+      },
+      error: (err: ApiError) => this.error.set(userError(err)),
+    });
   }
 
   protected activate(campaign: AdminGrowthCampaign): void {
@@ -416,12 +578,28 @@ export class AdminGrowthComponent implements OnInit {
     });
   }
 
-  private loadQueue(): void {
-    this.queueLoading.set(true);
+  private loadActiveCampaigns(): void {
+    this.campaignsService.adminList({ status: 'Active', limit: 100 }).subscribe({
+      next: (response) => this.activeCampaignList.set(response.data ?? []),
+      error: () => this.activeCampaignList.set([]),
+    });
+  }
+
+  private loadQueue(): void {    this.queueLoading.set(true);
     this.campaignsService.adminQueue().pipe(
       finalize(() => this.queueLoading.set(false)),
     ).subscribe({
       next: (response) => this.queue.set(response.data),
+      error: (err: ApiError) => this.error.set(userError(err)),
+    });
+  }
+
+  private loadAllocations(): void {
+    this.allocationsLoading.set(true);
+    this.campaignsService.adminAllocations('active').pipe(
+      finalize(() => this.allocationsLoading.set(false)),
+    ).subscribe({
+      next: (response) => this.allocations.set(response.data ?? []),
       error: (err: ApiError) => this.error.set(userError(err)),
     });
   }

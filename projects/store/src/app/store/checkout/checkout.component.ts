@@ -1,6 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
 import { finalize } from 'rxjs';
 import { CartService } from '../cart/cart.service';
@@ -11,7 +15,7 @@ import { storeError, storeProductImage, StoreService } from '../store.service';
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CurrencyPipe, FormsModule, RouterModule],
+  imports: [CurrencyPipe, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterModule],
 })
 export class StoreCheckoutComponent {
   private readonly cartApi = inject(CartService);

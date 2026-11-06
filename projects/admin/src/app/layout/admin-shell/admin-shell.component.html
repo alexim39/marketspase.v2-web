@@ -58,6 +58,9 @@
         <strong>Admin console</strong>
       </div>
       <div class="top-actions">
+        <button class="theme-toggle" type="button" (click)="toggleTheme()" [attr.aria-label]="theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+          <mat-icon aria-hidden="true">{{ theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
         <a [href]="storeUrl" target="_blank" rel="noopener">Store</a>
         <a [href]="platformUrl" target="_blank" rel="noopener">Platform</a>
         <span class="admin-badge">Admin</span>

@@ -115,7 +115,7 @@ import { CartService } from '../../store/cart/cart.service';
       align-items: center;
       min-height: 42px;
       padding: 0 0.8em;
-      border-radius: 999px;
+      border-radius: 12px;
       color: var(--ms-text-muted);
       text-decoration: none;
       font-size: 0.86em;

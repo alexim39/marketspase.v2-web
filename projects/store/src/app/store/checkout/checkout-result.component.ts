@@ -61,4 +61,8 @@ export class StoreCheckoutResultComponent implements OnInit {
   protected get paid(): boolean {
     return this.status() === 'paid' || this.order()?.payment.status === 'paid';
   }
+
+  protected get refunded(): boolean {
+    return this.order()?.status === 'refunded' || this.order()?.payment.status === 'refunded';
+  }
 }

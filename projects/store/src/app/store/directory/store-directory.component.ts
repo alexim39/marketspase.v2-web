@@ -1,6 +1,10 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
 import { SeoService } from '../../_common/services/seo.service';
 import { StorePublic } from '../store.models';
@@ -11,7 +15,7 @@ import { StoreService, storeAssetUrl, storeError } from '../store.service';
   templateUrl: './store-directory.component.html',
   styleUrls: ['./store-directory.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [FormsModule, RouterModule],
+  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, RouterModule],
 })
 export class StoreDirectoryComponent implements OnInit {
   private readonly storesApi = inject(StoreService);

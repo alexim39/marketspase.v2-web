@@ -94,6 +94,9 @@ export interface AdminStoreOrder {
   };
   paidAt: string | null;
   deliveredAt: string | null;
+  refundedAt?: string | null;
+  refundReference?: string;
+  refundReason?: string;
   createdAt: string;
   updatedAt: string;
 }

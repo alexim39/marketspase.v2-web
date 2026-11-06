@@ -40,6 +40,9 @@ export class AdminStoreOrdersComponent implements OnInit {
   protected readonly orders = signal<AdminStoreOrder[]>([]);
   protected readonly settlements = signal<AdminSettlements | null>(null);
   protected readonly busyId = signal<string | null>(null);
+  protected readonly refundingId = signal<string | null>(null);
+  protected readonly refundTarget = signal<AdminStoreOrder | null>(null);
+  protected readonly refundReason = signal('');
   protected readonly status = signal('all');
   protected query = '';
   protected readonly storeUrl = environment.storeUrl;
@@ -80,6 +83,41 @@ export class AdminStoreOrdersComponent implements OnInit {
             item.id === response.data.id ? response.data : item
           )));
           this.ui.success('Escrow released to the partner wallet');
+          this.loadSettlements();
+        },
+        error: (err: ApiError) => this.error.set(userError(err)),
+      });
+  }
+
+  protected refund(order: AdminStoreOrder): void {
+    if (this.refundingId()) return;
+    this.refundTarget.set(order);
+    this.refundReason.set('');
+  }
+
+  protected cancelRefund(): void {
+    this.refundTarget.set(null);
+    this.refundReason.set('');
+  }
+
+  protected submitRefund(): void {
+    const target = this.refundTarget();
+    const reason = this.refundReason().trim();
+    if (!target || reason.length < 3) {
+      this.ui.info('Add a short reason before refunding.');
+      return;
+    }
+    this.refundingId.set(target.id);
+    this.error.set(null);
+    this.storeApi.refundOrder(target.id, reason)
+      .pipe(finalize(() => this.refundingId.set(null)))
+      .subscribe({
+        next: (response) => {
+          this.orders.update((orders) => orders.map((item) => (
+            item.id === response.data.id ? response.data : item
+          )));
+          this.ui.success(`Order ${response.data.orderNumber} refunded`);
+          this.cancelRefund();
           this.loadSettlements();
         },
         error: (err: ApiError) => this.error.set(userError(err)),
