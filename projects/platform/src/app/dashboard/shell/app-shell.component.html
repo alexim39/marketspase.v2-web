@@ -1,0 +1,202 @@
+<mat-sidenav-container class="ms-shell">
+  <mat-sidenav #drawer class="ms-sidenav" [class.is-collapsed]="collapsed()" fixedInViewport
+    [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+    [mode]="(isHandset$ | async) ? 'over' : 'side'"
+    [opened]="(isHandset$ | async) === false"
+    (keydown.escape)="drawer.close()">
+
+    <div class="ms-brand">
+      <async-logo link="/dashboard" [theme]="theme()" [compact]="collapsed()" />
+    </div>
+
+    <div class="ms-profile">
+      @if (partner) {
+        <async-profile [partner]="partner" />
+      } @else {
+        <div class="ms-profile-skel" aria-hidden="true">
+          <span class="sk-avatar"></span>
+          <span class="sk-lines"><span class="sk-line"></span><span class="sk-line short"></span></span>
+        </div>
+      }
+    </div>
+
+    @if (activationNeeded()) {
+      <a class="ms-activate-banner" routerLink="/dashboard/activate" (click)="onNavigate(drawer)" title="Complete activation to unlock campaign allocation">
+        <mat-icon>verified_user</mat-icon>
+        <span class="ms-nav-text">Complete activation</span>
+        <mat-icon class="ms-nav-chev">chevron_right</mat-icon>
+      </a>
+    }
+
+    <nav class="ms-nav" aria-label="Primary navigation">
+      @for (item of nav; track item.key; let i = $index) {
+        @if (showSection(i)) {
+          <div class="ms-nav-section"><span class="ms-nav-label">{{ sectionLabel(item.section) }}</span></div>
+        }
+        @if (item.children && item.link) {
+          <div class="ms-nav-group-row" [class.open]="isOpen(item.key)">
+            <button type="button" class="ms-nav-group-link" [class.active]="isGroupActive(item)" (click)="onGroupClick(item)" [title]="item.title ?? item.label" [matTooltip]="collapsed() ? item.label + (item.description ? ' — ' + item.description : '') : ''" matTooltipPosition="right">
+              <mat-icon class="ms-nav-ic">{{ item.icon }}</mat-icon>
+              <span class="ms-nav-copy">
+                <span class="ms-nav-text">{{ item.label }}</span>
+                @if (item.description) {
+                  <span class="ms-nav-desc">{{ item.description }}</span>
+                }
+              </span>
+              @if (item.key === 'pipeline' && (remindersDue() ?? 0) > 0) {
+                <span class="ms-nav-pill ms-nav-group-pill">{{ remindersDue() }}</span>
+              }
+            </button>
+            <button class="ms-nav-chev-btn" type="button" (click)="toggleGroup(item.key)" [attr.aria-expanded]="isOpen(item.key)" [attr.aria-label]="(isOpen(item.key) ? 'Collapse ' : 'Expand ') + item.label">
+              <mat-icon class="ms-nav-chev">{{ isOpen(item.key) ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+          </div>
+          @if (isOpen(item.key)) {
+            <div class="ms-subnav">
+              @for (child of item.children; track child.label) {
+                @if (canSee(child.permission)) {
+                  @if (child.external) {
+                    <a class="ms-subitem" [href]="child.external" target="_blank" rel="noopener" (click)="onNavigate(drawer)" [title]="child.title ?? child.label">
+                      <span class="ms-nav-text">{{ child.label }}</span>
+                    </a>
+                  } @else if (child.link) {
+                    <a class="ms-subitem" [routerLink]="child.link" routerLinkActive="active" (click)="onNavigate(drawer)" [title]="child.title ?? child.label">
+                      <span class="ms-nav-text">{{ child.label }}</span>
+                      @if (item.key === 'pipeline' && (remindersDue() ?? 0) > 0 && child.link.endsWith('prospects/reminders')) {
+                        <span class="ms-nav-pill">{{ remindersDue() }}</span>
+                      }
+                      @if (item.key === 'more' && profileIncomplete() && child.link.endsWith('settings/profiles')) {
+                        <span class="ms-nav-pill">!</span>
+                      }
+                    </a>
+                  }
+                }
+              }
+            </div>
+          }
+        } @else if (item.link) {
+          <a class="ms-nav-item" [routerLink]="item.link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: item.link === '/dashboard'}" (click)="onNavigate(drawer)" [title]="item.title ?? item.label" [matTooltip]="collapsed() ? item.label + (item.description ? ' — ' + item.description : '') : ''" matTooltipPosition="right">
+            <mat-icon class="ms-nav-ic">{{ item.icon }}</mat-icon>
+            <span class="ms-nav-copy">
+              <span class="ms-nav-text">{{ item.label }}</span>
+              @if (item.description) {
+                <span class="ms-nav-desc">{{ item.description }}</span>
+              }
+            </span>
+          </a>
+        }
+      }
+    </nav>
+
+    <div class="ms-rail-foot">
+      <button type="button" class="ms-collapse" (click)="toggleCollapse()" [title]="collapsed() ? 'Expand navigation' : 'Collapse navigation'" [matTooltip]="collapsed() ? 'Expand' : 'Collapse'" matTooltipPosition="right">
+        <mat-icon>{{ collapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+        <span class="ms-nav-text">Collapse</span>
+      </button>
+    </div>
+
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="ms-topbar" role="banner">
+      @if (isHandset$ | async) {
+        <button type="button" aria-label="Open navigation" mat-icon-button (click)="drawer.toggle()">
+          <mat-icon aria-hidden="true">menu</mat-icon>
+        </button>
+        <span class="ms-logo"><async-logo link="/dashboard" [theme]="theme()" /></span>
+      } @else {
+        <span class="ms-page-title">{{ pageTitle() }}</span>
+      }
+
+      <span class="ms-spacer"></span>
+
+      <div class="ms-top-actions">
+        <button mat-icon-button (click)="openSearch()" title="Search (Ctrl+K)" aria-label="Search">
+          <mat-icon aria-hidden="true">search</mat-icon>
+        </button>
+
+        <button mat-icon-button [matMenuTriggerFor]="createMenu" title="Create" aria-label="Create">
+          <mat-icon aria-hidden="true">add</mat-icon>
+        </button>
+
+        @if (partner?.role === 'admin') {
+          <a mat-icon-button [href]="adminUrl" target="_blank" rel="noopener" title="Admin console" aria-label="Open the admin console">
+            <mat-icon aria-hidden="true">admin_panel_settings</mat-icon>
+          </a>
+        }
+
+        <button mat-icon-button [matMenuTriggerFor]="notifMenu" title="Notifications" [attr.aria-label]="stream.unreadCount() ? 'Notifications, ' + stream.unreadCount() + ' unread' : 'Notifications'">
+          <mat-icon aria-hidden="false" [attr.aria-label]="stream.unreadCount() ? 'Notifications, ' + stream.unreadCount() + ' unread' : 'Notifications'" [matBadge]="stream.unreadCount()" [matBadgeHidden]="stream.unreadCount() === 0" matBadgeColor="warn" matBadgeDescription="unread notifications">notifications</mat-icon>
+        </button>
+
+        <a mat-icon-button routerLink="/dashboard/settings/profiles" title="Settings" aria-label="Settings">
+          <mat-icon aria-hidden="true">settings</mat-icon>
+        </a>
+
+        <button mat-icon-button (click)="toggleTheme()" [title]="theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'" aria-label="Toggle color theme">
+          <mat-icon aria-hidden="true">{{ theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+
+        <button mat-icon-button (click)="signOut()" title="Sign out" aria-label="Sign out">
+          <mat-icon aria-hidden="true">power_settings_circle</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar>
+
+    @if (viewAs.viewingAs(); as viewed) {
+      <div class="ms-viewas" role="status">
+        <mat-icon aria-hidden="true">visibility</mat-icon>
+        <p>Viewing as <strong>{{ viewed.name }}</strong> (@{{ viewed.username ?? '—' }}) — read-only</p>
+        <span class="ms-spacer"></span>
+        <a mat-button [routerLink]="['/dashboard/network/view', viewed.id]">Full view</a>
+        <button mat-button (click)="viewAs.exit()">Exit</button>
+      </div>
+    }
+
+    @if (progress.active()) {
+      <div class="ms-loading" role="status" aria-live="polite">
+        <mat-progress-bar mode="indeterminate" class="ms-progress" aria-label="Loading page"></mat-progress-bar>
+      </div>
+    }
+
+    <main class="ms-content">
+      <router-outlet />
+    </main>
+
+    @if (isHandset$ | async) {
+      <nav class="ms-bottom-nav" aria-label="Primary">
+        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+          <mat-icon>home</mat-icon><span>Home</span>
+        </a>
+        <a routerLink="/dashboard/pipeline" routerLinkActive="active" (click)="scrollToTop()">
+          <mat-icon>person_search</mat-icon><span>Pipeline</span>
+        </a>
+        <a routerLink="/dashboard/products" routerLinkActive="active" (click)="scrollToTop()">
+          <mat-icon>storefront</mat-icon><span>Products</span>
+        </a>
+        <a routerLink="/dashboard/wallet" routerLinkActive="active" (click)="scrollToTop()">
+          <mat-icon>payments</mat-icon><span>Wallet</span>
+        </a>
+        <button type="button" (click)="drawer.toggle()" aria-label="More sections">
+          <mat-icon>more_horiz</mat-icon><span>More</span>
+        </button>
+      </nav>
+      <div class="ms-bottom-spacer"></div>
+    }
+  </mat-sidenav-content>
+</mat-sidenav-container>
+
+<mat-menu #createMenu="matMenu" class="ms-create-menu">
+  <a mat-menu-item routerLink="/dashboard/tools/contacts/new"><mat-icon>person_add</mat-icon> Add prospect</a>
+  <a mat-menu-item routerLink="/dashboard/campaigns"><mat-icon>campaign</mat-icon> Start campaign</a>
+  <a mat-menu-item routerLink="/dashboard/messages"><mat-icon>forum</mat-icon> Send message</a>
+  <a mat-menu-item routerLink="/dashboard/prospects/bookings"><mat-icon>event</mat-icon> Book session</a>
+  <a mat-menu-item routerLink="/dashboard/wallet/deposit"><mat-icon>add_card</mat-icon> Deposit funds</a>
+  <a mat-menu-item routerLink="/dashboard/ora"><mat-icon>smart_toy</mat-icon> Ask Ora</a>
+</mat-menu>
+
+<mat-menu #notifMenu="matMenu" panelClass="notif-menu-panel">
+  <async-notification-bell />
+</mat-menu>
+
+<async-ora-widget />

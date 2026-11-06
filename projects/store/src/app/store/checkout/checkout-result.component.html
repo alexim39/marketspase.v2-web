@@ -1,0 +1,88 @@
+<section class="result-page ms-store-page">
+  @if (loading()) {
+    <div class="state-card">
+      <span class="spinner" aria-hidden="true"></span>
+      <h1>Confirming your payment…</h1>
+      <p>We’re checking with Paystack. This only takes a moment.</p>
+    </div>
+  } @else if (!order()) {
+    <div class="state-card">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <h1>We couldn’t confirm this payment</h1>
+      <p>{{ error() }}</p>
+      <div class="state-actions">
+        @if (reference) {
+          <button class="btn primary" type="button" (click)="verify()" [disabled]="checking()">
+            {{ checking() ? 'Checking…' : 'Check again' }}
+          </button>
+        }
+        <a class="btn ghost" routerLink="/support">Contact support</a>
+      </div>
+    </div>
+  } @else if (order(); as o) {
+    <div class="result-card" [class.paid]="paid" [class.pending]="!paid && o.status !== 'cancelled'" [class.cancelled]="o.status === 'cancelled'">
+      <div class="result-icon">
+        <mat-icon aria-hidden="true">{{ paid ? 'check_circle' : o.status === 'cancelled' ? 'cancel' : 'schedule' }}</mat-icon>
+      </div>
+      <p class="eyebrow">{{ paid ? 'Payment confirmed' : o.status === 'cancelled' ? 'Order cancelled' : 'Payment pending' }}</p>
+      <h1>
+        {{ paid ? 'Thank you. Your order is confirmed.' : o.status === 'cancelled' ? 'This order was not completed.' : 'We’re waiting for Paystack.' }}
+      </h1>
+      <p class="lead">
+        @if (paid) {
+          {{ o.store.name }} has your order and will fulfil it directly. We’ll keep your payment in escrow until delivery plus the return window.
+        } @else if (o.status === 'cancelled') {
+          The payment window closed or the payment was not completed. Your card was not charged by MarketSpase Store.
+        } @else {
+          Paystack has not confirmed this payment yet. If you completed payment, check again in a moment.
+        }
+      </p>
+
+      @if (!paid && o.status !== 'cancelled') {
+        <button class="btn primary" type="button" (click)="verify()" [disabled]="checking()">
+          {{ checking() ? 'Checking…' : 'Check payment again' }}
+        </button>
+      }
+
+      <div class="order-meta">
+        <div><span>Order</span><strong>{{ o.orderNumber }}</strong></div>
+        <div><span>Store</span><strong><a [routerLink]="['/', o.store.slug]">{{ o.store.name }}</a></strong></div>
+        <div><span>Total</span><strong>{{ o.amounts.total | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+        <div><span>Payment</span><strong class="status">{{ o.payment.status }}</strong></div>
+      </div>
+
+      <div class="order-lines">
+        @for (item of o.items; track item.storeProductId) {
+          <div class="order-line">
+            <span>{{ item.quantity }} × {{ item.name }}</span>
+            <strong>{{ item.lineTotal | currency:'₦':'symbol':'1.0-0' }}</strong>
+          </div>
+        }
+        <div class="order-line muted"><span>Delivery</span><strong>{{ o.amounts.delivery | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+        <div class="order-line total"><span>Total</span><strong>{{ o.amounts.total | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+      </div>
+
+      <div class="delivery-card">
+        <span class="delivery-icon"><mat-icon aria-hidden="true">local_shipping</mat-icon></span>
+        <div>
+          <strong>Delivering to {{ o.customer.name }}</strong>
+          <p>{{ o.customer.street }}, {{ o.customer.city }}, {{ o.customer.state }}</p>
+          @if (o.escrow.releaseAt) {
+            <small>Escrow releases after {{ o.escrow.releaseAt | date:'mediumDate' }}.</small>
+          } @else if (paid) {
+            <small>Escrow starts its return window when the partner marks the order delivered.</small>
+          }
+        </div>
+      </div>
+
+      @if (error(); as message) {
+        <p class="warning" role="alert">{{ message }}</p>
+      }
+
+      <div class="state-actions">
+        <a class="btn primary" routerLink="/stores">Continue shopping</a>
+        <a class="btn ghost" routerLink="/support">Need help?</a>
+      </div>
+    </div>
+  }
+</section>

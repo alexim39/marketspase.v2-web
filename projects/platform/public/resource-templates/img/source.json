@@ -1,0 +1,42 @@
+[
+    {
+        "title": "Join the MarketSpase Community",
+        "imageUrl": "./resource-templates/img/1.jpg",
+        "platforms": ["Facebook", "Instagram"]
+    },
+    {
+        "title": "Empower Your Future with MarketSpase",
+        "imageUrl": "./resource-templates/img/2.jpg",
+        "platforms": ["Twitter"]
+    },
+    {
+        "title": "Unlock Your Potential with MarketSpase",
+        "imageUrl": "./resource-templates/img/3.jpg",
+        "platforms": ["LinkedIn", "Facebook"]
+    },
+    {
+        "title": "Transform Your Life: MarketSpase Awaits",
+        "imageUrl": "./resource-templates/img/4.jpg",
+        "platforms": ["Instagram", "Pinterest"]
+    },
+    {
+        "title": "Financial Freedom Starts Here: Join MarketSpase",
+        "imageUrl": "./resource-templates/img/5.jpg",
+        "platforms": ["Twitter", "LinkedIn"]
+    },
+    {
+        "title": "Build Your Empire with MarketSpase",
+        "imageUrl": "./resource-templates/img/6.jpg",
+        "platforms": ["Facebook", "Instagram"]
+    },
+    {
+        "title": "Discover New Horizons: MarketSpase Journey",
+        "imageUrl": "./resource-templates/img/7.jpg",
+        "platforms": ["Twitter", "LinkedIn"]
+    },
+    {
+        "title": "Your Success Story Begins with MarketSpase",
+        "imageUrl": "./resource-templates/img/8.jpg",
+        "platforms": ["Instagram", "Facebook"]
+    }
+]

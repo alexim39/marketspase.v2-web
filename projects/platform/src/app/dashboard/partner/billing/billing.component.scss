@@ -1,0 +1,30 @@
+.async-background {
+    margin: 2em;
+    .async-container {
+        background-color: #dcdbdb;
+        border-radius: 1%;
+        height: 100%;
+        padding: 1em;
+        .title {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            padding: 1em;
+            .fund-area {
+                .fund {
+                    display: flex;
+                    font-weight: bold;
+                    margin-top: 1em;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    align-items: center;
+                    .refresh {
+                        margin-top: 5px; 
+                        font-size: 15px; 
+                        color: rgb(87, 87, 87);
+                    }
+                }
+            }
+        }
+    }
+}

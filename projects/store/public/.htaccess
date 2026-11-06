@@ -1,0 +1,12 @@
+# Diamond Project client (:4201 / diamondproject.c21fg.online) — SPA fallback.
+# Deep links (/:partnerUsername, /get-started, /legal/*) must serve
+# index.html so the Angular router boots instead of the host 404ing
+# on reload or shared links. Existing files/dirs pass through untouched.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>

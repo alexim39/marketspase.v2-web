@@ -1,0 +1,22 @@
+<section class="async-background">
+  <h2>Transaction activities</h2>
+
+  <section class="async-container">
+    <div class="title">
+      <h3>Billing Summary</h3>
+      <div class="fund-area">
+        <button mat-flat-button (click)="withdrawFund()"><mat-icon>paid</mat-icon>Withdraw Fund</button>
+        <div class="fund">
+          <span>Current Balance: {{currentBalance | currency:'₦':'symbol':'1.2-2'}}</span>
+          <mat-icon (click)="reloadBalance()" title="Refresh balance" class="refresh">refresh</mat-icon>
+        </div>
+      </div>
+    </div>
+
+    @if (partner && transactions) {
+      <async-transactions [partner]="partner" [transactions]="transactions"></async-transactions>
+    }
+
+
+  </section>
+</section>

@@ -1,0 +1,108 @@
+<section class="checkout-page ms-store-page">
+  <header class="checkout-head">
+    <p class="eyebrow">Secure checkout</p>
+    <h1>Almost yours.</h1>
+    <p class="subtitle">Add your delivery details. You’ll finish payment on Paystack.</p>
+  </header>
+
+  @if (cart.isEmpty()) {
+    <div class="empty-card">
+      <h2>Your cart is empty</h2>
+      <p>Add a product from a partner store before checking out.</p>
+      <a class="btn primary" routerLink="/stores">Browse stores</a>
+    </div>
+  } @else {
+    <div class="checkout-layout">
+      <form class="checkout-form" #checkoutForm="ngForm" (ngSubmit)="submit(checkoutForm)" novalidate>
+        <section class="form-card">
+          <div class="card-head">
+            <span>01</span>
+            <div><h2>Contact</h2><p>We use this for payment and delivery updates.</p></div>
+          </div>
+          <div class="field-grid">
+            <label class="field span-2">
+              <span>Full name</span>
+              <input name="name" [(ngModel)]="form.name" required minlength="2" maxlength="120" autocomplete="name" placeholder="Ada Obi" />
+            </label>
+            <label class="field">
+              <span>Email</span>
+              <input name="email" type="email" [(ngModel)]="form.email" required maxlength="254" autocomplete="email" placeholder="ada@example.com" />
+            </label>
+            <label class="field">
+              <span>Phone</span>
+              <input name="phone" type="tel" [(ngModel)]="form.phone" required minlength="7" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="0803 000 0000" />
+            </label>
+          </div>
+        </section>
+
+        <section class="form-card">
+          <div class="card-head">
+            <span>02</span>
+            <div><h2>Delivery</h2><p>Your partner fulfils this order directly.</p></div>
+          </div>
+          <div class="field-grid">
+            <label class="field span-2">
+              <span>Street address</span>
+              <input name="street" [(ngModel)]="form.street" required minlength="3" maxlength="300" autocomplete="street-address" placeholder="54 Nkpor Road" />
+            </label>
+            <label class="field">
+              <span>City</span>
+              <input name="city" [(ngModel)]="form.city" required minlength="2" maxlength="120" autocomplete="address-level2" placeholder="Port Harcourt" />
+            </label>
+            <label class="field">
+              <span>State</span>
+              <input name="state" [(ngModel)]="form.state" required minlength="2" maxlength="120" autocomplete="address-level1" placeholder="Rivers" />
+            </label>
+            <label class="field">
+              <span>Country</span>
+              <input name="country" [(ngModel)]="form.country" maxlength="80" autocomplete="country-name" />
+            </label>
+            <label class="field">
+              <span>Order note <small>optional</small></span>
+              <input name="note" [(ngModel)]="form.note" maxlength="1000" placeholder="Landmark, preferred time, etc." />
+            </label>
+          </div>
+        </section>
+
+        @if (error(); as message) {
+          <p class="error" role="alert">{{ message }}</p>
+        }
+
+        <button class="btn primary submit" type="submit" [disabled]="submitting() || checkoutForm.invalid">
+          {{ submitting() ? 'Opening secure payment…' : 'Pay securely with Paystack' }}
+        </button>
+        <p class="payment-note">
+          You’ll be redirected to Paystack. Payment is held in escrow until delivery plus the return window.
+        </p>
+      </form>
+
+      <aside class="order-summary">
+        <p class="eyebrow">Your order</p>
+        <a class="store-line" [routerLink]="['/', cart.storeSlug()]">{{ cart.storeName() }}</a>
+        <div class="summary-items">
+          @for (item of cart.items(); track item.storeProductId) {
+            <div class="summary-item">
+              <span class="thumb">
+                @if (imageUrl(item.image)) {
+                  <img [src]="imageUrl(item.image)" [alt]="item.name" loading="lazy">
+                } @else {
+                  <img src="/logo/marketspase-mark-white.png" alt="" aria-hidden="true">
+                }
+                <span class="qty">{{ item.quantity }}</span>
+              </span>
+              <span class="item-copy">
+                <strong>{{ item.name }}</strong>
+                <small>{{ item.quantity }} × {{ item.unitPrice | currency:'₦':'symbol':'1.0-0' }}</small>
+              </span>
+              <strong class="line-total">{{ item.unitPrice * item.quantity | currency:'₦':'symbol':'1.0-0' }}</strong>
+            </div>
+          }
+        </div>
+        <div class="summary-row"><span>Subtotal</span><strong>{{ cart.subtotal() | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+        <div class="summary-row"><span>Delivery</span><strong>{{ cart.deliveryFee() | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+        <div class="summary-row total"><span>Total</span><strong>{{ cart.total() | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+        <a class="back-link" routerLink="/cart">← Back to cart</a>
+      </aside>
+    </div>
+  }
+</section>

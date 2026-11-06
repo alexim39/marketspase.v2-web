@@ -1,0 +1,84 @@
+.page {
+  background: var(--ms-canvas);
+  display: flex;
+  justify-content: center;
+  padding: 3em 1em 4em;
+}
+
+.signup-panel {
+  width: min(520px, 100%);
+  padding: 2em 1.75em;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.back {
+  align-self: flex-start;
+  text-decoration: none;
+  color: var(--ms-primary-strong);
+  font-weight: 700;
+  font-size: 0.9em;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ms-primary-strong);
+  margin: 0.5em 0 0;
+}
+
+h1 { margin: 0.3em 0 0.2em; font-size: 1.9rem; }
+.sub { margin: 0 0 1.25em; color: var(--ms-text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  text-align: left;
+}
+
+.names-row {
+  display: flex;
+  gap: 0.75em;
+  flex-wrap: wrap;
+}
+
+.names-row mat-form-field {
+  flex: 1;
+  min-width: 140px;
+}
+
+.submit-btn {
+  min-height: 48px;
+  margin-top: 0.5em;
+}
+
+.alt {
+  margin: 1.25em 0 0;
+  a {
+    text-decoration: none;
+    color: var(--ms-primary-strong);
+    font-weight: 700;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+.legal {
+  margin: 1.25em 0 0;
+  font-size: 0.8rem;
+  color: var(--ms-text-muted);
+  line-height: 1.5;
+  a {
+    color: var(--ms-primary-strong);
+    text-decoration: none;
+    font-weight: 700;
+  }
+}

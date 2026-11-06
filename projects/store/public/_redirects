@@ -1,0 +1,5 @@
+# Netlify / Cloudflare Pages / compatible static hosts — SPA fallback.
+# Same job as .htaccess (Apache): every non-file route serves index.html.
+# Syntax: <from> <to> <status>
+/assets/* /assets/:splat 200
+/* /index.html 200

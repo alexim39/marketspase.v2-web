@@ -1,0 +1,95 @@
+<section class="member-page">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <span>/</span>
+    <a routerLink="/roles">People</a>
+    <span>/</span>
+    <span>Member 360</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">People</p>
+      <h1>Member 360.</h1>
+      <p class="subtitle">Identity, login, money and growth in one read-only view.</p>
+    </div>
+    <a mat-stroked-button routerLink="/roles"><mat-icon>arrow_back</mat-icon> Back to roles</a>
+  </header>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading member" />
+  }
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  @if (profile(); as p) {
+    @if (p.risks.length > 0) {
+      <div class="risk-row">
+        @for (risk of p.risks; track risk.label) {
+          <span class="risk" [class.bad]="risk.tone === 'bad'">{{ risk.label }}</span>
+        }
+      </div>
+    }
+
+    <div class="profile-grid">
+      <section class="dp-card panel">
+        <p class="eyebrow">Identity & contact</p>
+        <h2>{{ p.identity.name }}</h2>
+        <p class="muted">@{{ p.identity.username || '—' }} · {{ p.identity.role }}</p>
+        <div class="detail-row"><mat-icon>mail</mat-icon><span>{{ p.identity.email || '—' }}</span></div>
+        <div class="detail-row"><mat-icon>call</mat-icon><span>{{ p.identity.phone || '—' }}</span></div>
+        <div class="detail-row"><mat-icon>location_on</mat-icon><span>{{ p.identity.state || '—' }} · joined {{ p.identity.createdAt | date:'mediumDate' }}</span></div>
+        @if (p.identity.suspended) {
+          <p class="suspended">Suspended: {{ p.identity.suspendReason || 'No reason recorded' }}</p>
+        }
+      </section>
+
+      <section class="dp-card panel">
+        <p class="eyebrow">Login</p>
+        <h2>{{ p.login.neverSeen ? 'Never signed in' : 'Last seen ' + loginAge(p) }}</h2>
+        <p class="muted">{{ p.login.loginCount | number }} sign-ins</p>
+        <div class="detail-row"><mat-icon>devices</mat-icon><span>{{ p.login.lastAgent || '—' }}</span></div>
+        <div class="detail-row"><mat-icon>cloud</mat-icon><span>{{ p.login.lastIp || '—' }}</span></div>
+      </section>
+
+      <section class="dp-card panel">
+        <p class="eyebrow">Money</p>
+        <h2>{{ p.money.balance | currency:'₦':'symbol':'1.0-2' }}</h2>
+        <p class="muted">Wallet balance</p>
+        @if (p.money.in30d !== null) {
+          <div class="detail-row"><mat-icon>trending_up</mat-icon><span>{{ p.money.in30d | currency:'₦':'symbol':'1.0-2' }} in 30 days</span></div>
+        }
+        <div class="detail-row"><mat-icon>receipt_long</mat-icon><span>{{ p.money.txCount ?? 0 }} transactions</span></div>
+        @for (tx of p.money.recent.slice(0, 3); track $index) {
+          <div class="mini-row"><span>{{ tx.kind }} · {{ tx.method }}</span><strong>{{ tx.amount | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+        }
+      </section>
+
+      <section class="dp-card panel">
+        <p class="eyebrow">Growth</p>
+        <h2>{{ p.growth.activeLeads ?? 0 }} active leads</h2>
+        <div class="detail-row"><mat-icon>add_task</mat-icon><span>{{ p.growth.claims7d ?? 0 }} claims in 7 days</span></div>
+        <div class="detail-row"><mat-icon>star</mat-icon><span>{{ p.growth.rating ?? '—' }} rating · {{ p.growth.ratingCount }} ratings</span></div>
+        <div class="detail-row"><mat-icon>payments</mat-icon><span>{{ p.growth.deposits ?? 0 }} deposits</span></div>
+      </section>
+
+      <section class="dp-card panel">
+        <p class="eyebrow">Journey</p>
+        <h2>{{ p.journey.level || 'No level yet' }}</h2>
+        <p class="muted">{{ p.journey.rankAt || 'No rank timestamp' }}</p>
+        <div class="detail-row"><mat-icon>account_tree</mat-icon><span>{{ p.upline ? 'Upline: ' + p.upline.name + ' (@' + p.upline.username + ')' : 'No upline recorded' }}</span></div>
+      </section>
+
+      <section class="dp-card panel actions-panel">
+        <p class="eyebrow">Next moves</p>
+        <p class="muted">Account changes are made from the roles directory, where the server enforces audit and safety rules.</p>
+        <div class="actions">
+          <a mat-stroked-button routerLink="/roles"><mat-icon>badge</mat-icon> Open roles</a>
+          <a mat-stroked-button routerLink="/partner-pipeline"><mat-icon>person_search</mat-icon> Partner pipeline</a>
+        </div>
+      </section>
+    </div>
+  }
+</section>

@@ -1,0 +1,208 @@
+<section class="catalog-page">
+  <header class="catalog-hero dp-card">
+    <div class="hero-copy">
+      <p class="eyebrow">Products · Shop</p>
+      <h1>Buy for you. Stock for resale.</h1>
+      <p class="subtitle">
+        Genuine products, wallet checkout and one place for every order.
+        Start with what you need today.
+      </p>
+      <div class="hero-actions">
+        <button mat-flat-button color="primary" type="button" (click)="scrollToCatalog()">
+          <mat-icon>storefront</mat-icon> Shop products
+        </button>
+        <a mat-stroked-button routerLink="/dashboard/products/order-history">
+          <mat-icon>package_2</mat-icon> My orders
+        </a>
+      </div>
+    </div>
+
+    <aside class="hero-cart">
+      <span class="eyebrow">Your cart</span>
+      <div class="cart-numbers">
+        <strong>{{ cartCount() }}</strong>
+        <span>{{ cartCount() === 1 ? 'item' : 'items' }}</span>
+      </div>
+      <p class="cart-total">{{ cartTotal() | currency:'₦':'symbol':'1.0-0' }}</p>
+      <button mat-flat-button color="primary" type="button" [disabled]="cartCount() === 0" (click)="goToCheckout()">
+        <mat-icon>shopping_bag</mat-icon> Review cart
+      </button>
+      <p class="cart-note">Wallet checkout. No card details needed.</p>
+    </aside>
+  </header>
+
+  <section class="trust-strip" aria-label="Why shop here">
+    <div><mat-icon>verified</mat-icon><span>Genuine products</span></div>
+    <div><mat-icon>account_balance_wallet</mat-icon><span>Pay from your wallet</span></div>
+    <div><mat-icon>local_shipping</mat-icon><span>Track every order</span></div>
+  </section>
+
+  <section class="catalog-controls dp-card" id="catalog">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search products</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        type="search"
+        [ngModel]="query()"
+        (ngModelChange)="setQuery($event)"
+        placeholder="Coffee, personal care, wellness tech…"
+      >
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="sort-field">
+      <mat-label>Sort by</mat-label>
+      <mat-select [ngModel]="sort()" (ngModelChange)="setSort($event)">
+        <mat-option value="recommended">Recommended</mat-option>
+        <mat-option value="price-asc">Price: low to high</mat-option>
+        <mat-option value="price-desc">Price: high to low</mat-option>
+        <mat-option value="name">Name A–Z</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </section>
+
+  <div class="category-strip" role="tablist" aria-label="Product categories">
+    @for (entry of categories(); track entry.key) {
+      <button
+        type="button"
+        class="category-chip"
+        role="tab"
+        [attr.aria-selected]="category() === entry.key"
+        [class.active]="category() === entry.key"
+        (click)="setCategory(entry.key)"
+      >
+        {{ entry.label }}
+        <span>{{ entry.count }}</span>
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <section class="catalog-results" aria-label="Loading products">
+      <div class="product-grid">
+        @for (placeholder of [1, 2, 3, 4, 5, 6, 7, 8]; track placeholder) {
+          <div class="product-card dp-card skeleton-card" aria-hidden="true">
+            <div class="skeleton skeleton-image"></div>
+            <div class="skeleton-body">
+              <div class="skeleton skeleton-line short"></div>
+              <div class="skeleton skeleton-line"></div>
+              <div class="skeleton skeleton-line medium"></div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  } @else if (failed()) {
+    <section class="dp-card state-card">
+      <mat-icon>cloud_off</mat-icon>
+      <h2>We could not load the shop</h2>
+      <p class="muted">Check your connection and try again.</p>
+      <button mat-flat-button color="primary" type="button" (click)="load()">
+        <mat-icon>refresh</mat-icon> Retry
+      </button>
+    </section>
+  } @else if (products().length === 0) {
+    <section class="dp-card state-card">
+      <mat-icon>inventory_2</mat-icon>
+      <h2>The shelf is being stocked</h2>
+      <p class="muted">New products will appear here as soon as they are added. In the meantime, read the product guides or ask support.</p>
+      <div class="state-actions">
+        <a mat-flat-button color="primary" routerLink="/dashboard/products/guides">Product guides</a>
+        <a mat-stroked-button routerLink="/dashboard/support/ticket">Contact support</a>
+      </div>
+    </section>
+  } @else {
+    <section class="catalog-results" aria-live="polite">
+      <div class="results-head">
+        <div>
+          <p class="eyebrow">Catalog</p>
+          <h2>{{ resultTitle() }}</h2>
+        </div>
+        <span class="muted">
+          {{ visible().length }} {{ visible().length === 1 ? 'product' : 'products' }}
+        </span>
+      </div>
+
+      @if (visible().length === 0) {
+        <div class="dp-card state-card compact">
+          <mat-icon>search_off</mat-icon>
+          <h2>No products match</h2>
+          <p class="muted">Try a different search or clear the category filter.</p>
+          <button mat-stroked-button type="button" (click)="setQuery(''); setCategory('all')">Clear filters</button>
+        </div>
+      } @else {
+        <div class="product-grid">
+          @for (product of visible(); track product._id) {
+            <article class="product-card dp-card">
+              <a class="thumb" [routerLink]="['/dashboard/products', product._id]" [attr.aria-label]="'View ' + product.name">
+                <mat-icon class="thumb-fallback">inventory_2</mat-icon>
+                <img
+                  [src]="imageOf(product)"
+                  [alt]="product.name"
+                  loading="lazy"
+                  (error)="hideBrokenImage($event)"
+                >
+                <span class="badge badge--category">{{ categoryOf(product).label }}</span>
+                @if (product.featured) {
+                  <span class="badge badge--featured">Featured</span>
+                }
+              </a>
+
+              <div class="card-body">
+                <div class="card-topline">
+                  <span [class]="'stock-chip dp-status dp-status--' + stockOf(product).tone">
+                    {{ stockOf(product).label }}
+                  </span>
+                  @if (quantityInCart(product) > 0) {
+                    <span class="in-cart">{{ quantityInCart(product) }} in cart</span>
+                  }
+                </div>
+
+                <h3><a [routerLink]="['/dashboard/products', product._id]">{{ product.name }}</a></h3>
+                <p class="card-summary">{{ summaryOf(product) }}</p>
+
+                <div class="card-footer">
+                  @if (priced(product)) {
+                    <strong class="price">{{ product.price | currency:'₦':'symbol':'1.0-0' }}</strong>
+                    <button
+                      mat-flat-button
+                      color="primary"
+                      type="button"
+                      class="add-btn"
+                      [disabled]="outOfStock(product)"
+                      (click)="addToCart(product, $event)"
+                      [attr.aria-label]="'Add ' + product.name + ' to cart'"
+                    >
+                      <mat-icon>{{ outOfStock(product) ? 'block' : 'add_shopping_cart' }}</mat-icon>
+                      <span>{{ outOfStock(product) ? 'Out of stock' : 'Add' }}</span>
+                    </button>
+                  } @else {
+                    <strong class="price price--request">Price on request</strong>
+                    <a
+                      mat-stroked-button
+                      routerLink="/dashboard/support/ticket"
+                      class="ask-btn"
+                      [attr.aria-label]="'Ask for the price of ' + product.name"
+                    >Ask</a>
+                  }
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="help-strip dp-card">
+      <div>
+        <p class="eyebrow">Need a hand?</p>
+        <h2>Not sure what to pick?</h2>
+        <p class="muted">Read the buying guide for delivery, returns and product care, or ask support before you order.</p>
+      </div>
+      <div class="help-actions">
+        <a mat-stroked-button routerLink="/dashboard/products/guides"><mat-icon>menu_book</mat-icon> Product guides</a>
+        <a mat-button routerLink="/dashboard/support/ticket">Contact support</a>
+      </div>
+    </section>
+  }
+</section>

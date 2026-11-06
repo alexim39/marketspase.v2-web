@@ -1,0 +1,72 @@
+<main class="signin-page">
+  <section class="brand-panel" aria-label="MarketSpase Admin">
+    <a class="brand" [href]="platformUrl" aria-label="Back to MarketSpase">
+      <img src="/logo/marketspase-logo-white.png" alt="MarketSpase" width="1200" height="337" />
+      <span>Admin</span>
+    </a>
+
+    <div class="brand-copy">
+      <p class="eyebrow">MarketSpase operations</p>
+      <h1>Run the whole business from one place.</h1>
+      <p>
+        Partners, commerce, store escrow, finance, growth and support — the admin console
+        is the control room for the MarketSpase platform.
+      </p>
+      <div class="trust-list">
+        <span><mat-icon>verified_user</mat-icon> Role-gated access</span>
+        <span><mat-icon>receipt_long</mat-icon> Audited actions</span>
+        <span><mat-icon>account_balance</mat-icon> Finance oversight</span>
+      </div>
+    </div>
+
+    <p class="brand-foot">MarketSpase Store <span>·</span> Partner platform <span>·</span> Admin</p>
+  </section>
+
+  <section class="form-panel">
+    <div class="form-wrap">
+      <p class="eyebrow">Admin access</p>
+      <h2>Sign in to continue.</h2>
+      <p class="subtitle">Use your MarketSpase admin account. Partner and member accounts cannot open this console.</p>
+
+      @if (loading()) {
+        <mat-progress-bar mode="indeterminate" aria-label="Signing in" />
+      }
+
+      @if (error(); as message) {
+        <p class="error" role="alert"><mat-icon aria-hidden="true">error_outline</mat-icon> {{ message }}</p>
+      }
+
+      <form (ngSubmit)="submit()" novalidate>
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput name="email" type="email" [(ngModel)]="email" autocomplete="username" required />
+          <mat-icon matSuffix>mail_outline</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            name="password"
+            [type]="showPassword ? 'text' : 'password'"
+            [(ngModel)]="password"
+            autocomplete="current-password"
+            required
+          />
+          <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" class="submit" type="submit" [disabled]="loading() || !email.trim() || !password">
+          {{ loading() ? 'Signing in…' : 'Sign in to admin' }}
+        </button>
+      </form>
+
+      <div class="form-foot">
+        <a [href]="platformUrl">← Back to the partner platform</a>
+        <span>Admin access is monitored and audited.</span>
+      </div>
+    </div>
+  </section>
+</main>

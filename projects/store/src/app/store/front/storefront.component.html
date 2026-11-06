@@ -1,0 +1,131 @@
+<section class="storefront-page">
+  @if (loading()) {
+    <div class="ms-store-page loading-state" aria-label="Loading store">
+      <div class="skeleton hero-skeleton"></div>
+      <div class="product-grid">
+        @for (placeholder of [1, 2, 3, 4]; track placeholder) {
+          <div class="skeleton product-skeleton"></div>
+        }
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="ms-store-page">
+      <div class="state-card">
+        <h1>Store not found</h1>
+        <p>{{ error() }}</p>
+        <a class="btn" routerLink="/stores">Browse partner stores</a>
+      </div>
+    </div>
+  } @else if (store(); as s) {
+    <header class="store-hero">
+      <div class="hero-banner" [style.background-image]="storeImage(s) ? 'url(' + storeImage(s) + ')' : null">
+        @if (!storeImage(s)) {
+          <span class="banner-fallback"></span>
+        }
+      </div>
+      <div class="ms-store-page hero-content">
+        <div class="store-logo">
+          @if (logoImage(s)) {
+            <img [src]="logoImage(s)" [alt]="s.name">
+          } @else {
+            {{ initials(s) }}
+          }
+        </div>
+        <div class="store-title">
+          <span class="verified">Verified MarketSpase partner</span>
+          <h1>{{ s.name }}</h1>
+          <p class="tagline">{{ s.tagline || 'Independent MarketSpase partner store' }}</p>
+          <div class="store-actions">
+            @if (whatsappLink(s)) {
+              <a class="btn btn-primary" [href]="whatsappLink(s)" target="_blank" rel="noopener">Chat with partner</a>
+            }
+            <button class="btn btn-ghost" type="button" (click)="shareStore()">Share store</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="ms-store-page store-main">
+      @if (s.bio) {
+        <section class="about-card">
+          <p class="eyebrow">About this store</p>
+          <p>{{ s.bio }}</p>
+        </section>
+      }
+
+      <section class="products-section">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Shop</p>
+            <h2>From {{ s.name }}</h2>
+          </div>
+          <span class="product-count">{{ visibleProducts().length }} products</span>
+        </div>
+
+        @if (categories().length > 1) {
+          <div class="category-row">
+            <button type="button" class="category-chip" [class.active]="category() === 'all'" (click)="setCategory('all')">All</button>
+            @for (entry of categories(); track entry[0]) {
+              <button type="button" class="category-chip" [class.active]="category() === entry[0]" (click)="setCategory(entry[0])">
+                {{ categoryLabel(entry[0]) }} <span>{{ entry[1] }}</span>
+              </button>
+            }
+          </div>
+        }
+
+        @if (visibleProducts().length === 0) {
+          <div class="state-card small">
+            <h2>{{ products().length === 0 ? 'This store is getting ready' : 'No products in this category' }}</h2>
+            <p>{{ products().length === 0
+              ? 'The partner has not published products yet. Check back soon.'
+              : 'Try another category.' }}</p>
+          </div>
+        } @else {
+          <div class="product-grid">
+            @for (product of visibleProducts(); track product.id) {
+              <a class="product-card" [routerLink]="['/', s.slug, 'product', product.id]">
+                <span class="product-image">
+                  @if (productImage(product)) {
+                    <img [src]="productImage(product)" [alt]="product.name" loading="lazy">
+                  } @else {
+                    <span class="image-fallback">
+                      <img src="/logo/marketspase-mark-white.png" alt="" width="1024" height="1024" aria-hidden="true" loading="lazy">
+                    </span>
+                  }
+                  @if (product.stock <= 0) {
+                    <span class="stock-badge">Out of stock</span>
+                  }
+                </span>
+                <span class="product-copy">
+                  <small>{{ categoryLabel(product.category) }}</small>
+                  <strong>{{ product.name }}</strong>
+                  <span class="price">{{ product.retailPrice | currency:'₦':'symbol':'1.0-0' }}</span>
+                </span>
+              </a>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="store-info-grid">
+        <div>
+          <p class="eyebrow">Delivery</p>
+          <p>{{ s.deliveryNote || 'Delivery details are confirmed with the partner after you order.' }}</p>
+          <p class="fee-line">{{ s.deliveryFee > 0 ? (s.deliveryFee | currency:'₦':'symbol':'1.0-0') + ' delivery fee' : 'Free delivery' }}</p>
+        </div>
+        <div>
+          <p class="eyebrow">Returns</p>
+          <p>{{ s.returnPolicy || 'Contact the partner before ordering if you need the return policy.' }}</p>
+        </div>
+        <div>
+          <p class="eyebrow">Need help?</p>
+          @if (whatsappLink(s)) {
+            <p><a [href]="whatsappLink(s)" target="_blank" rel="noopener">Chat with {{ s.name }} on WhatsApp</a></p>
+          } @else {
+            <p><a routerLink="/support">Contact MarketSpase support</a></p>
+          }
+        </div>
+      </section>
+    </main>
+  }
+</section>

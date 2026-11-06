@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="/">
+
+  <title>MarketSpase Store | Shop independent partner stores</title>
+  <meta name="description" content="Discover trusted products from independent MarketSpase partners. Shop directly from real people and support their businesses.">
+  <meta name="keywords" content="MarketSpase, MarketSpase Store, partner store, online shop Nigeria, independent stores, social commerce">
+  <meta name="author" content="MarketSpase">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#0e0c1d">
+  <link rel="canonical" href="https://marketspase.com/">
+
+  <meta property="og:site_name" content="MarketSpase Store">
+  <meta property="og:title" content="MarketSpase Store | Shop independent partner stores">
+  <meta property="og:description" content="Discover trusted products from independent MarketSpase partners.">
+  <meta property="og:url" content="https://marketspase.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_NG">
+  <meta property="og:image" content="https://marketspase.com/logo/social-profile-1024.png">
+  <meta property="og:image:alt" content="MarketSpase Store">
+  <meta property="og:image:width" content="1024">
+  <meta property="og:image:height" content="1024">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MarketSpase Store | Shop independent partner stores">
+  <meta name="twitter:description" content="Discover trusted products from independent MarketSpase partners.">
+  <meta name="twitter:image" content="https://marketspase.com/logo/social-profile-1024.png">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/logo/favicon-32.png">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/logo/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <style type="text/css">
+    html, body { height: 100%; }
+    body { margin: 0; background: #0e0c1d; }
+    .app-loading {
+      position: relative;
+      isolation: isolate;
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(102, 126, 234, 0.28), transparent 42%),
+        linear-gradient(180deg, #151226 0%, #0e0c1d 70%);
+      color: #f4f3ff;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+      text-align: center;
+    }
+    .app-loading::before {
+      content: '';
+      position: absolute;
+      inset: -20%;
+      background: radial-gradient(circle at 50% 45%, rgba(118, 75, 162, 0.18), transparent 50%);
+      animation: msGlow 6s ease-in-out infinite;
+      z-index: -1;
+    }
+    .splash-inner { position: relative; z-index: 1; width: min(90vw, 560px); padding: 2em 1.25em; }
+    .splash-mark {
+      display: block;
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 1.2em;
+      border-radius: 22px;
+      box-shadow: 0 14px 44px rgba(102, 126, 234, 0.38);
+      object-fit: cover;
+      animation: msBreathe 3.2s ease-in-out infinite;
+    }
+    .splash-eyebrow {
+      margin: 0 0 0.7em;
+      color: #aab8ff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+    .splash-title {
+      margin: 0 auto;
+      max-width: 15em;
+      font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+      line-height: 1.12;
+      letter-spacing: -0.035em;
+      color: #f4f3ff;
+    }
+    .splash-title span { color: #aab8ff; }
+    .splash-progress {
+      width: clamp(180px, 42vw, 240px);
+      height: 2px;
+      margin: 1.8em auto 0;
+      overflow: hidden;
+      background: rgba(170, 184, 255, 0.18);
+      border-radius: 99px;
+    }
+    .splash-progress span {
+      display: block;
+      width: 42%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, #667eea, #aab8ff, transparent);
+      border-radius: 99px;
+      animation: msLoad 1.8s ease-in-out infinite;
+    }
+    .splash-status {
+      margin: 0.9em 0 0;
+      color: rgba(244, 243, 255, 0.55);
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+    }
+    .splash-foot {
+      position: absolute;
+      left: 1.25em;
+      right: 1.25em;
+      bottom: 1.6em;
+      margin: 0;
+      color: rgba(244, 243, 255, 0.38);
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .splash-foot span { color: #aab8ff; padding: 0 0.4em; }
+    @keyframes msBreathe {
+      0%, 100% { transform: scale(1); opacity: 0.92; }
+      50% { transform: scale(1.04); opacity: 1; }
+    }
+    @keyframes msLoad {
+      0% { transform: translateX(-120%); }
+      100% { transform: translateX(340%); }
+    }
+    @keyframes msGlow {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.04); }
+    }
+    @media (max-width: 600px) {
+      .splash-mark { width: 60px; height: 60px; border-radius: 18px; }
+      .splash-title { font-size: 1.6rem; }
+      .splash-foot { font-size: 0.56rem; letter-spacing: 0.08em; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .splash-mark, .splash-progress span, .app-loading::before { animation: none; }
+      .splash-progress span { width: 100%; opacity: 0.7; }
+    }
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "MarketSpase Store",
+    "url": "https://marketspase.com/",
+    "logo": "https://marketspase.com/logo/app-icon-1024.png",
+    "description": "MarketSpase Store is a marketplace of independent partner stores powered by MarketSpase.",
+    "areaServed": "Nigeria"
+  }
+  </script>
+</head>
+<body class="mat-typography">
+  <async-root>
+    <div class="app-loading" role="status" aria-live="polite" aria-label="MarketSpase Store is loading">
+      <div class="splash-inner">
+        <img class="splash-mark" src="/logo/app-icon-1024.png" alt="" width="1024" height="1024" aria-hidden="true" />
+        <p class="splash-eyebrow">MarketSpase Store</p>
+        <p class="splash-title">Shop independent.<br /><span>Powered by MarketSpase.</span></p>
+        <div class="splash-progress" aria-hidden="true"><span></span></div>
+        <p class="splash-status">Opening the storefront…</p>
+      </div>
+      <p class="splash-foot">Partner stores <span>·</span> Real people <span>·</span> Secure checkout</p>
+    </div>
+  </async-root>
+  <noscript>
+    <div style="max-width:720px;margin:2rem auto;padding:1.5rem;font-family:Arial,Helvetica,sans-serif;color:#111426;">
+      <h1>MarketSpase Store</h1>
+      <p>Shop trusted products from independent MarketSpase partners.</p>
+      <p>
+        <a href="/stores">Find a store</a> ·
+        <a href="/support">Support</a> ·
+        <a href="/legal/terms">Terms</a>
+      </p>
+    </div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<section class="resale-page">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <span>/</span>
+    <a routerLink="/dashboard/products">Products</a>
+    <span>/</span>
+    <span aria-current="page">Resell</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Products · Resell</p>
+      <h1>Buy at partner price. Keep your margin.</h1>
+      <p class="subtitle">
+        Stock products at your partner price, sell at your own retail price and keep the difference.
+        MarketSpase earns on the partner-price sale, not on your retail spread.
+      </p>
+    </div>
+    <div class="head-actions">
+      <a mat-stroked-button routerLink="/dashboard/products">
+        <mat-icon>storefront</mat-icon> Shop for me
+      </a>
+      <button mat-flat-button color="primary" type="button" [disabled]="cartCount() === 0" (click)="goToCheckout()">
+        <mat-icon>shopping_bag</mat-icon>
+        Cart · {{ cartCount() }} · {{ cartTotal() | currency:'₦':'symbol':'1.0-0' }}
+      </button>
+    </div>
+  </header>
+
+  @if (!isPartner()) {
+    <section class="dp-card state-card">
+      <div class="state-icon"><mat-icon>lock</mat-icon></div>
+      <h2>Resale is a partner benefit</h2>
+      <p class="muted">
+        Activate your partner account to unlock partner pricing, suggested retail prices and your own margin.
+      </p>
+      <div class="state-actions">
+        <a mat-flat-button color="primary" routerLink="/dashboard/activate">Activate partner account</a>
+        <a mat-stroked-button routerLink="/dashboard/products/guides">Read product guides</a>
+      </div>
+    </section>
+  } @else if (!kycReady()) {
+    <section class="dp-card state-card">
+      <div class="state-icon"><mat-icon>verified_user</mat-icon></div>
+      <h2>Finish verification to resell</h2>
+      <p class="muted">
+        Resale pricing is available to verified partners. Complete your identity verification, then come back here.
+      </p>
+      <div class="state-actions">
+        <a mat-flat-button color="primary" routerLink="/dashboard/activate">Continue verification</a>
+        <a mat-stroked-button routerLink="/dashboard/support/ticket">Contact support</a>
+      </div>
+    </section>
+  } @else {
+    <section class="how-strip dp-card" aria-label="How resale works">
+      <div><span>1</span><div><strong>Pick a product</strong><p class="muted">You pay the partner price shown here.</p></div></div>
+      <div><span>2</span><div><strong>Sell at your price</strong><p class="muted">Use the suggested retail or set your own.</p></div></div>
+      <div><span>3</span><div><strong>Keep the difference</strong><p class="muted">Your retail margin is yours, not a commission.</p></div></div>
+    </section>
+
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" aria-label="Loading resale products" />
+      <section class="product-grid" aria-hidden="true">
+        @for (placeholder of [1, 2, 3, 4]; track placeholder) {
+          <div class="resale-card dp-card skeleton-card">
+            <div class="skeleton skeleton-image"></div>
+            <div class="skeleton-body">
+              <div class="skeleton skeleton-line short"></div>
+              <div class="skeleton skeleton-line"></div>
+              <div class="skeleton skeleton-line medium"></div>
+            </div>
+          </div>
+        }
+      </section>
+    } @else if (error()) {
+      <section class="dp-card state-card">
+        <div class="state-icon"><mat-icon>cloud_off</mat-icon></div>
+        <h2>Could not load resale prices</h2>
+        <p class="muted">{{ error() }}</p>
+        <button mat-flat-button color="primary" type="button" (click)="load()">Retry</button>
+      </section>
+    } @else if (products().length === 0) {
+      <section class="dp-card state-card">
+        <div class="state-icon"><mat-icon>inventory_2</mat-icon></div>
+        <h2>Resale prices are being prepared</h2>
+        <p class="muted">
+          Partner prices have not been set for the current catalog yet. Contact support if you want to stock a product now.
+        </p>
+        <div class="state-actions">
+          <a mat-flat-button color="primary" routerLink="/dashboard/products">Shop for personal use</a>
+          <a mat-stroked-button routerLink="/dashboard/support/ticket">Contact support</a>
+        </div>
+      </section>
+    } @else {
+      <section class="calc dp-card" aria-label="Resale margin calculator">
+        <div class="calc-copy">
+          <p class="eyebrow">Margin calculator</p>
+          <h2>What will you make?</h2>
+          <p class="muted">Try a selling price and quantity. This is your trade margin, not a commission.</p>
+        </div>
+
+        <div class="calc-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Product</mat-label>
+            <mat-select [ngModel]="calcProductId()" (ngModelChange)="selectCalcProduct($event)">
+              @for (product of products(); track product._id) {
+                <mat-option [value]="product._id">{{ product.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Your selling price (₦)</mat-label>
+            <input
+              matInput
+              type="number"
+              min="0"
+              step="0.01"
+              [ngModel]="calcRetail() ?? ''"
+              (ngModelChange)="setCalcRetail($event)"
+            >
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Quantity</mat-label>
+            <input
+              matInput
+              type="number"
+              min="1"
+              step="1"
+              [ngModel]="calcQuantity()"
+              (ngModelChange)="setCalcQuantity($event)"
+            >
+          </mat-form-field>
+        </div>
+
+        @if (calcProduct(); as calc) {
+          <div class="calc-result">
+            <div><span>You pay</span><strong>{{ calc.partnerPrice | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+            <div><span>Your profit</span><strong>{{ calcProfit() | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+            <div><span>Margin</span><strong>{{ calcMarginPercent() | number:'1.0-0' }}%</strong></div>
+          </div>
+        }
+      </section>
+
+      <section class="controls dp-card" id="resale-catalog">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search resale products</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input
+            matInput
+            type="search"
+            [ngModel]="query()"
+            (ngModelChange)="setQuery($event)"
+            placeholder="Coffee, personal care, wellness tech…"
+          >
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="sort-field">
+          <mat-label>Sort by</mat-label>
+          <mat-select [ngModel]="sort()" (ngModelChange)="setSort($event)">
+            <mat-option value="recommended">Recommended</mat-option>
+            <mat-option value="margin">Biggest margin</mat-option>
+            <mat-option value="price">Lowest partner price</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </section>
+
+      <div class="category-strip" role="tablist" aria-label="Resale categories">
+        @for (entry of categories(); track entry.key) {
+          <button
+            type="button"
+            class="category-chip"
+            role="tab"
+            [attr.aria-selected]="category() === entry.key"
+            [class.active]="category() === entry.key"
+            (click)="setCategory(entry.key)"
+          >
+            {{ entry.label }}
+            <span>{{ entry.count }}</span>
+          </button>
+        }
+      </div>
+
+      @if (visible().length === 0) {
+        <section class="dp-card state-card compact">
+          <div class="state-icon"><mat-icon>search_off</mat-icon></div>
+          <h2>No resale products match</h2>
+          <p class="muted">Try a different search or clear the category filter.</p>
+          <button mat-stroked-button type="button" (click)="setQuery(''); setCategory('all')">Clear filters</button>
+        </section>
+      } @else {
+        <div class="product-grid">
+          @for (product of visible(); track product._id) {
+            <article class="resale-card dp-card" [class.highlight]="highlightId() === product._id">
+              <a class="thumb" [routerLink]="['/dashboard/products', product._id]" [attr.aria-label]="'View ' + product.name">
+                <mat-icon class="thumb-fallback">inventory_2</mat-icon>
+                <img [src]="imageOf(product)" [alt]="product.name" loading="lazy" (error)="hideBrokenImage($event)">
+                <span class="badge">{{ categoryOf(product) }}</span>
+              </a>
+
+              <div class="card-body">
+                <div class="card-topline">
+                  <span [class]="'dp-status dp-status--' + stockOf(product).tone">{{ stockOf(product).label }}</span>
+                  @if (product.featured) {
+                    <span class="featured">Featured</span>
+                  }
+                </div>
+
+                <h3><a [routerLink]="['/dashboard/products', product._id]">{{ product.name }}</a></h3>
+                <p class="summary">{{ summaryOf(product) }}</p>
+
+                <div class="price-grid">
+                  <div><span>You pay</span><strong>{{ partnerPrice(product) | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+                  <div><span>Suggested retail</span><strong>{{ retailOf(product) | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+                </div>
+
+                <div class="margin-row">
+                  <span>Your margin</span>
+                  @if (marginOf(product) > 0) {
+                    <strong>{{ marginOf(product) | currency:'₦':'symbol':'1.0-0' }}</strong>
+                    <small>{{ marginPercent(product) }}%</small>
+                  } @else {
+                    <small class="warn">Set your retail price above the partner price.</small>
+                  }
+                </div>
+
+                <div class="card-actions">
+                  <button mat-flat-button color="primary" type="button" [disabled]="outOfStock(product)" (click)="addToCart(product, $event)">
+                    <mat-icon>add_shopping_cart</mat-icon> Add to resale cart
+                  </button>
+                  <button mat-stroked-button type="button" (click)="share(product)" aria-label="Copy share caption">
+                    <mat-icon>share</mat-icon> Share
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      }
+
+      <section class="help-strip dp-card">
+        <div>
+          <p class="eyebrow">Keep it clear</p>
+          <h2>Your margin is yours.</h2>
+          <p class="muted">
+            You pay the partner price from your wallet. When you sell to your customer, the retail margin is your trade income.
+            MarketSpase does not take a cut of that spread.
+          </p>
+        </div>
+        <div class="help-actions">
+          <a mat-stroked-button routerLink="/dashboard/products/guides"><mat-icon>menu_book</mat-icon> Product guides</a>
+          <a mat-button routerLink="/dashboard/support/ticket">Support</a>
+        </div>
+      </section>
+    }
+  }
+</section>

@@ -1,0 +1,142 @@
+<section class="breadcrumb-wrapper">
+  <div class="breadcrumb">
+    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Dashboard</a> &gt;
+    <a>Mentorship</a> &gt;
+    <a routerLink="/dashboard/mentorship/team/members" (click)="scrollToTop()">My teams</a> &gt;
+    <span>{{ team?.teamName || 'Team details' }}</span>
+  </div>
+</section>
+
+<section class="async-background">
+  <div class="page-head">
+    <button mat-icon-button (click)="back()" title="Back to My teams" aria-label="Back to My teams">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h2>{{ team?.teamName }}</h2>
+      <p class="page-sub">{{ team?.description || 'No description yet.' }}</p>
+    </div>
+    <span class="spacer"></span>
+    
+    @if (team) {
+      <div class="team">
+        <mat-chip highlighted>{{ team.teamPurpose }}</mat-chip>
+        @if (!isOwner() && team.owner?.name) {
+          <mat-chip highlighted>Owned by {{ team.owner?.name }}</mat-chip>
+        }
+        <mat-chip highlighted>{{ team.members?.length ?? 0 }} member{{ (team.members?.length ?? 0) === 1 ? '' : 's' }}</mat-chip>
+      </div>
+
+    }
+  </div>
+
+  @if (team) {
+    <div class="work-row" aria-label="Work with this team">
+      <a mat-button routerLink="/dashboard/messages" [queryParams]="groupTeamQuery()" title="Chat with this team as a group"><mat-icon>chat</mat-icon>Message</a>
+      <a mat-button routerLink="/dashboard/community/events" [queryParams]="teamQuery()" title="Create an event for this team"><mat-icon>event</mat-icon>Create event</a>
+      @if (isOwner()) {
+        <a mat-button routerLink="/dashboard/mentorship/team/activation" title="See members needing support"><mat-icon>priority_high</mat-icon>Activation</a>
+      }
+      <span class="spacer"></span>
+      @if (isOwner()) {
+        <button mat-button (click)="addMember(team, partner)"><mat-icon>add</mat-icon>Add member</button>
+      }
+    </div>
+
+    <section class="dp-card members-card">
+      <div class="card-head">
+        <h3>Members</h3>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Filter members</mat-label>
+          <input matInput type="search" [(ngModel)]="filterText" placeholder="Name or username" />
+        </mat-form-field>
+      </div>
+
+      @if (filteredMembers().length > 0) {
+        <ul class="member-list">
+          @for (member of filteredMembers(); track member._id) {
+            <li class="team-member">
+              <div class="member-details">
+                <strong>{{ member.name }} {{ member.surname }}</strong>
+                <span class="muted">@{{ member.username }}</span>
+                <div class="muted small"><a class="phone" [href]="'tel:' + member.phone">{{ member.phone }}</a> · {{ member.email }}</div>
+              </div>
+              <div class="member-action-btn">
+                <button mat-icon-button title="View member" [attr.aria-label]="'View ' + member.name" (click)="viewMember(member._id)">
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+                @if (isOwner()) {
+                  @if (confirmRemoveId === member._id) {
+                    <span class="inline-confirm" role="alertdialog" aria-label="Confirm remove member">
+                      <button mat-button (click)="confirmRemoveId = null" [disabled]="removing">Keep</button>
+                      <button mat-button color="warn" (click)="removeMember(member._id, team._id)" [disabled]="removing">
+                        {{ removing ? 'Removing…' : 'Remove' }}
+                      </button>
+                    </span>
+                  } @else {
+                    <button mat-icon-button class="danger" title="Remove member" [attr.aria-label]="'Remove ' + member.name" (click)="confirmRemoveId = member._id">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  }
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      } @else if ((team.members?.length ?? 0) > 0) {
+        <p class="empty">No members match — <button mat-button (click)="filterText = ''">clear filter</button></p>
+      } @else {
+        <div class="empty-card">
+          <mat-icon>group_add</mat-icon>
+          <p><strong>No members yet.</strong> Add anyone from the platform to get this team working.</p>
+          <button mat-flat-button color="primary" (click)="addMember(team, partner)">Add member</button>
+        </div>
+      }
+    </section>
+
+    <section class="dp-card danger-card" aria-label="Manage team">
+      @if (isOwner()) {
+        <div>
+          <strong>Manage team</strong>
+          <p class="muted">Edit details, or delete the team when its job is done. Deleting removes the grouping, not the people.</p>
+        </div>
+        <span class="spacer"></span>
+        <button mat-button (click)="edit(team._id)"><mat-icon>edit</mat-icon>Edit team</button>
+        @if (confirmingDelete) {
+          <span class="inline-confirm" role="alertdialog" aria-label="Confirm delete team">
+            <strong>Delete this team?</strong> Members stay untouched.
+            <button mat-button (click)="confirmingDelete = false" [disabled]="deleting">Keep</button>
+            <button mat-flat-button color="warn" (click)="deleteTeam(team._id)" [disabled]="deleting">
+              {{ deleting ? 'Deleting…' : 'Yes, delete' }}
+            </button>
+          </span>
+        } @else {
+          <button mat-button color="warn" (click)="confirmingDelete = true"><mat-icon>delete</mat-icon>Delete</button>
+        }
+        @if (deleteError) {
+          <p class="error" role="alert">{{ deleteError }}</p>
+        }
+      } @else {
+        <div>
+          <strong>You belong to this team</strong>
+          <p class="muted">Only the owner can edit it or manage members. You can leave at any time — nothing else changes.</p>
+        </div>
+        <span class="spacer"></span>
+        @if (confirmLeave) {
+          <span class="inline-confirm" role="alertdialog" aria-label="Confirm leave team">
+            <strong>Leave this team?</strong>
+            <button mat-button (click)="confirmLeave = false" [disabled]="removing">Stay</button>
+            <button mat-flat-button color="warn" (click)="leaveTeam()" [disabled]="removing">
+              {{ removing ? 'Leaving…' : 'Yes, leave' }}
+            </button>
+          </span>
+        } @else {
+          <button mat-button color="warn" (click)="confirmLeave = true">Leave team</button>
+        }
+      }
+      @if (actionError) {
+        <p class="error" role="alert">{{ actionError }}</p>
+      }
+    </section>
+  }
+</section>

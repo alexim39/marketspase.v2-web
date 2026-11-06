@@ -1,0 +1,54 @@
+@if (!isEmptyRecord) {
+  <div class="search">
+    <mat-form-field appearance="outline">
+      <mat-label>Filter transaction by transaction ID</mat-label>
+      <input matInput type="search" name="campaignFilter" [(ngModel)]="filterText" (input)="applyFilter()">
+    </mat-form-field>
+  </div>
+  <div class="table">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <ng-container matColumnDef="transactionId">
+        <th mat-header-cell *matHeaderCellDef> Transaction ID </th>
+        <td mat-cell *matCellDef="let element"> {{element.reference}} </td>
+      </ng-container>
+      <ng-container matColumnDef="dateOfPayment">
+        <th mat-header-cell *matHeaderCellDef> Date </th>
+        <td mat-cell *matCellDef="let element"> {{element.date | date}} </td>
+      </ng-container>
+      <ng-container matColumnDef="amount">
+        <th mat-header-cell *matHeaderCellDef> Amount </th>
+        <td mat-cell *matCellDef="let element"> {{element.amount | currency:'₦':'symbol':'1.2-2'}} </td>
+      </ng-container>
+      <ng-container matColumnDef="paymentMethod">
+        <th mat-header-cell *matHeaderCellDef> Platform </th>
+        <td mat-cell *matCellDef="let element"> {{element.paymentMethod}} </td>
+      </ng-container>
+      <ng-container matColumnDef="paymentStatus">
+        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <td mat-cell *matCellDef="let element"> {{element.status.toUpperCase()}} </td>
+      </ng-container>
+      <ng-container matColumnDef="transactionType">
+        <th mat-header-cell *matHeaderCellDef> Type </th>
+        <td mat-cell *matCellDef="let element"> {{element.transactionType}} </td>
+      </ng-container>
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef> Action </th>
+        <td mat-cell *matCellDef="let element"> <mat-icon title="Download">download</mat-icon></td>
+      </ng-container>
+      <!-- Apply conditional class based on the status -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+          [ngClass]="{
+            'rejected': row.status === 'Rejected',
+            'pending': row.status === 'Pending',
+            'completed': row.status === 'Completed',
+            'success': row.status === 'success'
+          }"></tr>  
+    </table>
+    <mat-paginator [pageSizeOptions]="[10, 20, 30, 60, 100]" showFirstLastButtons></mat-paginator>
+  </div>
+}
+
+@if (isEmptyRecord) {
+  <p class="no-campaign">No transaction available yet</p>
+}

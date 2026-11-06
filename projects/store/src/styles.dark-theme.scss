@@ -1,0 +1,219 @@
+:root {
+    --background-color-light: #ffffff;
+    --background-color-dark: #313131; 
+    --text-color-light: #000000;
+    --text-color-dark: #ffffff;
+
+    /* light dark */
+    --background-color-light-dark: rgb(98, 98, 98);
+    /* intro course backgroud */
+    --intro-course-background-color: #eeeeee;
+}
+  
+[data-theme='light'] {
+    --background-color: var(--background-color-light);
+    --text-color: var(--text-color-light);
+    --intro-course-background: var(--intro-course-background-color);
+    --testimonial-background: var(--background-color-light);
+}
+  
+[data-theme='dark'] {
+    --background-color: var(--background-color-dark);
+    --text-color: var(--text-color-dark);
+    --light-dark-background: var(--background-color-light-dark);
+    --intro-course-background: var(--background-color-light-dark);
+    --testimonial-background: var(--background-color-light-dark);
+}
+  
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    article.testimonial {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        section {
+            figure.snip1139 {
+                blockquote.quote {
+                    background-color: var(--testimonial-background);
+                    color: var(--text-color);
+                }
+                div.author {
+                    background-color: var(--testimonial-background) !important; 
+                        color: var(--text-color) !important; 
+                    h5 {
+                        background-color: var(--testimonial-background);
+                        color: var(--text-color); 
+                    }
+                }
+            }
+        }
+    }
+
+
+    a#get-account {
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+
+
+    section#intro-course{
+        background-color: var(--intro-course-background);
+        color: var(--text-color);
+    
+        a, mat-card  {
+            background-color: var(--intro-course-background);
+            color: var(--text-color);
+        }
+    }
+
+    section#view-all-courses, .why-we-exist  {
+        background-color: var(--intro-course-background);
+        color: var(--text-color);
+        a.view-all {
+            background-color: var(--intro-course-background);
+            color: var(--text-color);
+        }
+    }
+
+    .nav{ 
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+
+    form.signin, form.signup {
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+
+    .search-box, .no-course-found, .course  {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        a, mat-card, input {
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+    }
+
+    .portal-main-content {
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+
+    .breadcrumb-wrapper, .breadcrumb {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        
+    }
+
+    .breadcrumb-wrapper {
+        border-top: 1px solid var(--intro-course-background);
+    }
+
+    .head, .body, .accordion {
+        background-color: var(--intro-course-background);
+        color: var(--text-color); 
+    }
+
+
+
+
+    .page_404 {
+        background-color: var(--background-color);
+        color: var(--text-color);
+         p{
+            color: var(--text-color);
+         }
+    }
+
+    .about-training {
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+
+    .about-async {
+        background-color: var(--intro-course-background);
+        color: var(--text-color);
+    }
+
+    .our-story, .mission-vision-corevalues, .core-mv-container, .mv-card {
+        
+        background-color: var(--background-color);
+        color: var(--text-color);
+
+        .mission-vision, .core-values {
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+    }
+
+    .side-menu {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        ul {
+            li {
+                a {
+                    
+                    color: var(--text-color);
+                }
+                a:hover, a:active {
+                    background-color: var(--background-color);
+                    color: #ffab40;
+                }
+            }
+        }
+    }
+
+    .legal {
+        background-color: var(--intro-course-background);
+        color: var(--text-color);
+    }
+
+    .blog-background {
+        background-color: var(--intro-course-background);
+        color: var(--text-color);
+        .blog-container {
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+    }
+
+    .partners {
+        background-color:  var(--intro-course-background);
+        color: var(--text-color);
+    }
+
+    .partner-banner{
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+
+    .about-container {
+        background-color:  var(--intro-course-background);
+        color: var(--text-color);
+    }
+    .intro {
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+   .flex-item {
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+    .how-it-works {
+        background-color: var(--intro-course-background);
+        color: var(--text-color);
+    }
+    .benefits {
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+
+    .video-ads-container, .plan-card {
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+   
+}
+
+
+

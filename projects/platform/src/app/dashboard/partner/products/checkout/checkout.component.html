@@ -1,0 +1,312 @@
+<section class="checkout-page">
+  @if (success(); as order) {
+    <section class="success dp-card" aria-live="polite">
+      <div class="success-icon"><mat-icon>check_circle</mat-icon></div>
+      <p class="eyebrow">Order confirmed</p>
+      <h1>You're all set.</h1>
+      <p class="subtitle">
+        Your order <strong>{{ order.orderNumber || 'has been placed' }}</strong> was paid from your wallet.
+      </p>
+
+      <div class="success-total">
+        <span>Total paid</span>
+        <strong>{{ order.total | currency:'₦':'symbol':'1.0-0' }}</strong>
+      </div>
+
+      <p class="muted success-note">
+        Status: Pending. We will update it in My orders when the order is fulfilled.
+      </p>
+
+      <div class="success-actions">
+        <a mat-flat-button color="primary" routerLink="/dashboard/products/order-history">
+          <mat-icon>package_2</mat-icon> View my orders
+        </a>
+        <button mat-stroked-button type="button" (click)="continueShopping()">Continue shopping</button>
+      </div>
+
+      <a mat-button routerLink="/dashboard/support/ticket">Need help with this order?</a>
+    </section>
+  } @else {
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/dashboard">Dashboard</a>
+      <span>/</span>
+      <a routerLink="/dashboard/products">Products</a>
+      <span>/</span>
+      <span aria-current="page">Checkout</span>
+    </nav>
+
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">Checkout</p>
+        <h1>Review and pay</h1>
+        <p class="subtitle">Confirm your items and delivery details. Payment comes from your wallet balance.</p>
+      </div>
+      <a mat-stroked-button routerLink="/dashboard/products">
+        <mat-icon>arrow_back</mat-icon> Back to shop
+      </a>
+    </header>
+
+    @if (placing()) {
+      <mat-progress-bar mode="indeterminate" aria-label="Placing order" />
+    }
+
+    @if (error(); as message) {
+      <p class="error" role="alert">{{ message }}</p>
+    }
+
+    @if (cart().length === 0) {
+      <section class="dp-card state-card">
+        <mat-icon>shopping_bag</mat-icon>
+        <h2>Your cart is empty</h2>
+        <p class="muted">Add a product from the shop, then come back here to pay from your wallet.</p>
+        <a mat-flat-button color="primary" routerLink="/dashboard/products">Browse products</a>
+      </section>
+    } @else {
+      <div class="checkout-grid">
+        <div class="checkout-main">
+          <section class="dp-card items-card">
+            <div class="card-head">
+              <h2>Your order</h2>
+              <span class="muted">{{ itemCount() }} {{ itemCount() === 1 ? 'item' : 'items' }}</span>
+            </div>
+
+            <div class="item-list">
+              @for (item of cart(); track item._id + ':' + (item.saleMode ?? 'personal')) {
+                <article class="item">
+                  <div class="thumb">
+                    <mat-icon class="thumb-fallback">inventory_2</mat-icon>
+                    <img [src]="imageOf(item)" [alt]="item.name" (error)="hideBrokenImage($event)">
+                  </div>
+
+                  <div class="item-body">
+                    <div class="item-labels">
+                      <span class="eyebrow">{{ categoryOf(item) }}</span>
+                      @if (item.saleMode === 'resale') {
+                        <span class="resale-chip">Resale</span>
+                      }
+                    </div>
+                    <h3>{{ item.name }}</h3>
+                    @if (item.saleMode === 'resale') {
+                      <span class="unit">
+                        Partner price {{ item.price | currency:'₦':'symbol':'1.0-0' }}
+                        · suggested {{ item.retailPrice | currency:'₦':'symbol':'1.0-0' }}
+                      </span>
+                    } @else {
+                      <span class="unit">{{ item.price | currency:'₦':'symbol':'1.0-0' }} each</span>
+                    }
+
+                    <div class="item-actions">
+                      <div class="stepper">
+                        <button
+                          mat-icon-button
+                          type="button"
+                          aria-label="Reduce quantity"
+                          [disabled]="(item.quantity ?? 1) <= 1"
+                          (click)="decrease(item)"
+                        >
+                          <mat-icon>remove</mat-icon>
+                        </button>
+                        <strong>{{ item.quantity ?? 1 }}</strong>
+                        <button
+                          mat-icon-button
+                          type="button"
+                          aria-label="Increase quantity"
+                          (click)="increase(item)"
+                        >
+                          <mat-icon>add</mat-icon>
+                        </button>
+                      </div>
+                      <strong class="line-total">{{ lineTotal(item) | currency:'₦':'symbol':'1.0-0' }}</strong>
+                    </div>
+                  </div>
+
+                  <button
+                    mat-icon-button
+                    type="button"
+                    class="remove"
+                    [attr.aria-label]="'Remove ' + item.name + ' from cart'"
+                    (click)="remove(item)"
+                  >
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </article>
+              }
+            </div>
+
+            <div class="items-foot">
+              <button mat-button color="warn" type="button" (click)="clearCart()">Clear cart</button>
+              <a mat-button routerLink="/dashboard/products">Add more products</a>
+            </div>
+          </section>
+
+          <section class="dp-card delivery-card">
+            <div class="card-head">
+              <h2>Delivery details</h2>
+              <span class="muted">Prefilled from your profile</span>
+            </div>
+            <p class="muted hint">We use this address for this order only.</p>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Full name</mat-label>
+                <input
+                  matInput
+                  autocomplete="name"
+                  maxlength="120"
+                  [ngModel]="shipping().fullName"
+                  (ngModelChange)="setShipping('fullName', $event)"
+                >
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Phone</mat-label>
+                <input
+                  matInput
+                  type="tel"
+                  inputmode="tel"
+                  autocomplete="tel"
+                  maxlength="40"
+                  [ngModel]="shipping().phone"
+                  (ngModelChange)="setShipping('phone', $event)"
+                >
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="span-2">
+                <mat-label>Street address</mat-label>
+                <input
+                  matInput
+                  autocomplete="street-address"
+                  maxlength="240"
+                  [ngModel]="shipping().street"
+                  (ngModelChange)="setShipping('street', $event)"
+                >
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>City</mat-label>
+                <input
+                  matInput
+                  autocomplete="address-level2"
+                  maxlength="120"
+                  [ngModel]="shipping().city"
+                  (ngModelChange)="setShipping('city', $event)"
+                >
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>State</mat-label>
+                <input
+                  matInput
+                  autocomplete="address-level1"
+                  maxlength="120"
+                  [ngModel]="shipping().state"
+                  (ngModelChange)="setShipping('state', $event)"
+                >
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Country</mat-label>
+                <input
+                  matInput
+                  autocomplete="country-name"
+                  maxlength="80"
+                  [ngModel]="shipping().country"
+                  (ngModelChange)="setShipping('country', $event)"
+                >
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="span-2">
+                <mat-label>Delivery note (optional)</mat-label>
+                <textarea
+                  matInput
+                  rows="2"
+                  maxlength="500"
+                  placeholder="Landmark, gate code or a preferred delivery time"
+                  [ngModel]="shipping().notes"
+                  (ngModelChange)="setShipping('notes', $event)"
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </section>
+        </div>
+
+        <aside class="summary dp-card">
+          <h2>Payment</h2>
+
+          <dl class="summary-lines">
+            <div>
+              <dt>Items ({{ itemCount() }})</dt>
+              <dd>{{ total() | currency:'₦':'symbol':'1.0-0' }}</dd>
+            </div>
+            <div>
+              <dt>Delivery</dt>
+              <dd>Included</dd>
+            </div>
+            <div class="total">
+              <dt>Total</dt>
+              <dd>{{ total() | currency:'₦':'symbol':'1.0-0' }}</dd>
+            </div>
+          </dl>
+
+          @if (hasResale()) {
+            <div class="resale-note">
+              <span>Your resale margin at suggested retail</span>
+              <strong>{{ resaleMargin() | currency:'₦':'symbol':'1.0-0' }}</strong>
+              <small>This is yours when you sell. MarketSpase does not charge it.</small>
+            </div>
+          }
+
+          <div class="wallet-box">
+            <div>
+              <span>Wallet balance</span>
+              <strong>{{ balance() | currency:'₦':'symbol':'1.0-0' }}</strong>
+            </div>
+            <div>
+              <span>Amount due</span>
+              <strong>{{ total() | currency:'₦':'symbol':'1.0-0' }}</strong>
+            </div>
+            @if (shortfall() > 0) {
+              <p class="shortfall">
+                <mat-icon>info</mat-icon>
+                <span>Add {{ shortfall() | currency:'₦':'symbol':'1.0-0' }} to your wallet to continue.</span>
+              </p>
+            }
+          </div>
+
+          @if (shortfall() > 0) {
+            <button mat-flat-button color="primary" type="button" class="pay-btn" (click)="topUp()">
+              <mat-icon>add_card</mat-icon> Top up {{ shortfall() | currency:'₦':'symbol':'1.0-0' }}
+            </button>
+            <button mat-stroked-button type="button" class="pay-btn" disabled>Pay from wallet</button>
+          } @else {
+            <button
+              mat-flat-button
+              color="primary"
+              type="button"
+              class="pay-btn"
+              [disabled]="!canPlaceOrder()"
+              (click)="placeOrder()"
+            >
+              <mat-icon>lock</mat-icon>
+              @if (placing()) {
+                Placing order…
+              } @else {
+                Pay {{ total() | currency:'₦':'symbol':'1.0-0' }} from wallet
+              }
+            </button>
+          }
+
+          @if (!validShipping()) {
+            <p class="pay-note">Complete the delivery details to continue.</p>
+          }
+
+          <ul class="assurance">
+            <li><mat-icon>account_balance_wallet</mat-icon> Paid from your wallet</li>
+            <li><mat-icon>package_2</mat-icon> Track the order in My orders</li>
+            <li><mat-icon>support_agent</mat-icon> Support if anything goes wrong</li>
+          </ul>
+        </aside>
+      </div>
+    }
+  }
+</section>

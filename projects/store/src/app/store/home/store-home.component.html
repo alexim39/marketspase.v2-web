@@ -1,0 +1,137 @@
+<section class="store-home">
+  <section class="hero">
+    <div class="hero-inner ms-store-page">
+      <div class="hero-copy">
+        <p class="eyebrow">MarketSpase Store</p>
+        <h1>Shop independent.<br /><span>Powered by real people.</span></h1>
+        <p class="hero-sub">
+          Discover products from independent MarketSpase partners. Every store is run by a real person
+          building their own business.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" routerLink="/stores">Find a store</a>
+          <a class="btn btn-ghost" [href]="platformUrl + '/partner/signup'">Become a partner</a>
+        </div>
+        <div class="hero-trust">
+          <span>Verified partners</span>
+          <span>Secure checkout</span>
+          <span>Delivery updates</span>
+        </div>
+      </div>
+
+      <div class="hero-panel" aria-hidden="true">
+        <div class="panel-card">
+          <img class="panel-mark" src="/logo/marketspase-mark-white.png" alt="" width="1024" height="1024" aria-hidden="true" />
+          <strong>Your next favourite store is run by a person, not a warehouse.</strong>
+          <small>Shop small. Buy real. Support independent sellers.</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="category-band">
+    <div class="ms-store-page">
+      <p class="eyebrow dark">Shop by need</p>
+      <div class="category-row">
+        @for (category of categories; track category.value) {
+          <a class="category-chip" routerLink="/stores">{{ category.label }}</a>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="stores-section ms-store-page">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow dark">Partner stores</p>
+        <h2>Meet the people behind the products.</h2>
+      </div>
+      <a class="text-link" routerLink="/stores">Browse all stores →</a>
+    </div>
+
+    @if (loading()) {
+      <div class="store-grid" aria-label="Loading stores">
+        @for (placeholder of [1, 2, 3]; track placeholder) {
+          <div class="store-card skeleton-card" aria-hidden="true">
+            <div class="skeleton skeleton-banner"></div>
+            <div class="skeleton-body">
+              <div class="skeleton skeleton-line short"></div>
+              <div class="skeleton skeleton-line"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (error()) {
+      <div class="state-card">
+        <h3>Could not load stores</h3>
+        <p>{{ error() }}</p>
+        <a class="btn btn-primary" routerLink="/stores">Try the directory</a>
+      </div>
+    } @else if (stores().length === 0) {
+      <div class="state-card">
+        <h3>Partner stores are opening soon.</h3>
+        <p>The first MarketSpase partner shops are being prepared. Check back shortly or open your own store.</p>
+        <div class="state-actions">
+          <a class="btn btn-primary" routerLink="/stores">Browse the directory</a>
+          <a class="btn btn-ghost" [href]="platformUrl + '/partner/signup'">Become a partner</a>
+        </div>
+      </div>
+    } @else {
+      <div class="store-grid">
+        @for (store of stores().slice(0, 6); track store.slug) {
+          <a class="store-card" [routerLink]="['/', store.slug]">
+            <span class="store-banner">
+              @if (storeImage(store)) {
+                <img [src]="storeImage(store)" [alt]="store.name" loading="lazy">
+              } @else {
+                <span class="banner-fallback"></span>
+              }
+              <span class="store-logo">
+                @if (store.logo) {
+                  <img [src]="store.logo" [alt]="store.name">
+                } @else {
+                  {{ initials(store) }}
+                }
+              </span>
+            </span>
+            <span class="store-copy">
+              <strong>{{ store.name }}</strong>
+              <small>{{ store.tagline || 'Independent MarketSpase partner' }}</small>
+              <span class="store-meta">
+                <span class="verified">Verified partner</span>
+                <span>{{ store.productCount }} products</span>
+              </span>
+            </span>
+          </a>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="how-section">
+    <div class="ms-store-page">
+      <div class="section-head light">
+        <div>
+          <p class="eyebrow">Simple by design</p>
+          <h2>Discover. Buy. Support someone’s business.</h2>
+        </div>
+      </div>
+      <div class="how-grid">
+        <div><span>01</span><strong>Find a store</strong><p>Browse partner shops or open a link shared by someone you trust.</p></div>
+        <div><span>02</span><strong>Buy securely</strong><p>Pay safely and get clear delivery updates from the partner.</p></div>
+        <div><span>03</span><strong>Support real people</strong><p>Your purchase goes to an independent partner building their business.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="partner-band">
+    <div class="partner-inner ms-store-page">
+      <div>
+        <p class="eyebrow dark">For MarketSpase partners</p>
+        <h2>Your products. Your store. Your margin.</h2>
+        <p>Buy resale stock from the platform, publish what you want to sell and share your store link.</p>
+      </div>
+      <a class="btn btn-primary" [href]="platformUrl + '/partner/signup'">Open your store</a>
+    </div>
+  </section>
+</section>

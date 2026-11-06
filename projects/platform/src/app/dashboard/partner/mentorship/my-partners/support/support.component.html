@@ -1,0 +1,166 @@
+<section class="breadcrumb-wrapper">
+  <div class="breadcrumb">
+    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Dashboard</a> &gt;
+    <a>Mentorship</a> &gt;
+    <a routerLink="/dashboard/mentorship/partners/my-partners" (click)="scrollToTop()">My Partners</a> &gt;
+    <span>{{ displayName() }}</span>
+  </div>
+</section>
+
+<section class="support-page">
+  <div class="page-head">
+    <button mat-icon-button (click)="back()" title="Back to My partners" aria-label="Back to My partners">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <async-avatar [photo]="myPartner?.profileImage" [name]="displayName()" size="md" />
+    <div class="who">
+      <h2>{{ displayName() }}</h2>
+      <p class="page-sub">
+        @if (supportInfo(); as info) {
+          {{ info.relation || 'Direct' }}
+        } @else {
+          Direct downline support view
+        }
+      </p>
+    </div>
+    <span class="spacer"></span>
+    <button mat-button (click)="chat()" title="Chat with {{ displayName() }}"><mat-icon>chat</mat-icon>Chat</button>
+  </div>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading member support view" />
+  }
+
+  @if (error(); as err) {
+    <p class="error" role="alert">
+      {{ err }}
+      <button mat-button (click)="back()">Back to My partners</button>
+    </p>
+  }
+
+  @if (supportInfo(); as info) {
+    <section class="dp-card readiness" aria-label="Readiness">
+      <div class="entry-tags">
+        <mat-chip highlighted>IPO: {{ info.ipoDone ? 'done' : 'pending' }}</mat-chip>
+        <mat-chip highlighted>QSG: {{ info.qsgDone ? 'done' : 'pending' }}</mat-chip>
+        <mat-chip highlighted>{{ info.worked }}/{{ info.total }} worked</mat-chip>
+        @if (info.overdue) {
+          <mat-chip color="warn" highlighted>Overdue 48h</mat-chip>
+        }
+      </div>
+      <span class="spacer"></span>
+      <span class="next-action">{{ info.nextAction }}</span>
+      <a mat-button routerLink="/dashboard/mentorship/team/activation" title="Open activation board">Activation</a>
+    </section>
+  }
+
+  <section class="dp-card journey-card" aria-label="Rank and training">
+    <div class="card-top">
+      <h3>{{ myPartner?.commissionRank || 'Partner' }}</h3>
+      <span class="muted">Partner → Builder → Leader → Ambassador</span>
+    </div>
+    <p class="muted">Core training is recorded automatically from the certificate — no upline approval.</p>
+    <ul class="plain-list">
+      @for (t of trainingTrack; track t.key) {
+        <li>
+          <span>{{ t.label }}</span>
+          <span class="muted">{{ trainingDone(t.key) ? 'Recorded' : 'Not completed' }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="dp-card" aria-label="Goals">
+    <h3>Goals ({{ goals().length }})</h3>
+    @if (goals().length > 0) {
+      <ul class="plain-list">
+        @for (goal of goals().slice(0, 5); track goal.id) {
+          <li>
+            <span>{{ goal.title || goal.kind }}</span>
+            <span class="muted">{{ goal.progress.percent }}% · {{ goal.progress.complete ? 'complete' : (goal.progress.onTrack ? 'on track' : 'behind') }}</span>
+          </li>
+        }
+      </ul>
+    } @else if (!loading()) {
+      <p class="empty">No active goals — help them set one.</p>
+    }
+  </section>
+
+  @if (stuck().length > 0) {
+    <section class="dp-card" aria-label="Needs attention">
+      <h3>Needs attention ({{ stuck().length }})</h3>
+      <ul class="plain-list">
+        @for (s of stuck().slice(0, 5); track s.prospectId) {
+          <li>
+            <span>{{ s.name }}</span>
+            <span class="muted">{{ s.stage }} · stuck {{ s.daysInStage }}d</span>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <section class="dp-card" aria-label="Coaching notes">
+    <h3>Coaching notes ({{ notes().length }})</h3>
+    @if (notes().length > 0) {
+      <ul class="plain-list">
+        @for (note of notes(); track note.id) {
+          <li class="note">
+            <p>{{ note.body }}</p>
+            <span class="muted">{{ note.createdAt | date:'mediumDate' }}</span>
+          </li>
+        }
+      </ul>
+    } @else if (!loading()) {
+      <p class="empty">No notes yet — log the first coaching moment below.</p>
+    }
+    <div class="note-form">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Log a coaching note</mat-label>
+        <textarea matInput rows="2" maxlength="2000" [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)" placeholder="What did you coach, and what is next?"></textarea>
+      </mat-form-field>
+      <button mat-flat-button color="primary" (click)="saveNote()" [disabled]="!noteDraft().trim() || savingNote()">
+        {{ savingNote() ? 'Saving…' : 'Save note' }}
+      </button>
+    </div>
+  </section>
+
+  <section class="dp-card actions-card" aria-label="Actions">
+    <h3>Actions</h3>
+    <div class="action-row">
+      <button mat-button (click)="viewAs.open(memberId())">View as member</button>
+      <button mat-button (click)="chat()"><mat-icon>chat</mat-icon>Chat</button>
+      @if (canViewContact()) {
+        <button mat-button (click)="viewContactList()">Contact list</button>
+      }
+      <button mat-button (click)="showKpi.set(!showKpi())">{{ showKpi() ? 'Hide business health' : 'Business health' }}</button>
+    </div>
+  </section>
+
+  @if (showKpi()) {
+    <async-partner-business-kpi
+      [myPartner]="myPartner"
+      [myPartnerPartners]="myPartnerPartners"
+      [supportInfo]="supportInfo()" />
+  }
+
+  <section class="dp-card details-card" aria-label="Member details">
+    <h3>Details</h3>
+    @if (canViewContact()) {
+      @if (myPartner?.phone) {
+        <div class="detail-row"><span class="muted">Phone</span><span>{{ myPartner.phone }}</span></div>
+      }
+      @if (myPartner?.email) {
+        <div class="detail-row"><span class="muted">Email</span><span>{{ myPartner.email | lowercase }}</span></div>
+      }
+      <p class="muted">Contact details are masked for privacy — use Chat to reach this partner.</p>
+    } @else {
+      <p class="muted">Contact details are hidden for privacy — use Chat to reach this partner.</p>
+    }
+    <div class="detail-row"><span class="muted">Public page</span><a [href]="publicLink()" target="_blank" rel="noopener">{{ publicLink().replace('https://', '') }}</a></div>
+    <div class="detail-row"><span class="muted">Downline</span><span>{{ myPartnerPartners ? myPartnerPartners.length : 0 }} direct partners</span></div>
+    @if (myPartner?.createdAt) {
+      <div class="detail-row"><span class="muted">Joined</span><span>{{ myPartner.createdAt | date:'mediumDate' }}</span></div>
+    }
+  </section>
+</section>

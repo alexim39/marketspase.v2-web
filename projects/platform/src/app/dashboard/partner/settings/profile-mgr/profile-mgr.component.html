@@ -1,0 +1,348 @@
+
+@if (profile(); as p) {
+  <div class="identity-card">
+    @if (p.profileImage) {
+      <img [src]="p.profileImage" alt="Profile photo" class="identity-avatar" />
+    } @else {
+      <span class="identity-fallback" aria-hidden="true">{{ initial() }}</span>
+    }
+    <div class="identity-main">
+      <h3>{{ p.name }} {{ p.surname }}</h3>
+      <p class="muted">@{{ p.username }} · {{ p.email }}</p>
+      @if (publicPageUrl(); as url) {
+        <p class="muted public-link">Public page: <a [href]="url" target="_blank" rel="noopener">{{ url }}</a>
+          <button mat-icon-button type="button" (click)="copyPublicLink()" aria-label="Copy public page link" title="Copy public page link"><mat-icon>content_copy</mat-icon></button>
+          <span aria-hidden="true">·</span> {{ p.visits ?? 0 }} views</p>
+      }
+      @if (meter(); as m) {
+        <div class="meter" role="status" [attr.aria-label]="'Profile ' + m.percent + ' percent complete'">
+          <div class="meter-top"><span><strong>{{ m.percent }}%</strong> complete</span><span class="muted">{{ m.complete ? 'Onboarding done — nice.' : 'Finish the required items below.' }}</span></div>
+          <div class="meter-bar"><span class="meter-fill" [style.width.%]="m.percent"></span></div>
+          @if (m.missing.length > 0) {
+            <div class="missing">
+              @for (item of m.missing; track item) {
+                <span class="missing-tag">{{ item }}</span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="photo-wrap">
+    <async-profile-picture-upload [partner]="p" (uploaded)="onPhotoUploaded($event)" />
+  </div>
+}
+
+<mat-accordion>
+  <mat-expansion-panel [expanded]="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title> Personal &amp; Contact <span class="section-badge section-badge--required">Required</span> </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="form-container">
+      <form class="flex-form" [formGroup]="profileMgrForm">
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" required>
+            @if (profileMgrForm.get('name')?.hasError('required') ) {
+              <mat-error>
+                Enter your first name.
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Surname</mat-label>
+            <input matInput formControlName="surname" required>
+            @if (profileMgrForm.get('surname')?.hasError('required') ) {
+              <mat-error>
+                Enter your surname.
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Email Address</mat-label>
+            <input matInput formControlName="email" type="email" required>
+            @if (profileMgrForm.get('email')?.hasError('required') ) {
+              <mat-error>
+                Enter your email address.
+              </mat-error>
+            }
+            @if (profileMgrForm.get('email')?.hasError('email') ) {
+              <mat-error>
+                That email does not look valid.
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Phone Number</mat-label>
+            <input matInput formControlName="phone" type="tel" required>
+            @if (profileMgrForm.get('phone')?.hasError('required') ) {
+              <mat-error>
+                Enter your phone number.
+              </mat-error>
+            }
+            @if (profileMgrForm.get('phone')?.hasError('pattern') ) {
+              <mat-error>
+                Enter a valid phone number.
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Date of Birth</mat-label>
+            <input matInput [matDatepicker]="dobDatePicker" formControlName="dobDatePicker" [max]="minDate">
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="dobDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #dobDatePicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+
+        <section class="address-section">
+          <p class="address-note">This address will be used for shipping your activation product. Keep it current — your activation delivery address is taken from here.</p>
+
+          <div formGroupName="address" class="address-container">
+            <mat-form-field appearance="outline">
+              <mat-label>Street</mat-label>
+              <input matInput formControlName="street" placeholder="Enter street" />
+              @if (profileMgrForm.get('address.street')?.invalid && profileMgrForm.get('address.street')?.touched) {
+                <mat-error>
+                  Street is required.
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>City</mat-label>
+              <input matInput formControlName="city" placeholder="Enter city" />
+              @if (profileMgrForm.get('address.city')?.invalid && profileMgrForm.get('address.city')?.touched) {
+                <mat-error>
+                  City is required.
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Country of Residence</mat-label>
+              <mat-select formControlName="country" (selectionChange)="onCountryChange($event.value)">
+                @for (country of countries; track country) {
+                  <mat-option [value]="country">{{ country }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <!-- State Field -->
+            <mat-form-field appearance="outline">
+              @if (isNigeria) {
+                <mat-label>State of Residence</mat-label>
+              }
+              @if (isNigeria) {
+                <mat-select formControlName="state">
+                  @for (state of states; track state) {
+                    <mat-option [value]="state">{{ state }}</mat-option>
+                  }
+                </mat-select>
+              }
+              @if (!isNigeria) {
+                <mat-label>Enter State</mat-label>
+              }
+              @if (!isNigeria) {
+                <input matInput formControlName="state" placeholder="Enter your state of origin" />
+              }
+            </mat-form-field>
+          </div>
+
+        </section>
+
+        <div class="form-ungroup">
+          <mat-form-field appearance="outline">
+            <mat-label>Short Bio</mat-label>
+            <textarea matInput formControlName="bio"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-group"></div>
+        <button mat-flat-button color="primary" (click)="onProfileSubmit()">Submit</button>
+      </form>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title> Profession <span class="section-badge section-badge--optional">Optional</span> </mat-panel-title>
+    </mat-expansion-panel-header>
+
+
+    <div class="form-container">
+      <form class="flex-form" [formGroup]="professionalForm">
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Job Title</mat-label>
+            <input matInput formControlName="jobTitle" required maxlength="50">
+            @if (professionalForm.get('jobTitle')?.hasError('required') ) {
+              <mat-error>
+                This is required
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Educational Background</mat-label>
+            <mat-select formControlName="educationBackground" required>
+              <mat-option value="Basic Education Certificate (Primary School)">Basic Education Certificate (Primary School) </mat-option>
+              <mat-option value="WASSCE">WASSCE</mat-option>
+              <mat-option value="NECO">NECO</mat-option>
+              <mat-option value="GCE">GCE</mat-option>
+              <mat-option value="ND">ND</mat-option>
+              <mat-option value="HND">HND</mat-option>
+              <mat-option value="B.Sc., B.A., B.Eng.">B.Sc., B.A., B.Eng.</mat-option>
+              <mat-option value="M.Sc., M.A., M.B.A.">M.Sc., M.A., M.B.A.</mat-option>
+              <mat-option value="Ph.D.">Ph.D.</mat-option>
+              <mat-option value="NCE">NCE</mat-option>
+              <mat-option value="None">None</mat-option>
+            </mat-select>
+            @if (professionalForm.get('educationBackground')?.hasError('required') ) {
+              <mat-error>
+                This field is required.
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Best Hobby</mat-label>
+            <input matInput formControlName="hobby" required maxlength="50">
+            @if (professionalForm.get('hobby')?.hasError('required') ) {
+              <mat-error>
+                This is required
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Best Skill</mat-label>
+            <input matInput formControlName="skill" required maxlength="50">
+            @if (professionalForm.get('skill')?.hasError('required') ) {
+              <mat-error>
+                This is required
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-group"></div>
+        <button mat-flat-button color="primary" (click)="onProfessionalSubmit()">Submit</button>
+      </form>
+    </div>
+
+
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title> Account </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="form-container">
+      <form class="flex-form" [formGroup]="usernameForm" (ngSubmit)="onUsernameSubmit()">
+        <div class="form-group" style="display: flex; flex-direction: row; justify-content: flex-start; align-items: center;">
+          <mat-form-field appearance="outline" style="width: 50%;">
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="username" required>
+          </mat-form-field>
+          <mat-icon style="margin: 0  0 1em 6px; cursor: pointer;" (click)="showDescription()">help</mat-icon>
+        </div>
+        <div class="form-group"></div>
+        <div class="form-group">
+          @if (publicPageUrl(); as url) {
+            <span class="public-link">Landing page URL: <a [href]="url" target="_blank" rel="noopener">{{ url.replace('https://','') }}</a>
+              <button mat-icon-button type="button" (click)="copyPublicLink()" aria-label="Copy public page link" title="Copy public page link"><mat-icon>content_copy</mat-icon></button>
+            </span>
+          }
+          <span class="muted">Page views: {{ profile()?.visits ?? 0 }}</span>
+        </div>
+        <button mat-flat-button color="primary">Submit</button>
+      </form>
+    </div>
+
+    <div class="form-container" style="margin-top: 1em;">
+      <form class="flex-form" [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Current Password</mat-label>
+            <input matInput [type]="hideCurrent() ? 'password' : 'text'" formControlName="currentPassword" required/>
+            <a
+              mat-icon-button
+              matSuffix
+              (click)="onHideCurrent($event)"
+              [attr.aria-label]="'Hide password'"
+              [attr.aria-pressed]="hideCurrent()"
+              >
+              <mat-icon>{{hideCurrent() ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </a>
+            @if (passwordForm.get('currentPassword')?.hasError('required') ) {
+              <mat-error>
+                Password is required
+              </mat-error>
+            }
+            @if (passwordForm.get('currentPassword')?.errors?.['minlength'] && passwordForm.get('currentPassword')?.touched) {
+              <mat-error>
+                Password must be at least 8 characters long.
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>New Password</mat-label>
+            <input matInput [type]="hideNew() ? 'password' : 'text'" formControlName="newPassword" required/>
+            <a
+              mat-icon-button
+              matSuffix
+              (click)="onHideNew($event)"
+              [attr.aria-label]="'Hide password'"
+              [attr.aria-pressed]="hideNew()"
+              >
+              <mat-icon>{{hideNew() ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </a>
+            @if (passwordForm.get('newPassword')?.hasError('required') ) {
+              <mat-error>
+                Password is required
+              </mat-error>
+            }
+            @if (passwordForm.get('newPassword')?.errors?.['minlength'] && passwordForm.get('newPassword')?.touched) {
+              <mat-error>
+                Password must be at least 8 characters long.
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+        <div class="form-group"></div>
+        <button mat-flat-button color="primary">Change password</button>
+      </form>
+    </div>
+
+  </mat-expansion-panel>
+</mat-accordion>
+
+<async-delete-account />

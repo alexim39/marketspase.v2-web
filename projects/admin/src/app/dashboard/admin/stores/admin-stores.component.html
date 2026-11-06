@@ -1,0 +1,97 @@
+<section class="stores-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Commerce</p>
+      <h1>Partner stores.</h1>
+      <p class="subtitle">Every public storefront, its stock, orders and publishing state.</p>
+    </div>
+    <a mat-stroked-button [href]="storeUrl" target="_blank" rel="noopener">
+      <mat-icon>open_in_new</mat-icon> Open storefront
+    </a>
+  </header>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  <section class="stats-grid">
+    <article class="dp-card stat"><span>Total stores</span><strong>{{ counts().total }}</strong></article>
+    <article class="dp-card stat"><span>Live stores</span><strong>{{ counts().published }}</strong></article>
+    <article class="dp-card stat"><span>Suspended</span><strong>{{ counts().suspended }}</strong></article>
+    <article class="dp-card stat"><span>Published listings</span><strong>{{ counts().products }}</strong></article>
+  </section>
+
+  <div class="toolbar">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Search stores</mat-label>
+      <input matInput type="search" [(ngModel)]="query" (keyup.enter)="search()" placeholder="Store name, slug or tagline" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Status</mat-label>
+      <mat-select [value]="status()" (selectionChange)="setStatus($event.value)">
+        <mat-option value="all">All stores</mat-option>
+        <mat-option value="published">Live</mat-option>
+        <mat-option value="draft">Draft</mat-option>
+        <mat-option value="suspended">Suspended</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="button" (click)="search()" [disabled]="loading()">Search</button>
+  </div>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading stores" />
+  }
+
+  @if (stores().length === 0 && !loading()) {
+    <section class="dp-card empty"><mat-icon>storefront</mat-icon><h2>No stores found</h2><p>Try a different search or status.</p></section>
+  } @else {
+    <div class="store-list">
+      @for (store of stores(); track store.id) {
+        <article class="dp-card store-card">
+          <div class="store-main">
+            <span class="store-logo">
+              @if (store.logo) {
+                <img [src]="store.logo" [alt]="store.name">
+              } @else {
+                {{ initials(store) }}
+              }
+            </span>
+            <div class="store-copy">
+              <div class="title-line">
+                <strong>{{ store.name }}</strong>
+                <span class="status-pill" [class.live]="store.status === 'published'" [class.suspended]="store.status === 'suspended'">{{ statusLabel(store.status) }}</span>
+              </div>
+              <span class="muted">/{{ store.slug }}{{ store.partner ? ' · ' + store.partner.name : '' }}</span>
+              <span class="muted small">{{ store.partner?.email }} · {{ store.partner?.phone }}</span>
+              @if (store.suspensionReason) {
+                <span class="suspend-reason">Suspended: {{ store.suspensionReason }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="store-stats">
+            <span><small>Listings</small><strong>{{ store.publishedCount }}/{{ store.productCount }}</strong></span>
+            <span><small>Stock</small><strong>{{ store.stockUnits }}</strong></span>
+            <span><small>Orders</small><strong>{{ store.orderCount }}</strong></span>
+            <span><small>Paid</small><strong>{{ store.paidOrders }}</strong></span>
+            <span><small>Delivery</small><strong>{{ store.deliveryFee | currency:'₦':'symbol':'1.0-0' }}</strong></span>
+          </div>
+
+          <div class="store-actions">
+            <a mat-stroked-button [href]="storeUrl + '/' + store.slug" target="_blank" rel="noopener">View store</a>
+            @if (store.status !== 'published') {
+              <button mat-flat-button color="primary" type="button" (click)="changeStatus(store, 'published')" [disabled]="busyId() === store.id">Publish</button>
+            } @else {
+              <button mat-stroked-button type="button" (click)="changeStatus(store, 'draft')" [disabled]="busyId() === store.id">Unpublish</button>
+              <button mat-button type="button" class="danger" (click)="changeStatus(store, 'suspended')" [disabled]="busyId() === store.id">Suspend</button>
+            }
+            @if (store.status === 'suspended') {
+              <button mat-stroked-button type="button" (click)="changeStatus(store, 'draft')" [disabled]="busyId() === store.id">Move to draft</button>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

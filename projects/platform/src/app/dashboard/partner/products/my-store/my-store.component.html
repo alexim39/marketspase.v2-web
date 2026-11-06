@@ -1,0 +1,268 @@
+<section class="my-store-page">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <span>/</span>
+    <a routerLink="/dashboard/products">Products</a>
+    <span>/</span>
+    <span aria-current="page">My store</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Products · My store</p>
+      <h1>Your public shop.</h1>
+      <p class="subtitle">
+        Confirm received stock, set your retail prices and publish only what you want the public to see.
+      </p>
+    </div>
+    @if (store(); as s) {
+      <div class="head-actions">
+        <button mat-stroked-button type="button" (click)="copyStoreLink()">
+          <mat-icon>content_copy</mat-icon> Copy link
+        </button>
+        <a mat-flat-button color="primary" [href]="storeUrl()" target="_blank" rel="noopener">
+          <mat-icon>open_in_new</mat-icon> View store
+        </a>
+      </div>
+    }
+  </header>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  @if (!isPartner()) {
+    <section class="dp-card state-card">
+      <mat-icon>lock</mat-icon>
+      <h2>A store is a partner benefit</h2>
+      <p class="muted">Activate your partner account to receive wholesale stock and open your public shop.</p>
+      <a mat-flat-button color="primary" routerLink="/dashboard/activate">Activate partner account</a>
+    </section>
+  } @else if (!kycReady()) {
+    <section class="dp-card state-card">
+      <mat-icon>verified_user</mat-icon>
+      <h2>Finish verification to open your store</h2>
+      <p class="muted">Your store needs a verified partner identity before it can receive stock and publish listings.</p>
+      <a mat-flat-button color="primary" routerLink="/dashboard/activate">Continue verification</a>
+    </section>
+  } @else if (loading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading store" />
+  } @else if (store(); as s) {
+    <section class="store-summary dp-card">
+      <div class="summary-main">
+        <div class="store-avatar">
+          @if (s.logo) {
+            <img [src]="imageUrl(s.logo)" [alt]="s.name">
+          } @else {
+            <span>{{ (s.name || s.slug).slice(0, 1).toUpperCase() }}</span>
+          }
+        </div>
+        <div>
+          <div class="title-row">
+            <h2>{{ s.name || s.slug }}</h2>
+            <span class="dp-status" [class.dp-status--ok]="s.status === 'published'" [class.dp-status--neutral]="s.status !== 'published'">
+              {{ s.status === 'published' ? 'Live' : 'Draft' }}
+            </span>
+          </div>
+          <a class="store-url" [href]="storeUrl()" target="_blank" rel="noopener">{{ storeUrl() }}</a>
+          <p class="muted small">{{ s.tagline || 'Add a tagline so customers know what your store is about.' }}</p>
+        </div>
+      </div>
+      <div class="summary-stats">
+        <div><span>Published</span><strong>{{ counts().published }}</strong></div>
+        <div><span>Drafts</span><strong>{{ counts().draft }}</strong></div>
+        <div><span>Awaiting receipt</span><strong>{{ counts().pendingReceipts }}</strong></div>
+      </div>
+    </section>
+
+    <div class="tabs" role="tablist" aria-label="Store sections">
+      <button type="button" [class.active]="tab() === 'overview'" (click)="setTab('overview')"><mat-icon>space_dashboard</mat-icon> Overview</button>
+      <button type="button" [class.active]="tab() === 'listings'" (click)="setTab('listings')"><mat-icon>inventory_2</mat-icon> Listings</button>
+      <button type="button" [class.active]="tab() === 'receipts'" (click)="setTab('receipts')"><mat-icon>local_shipping</mat-icon> Stock receipts</button>
+      <button type="button" [class.active]="tab() === 'settings'" (click)="setTab('settings')"><mat-icon>settings</mat-icon> Store settings</button>
+    </div>
+
+    @if (tab() === 'overview') {
+      <section class="overview-grid">
+        <div class="dp-card panel readiness-panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">Readiness</p><h2>Make your store sellable</h2></div>
+            <strong>{{ readiness().percent }}%</strong>
+          </div>
+          <mat-progress-bar mode="determinate" [value]="readiness().percent" aria-label="Store readiness" />
+          <ul class="check-list">
+            <li [class.done]="form().name.trim()"><mat-icon>{{ form().name.trim() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon> Store name</li>
+            <li [class.done]="form().tagline.trim()"><mat-icon>{{ form().tagline.trim() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon> Tagline</li>
+            <li [class.done]="form().bio.trim()"><mat-icon>{{ form().bio.trim() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon> Store story</li>
+            <li [class.done]="form().whatsapp.trim()"><mat-icon>{{ form().whatsapp.trim() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon> WhatsApp contact</li>
+            <li [class.done]="form().deliveryNote.trim()"><mat-icon>{{ form().deliveryNote.trim() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon> Delivery note</li>
+            <li [class.done]="form().returnPolicy.trim()"><mat-icon>{{ form().returnPolicy.trim() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon> Return policy</li>
+            <li [class.done]="counts().published > 0"><mat-icon>{{ counts().published > 0 ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon> At least one published listing</li>
+          </ul>
+          <div class="panel-actions">
+            <button mat-stroked-button type="button" (click)="setTab('settings')">Edit store details</button>
+            @if (s.status !== 'published') {
+              <button mat-flat-button color="primary" type="button" (click)="setStoreStatus('published')" [disabled]="counts().published === 0 || saving()">
+                Publish store
+              </button>
+            } @else {
+              <button mat-stroked-button type="button" (click)="setStoreStatus('draft')" [disabled]="saving()">Hide store</button>
+            }
+          </div>
+        </div>
+
+        <div class="dp-card panel">
+          <div class="panel-head"><div><p class="eyebrow">The model</p><h2>How your store works</h2></div></div>
+          <ol class="flow-list">
+            <li><span>1</span><div><strong>Buy wholesale</strong><p class="muted">Order resale stock from the platform at partner price.</p></div></li>
+            <li><span>2</span><div><strong>Receive stock</strong><p class="muted">Confirm the delivery in Stock receipts.</p></div></li>
+            <li><span>3</span><div><strong>Price and publish</strong><p class="muted">Set your retail price. Publish only what you want online.</p></div></li>
+            <li><span>4</span><div><strong>Fulfil orders</strong><p class="muted">Customers buy from your link; you deliver and get paid.</p></div></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="dp-card panel quick-actions">
+        <div><p class="eyebrow">Shortcuts</p><h2>Next actions</h2></div>
+        <div class="quick-buttons">
+          <a mat-stroked-button routerLink="/dashboard/products/resell"><mat-icon>storefront</mat-icon> Buy resale stock</a>
+          <a mat-stroked-button routerLink="/dashboard/products/store-orders"><mat-icon>receipt_long</mat-icon> Store orders</a>
+          <button mat-stroked-button type="button" (click)="setTab('receipts')"><mat-icon>local_shipping</mat-icon> Confirm receipts</button>
+          <button mat-stroked-button type="button" (click)="setTab('listings')"><mat-icon>inventory_2</mat-icon> Review listings</button>
+        </div>
+      </section>
+    } @else if (tab() === 'listings') {
+      <section class="dp-card panel">
+        <div class="panel-head">
+          <div><p class="eyebrow">Catalog</p><h2>Your listings</h2></div>
+          <span class="muted">{{ products().length }} total</span>
+        </div>
+
+        @if (products().length === 0) {
+          <div class="empty">
+            <mat-icon>inventory_2</mat-icon>
+            <p>No listings yet. Confirm a received wholesale order to create your first draft.</p>
+            <button mat-stroked-button type="button" (click)="setTab('receipts')">Go to stock receipts</button>
+          </div>
+        } @else {
+          <div class="listing-list">
+            @for (product of products(); track product.id) {
+              <article class="listing-row">
+                <div class="listing-thumb">
+                  @if (product.image) {
+                    <img [src]="imageUrl(product.image)" [alt]="product.name" loading="lazy">
+                  } @else {
+                    <mat-icon>inventory_2</mat-icon>
+                  }
+                </div>
+                <div class="listing-copy">
+                  <strong>{{ product.name }}</strong>
+                  <span class="muted small">{{ product.category }} · stock {{ product.stock }}</span>
+                  <span class="dp-status" [class.dp-status--ok]="product.status === 'published'" [class.dp-status--warn]="product.status === 'paused'" [class.dp-status--neutral]="product.status === 'draft'">
+                    {{ statusLabel(product.status) }}
+                  </span>
+                </div>
+                <div class="listing-price">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Retail (₦)</mat-label>
+                    <input matInput type="number" min="0" step="0.01" [value]="priceFor(product)" (input)="setPrice(product.id, $any($event.target).value)" />
+                  </mat-form-field>
+                  <button mat-stroked-button type="button" (click)="saveListing(product)" [disabled]="busyId() === product.id">Save</button>
+                </div>
+                <div class="listing-actions">
+                  <button mat-flat-button color="primary" type="button" (click)="toggleListing(product)" [disabled]="busyId() === product.id || product.stock <= 0">
+                    {{ product.status === 'published' ? 'Pause' : 'Publish' }}
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    } @else if (tab() === 'receipts') {
+      <section class="dp-card panel">
+        <div class="panel-head">
+          <div><p class="eyebrow">Wholesale</p><h2>Stock receipts</h2></div>
+          <span class="muted">{{ counts().pendingReceipts }} awaiting receipt</span>
+        </div>
+
+        @if (receipts().length === 0) {
+          <div class="empty">
+            <mat-icon>local_shipping</mat-icon>
+            <p>No fulfilled wholesale orders yet. Your resale purchases appear here after the platform ships them.</p>
+            <a mat-stroked-button routerLink="/dashboard/products/resell">Buy resale stock</a>
+          </div>
+        } @else {
+          <div class="receipt-list">
+            @for (receipt of receipts(); track receipt.id) {
+              <article class="receipt-card">
+                <div class="receipt-head">
+                  <div>
+                    <strong>{{ receipt.orderNumber }}</strong>
+                    <span class="muted small">{{ receipt.createdAt | date:'mediumDate' }} · {{ receiptUnits(receipt) }} units</span>
+                  </div>
+                  @if (receipt.receivedAt) {
+                    <span class="dp-status dp-status--ok">Received {{ receipt.receivedAt | date:'mediumDate' }}</span>
+                  } @else {
+                    <span class="dp-status dp-status--warn">Awaiting receipt</span>
+                  }
+                </div>
+                <ul class="receipt-items">
+                  @for (item of receipt.items; track item.productId) {
+                    <li>
+                      <span>{{ item.quantity }} × {{ item.name }}</span>
+                      <span class="muted">suggested {{ item.suggestedRetail | currency:'₦':'symbol':'1.0-0' }}</span>
+                    </li>
+                  }
+                </ul>
+                @if (!receipt.receivedAt) {
+                  <button mat-flat-button color="primary" type="button" (click)="confirmReceipt(receipt)" [disabled]="busyId() === receipt.id">
+                    <mat-icon>inventory</mat-icon> Confirm receipt
+                  </button>
+                }
+              </article>
+            }
+          </div>
+        }
+      </section>
+    } @else {
+      <section class="dp-card panel">
+        <div class="panel-head">
+          <div><p class="eyebrow">Brand</p><h2>Store settings</h2></div>
+          <span class="muted">Public page at {{ storeUrl() }}</span>
+        </div>
+
+        <div class="settings-grid">
+          <mat-form-field appearance="outline"><mat-label>Store name</mat-label><input matInput [value]="form().name" (input)="setForm('name', $any($event.target).value)" maxlength="120" /></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Tagline</mat-label><input matInput [value]="form().tagline" (input)="setForm('tagline', $any($event.target).value)" maxlength="180" /></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Logo URL</mat-label><input matInput [value]="form().logo" (input)="setForm('logo', $any($event.target).value)" maxlength="500" /></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Banner URL</mat-label><input matInput [value]="form().banner" (input)="setForm('banner', $any($event.target).value)" maxlength="500" /></mat-form-field>
+          <mat-form-field appearance="outline" class="span-2"><mat-label>Store story</mat-label><textarea matInput rows="3" [value]="form().bio" (input)="setForm('bio', $any($event.target).value)" maxlength="4000"></textarea></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>WhatsApp</mat-label><input matInput [value]="form().whatsapp" (input)="setForm('whatsapp', $any($event.target).value)" maxlength="40" /></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Phone</mat-label><input matInput [value]="form().phone" (input)="setForm('phone', $any($event.target).value)" maxlength="40" /></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Instagram</mat-label><input matInput [value]="form().instagram" (input)="setForm('instagram', $any($event.target).value)" maxlength="500" /></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>TikTok</mat-label><input matInput [value]="form().tiktok" (input)="setForm('tiktok', $any($event.target).value)" maxlength="500" /></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Facebook</mat-label><input matInput [value]="form().facebook" (input)="setForm('facebook', $any($event.target).value)" maxlength="500" /></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>X / Twitter</mat-label><input matInput [value]="form().x" (input)="setForm('x', $any($event.target).value)" maxlength="500" /></mat-form-field>
+          <mat-form-field appearance="outline" class="span-2"><mat-label>Delivery note</mat-label><textarea matInput rows="2" [value]="form().deliveryNote" (input)="setForm('deliveryNote', $any($event.target).value)" maxlength="2000"></textarea></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Delivery fee (₦)</mat-label><input matInput type="number" min="0" step="0.01" [value]="form().deliveryFee" (input)="setForm('deliveryFee', $any($event.target).value)" /></mat-form-field>
+          <mat-form-field appearance="outline" class="span-2"><mat-label>Return policy</mat-label><textarea matInput rows="2" [value]="form().returnPolicy" (input)="setForm('returnPolicy', $any($event.target).value)" maxlength="2000"></textarea></mat-form-field>
+        </div>
+
+        <label class="toggle-row">
+          <input type="checkbox" [checked]="form().autoPublish" (change)="setForm('autoPublish', $any($event.target).checked)" />
+          <span><strong>Auto-publish new stock</strong><small>When stock is received, publish new listings immediately. Default is off so you can review first.</small></span>
+        </label>
+
+        <div class="panel-actions">
+          <button mat-flat-button color="primary" type="button" (click)="saveSettings()" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save settings' }}</button>
+          @if (s.status === 'published') {
+            <button mat-stroked-button type="button" (click)="setStoreStatus('draft')" [disabled]="saving()">Hide store</button>
+          } @else {
+            <button mat-stroked-button type="button" (click)="setStoreStatus('published')" [disabled]="saving() || counts().published === 0">Publish store</button>
+          }
+        </div>
+      </section>
+    }
+  }
+</section>

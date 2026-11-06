@@ -1,0 +1,148 @@
+<section class="orders-page">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <span>/</span>
+    <a routerLink="/dashboard/products">Products</a>
+    <span>/</span>
+    <span aria-current="page">My orders</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Products · My orders</p>
+      <h1>Every order, in one place.</h1>
+      <p class="subtitle">Track delivery, download a receipt or send the same items to your cart again.</p>
+    </div>
+    <a mat-flat-button color="primary" routerLink="/dashboard/products">
+      <mat-icon>storefront</mat-icon> Shop again
+    </a>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Filter orders">
+    @for (tab of tabs(); track tab.key) {
+      <button
+        type="button"
+        class="tab"
+        role="tab"
+        [attr.aria-selected]="activeTab() === tab.key"
+        [class.active]="activeTab() === tab.key"
+        (click)="setTab(tab.key)"
+      >
+        {{ tab.label }}
+        <span>{{ tab.count }}</span>
+      </button>
+    }
+  </div>
+
+  @if (visibleOrders().length === 0) {
+    <section class="dp-card state-card">
+      <mat-icon>package_2</mat-icon>
+      <h2>{{ orders().length === 0 ? 'No orders yet' : 'No ' + activeTab().toLowerCase() + ' orders' }}</h2>
+      <p class="muted">
+        {{ orders().length === 0
+          ? 'When you buy a product, it will appear here with its delivery status and receipt.'
+          : 'Try another status tab or view all orders.' }}
+      </p>
+      <div class="state-actions">
+        <a mat-flat-button color="primary" routerLink="/dashboard/products">Browse products</a>
+        @if (orders().length > 0) {
+          <button mat-stroked-button type="button" (click)="setTab('all')">View all orders</button>
+        }
+      </div>
+    </section>
+  } @else {
+    <div class="order-list">
+      @for (order of visibleOrders(); track order._id) {
+        <article class="order-card dp-card">
+          <header class="order-head">
+            <div class="order-id">
+              <p class="eyebrow">Order {{ orderNumber(order) }}</p>
+              <h2>{{ order.createdAt | date:'mediumDate' }}</h2>
+              <span class="muted">{{ itemCount(order) }} {{ itemCount(order) === 1 ? 'item' : 'items' }}</span>
+            </div>
+            <div class="order-badges">
+              <span [class]="'dp-status ' + statusTone(order.orderStatus)">{{ order.orderStatus }}</span>
+              @if (isResaleOrder(order)) {
+                <span class="resale-chip">Resale</span>
+              }
+            </div>
+          </header>
+
+          <div class="order-main">
+            <div class="order-items">
+              @for (item of (order.products ?? []); track $index) {
+                <div class="order-item">
+                  <div class="thumb">
+                    <mat-icon class="thumb-fallback">inventory_2</mat-icon>
+                    @if (itemImage(item); as image) {
+                      <img [src]="image" [alt]="itemName(item)" loading="lazy" (error)="hideBrokenImage($event)">
+                    }
+                  </div>
+                  <div class="item-copy">
+                    <strong>{{ itemName(item) }}</strong>
+                    <span>
+                      Qty {{ item.quantity }} · {{ itemTotal(item) | currency:'₦':'symbol':'1.0-0' }}
+                      @if (item.saleMode === 'resale') {
+                        · resale
+                      }
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="order-summary">
+              <div class="total-row">
+                <span>Total</span>
+                <strong>{{ orderTotal(order) | currency:'₦':'symbol':'1.0-0' }}</strong>
+              </div>
+              @if (isResaleOrder(order)) {
+                <div class="resale-margin">
+                  <span>Your resale margin (suggested)</span>
+                  <strong>{{ resaleMargin(order) | currency:'₦':'symbol':'1.0-0' }}</strong>
+                </div>
+              }
+              @if (order.shipping; as shipping) {
+                <div class="ship-row">
+                  <mat-icon>local_shipping</mat-icon>
+                  <span>{{ shippingLine(order) }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="timeline" aria-label="Order progress">
+            @for (step of timeline(order); track step.label; let last = $last) {
+              <div class="step" [class.done]="step.done" [class.bad]="step.bad">
+                <span class="dot"><mat-icon>{{ step.done ? (step.bad ? 'close' : 'check') : 'schedule' }}</mat-icon></span>
+                <div>
+                  <strong>{{ step.label }}</strong>
+                  @if (step.at) {
+                    <small>{{ step.at | date:'mediumDate' }}</small>
+                  } @else if (step.done) {
+                    <small>Complete</small>
+                  } @else {
+                    <small>Waiting</small>
+                  }
+                </div>
+              </div>
+              @if (!last) {
+                <span class="line" [class.done]="step.done"></span>
+              }
+            }
+          </div>
+
+          <footer class="order-actions">
+            <button mat-stroked-button type="button" (click)="downloadReceipt(order)">
+              <mat-icon>receipt_long</mat-icon> Receipt
+            </button>
+            <button mat-flat-button color="primary" type="button" (click)="reorder(order)">
+              <mat-icon>replay</mat-icon> Buy again
+            </button>
+            <a mat-button routerLink="/dashboard/support/ticket">Support</a>
+          </footer>
+        </article>
+      }
+    </div>
+  }
+</section>

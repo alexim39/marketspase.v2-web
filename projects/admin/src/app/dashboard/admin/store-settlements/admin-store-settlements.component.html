@@ -1,0 +1,59 @@
+<section class="settlements-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Commerce · Money</p>
+      <h1>Escrow & settlements.</h1>
+      <p class="subtitle">Customer money held for partner stores, the platform service fee and the payment processing cost — separated and visible.</p>
+    </div>
+    <a mat-stroked-button routerLink="/store-orders"><mat-icon>receipt_long</mat-icon> All store orders</a>
+  </header>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading settlements" />
+  }
+
+  @if (summary(); as s) {
+    <section class="stats-grid">
+      <article class="dp-card stat"><span>Held in escrow</span><strong>{{ s.heldAmount | currency:'₦':'symbol':'1.0-0' }}</strong><small>{{ s.heldOrders }} orders</small></article>
+      <article class="dp-card stat"><span>Released to partners</span><strong>{{ s.releasedAmount | currency:'₦':'symbol':'1.0-0' }}</strong><small>{{ s.releasedOrders }} orders</small></article>
+      <article class="dp-card stat"><span>Service fee earned</span><strong>{{ s.serviceFees | currency:'₦':'symbol':'1.0-0' }}</strong><small>Platform revenue</small></article>
+      <article class="dp-card stat"><span>Payment fees</span><strong>{{ s.paymentFees | currency:'₦':'symbol':'1.0-0' }}</strong><small>Paid to Paystack</small></article>
+    </section>
+    <p class="note"><mat-icon>info</mat-icon> Standard release is delivery plus {{ s.escrowHoldDays }} days. Admins can release early only after the order is marked delivered.</p>
+  }
+
+  <section class="dp-card panel">
+    <div class="panel-head">
+      <div><p class="eyebrow">Awaiting release</p><h2>Delivered orders in escrow</h2></div>
+      <span class="count">{{ heldOrders().length }}</span>
+    </div>
+
+    @if (heldOrders().length === 0) {
+      <div class="empty"><mat-icon>verified</mat-icon><p>No delivered orders are waiting for release.</p></div>
+    } @else {
+      <div class="settlement-list">
+        @for (order of heldOrders(); track order.id) {
+          <article class="settlement-row">
+            <div>
+              <div class="title-line">
+                <strong>{{ order.orderNumber }}</strong>
+                <a [routerLink]="['/store-orders']" class="muted">{{ order.store.name }}</a>
+              </div>
+              <span class="muted small">Delivered {{ order.deliveredAt | date:'mediumDate' }} · release {{ order.escrow.releaseAt | date:'mediumDate' }}</span>
+            </div>
+            <div class="money">
+              <span>Partner receives</span>
+              <strong>{{ order.amounts.partnerPending | currency:'₦':'symbol':'1.0-0' }}</strong>
+              <small>Service {{ order.amounts.serviceFee | currency:'₦':'symbol':'1.0-0' }} · payment {{ order.amounts.paymentFee | currency:'₦':'symbol':'1.0-0' }}</small>
+            </div>
+            <button mat-flat-button color="primary" type="button" (click)="release(order)" [disabled]="busyId() === order.id">Release early</button>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</section>

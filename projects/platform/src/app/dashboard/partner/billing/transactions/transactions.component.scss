@@ -1,0 +1,36 @@
+
+.search {
+    padding: 0.5em 0;
+    text-align: center;
+    mat-form-field {
+        width: 70%;
+
+    }
+}
+
+.table {
+    padding: 0 1em;
+}
+
+.no-campaign {
+    text-align: center;
+    color: var(--ms-primary-strong);
+    font-weight: bold;
+}
+
+.pending {
+    background-color: var(--ms-warning-soft);
+}
+
+.rejected {
+    background-color: var(--ms-error-soft);
+}
+
+.completed {
+    background-color: var(--ms-info-soft);
+}
+
+.success {
+    background-color: var(--ms-success-soft);
+}
+  

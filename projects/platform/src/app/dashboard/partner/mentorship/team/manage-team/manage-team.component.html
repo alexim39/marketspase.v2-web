@@ -1,0 +1,120 @@
+<section class="breadcrumb-wrapper">
+  <div class="breadcrumb">
+    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Dashboard</a> &gt;
+    <a>Mentorship</a> &gt;
+    <a>My teams</a> &gt;
+    <span>All teams</span>
+  </div>
+</section>
+
+<section class="async-background">
+  <h2>My Teams</h2>
+
+  <section class="async-container">
+    <div class="title">
+      <h3>Teams you own and belong to</h3>
+      <div class="fund-area">
+        <a
+          mat-raised-button
+          routerLink="../new"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{exact: true}"
+          (click)="scrollToTop()"
+          aria-label="Create New"
+          >
+          <mat-icon>add</mat-icon>New team
+        </a>
+      </div>
+    </div>
+
+    @if (!isEmptyRecord) {
+      <div class="toolbar">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Search teams</mat-label>
+          <input matInput type="search" [(ngModel)]="filterText" placeholder="Name or purpose" />
+        </mat-form-field>
+        <div class="filter-row" role="radiogroup" aria-label="Purpose filter">
+          <button type="button" class="filter-btn" [class.filter-btn--active]="purposeFilter === 'all'" [attr.aria-pressed]="purposeFilter === 'all'" (click)="purposeFilter = 'all'">All</button>
+          @for (c of clusterNames; track c) {
+            <button type="button" class="filter-btn" [class.filter-btn--active]="purposeFilter === c" [attr.aria-pressed]="purposeFilter === c" (click)="purposeFilter = c">{{ c }}</button>
+          }
+        </div>
+      </div>
+      <h4 class="section-head">Teams I own ({{ ownedTeams().length }})</h4>
+      @if (ownedTeams().length > 0) {
+      <div class="table">
+        <table mat-table [dataSource]="ownedTeams()" class="mat-elevation-z8">
+          <ng-container matColumnDef="team">
+            <th mat-header-cell *matHeaderCellDef> Team </th>
+            <td mat-cell *matCellDef="let element">
+              <button mat-button class="name-cell" matTooltip="{{element.description}}" [attr.aria-label]="'Manage ' + element.teamName" (click)="manage(element._id)"> {{element.teamName | titlecase }} </button>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="purpose">
+            <th mat-header-cell *matHeaderCellDef> Purpose </th>
+            <td mat-cell *matCellDef="let element"> {{element.teamPurpose}} </td>
+          </ng-container>
+          <ng-container matColumnDef="member">
+            <th mat-header-cell *matHeaderCellDef> Members </th>
+            <td mat-cell *matCellDef="let element"> {{element.members.length}} </td>
+          </ng-container>
+          <ng-container matColumnDef="owner">
+            <th mat-header-cell *matHeaderCellDef> Owner </th>
+            <td mat-cell *matCellDef="let element">
+              {{ getOwnerName(element, partner._id) }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef> Date </th>
+            <td mat-cell *matCellDef="let element"> {{element.createdAt | date}} </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+      } @else {
+        <p class="empty">You haven't created a team yet.</p>
+      }
+
+      <h4 class="section-head">Teams I belong to ({{ memberTeams().length }})</h4>
+      @if (memberTeams().length > 0) {
+      <div class="table">
+        <table mat-table [dataSource]="memberTeams()" class="mat-elevation-z8">
+          <ng-container matColumnDef="team">
+            <th mat-header-cell *matHeaderCellDef> Team </th>
+            <td mat-cell *matCellDef="let element">
+              <button mat-button class="name-cell" matTooltip="{{element.description}}" [attr.aria-label]="'Manage ' + element.teamName" (click)="manage(element._id)"> {{element.teamName | titlecase }} </button>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="purpose">
+            <th mat-header-cell *matHeaderCellDef> Purpose </th>
+            <td mat-cell *matCellDef="let element"> {{element.teamPurpose}} </td>
+          </ng-container>
+          <ng-container matColumnDef="member">
+            <th mat-header-cell *matHeaderCellDef> Members </th>
+            <td mat-cell *matCellDef="let element"> {{element.members.length}} </td>
+          </ng-container>
+          <ng-container matColumnDef="owner">
+            <th mat-header-cell *matHeaderCellDef> Owner </th>
+            <td mat-cell *matCellDef="let element">
+              {{ getOwnerName(element, partner._id) }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef> Date </th>
+            <td mat-cell *matCellDef="let element"> {{element.createdAt | date}} </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+      } @else {
+        <p class="empty">No one has added you to their team yet — teams you join will appear here.</p>
+      }
+    }
+
+    @if (isEmptyRecord) {
+      <p class="no-campaign">No record available yet — start a team above.</p>
+    }
+  </section>
+</section>

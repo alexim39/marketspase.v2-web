@@ -1,0 +1,50 @@
+<section class="breadcrumb-wrapper">
+  <div class="breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a> &gt;
+    <a>Marketing</a> &gt;
+    <a>Share</a> &gt;
+    <span>Prospecting guides</span>
+  </div>
+</section>
+
+<section class="guides-page">
+  <div class="page-head">
+    <div>
+      <h2>Prospecting guides</h2>
+      <p class="subtitle">Learn the approach, then borrow the words — read both before your next conversation.</p>
+    </div>
+    <a mat-button routerLink="/dashboard/training">Training Center</a>
+  </div>
+
+  @if (readCount() === guides.length) {
+    <p class="done-banner" role="status"><mat-icon>check_circle</mat-icon> Both guides read — put them to work on your next prospect.</p>
+  } @else {
+    <p class="muted" role="status">{{ readCount() }} of {{ guides.length }} guides read</p>
+  }
+
+  <div class="guide-grid">
+    @for (g of guides; track g.id) {
+      <article class="dp-card guide-card">
+        <div class="guide-top">
+          <mat-icon>{{ g.icon }}</mat-icon>
+          @if (isRead(g.id)) {
+            <span class="dp-status dp-status--ok">Read</span>
+          }
+        </div>
+        <h3>{{ g.title }}</h3>
+        <p class="muted">{{ g.when }}</p>
+        <p>{{ g.about }}</p>
+        <div class="guide-actions">
+          <button mat-flat-button color="primary" (click)="download(g)">
+            <mat-icon>download</mat-icon> Download PDF
+          </button>
+          @if (!isRead(g.id)) {
+            <button mat-button (click)="markRead(g.id)">Mark as read</button>
+          } @else {
+            <button mat-button (click)="markUnread(g.id)">Mark unread</button>
+          }
+        </div>
+      </article>
+    }
+  </div>
+</section>

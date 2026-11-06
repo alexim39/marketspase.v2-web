@@ -1,0 +1,98 @@
+<section class="breadcrumb-wrapper">
+  <div class="breadcrumb">
+    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Dashboard</a> &gt;
+    <a>Mentorship</a> &gt;
+    <span>My partners</span>
+  </div>
+</section>
+
+<section class="async-background">
+  <h2>My Partners</h2>
+  <p class="page-sub">Your direct partners — referrals and campaign placements — supported toward IPO, QSG, SMO, contact list and first recruit. Contact details are masked for privacy; use Chat to reach them.</p>
+
+  <section class="async-container">
+    <div class="title">
+      <h3>Direct team</h3>
+      <div class="fund-area">
+        <a mat-button routerLink="/dashboard/mentorship/team/activation" title="Who needs you next"><mat-icon>priority_high</mat-icon>Activation</a>
+        <a mat-button routerLink="/dashboard/mentorship/team/contact-lists" title="Work submitted warm-market lists"><mat-icon>contact_phone</mat-icon>Warm lists</a>
+      </div>
+    </div>
+
+    @if (!isEmptyRecord) {
+      <div class="search">
+        <mat-form-field appearance="outline">
+          <mat-label>Filter by name or username</mat-label>
+          <input matInput type="search" name="contactFilter" [(ngModel)]="filterText" (ngModelChange)="applyFilter($event)">
+        </mat-form-field>
+      </div>
+      <div class="table">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef> Name </th>
+            <td mat-cell *matCellDef="let element">
+              <button mat-button class="name-cell" matTooltip="Open support view" [attr.aria-label]="'Open support view for ' + element.name + ' ' + element.surname" (click)="support(element._id)"><async-avatar [photo]="element.profileImage" [name]="element.name + ' ' + element.surname" size="xs" [presence]="presenceStatus(element._id)" /> {{element.name | titlecase }} {{element.surname | titlecase }}</button>
+              @if (info(element._id); as s) {
+                <div class="muted small">{{ s.relation || 'Direct' }}</div>
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="rank">
+            <th mat-header-cell *matHeaderCellDef> Rank </th>
+            <td mat-cell *matCellDef="let element">
+              <span class="rank-chip">{{ element.commissionRank || 'Partner' }} · L1–{{ rankDepth(element.commissionRank) }}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef> Support </th>
+            <td mat-cell *matCellDef="let element">
+              @if (info(element._id); as s) {
+                <span class="chip-row">
+                  <mat-chip highlighted>IPO: {{ s.ipoDone ? 'done' : 'pending' }}</mat-chip>
+                  <mat-chip highlighted>QSG: {{ s.qsgDone ? 'done' : 'pending' }}</mat-chip>
+                  <mat-chip highlighted>SMO: {{ s.smoDone ? 'done' : 'pending' }}</mat-chip>
+                  <mat-chip highlighted>{{ s.worked ?? 0 }}/{{ s.total ?? 0 }}</mat-chip>
+                  @if (s.overdue) {
+                    <mat-chip color="warn" highlighted>Overdue</mat-chip>
+                  }
+                </span>
+              } @else {
+                <span class="muted">—</span>
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="phone">
+            <th mat-header-cell *matHeaderCellDef> Phone </th>
+            <td mat-cell *matCellDef="let element"> {{element.phone}} </td>
+          </ng-container>
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef> Email </th>
+            <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+          </ng-container>
+          <ng-container matColumnDef="username">
+            <th mat-header-cell *matHeaderCellDef> Username </th>
+            <td mat-cell *matCellDef="let element"> {{element.username }} </td>
+          </ng-container>
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef> Joined </th>
+            <td mat-cell *matCellDef="let element"> {{element.createdAt | date}} </td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef> Actions </th>
+            <td mat-cell *matCellDef="let element">
+              <button mat-icon-button (click)="chat(element)" [attr.aria-label]="'Chat with ' + element.name" title="Chat"><mat-icon>chat</mat-icon></button>
+              <button mat-icon-button (click)="support(element._id)" [attr.aria-label]="'Open ' + element.name" title="Support view"><mat-icon>open_in_new</mat-icon></button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <mat-paginator [pageSizeOptions]="[10, 20, 30, 60, 100]" showFirstLastButtons></mat-paginator>
+      </div>
+    }
+
+    @if (isEmptyRecord) {
+      <p class="no-campaign">No partners yet — invite someone or wait for a campaign placement. Their progress will land on your Activation board.</p>
+    }
+  </section>
+</section>

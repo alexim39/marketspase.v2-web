@@ -1,0 +1,78 @@
+<section class="directory-page ms-store-page">
+  <header class="directory-head">
+    <p class="eyebrow">MarketSpase Store</p>
+    <h1>Find a partner store.</h1>
+    <p class="subtitle">Every store is run by an independent MarketSpase partner. Search by name or browse below.</p>
+
+    <form class="search-row" (ngSubmit)="search()">
+      <input
+        type="search"
+        name="storeSearch"
+        placeholder="Search stores by name…"
+        [ngModel]="query()"
+        (ngModelChange)="setQuery($event)"
+        aria-label="Search stores"
+      />
+      <button type="submit">Search</button>
+    </form>
+  </header>
+
+  @if (loading()) {
+    <div class="store-grid" aria-label="Loading stores">
+      @for (placeholder of [1, 2, 3, 4]; track placeholder) {
+        <div class="store-card skeleton-card" aria-hidden="true">
+          <div class="skeleton skeleton-banner"></div>
+          <div class="skeleton-body">
+            <div class="skeleton skeleton-line short"></div>
+            <div class="skeleton skeleton-line"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (error()) {
+    <div class="state-card">
+      <h2>Could not load stores</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="btn" (click)="search()">Try again</button>
+    </div>
+  } @else if (stores().length === 0) {
+    <div class="state-card">
+      <h2>{{ query().trim() ? 'No stores match that search' : 'Partner stores are opening soon' }}</h2>
+      <p>{{ query().trim()
+        ? 'Try a different name, or clear the search to see every store.'
+        : 'The first MarketSpase partner shops are being prepared. Check back shortly.' }}</p>
+      @if (query().trim()) {
+        <button type="button" class="btn" (click)="setQuery(''); search()">Clear search</button>
+      }
+    </div>
+  } @else {
+    <div class="store-grid">
+      @for (store of stores(); track store.slug) {
+        <a class="store-card" [routerLink]="['/', store.slug]">
+          <span class="store-banner">
+            @if (storeImage(store)) {
+              <img [src]="storeImage(store)" [alt]="store.name" loading="lazy">
+            } @else {
+              <span class="banner-fallback"></span>
+            }
+            <span class="store-logo">
+              @if (store.logo) {
+                <img [src]="store.logo" [alt]="store.name">
+              } @else {
+                {{ initials(store) }}
+              }
+            </span>
+          </span>
+          <span class="store-copy">
+            <strong>{{ store.name }}</strong>
+            <small>{{ store.tagline || 'Independent MarketSpase partner' }}</small>
+            <span class="store-meta">
+              <span class="verified">Verified partner</span>
+              <span>{{ store.productCount }} products</span>
+            </span>
+          </span>
+        </a>
+      }
+    </div>
+  }
+</section>

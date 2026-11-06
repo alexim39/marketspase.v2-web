@@ -1,0 +1,6 @@
+# MarketSpase public landing is indexable. Private dashboards are not.
+User-agent: *
+Allow: /
+Disallow: /dashboard
+
+Sitemap: https://marketspase.com/sitemap.xml

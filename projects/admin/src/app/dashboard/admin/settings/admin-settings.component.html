@@ -1,0 +1,50 @@
+<section class="settings-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">System</p>
+      <h1>Platform settings.</h1>
+      <p class="subtitle">The commercial rules that apply across every partner store.</p>
+    </div>
+  </header>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading settings" />
+  } @else {
+    <div class="settings-grid">
+      <section class="dp-card form-card">
+        <div class="card-head">
+          <span class="card-icon"><mat-icon>tune</mat-icon></span>
+          <div><h2>Store economics</h2><p>These values apply to new store orders and delivery timers.</p></div>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Store service fee (%)</mat-label>
+          <input matInput type="number" min="0" max="20" step="0.1" [(ngModel)]="serviceFeePercent" />
+          <mat-hint>Charged on merchandise only. Delivery is passed through.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Escrow hold after delivery (days)</mat-label>
+          <input matInput type="number" min="0" max="60" step="1" [(ngModel)]="escrowHoldDays" />
+          <mat-hint>Standard release is delivery plus this return window.</mat-hint>
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="button" (click)="save()" [disabled]="saving()">
+          {{ saving() ? 'Saving…' : 'Save settings' }}
+        </button>
+      </section>
+
+      <aside class="dp-card explainer">
+        <p class="eyebrow">How the money moves</p>
+        <div class="flow-step"><span>01</span><div><strong>Customer pays</strong><p>Merchandise plus the partner’s delivery fee.</p></div></div>
+        <div class="flow-step"><span>02</span><div><strong>Service fee</strong><p>The platform keeps the configured percentage of merchandise only.</p></div></div>
+        <div class="flow-step"><span>03</span><div><strong>Payment fee</strong><p>Paystack’s processing fee is recorded separately from the service fee.</p></div></div>
+        <div class="flow-step"><span>04</span><div><strong>Escrow release</strong><p>The partner receives the balance after delivery plus the return window.</p></div></div>
+      </aside>
+    </div>
+  }
+</section>

@@ -1,0 +1,65 @@
+<section class="cart-page ms-store-page">
+  <header class="cart-head">
+    <p class="eyebrow">Your cart</p>
+    <h1>Ready when you are.</h1>
+    <p class="subtitle">
+      One partner store per checkout. Your payment is held in escrow until delivery and the return window ends.
+    </p>
+  </header>
+
+  @if (cart.isEmpty()) {
+    <div class="empty-card">
+      <mat-icon aria-hidden="true">shopping_bag</mat-icon>
+      <h2>Your cart is empty</h2>
+      <p>Find a partner store and add something you love.</p>
+      <a class="btn primary" routerLink="/stores">Browse stores</a>
+    </div>
+  } @else {
+    <div class="cart-layout">
+      <section class="cart-list">
+        <div class="store-line">
+          <span class="store-badge">Partner store</span>
+          <a [routerLink]="['/', cart.storeSlug()]">{{ cart.storeName() }}</a>
+        </div>
+
+        @for (item of cart.items(); track item.storeProductId) {
+          <article class="cart-item">
+            <a class="item-image" [routerLink]="['/', cart.storeSlug(), 'product', item.storeProductId]">
+              @if (imageUrl(item.image)) {
+                <img [src]="imageUrl(item.image)" [alt]="item.name" loading="lazy">
+              } @else {
+                <span class="image-fallback"><img src="/logo/marketspase-mark-white.png" alt="" aria-hidden="true"></span>
+              }
+            </a>
+            <div class="item-copy">
+              <span class="category">{{ item.category }}</span>
+              <a class="item-name" [routerLink]="['/', cart.storeSlug(), 'product', item.storeProductId]">{{ item.name }}</a>
+              <span class="unit-price">{{ item.unitPrice | currency:'₦':'symbol':'1.0-0' }} each</span>
+            </div>
+            <div class="quantity">
+              <button type="button" (click)="cart.decrement(item.storeProductId)" [attr.aria-label]="'Decrease ' + item.name" [disabled]="item.quantity <= 1">−</button>
+              <span>{{ item.quantity }}</span>
+              <button type="button" (click)="cart.increment(item.storeProductId)" [attr.aria-label]="'Increase ' + item.name" [disabled]="item.quantity >= item.stock">+</button>
+            </div>
+            <div class="line-total">{{ item.unitPrice * item.quantity | currency:'₦':'symbol':'1.0-0' }}</div>
+            <button class="remove" type="button" (click)="cart.remove(item.storeProductId)" [attr.aria-label]="'Remove ' + item.name">
+              <mat-icon aria-hidden="true">close</mat-icon>
+            </button>
+          </article>
+        }
+
+        <button class="clear-cart" type="button" (click)="cart.clear()">Clear cart</button>
+      </section>
+
+      <aside class="summary">
+        <p class="eyebrow">Order summary</p>
+        <div class="summary-row"><span>Subtotal</span><strong>{{ cart.subtotal() | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+        <div class="summary-row"><span>Delivery</span><strong>{{ cart.deliveryFee() | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+        <div class="summary-row total"><span>Total</span><strong>{{ cart.total() | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+        <p class="summary-note">The final delivery fee is confirmed at checkout by the partner.</p>
+        <a class="btn primary full" routerLink="/checkout">Continue to checkout <mat-icon aria-hidden="true">arrow_forward</mat-icon></a>
+        <a class="back-link" routerLink="/stores">Keep shopping</a>
+      </aside>
+    </div>
+  }
+</section>

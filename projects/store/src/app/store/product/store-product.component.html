@@ -1,0 +1,132 @@
+<section class="product-page">
+  @if (loading()) {
+    <div class="ms-store-page loading-state">
+      <div class="skeleton image-skeleton"></div>
+      <div class="skeleton-copy">
+        <div class="skeleton line short"></div>
+        <div class="skeleton line title"></div>
+        <div class="skeleton line"></div>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="ms-store-page">
+      <div class="state-card">
+        <h1>Product not found</h1>
+        <p>{{ error() }}</p>
+        <a class="btn" routerLink="/stores">Browse stores</a>
+      </div>
+    </div>
+  } @else if (product(); as p) {
+    @if (store(); as s) {
+      <div class="ms-store-page">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a routerLink="/">MarketSpase Store</a>
+          <span>/</span>
+          <a [routerLink]="['/', s.slug]">{{ s.name }}</a>
+          <span>/</span>
+          <span>{{ p.name }}</span>
+        </nav>
+
+        <div class="product-layout">
+          <section class="gallery">
+            <div class="main-image">
+              @if (gallery()[activeImage()]; as image) {
+                <img [src]="image" [alt]="p.name">
+              } @else {
+                <span class="image-fallback">
+                  <img src="/logo/marketspase-mark-white.png" alt="" width="1024" height="1024" aria-hidden="true">
+                </span>
+              }
+            </div>
+            @if (gallery().length > 1) {
+              <div class="thumbs">
+                @for (image of gallery(); track image; let index = $index) {
+                  <button type="button" class="thumb" [class.active]="activeImage() === index" (click)="selectImage(index)" [attr.aria-label]="'View image ' + (index + 1)">
+                    <img [src]="image" [alt]="p.name" loading="lazy">
+                  </button>
+                }
+              </div>
+            }
+          </section>
+
+          <section class="info">
+            <p class="eyebrow">{{ p.category || 'Product' }}</p>
+            <h1>{{ p.name }}</h1>
+            <p class="summary">{{ p.shortDesc }}</p>
+
+            <div class="price-row">
+              <strong>{{ p.retailPrice | currency:'₦':'symbol':'1.0-0' }}</strong>
+              @if (p.stock > 0) {
+                <span class="stock ok">In stock</span>
+              } @else {
+                <span class="stock out">Out of stock</span>
+              }
+            </div>
+
+            <div class="order-box">
+              @if (p.stock > 0) {
+                <button class="btn primary" type="button" (click)="addToCart()">
+                  <mat-icon aria-hidden="true">shopping_bag</mat-icon> Add to cart
+                </button>
+                <button class="btn ghost" type="button" (click)="addToCart(true)">Buy now</button>
+                @if (addMessage(); as message) {
+                  <p class="order-note" [class.error-note]="differentStore()">{{ message }}</p>
+                }
+                @if (differentStore()) {
+                  <button class="btn ghost" type="button" (click)="clearAndAdd()">Clear cart and add</button>
+                }
+                <p class="order-note">
+                  Secure Paystack checkout. Payment is held in escrow until delivery plus the return window.
+                </p>
+              } @else {
+                <p class="order-note">This product is currently out of stock. Check the store for alternatives.</p>
+                <a class="btn ghost" [routerLink]="['/', s.slug]">Back to store</a>
+              }
+              @if (whatsappLink()) {
+                <a class="btn ghost" [href]="whatsappLink()" target="_blank" rel="noopener">Ask the partner</a>
+              }
+              <button class="btn ghost" type="button" (click)="share()">Share product</button>
+            </div>
+
+            <div class="mini-store">
+              <a class="store-logo" [routerLink]="['/', s.slug]">
+                @if (logoImage(s)) {
+                  <img [src]="logoImage(s)" [alt]="s.name">
+                } @else {
+                  {{ initials(s) }}
+                }
+              </a>
+              <div>
+                <span class="verified">Verified partner</span>
+                <a [routerLink]="['/', s.slug]"><strong>{{ s.name }}</strong></a>
+                <small>{{ s.tagline || 'Independent MarketSpase partner' }}</small>
+              </div>
+              <a class="store-link" [routerLink]="['/', s.slug]">Visit store →</a>
+            </div>
+
+            <div class="info-grid">
+              <div>
+                <span>Delivery</span>
+                <p>{{ s.deliveryNote || 'Delivery details are confirmed with the partner.' }}</p>
+                <p class="fee-line">{{ s.deliveryFee > 0 ? (s.deliveryFee | currency:'₦':'symbol':'1.0-0') + ' delivery fee' : 'Free delivery' }}</p>
+              </div>
+              <div><span>Returns</span><p>{{ s.returnPolicy || 'Contact the partner before ordering.' }}</p></div>
+            </div>
+          </section>
+        </div>
+
+        @if (p.description) {
+          <section class="description">
+            <p class="eyebrow">About this product</p>
+            <div class="prose" [innerHTML]="p.description"></div>
+          </section>
+        }
+
+        <section class="more">
+          <a class="btn ghost" [routerLink]="['/', s.slug]">← Back to {{ s.name }}</a>
+          <a class="btn ghost" routerLink="/stores">Browse all stores</a>
+        </section>
+      </div>
+    }
+  }
+</section>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://diamondproject.c21fg.online/sitemap.xml

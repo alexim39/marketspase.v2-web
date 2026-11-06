@@ -1,0 +1,33 @@
+export interface PartnerInterface {
+    phone?: string;
+    email?: string;
+    name: string;
+    surname: string;
+    userDevice: string;
+    username: string;
+    profileImage?: string;
+    bio?: string;
+    jobTitle?: string;
+    businessTagline?: string;
+    heroBadge?: string;
+    headline?: string;
+    subHeadline?: string;
+    aboutStory?: string;
+    achievements?: string;
+    inviteNote?: string;
+    opportunityPoints?: string[];
+    videoTestimonialUrl?: string;
+    displayPhone?: string;
+    displayEmail?: string;
+    locationDisplay?: string;
+    whatsappCtaText?: string;
+    whatsappGroupLink?: string;
+    whatsappChatLink?: string;
+    testimonial?: string;
+    linkedinPage?: string;
+    youtubePage?: string;
+    instagramPage?: string;
+    tiktokPage?: string;
+    facebookPage?: string;
+    twitterPage?: string;
+}

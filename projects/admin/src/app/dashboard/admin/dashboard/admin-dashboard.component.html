@@ -1,0 +1,90 @@
+<section class="dashboard-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">MarketSpase operations</p>
+      <h1>Command centre.</h1>
+      <p class="subtitle">One view of the people, commerce, money and trust work that runs the platform.</p>
+    </div>
+    <button mat-stroked-button type="button" (click)="reload()" [disabled]="loading()">
+      <mat-icon>refresh</mat-icon> Refresh
+    </button>
+  </header>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading platform overview" />
+  }
+
+  @if (stats(); as s) {
+    <section class="stats-grid">
+      <article class="dp-card stat-card">
+        <span class="stat-icon"><mat-icon>groups</mat-icon></span>
+        <div><span>Total members</span><strong>{{ s.total | number }}</strong><small>{{ s.new7d | number }} joined in 7 days</small></div>
+      </article>
+      <article class="dp-card stat-card">
+        <span class="stat-icon purple"><mat-icon>badge</mat-icon></span>
+        <div><span>Admin accounts</span><strong>{{ s.roles.admin | number }}</strong><small>{{ s.roles.leader | number }} leaders</small></div>
+      </article>
+      <article class="dp-card stat-card">
+        <span class="stat-icon green"><mat-icon>person_add</mat-icon></span>
+        <div><span>New in 30 days</span><strong>{{ s.new30d | number }}</strong><small>{{ s.total - s.suspended | number }} active</small></div>
+      </article>
+      <article class="dp-card stat-card">
+        <span class="stat-icon warning"><mat-icon>block</mat-icon></span>
+        <div><span>Suspended</span><strong>{{ s.suspended | number }}</strong><small>Accounts under review</small></div>
+      </article>
+    </section>
+  }
+
+  <div class="dashboard-grid">
+    <section class="dp-card panel">
+      <div class="panel-head">
+        <div><p class="eyebrow">Operations</p><h2>Where to go next</h2></div>
+      </div>
+      <div class="shortcut-grid">
+        @for (shortcut of shortcuts; track shortcut.link) {
+          <a class="shortcut" [routerLink]="shortcut.link">
+            <mat-icon>{{ shortcut.icon }}</mat-icon>
+            <span><strong>{{ shortcut.label }}</strong><small>{{ shortcut.detail }}</small></span>
+            <mat-icon class="chevron">arrow_forward</mat-icon>
+          </a>
+        }
+      </div>
+    </section>
+
+    <section class="dp-card panel audit-panel">
+      <div class="panel-head">
+        <div><p class="eyebrow">Trust</p><h2>Recent admin activity</h2></div>
+        <a routerLink="/audit" class="text-link">Full audit log →</a>
+      </div>
+      @if (audit().length === 0) {
+        <div class="empty"><mat-icon>history</mat-icon><p>No admin actions recorded yet.</p></div>
+      } @else {
+        <div class="audit-list">
+          @for (entry of audit(); track entry.id) {
+            <article class="audit-row">
+              <span class="audit-dot">{{ (entry.actorLabel || 'A').slice(0, 1).toUpperCase() }}</span>
+              <div>
+                <strong>{{ actionLabel(entry.action) }}</strong>
+                <span>{{ entry.actorLabel || 'Admin' }}{{ entry.targetType ? ' · ' + entry.targetType : '' }}</span>
+              </div>
+              <time>{{ entry.createdAt | date:'short' }}</time>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  </div>
+
+  <section class="dp-card principles">
+    <div>
+      <p class="eyebrow">Operating principle</p>
+      <h2>Move carefully. Leave a trail.</h2>
+    </div>
+    <p>Every admin action is server-authorized, audited and reversible where the domain allows it. Money changes are explicit, never silent.</p>
+    <a mat-flat-button color="primary" routerLink="/audit">Inspect audit trail</a>
+  </section>
+</section>

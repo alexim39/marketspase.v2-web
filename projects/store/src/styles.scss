@@ -1,0 +1,138 @@
+/* You can add global styles to this file, and also import other style files */
+:root {
+  --dp-gold: #d4a941;
+  --dp-gold-bright: #ffc107;
+  --dp-gold-soft: #ffab40;
+  --dp-gold-ink: #6e5218;
+  --dp-ink: #0f0f0f;
+  --dp-night: #03010f;
+  --dp-paper: #faf8f3;
+  --dp-surface: #ffffff;
+  --dp-text: #1c1a15;
+  --dp-muted: #6e6e6e;
+  --dp-line: #e4ddcd;
+  --dp-cream: #f3ecdd;
+  --dp-error: #b71c1c;
+  --dp-error-bg: #fdecea;
+  --dp-font-display: Garamond, Georgia, 'Times New Roman', serif;
+  --dp-font-body: Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--dp-font-body);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--dp-gold-bright);
+  outline-offset: 2px;
+}
+
+.breadcrumb-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    .breadcrumb {
+        padding: 10px;
+        //box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        font-size: 0.7em;
+        a {
+            text-decoration: none;
+            color: var(--dp-gold-ink);
+            padding: 0 0.5em;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        span {
+            color: #6e6e6e;
+            padding: 0 0.5em;
+        }
+    }
+}
+
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {}
+/* -- MarketSpase Store public brand layer ------------------------------- */
+:root {
+  --ms-ink: #0e0c1d;
+  --ms-ink-text: #f4f3ff;
+  --ms-ink-icon: #aab8ff;
+  --ms-canvas: #f5f6fb;
+  --ms-surface: #ffffff;
+  --ms-surface-2: #fbfbfe;
+  --ms-surface-3: #f0f1f8;
+  --ms-line: #e6e8f1;
+  --ms-text: #111426;
+  --ms-text-muted: #676c7e;
+  --ms-text-soft: #8a8fa3;
+  --ms-primary: #667eea;
+  --ms-primary-strong: #4c5bd4;
+  --ms-primary-soft: #eef0ff;
+  --ms-secondary: #764ba2;
+  --ms-secondary-soft: #f2ecfa;
+  --ms-success: #047857;
+  --ms-success-soft: #d1fae5;
+  --ms-warning: #92400e;
+  --ms-warning-soft: #fef3c7;
+  --ms-error: #b91c1c;
+  --ms-error-soft: #fee2e2;
+  --ms-info: #1d4ed8;
+  --ms-info-soft: #dbeafe;
+  --ms-radius-sm: 8px;
+  --ms-radius-md: 12px;
+  --ms-radius-lg: 16px;
+  --ms-radius-xl: 24px;
+  --ms-shadow-sm: 0 1px 2px rgba(17, 20, 38, 0.05);
+  --ms-shadow-md: 0 10px 30px rgba(17, 20, 38, 0.09);
+  --ms-shadow-lg: 0 22px 60px rgba(17, 20, 38, 0.14);
+  --ms-font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --ms-gradient: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+
+  /* Retire the Diamond palette while legacy policy pages are still served. */
+  --dp-gold: #667eea;
+  --dp-gold-bright: #aab8ff;
+  --dp-gold-soft: #8b9cf5;
+  --dp-gold-ink: #4c5bd4;
+  --dp-ink: #0e0c1d;
+  --dp-night: #0e0c1d;
+  --dp-paper: #f5f6fb;
+  --dp-surface: #ffffff;
+  --dp-text: #111426;
+  --dp-muted: #676c7e;
+  --dp-line: #e6e8f1;
+  --dp-cream: #f0f1f8;
+  --dp-error: #b91c1c;
+  --dp-error-bg: #fee2e2;
+  --dp-font-display: var(--ms-font-sans);
+  --dp-font-body: var(--ms-font-sans);
+}
+
+body {
+  background: var(--ms-canvas);
+  color: var(--ms-text);
+  font-family: var(--ms-font-sans);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--ms-primary);
+  outline-offset: 2px;
+}
+
+.ms-store-page {
+  width: min(1180px, calc(100% - 2.5em));
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  .ms-store-page { width: calc(100% - 1.5em); }
+}

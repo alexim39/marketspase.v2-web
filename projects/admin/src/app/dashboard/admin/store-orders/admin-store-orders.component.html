@@ -1,0 +1,109 @@
+<section class="store-orders-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Commerce</p>
+      <h1>Store orders.</h1>
+      <p class="subtitle">Every customer order across partner stores, with escrow and settlement state in one place.</p>
+    </div>
+  </header>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  @if (settlements(); as s) {
+    <section class="stats-grid">
+      <article class="dp-card stat"><span>Held in escrow</span><strong>{{ s.heldAmount | currency:'₦':'symbol':'1.0-0' }}</strong><small>{{ s.heldOrders }} orders</small></article>
+      <article class="dp-card stat"><span>Released</span><strong>{{ s.releasedAmount | currency:'₦':'symbol':'1.0-0' }}</strong><small>{{ s.releasedOrders }} orders</small></article>
+      <article class="dp-card stat"><span>Service fees</span><strong>{{ s.serviceFees | currency:'₦':'symbol':'1.0-0' }}</strong><small>Platform revenue</small></article>
+      <article class="dp-card stat"><span>Delivered · awaiting release</span><strong>{{ s.deliveredAwaitingRelease }}</strong><small>Return window active</small></article>
+    </section>
+  }
+
+  <div class="toolbar">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Search orders</mat-label>
+      <input matInput type="search" [(ngModel)]="query" (keyup.enter)="search()" placeholder="Order number, store, customer or email" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Status</mat-label>
+      <mat-select [value]="status()" (selectionChange)="setStatus($event.value)">
+        <mat-option value="all">All orders</mat-option>
+        <mat-option value="pending_payment">Awaiting payment</mat-option>
+        <mat-option value="paid">Paid</mat-option>
+        <mat-option value="processing">Processing</mat-option>
+        <mat-option value="shipped">Shipped</mat-option>
+        <mat-option value="delivered">Delivered</mat-option>
+        <mat-option value="cancelled">Cancelled</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="button" (click)="search()" [disabled]="loading()">Search</button>
+  </div>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading store orders" />
+  }
+
+  @if (orders().length === 0 && !loading()) {
+    <section class="dp-card empty"><mat-icon>receipt_long</mat-icon><h2>No store orders found</h2><p>Try a different filter or search.</p></section>
+  } @else {
+    <div class="order-list">
+      @for (order of orders(); track order.id) {
+        <article class="dp-card order-card">
+          <div class="order-head">
+            <div>
+              <div class="title-line">
+                <strong>{{ order.orderNumber }}</strong>
+                <span class="status-pill" [class.done]="order.status === 'delivered'" [class.cancelled]="order.status === 'cancelled'">{{ statusLabel(order.status) }}</span>
+                <span class="escrow-pill" [class.released]="order.escrow.status === 'released'">{{ escrowLabel(order) }}</span>
+              </div>
+              <span class="muted">{{ order.createdAt | date:'medium' }} · {{ units(order) }} units · <a [href]="storeUrl + '/' + order.store.slug" target="_blank" rel="noopener">{{ order.store.name }}</a></span>
+            </div>
+            <div class="order-total">
+              <span>Customer paid</span>
+              <strong>{{ order.amounts.total | currency:'₦':'symbol':'1.0-0' }}</strong>
+              <small>Partner pending {{ order.amounts.partnerPending | currency:'₦':'symbol':'1.0-0' }}</small>
+            </div>
+          </div>
+
+          <div class="order-body">
+            <div>
+              <p class="label">Deliver to</p>
+              <strong class="customer-name">{{ order.customer.name }}</strong>
+              <p class="muted">{{ order.customer.street }}, {{ order.customer.city }}, {{ order.customer.state }}</p>
+              <p class="muted">{{ order.customer.phone }} · {{ order.customer.email }}</p>
+              @if (order.customer.note) { <p class="note">“{{ order.customer.note }}”</p> }
+            </div>
+            <div>
+              <p class="label">Items</p>
+              @for (item of order.items; track item.storeProductId) {
+                <div class="item-line"><span>{{ item.quantity }} × {{ item.name }}</span><strong>{{ item.lineTotal | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+              }
+              <div class="item-line muted"><span>Delivery</span><strong>{{ order.amounts.delivery | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+              <div class="item-line muted"><span>Service fee ({{ order.amounts.serviceFeePercent }}%)</span><strong>−{{ order.amounts.serviceFee | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+              <div class="item-line muted"><span>Payment fee</span><strong>−{{ order.amounts.paymentFee | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+            </div>
+          </div>
+
+          <div class="order-foot">
+            <div class="timeline">
+              <span [class.done]="order.payment.status === 'paid'">Paid {{ order.paidAt ? (order.paidAt | date:'mediumDate') : '' }}</span>
+              @if (order.deliveredAt) { <span class="done">Delivered {{ order.deliveredAt | date:'mediumDate' }}</span> }
+              @if (order.escrow.releaseAt) { <span [class.done]="order.escrow.status === 'released'">Release {{ order.escrow.releaseAt | date:'mediumDate' }}</span> }
+              @if (order.escrow.releasedAt) { <span class="done">Released {{ order.escrow.releasedAt | date:'mediumDate' }}</span> }
+            </div>
+            <div class="actions">
+              <a mat-stroked-button [href]="storeUrl + '/' + order.store.slug" target="_blank" rel="noopener">View store</a>
+              @if (order.status === 'delivered' && order.escrow.status === 'held') {
+                <button mat-flat-button color="primary" type="button" (click)="releaseEscrow(order)" [disabled]="busyId() === order.id">
+                  Release escrow
+                </button>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

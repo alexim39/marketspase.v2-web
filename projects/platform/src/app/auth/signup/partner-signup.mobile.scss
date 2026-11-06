@@ -1,0 +1,5 @@
+@media screen and (max-width: 480px) {
+  .signup-panel { padding: 1.5em 1em; }
+  .names-row { flex-direction: column; gap: 0; }
+  .names-row mat-form-field { width: 100%; }
+}

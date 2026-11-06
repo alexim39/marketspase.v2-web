@@ -1,0 +1,94 @@
+<section class="breadcrumb-wrapper">
+  <div class="breadcrumb">
+    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Dashboard</a> &gt;
+    <a>Mentorship</a> &gt;
+    <a routerLink="/dashboard/mentorship/team/members" (click)="scrollToTop()">My teams</a> &gt;
+    <span>Edit team</span>
+  </div>
+</section>
+
+<section class="async-background ">
+  <h2>Modify Team <button mat-icon-button (click)="showDescription()" title="Help" aria-label="Help about modifying a team"><mat-icon aria-hidden="true">help</mat-icon></button></h2>
+  <p class="page-sub">Update this purpose team's name, description or cluster. Membership is managed from the team page.</p>
+
+  <section class="async-container">
+
+    <div class="title">
+      <div class="control">
+        <div class="back" (click)="back()" title="Back">
+          <mat-icon>arrow_back</mat-icon>
+        </div>
+        <h3> {{team.teamName | titlecase}}'s Details</h3>
+      </div>
+
+    </div>
+
+
+    <div class="form-container">
+      <form class="flex-form" [formGroup]="createTeamForm" (ngSubmit)="onSubmit()">
+
+
+      <div class="form-group">
+        <mat-form-field appearance="outline">
+          <mat-label>Team Name</mat-label>
+          <input matInput formControlName="teamName" required>
+          @if (createTeamForm.get('teamName')?.hasError('required') ) {
+            <mat-error>
+              Give your team a name.
+            </mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="form-group">
+        <mat-form-field appearance="outline">
+          <mat-label>Description/purpose of the team</mat-label>
+          <textarea matInput formControlName="description"></textarea>
+      </mat-form-field>
+    </div>
+
+
+    <div class="form-group">
+      <mat-form-field appearance="outline">
+        <mat-label>Team Purpose </mat-label>
+        <mat-select formControlName="teamPurpose" required>
+          @for (group of purposeGroups; track group.label) {
+            <mat-optgroup [label]="group.label">
+              @for (purpose of group.options; track purpose) {
+                <mat-option [value]="purpose">{{ purpose }}</mat-option>
+              }
+            </mat-optgroup>
+          }
+        </mat-select>
+        @if (createTeamForm.get('teamPurpose')?.hasError('required') ) {
+          <mat-error>
+            Choose what this team is for.
+          </mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+
+      <div class="form-group"></div>
+      <div class="form-group"></div>
+      @if (notice) {
+        <p class="notice" role="status">{{ notice }}</p>
+      }
+      @if (formError) {
+        <p class="form-error" role="alert">{{ formError }}</p>
+      }
+      @if (!notice) {
+        <button mat-flat-button color="primary" [disabled]="saving">{{ saving ? 'Saving…' : 'Update' }}</button>
+      } @else {
+        <div class="post-save">
+          <a mat-flat-button color="primary" routerLink="/dashboard/mentorship/team/members">View my teams</a>
+        </div>
+      }
+    </form>
+  </div>
+
+
+
+</section>
+
+</section>

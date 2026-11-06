@@ -1,0 +1,164 @@
+<section class="store-orders-page">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <span>/</span>
+    <a routerLink="/dashboard/products">Products</a>
+    <span>/</span>
+    <span aria-current="page">Store orders</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Products · My store</p>
+      <h1>Store orders.</h1>
+      <p class="subtitle">
+        Fulfil customer orders, add tracking and start the escrow release clock when delivery is complete.
+      </p>
+    </div>
+    <a mat-stroked-button routerLink="/dashboard/products/my-store">
+      <mat-icon>storefront</mat-icon> My store
+    </a>
+  </header>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading store orders" />
+  } @else {
+    @if (earnings(); as e) {
+      <section class="earnings-grid">
+        <article class="dp-card earning-card">
+          <span class="earning-icon pending"><mat-icon>schedule</mat-icon></span>
+          <div><span>Held in escrow</span><strong>{{ e.pending | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+        </article>
+        <article class="dp-card earning-card">
+          <span class="earning-icon released"><mat-icon>account_balance_wallet</mat-icon></span>
+          <div><span>Released to wallet</span><strong>{{ e.released | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+        </article>
+        <article class="dp-card earning-card">
+          <span class="earning-icon delivery"><mat-icon>local_shipping</mat-icon></span>
+          <div><span>Awaiting delivery</span><strong>{{ e.awaitingDelivery }}</strong></div>
+        </article>
+        <article class="dp-card earning-card">
+          <span class="earning-icon orders"><mat-icon>receipt_long</mat-icon></span>
+          <div><span>Paid orders</span><strong>{{ e.paidOrders }}</strong></div>
+        </article>
+      </section>
+      <p class="escrow-note">
+        Escrow releases {{ e.escrowHoldDays }} days after you mark an order delivered. Payment processing fees are recorded separately.
+      </p>
+    }
+
+    <div class="tabs" role="tablist" aria-label="Order filters">
+      <button type="button" [class.active]="filter() === 'action'" (click)="setFilter('action')">
+        Needs action <span>{{ actionCount() }}</span>
+      </button>
+      <button type="button" [class.active]="filter() === 'delivered'" (click)="setFilter('delivered')">Delivered</button>
+      <button type="button" [class.active]="filter() === 'all'" (click)="setFilter('all')">All orders</button>
+    </div>
+
+    @if (visibleOrders().length === 0) {
+      <section class="dp-card empty-state">
+        <mat-icon>receipt_long</mat-icon>
+        <h2>No store orders here yet</h2>
+        <p>When a customer buys from your public store, the order appears here for fulfilment.</p>
+        <a mat-flat-button color="primary" routerLink="/dashboard/products/my-store">Review my store</a>
+      </section>
+    } @else {
+      <div class="order-list">
+        @for (order of visibleOrders(); track order.id) {
+          <article class="dp-card order-card">
+            <div class="order-head">
+              <div>
+                <div class="title-line">
+                  <strong>{{ order.orderNumber }}</strong>
+                  <span class="dp-status" [class.dp-status--ok]="order.status === 'delivered'" [class.dp-status--warn]="['pending_payment','processing','shipped'].includes(order.status)" [class.dp-status--neutral]="order.status === 'paid'">
+                    {{ statusLabel(order.status) }}
+                  </span>
+                  <span class="escrow-pill" [class.released]="order.escrow.status === 'released'">{{ escrowLabel(order) }}</span>
+                </div>
+                <span class="muted small">{{ order.createdAt | date:'medium' }} · {{ totalUnits(order) }} units</span>
+              </div>
+              <div class="order-total">
+                <span>Total</span>
+                <strong>{{ order.amounts.total | currency:'₦':'symbol':'1.0-0' }}</strong>
+                <small>You earn {{ order.amounts.partnerPending | currency:'₦':'symbol':'1.0-0' }}</small>
+              </div>
+            </div>
+
+            <div class="order-body">
+              <div class="customer-block">
+                <p class="eyebrow">Deliver to</p>
+                <strong>{{ order.customer.name }}</strong>
+                <p>{{ order.customer.street }}, {{ order.customer.city }}, {{ order.customer.state }}</p>
+                <p><a [href]="'tel:' + order.customer.phone">{{ order.customer.phone }}</a> · <a [href]="'mailto:' + order.customer.email">{{ order.customer.email }}</a></p>
+                @if (order.customer.note) {
+                  <p class="note">“{{ order.customer.note }}”</p>
+                }
+              </div>
+
+              <div class="item-block">
+                <p class="eyebrow">Items</p>
+                @for (item of order.items; track item.storeProductId) {
+                  <div class="order-item">
+                    <span>{{ item.quantity }} × {{ item.name }}</span>
+                    <strong>{{ item.lineTotal | currency:'₦':'symbol':'1.0-0' }}</strong>
+                  </div>
+                }
+                <div class="order-item muted"><span>Service fee</span><strong>−{{ order.amounts.serviceFee | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+                <div class="order-item muted"><span>Payment fee</span><strong>−{{ order.amounts.paymentFee | currency:'₦':'symbol':'1.0-0' }}</strong></div>
+              </div>
+            </div>
+
+            <div class="order-footer">
+              <div class="fulfilment">
+                @if (order.status === 'paid') {
+                  <span class="muted small">Mark the order as processing when you start preparing it.</span>
+                  <button mat-flat-button color="primary" type="button" (click)="transition(order, 'processing')" [disabled]="busyId() === order.id">
+                    Start processing
+                  </button>
+                } @else if (order.status === 'processing') {
+                  <mat-form-field appearance="outline" class="tracking-field">
+                    <mat-label>Courier</mat-label>
+                    <input matInput [value]="draft(order).courier" (input)="setDraft(order.id, 'courier', $any($event.target).value)" maxlength="120" placeholder="GIG, DHL, local rider" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="tracking-field">
+                    <mat-label>Tracking number</mat-label>
+                    <input matInput [value]="draft(order).trackingNumber" (input)="setDraft(order.id, 'trackingNumber', $any($event.target).value)" maxlength="120" placeholder="Tracking or waybill number" />
+                  </mat-form-field>
+                  <button mat-flat-button color="primary" type="button" (click)="transition(order, 'shipped')" [disabled]="busyId() === order.id">
+                    Mark shipped
+                  </button>
+                } @else if (order.status === 'shipped') {
+                  <div class="tracking-display">
+                    <mat-icon>local_shipping</mat-icon>
+                    <span>{{ order.fulfilment.courier }} · {{ order.fulfilment.trackingNumber || 'No tracking number' }}</span>
+                  </div>
+                  <button mat-flat-button color="primary" type="button" (click)="transition(order, 'delivered')" [disabled]="busyId() === order.id">
+                    Mark delivered
+                  </button>
+                } @else if (order.status === 'delivered') {
+                  <div class="delivered-note">
+                    <mat-icon>verified</mat-icon>
+                    <span>
+                      Delivered {{ order.deliveredAt | date:'mediumDate' }}.
+                      @if (order.escrow.releaseAt) {
+                        Escrow releases {{ order.escrow.releaseAt | date:'mediumDate' }}.
+                      }
+                    </span>
+                  </div>
+                } @else if (order.status === 'pending_payment') {
+                  <span class="muted small">Waiting for the customer to complete Paystack checkout.</span>
+                } @else {
+                  <span class="muted small">This order is {{ statusLabel(order.status).toLowerCase() }}.</span>
+                }
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  }
+</section>

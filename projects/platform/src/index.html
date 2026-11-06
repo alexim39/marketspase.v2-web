@@ -1,0 +1,92 @@
+<!doctype html> 
+<html lang="en">
+<head>
+  <style type="text/css">
+    body, html {height: 100%; margin: 0; background: #0f0d1c;}
+    .app-loading { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; height: 100%; background: radial-gradient(600px 400px at 50% 38%, rgba(102,126,234,0.24), rgba(15,13,28,0) 70%), #0f0d1c; font-family: Inter, Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .app-loading .brand-mark { width: 96px; height: 96px; border-radius: 50%; object-fit: contain; padding: 12px; background: rgba(255,255,255,0.04); border: 2px solid #667eea; box-shadow: 0 0 32px rgba(102,126,234,0.45); }
+    .app-loading .spinner { height: 64px; width: 64px; animation: rotate 1.6s linear infinite; transform-origin: center center; }
+    .app-loading .spinner .path { stroke-dasharray: 1, 200; stroke-dashoffset: 0; animation: dash 1.4s ease-in-out infinite; stroke-linecap: round; stroke: #8192ee; }
+    @keyframes rotate {
+      100% {   transform: rotate(360deg);  }
+    }
+    @keyframes dash {
+      0% {   stroke-dasharray: 1, 200;   stroke-dashoffset: 0;  }
+      50% {  stroke-dasharray: 89, 200;  stroke-dashoffset: -35px;  }
+      100% { stroke-dasharray: 89, 200;  stroke-dashoffset: -124px;   }
+    }
+    .app-loading .loadbar { width: 180px; height: 3px; border-radius: 999px; background: rgba(255,255,255,0.12); overflow: hidden; }
+    .app-loading .loadbar span { display: block; height: 100%; width: 40%; border-radius: 999px; background: linear-gradient(90deg, #667eea, #764ba2); animation: shimmer 1.4s ease-in-out infinite; }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(450%); }
+    }
+    .app-loading .logo { color: #f5f3ff; font-size: 14px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+    .app-loading .sub { color: #b9b3c9; font-size: 12px; letter-spacing: 0.04em; }
+    @media (prefers-reduced-motion: reduce) {
+      .app-loading .spinner, .app-loading .spinner .path, .app-loading .loadbar span { animation: none; }
+    }
+  </style>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+   <base href="/">
+   <title>MarketSpase | Digital Network Marketing Platform</title>
+
+    <meta name="keywords" content="MarketSpase, digital network marketing platform, network marketing, partner platform, online business, team management, marketspase.com">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#667eea">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta property="og:site_name" content="MarketSpase">
+   
+    <meta name="description" content="MarketSpase is a digital network marketing platform for independent partners to grow their network, manage prospects, track performance and build their business online.">
+ 
+    <link rel="canonical" href="https://marketspase.com/">
+ 
+    <meta property="og:title" content="MarketSpase | Digital Network Marketing Platform">
+    <meta property="og:description" content="Build your network, manage prospects, track performance and grow your business online with MarketSpase.">
+    <meta property="og:image" content="https://marketspase.com/logo/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="MarketSpase digital network marketing platform">
+    <meta property="og:url" content="https://marketspase.com/">
+    <meta property="og:type" content="website">
+ 
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MarketSpase | Digital Network Marketing Platform">
+    <meta name="twitter:description" content="Build your network, manage prospects, track performance and grow your business online with MarketSpase.">
+    <meta name="twitter:image" content="https://marketspase.com/logo/og-image.jpg">
+    <meta name="twitter:image:alt" content="MarketSpase">
+   
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/logo/favicon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/logo/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/logo/favicon-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/logo/apple-touch-icon.png">
+  <script>
+    // Apply the stored MarketSpase theme before Angular boots (no flash).
+    // Dark is the default; only an explicit 'light' choice opts out.
+    try {
+      document.documentElement.setAttribute(
+        'data-theme',
+        localStorage.getItem('selectedTheme') === 'light' ? 'light' : 'dark'
+      );
+    } catch (e) { /* private mode: stay dark */ }
+  </script>
+</head>
+<body class="mat-typography">
+  <async-root>
+    <main class="app-loading">
+      <img class="brand-mark" src="/logo/marketspase-mark-white.png" alt="MarketSpase" />
+      <div class="logo">Getting MarketSpase ready!</div>
+      <svg class="spinner" viewBox="25 25 50 50" aria-hidden="true">
+        <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
+      </svg>
+      <div class="loadbar" aria-hidden="true"><span></span></div>
+      <div class="sub">Loading your workspace…</div>
+    </main>
+  </async-root>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<section class="breadcrumb-wrapper">
+  <div class="breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a> &gt;
+    <a routerLink="/dashboard/mentorship/partners/my-partners">My Partners</a> &gt;
+    @if (myPartner) {
+      <a (click)="goToMyPartner()" class="link">{{ myPartner.name }} {{ myPartner.surname }}</a> &gt;
+    }
+    <span>{{ fullName() }}</span>
+  </div>
+</section>
+
+<section class="detail-page">
+  <!-- Header -->
+  <div class="detail-head">
+    <button mat-icon-button (click)="back()" aria-label="Back"><mat-icon>arrow_back</mat-icon></button>
+    <span class="avatar">{{ initials() }}</span>
+    <div class="head-text">
+      <h2>{{ fullName() }}</h2>
+      <p class="subtitle">
+        @if (prospectData?.prospectPhone) { <a [href]="'tel:'+prospectData.prospectPhone">{{ prospectData.prospectPhone }}</a> · }
+        @else { <span class="muted">{{ phoneDisplay() }}</span> · }
+        @if (prospectData?.prospectEmail) { <a [href]="'mailto:'+prospectData.prospectEmail">{{ prospectData.prospectEmail }}</a> · }
+        @else { <span class="muted">{{ emailDisplay() }}</span> · }
+        via {{ prospectData?.prospectSource || '—' }}
+        @if (prospectData?.createdAt) { · since {{ prospectData.createdAt | date:'mediumDate' }} }
+      </p>
+      @if (myPartner) {
+        <p class="muted">Belongs to <strong>{{ myPartner.name }} {{ myPartner.surname }}</strong> (@{{ myPartner.username }}) — you're supporting as upline</p>
+      }
+    </div>
+    <span class="dp-status {{ statusTone() }}">{{ statusLabel() }}</span>
+  </div>
+
+  @if (!isOwner()) {
+    <div class="support-banner" role="note">
+      <mat-icon>support_agent</mat-icon>
+      <div>
+        <strong>Downline prospect — you're coaching this contact.</strong>
+        <span class="muted">Messages you send go out under your name and stay in your history; stage moves and notes update the owner's pipeline. Phone and email appear only when the contact consented.</span>
+      </div>
+    </div>
+  }
+
+  @if (showNudge()) {
+    <div class="dp-card nudge" role="status">
+      <mat-icon>alarm</mat-icon>
+      <p><strong>Untouched {{ daysStale() }} days.</strong>
+        <span class="dp-muted">Suggested next step: call together with the owner, log the outcome, and set a follow-up date below.</span>
+      </p>
+    </div>
+  }
+
+  <!-- Snapshot + coaching grid -->
+  <div class="grid">
+    <!-- Left: snapshot -->
+    <div class="dp-card card">
+      <h3>Prospect snapshot</h3>
+      <dl class="facts">
+        <div><dt>Full name</dt><dd>{{ fullName() }}</dd></div>
+        <div><dt>Phone</dt><dd>@if (canViewContact() && prospectData.prospectPhone) { <a [href]="'tel:'+prospectData.prospectPhone">{{ prospectData.prospectPhone }}</a> } @else { {{ phoneDisplay() }} }</dd></div>
+        <div><dt>Email</dt><dd>@if (canViewContact() && prospectData.prospectEmail) { <a [href]="'mailto:'+prospectData.prospectEmail">{{ prospectData.prospectEmail }}</a> } @else { {{ emailDisplay() }} }</dd></div>
+        <div><dt>Channel</dt><dd>{{ prospectData.prospectSource || '—' }}</dd></div>
+        <div><dt>Last updated</dt><dd>{{ prospectData.updatedAt | date:'medium' }}</dd></div>
+        <div><dt>Current stage</dt><dd><span class="dp-status {{ statusTone() }}">{{ statusLabel() }}</span></dd></div>
+      </dl>
+      @if (prospectData?.notes || prospectData?.prospectRemark) {
+        <p class="notes"><strong>Context:</strong> {{ prospectData.notes || prospectData.prospectRemark }}</p>
+      } @else {
+        <p class="muted">No remark yet — add coaching note below so your downline sees it.</p>
+      }
+      @if (hasSurvey()) {
+        <button mat-stroked-button (click)="ViewResponse(prospectData)"><mat-icon>quiz</mat-icon>View survey answers</button>
+      } @else {
+        <p class="muted">No survey answers — contact was added manually by the owner.</p>
+      }
+    </div>
+
+    <!-- Right: coaching -->
+    <div class="dp-card card">
+      <h3>Coach this prospect</h3>
+      <p class="muted">Update stage and leave a note — it moves the pipeline and notifies the owner.</p>
+      <mat-form-field appearance="outline">
+        <mat-label>Update stage</mat-label>
+        <mat-select [(value)]="selectedStatus">
+          @for (s of statuses; track s) {
+            <mat-option [value]="s">{{ s }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Follow-up date (optional)</mat-label>
+        <input matInput [matDatepicker]="followUpPicker" [(ngModel)]="followUpDate" [min]="minFollowUp" placeholder="Pick a date" />
+        <mat-datepicker-toggle matSuffix [for]="followUpPicker" />
+        <mat-datepicker #followUpPicker />
+        <mat-hint>Reminds the owner when to re-touch this contact</mat-hint>
+      </mat-form-field>
+      <button mat-flat-button color="primary" (click)="updateProspectStatus()" [disabled]="!selectedStatus || savingStage">
+        {{ savingStage ? 'Updating…' : 'Update stage' }}
+      </button>
+
+      <mat-form-field appearance="outline" class="mt">
+        <mat-label>Coaching note / remark</mat-label>
+        <textarea matInput [(ngModel)]="remark" #msg maxlength="2000" rows="3" placeholder="e.g. Called, warm — send pricing and book Thursday"></textarea>
+        <mat-hint align="end">{{msg.value.length}} / 2000</mat-hint>
+      </mat-form-field>
+      <button mat-stroked-button (click)="updateProspectRemark()" [disabled]="!remark.trim() || savingNote">
+        {{ savingNote ? 'Saving…' : 'Save note' }}
+      </button>
+
+      <div class="actions">
+        <button mat-stroked-button (click)="previewPresent()" matTooltip="Walk them through an opportunity deck"><mat-icon>present_to_all</mat-icon>Present a deck</button>
+        @if (canManage()) {
+          <button mat-flat-button color="primary" (click)="editProspectDetail()"><mat-icon>edit</mat-icon>Edit contact</button>
+          <button mat-stroked-button (click)="bookProspectSession()"><mat-icon>bookmark_added</mat-icon>Book session</button>
+        } @else {
+          <button mat-stroked-button (click)="bookProspectSession()" matTooltip="Book on behalf — logged as Support"><mat-icon>bookmark_added</mat-icon>Book session</button>
+          <p class="muted">Editing contact details is owner-only — ask your downline to update PII.</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  @if (timeline().length > 0) {
+    <div class="dp-card card" aria-label="Activity timeline">
+      <h3>Activity timeline ({{ timeline().length }})</h3>
+      <ul class="timeline">
+        @for (t of timeline(); track t.at + t.title) {
+          <li class="touch">
+            <mat-icon>{{ t.icon }}</mat-icon>
+            <div>
+              <p class="touch-title">{{ t.title }}</p>
+              <p class="muted">
+                {{ t.at ? (t.at | date:'medium') : 'Date unknown' }}
+                @if (t.by) { · by {{ t.by }} }
+                @if (t.detail) { · {{ t.detail }} }
+              </p>
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  <!-- Outreach -->
+  <div class="dp-card card" aria-label="Outreach">
+    <div class="outreach-head">
+      <h3>Reach out as support</h3>
+      <div class="channel-toggle" role="tablist" aria-label="Channel">
+        <button type="button" role="tab" [attr.aria-selected]="outreachTab === 'email'" [class.active]="outreachTab === 'email'" (click)="outreachTab = 'email'"><mat-icon>mail</mat-icon>Email</button>
+        <button type="button" role="tab" [attr.aria-selected]="outreachTab === 'sms'" [class.active]="outreachTab === 'sms'" (click)="outreachTab = 'sms'"><mat-icon>sms</mat-icon>SMS</button>
+      </div>
+    </div>
+    @if (partner?.username) {
+      <div class="copy-link">
+        <span class="muted">https://marketspase.com/{{partner?.username?.toLowerCase()}}</span>
+        <button mat-icon-button (click)="copyLink()" matTooltip="Copy your public link" aria-label="Copy your public link"><mat-icon aria-hidden="true">content_copy</mat-icon></button>
+      </div>
+    }
+    <p class="muted">Logged as Support — owner sees it on the timeline.</p>
+    @if (!prospectData?.prospectPhone && !prospectData?.prospectEmail) {
+      <p class="muted">Outreach disabled — phone and email are hidden or have not consented.</p>
+    }
+
+    @if (outreachTab === 'email') {
+      <mat-form-field appearance="outline">
+        <mat-label>Subject</mat-label>
+        <input matInput [(ngModel)]="emailSubject" placeholder="Join us for a 30-min insight session" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Email body</mat-label>
+        <textarea matInput class="custom-textarea" [(ngModel)]="emailBody" rows="5" placeholder="Hi {{prospectData.prospectName}}, ... Don't forget https://marketspase.com/{{partner?.username?.toLowerCase()}}"></textarea>
+      </mat-form-field>
+      <button mat-flat-button color="primary" (click)="sendEmail()" [disabled]="!emailSubject.trim() || !emailBody.trim() || sendingEmail || !prospectData?.prospectEmail">
+        {{ sendingEmail ? 'Sending…' : 'Send email' }}
+      </button>
+    } @else {
+      <mat-form-field appearance="outline">
+        <mat-label>Write SMS</mat-label>
+        <textarea matInput #smsField maxlength="160" [(ngModel)]="sms" rows="3" placeholder="Hi, this is {{partner?.name}} supporting {{myPartner?.name}} — ..."></textarea>
+        <mat-hint align="end">{{smsField.value.length}} / 160</mat-hint>
+      </mat-form-field>
+      <button mat-flat-button color="primary" (click)="sendSMS()" [disabled]="!sms.trim() || sendingSms || !prospectData?.prospectPhone">
+        {{ sendingSms ? 'Sending…' : 'Send SMS' }}
+      </button>
+      <p class="muted">Up to 160 chars, link auto-tracked.</p>
+    }
+  </div>
+
+  <!-- Danger zone -->
+  @if (canManage()) {
+    <div class="dp-card card danger" aria-label="Danger zone">
+      <h3>Danger zone</h3>
+      <p class="muted">Deleting removes this prospect permanently. Prefer moving dead leads to Disqualified instead.</p>
+      <div class="actions">
+        <button mat-stroked-button color="warn" (click)="deleteProspect()"><mat-icon>delete</mat-icon>Delete prospect</button>
+      </div>
+    </div>
+  }
+</section>

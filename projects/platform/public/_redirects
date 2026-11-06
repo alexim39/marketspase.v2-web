@@ -1,0 +1,3 @@
+# Netlify / Cloudflare Pages — SPA fallback for dashboard deep links.
+/assets/* /assets/:splat 200
+/* /index.html 200
