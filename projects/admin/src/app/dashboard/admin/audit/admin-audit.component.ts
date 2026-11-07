@@ -56,6 +56,7 @@ const ACTIONS = [
   'product.update',
   'broadcast.send',
   'broadcast.delete',
+  'content.restore',
 ];
 
 /**
