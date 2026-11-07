@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
-import { CoachingService, CoachingNote, MyCoach } from '../../../core/coaching/coaching.service';
+import { CoachingService, CoachingInbox, CoachingNote, MyCoach } from '../../../core/coaching/coaching.service';
 import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ApiError } from '../../../core/http/api-error';
@@ -109,11 +109,35 @@ import { AvatarComponent } from '../../../_common/avatar.component';
       }
 
       <div class="dp-card notes-card">
-        <h3>Coaching notes</h3>
+        <div class="card-head">
+          <h3>Coaching notes</h3>
+          <button
+            mat-icon-button
+            type="button"
+            class="info-btn"
+            (click)="showNotesInfo.set(!showNotesInfo())"
+            [attr.aria-expanded]="showNotesInfo()"
+            aria-label="How coaching notes work"
+            title="How coaching notes work">
+            <mat-icon>info_outline</mat-icon>
+          </button>
+        </div>
+        <div class="shared-label"><mat-icon>group</mat-icon> {{ sharedLabel() }}</div>
+        @if (showNotesInfo()) {
+          <div class="notes-info" role="note">
+            <mat-icon>info</mat-icon>
+            <p>
+              <strong>This is a shared coaching journal, not a private diary.</strong>
+              Notes you add here are visible to your coach, and notes your coach adds appear
+              here too. Only you and your upline can read them. For a real-time conversation,
+              use Chat.
+            </p>
+          </div>
+        }
         @if (coach()) {
           <div class="note-compose">
             <mat-form-field appearance="outline">
-              <mat-label>Add a note to your coaching log</mat-label>
+              <mat-label>Add a note to your shared coaching log</mat-label>
               <textarea matInput rows="2" [value]="draft()" (input)="draft.set($any($event.target).value)" maxlength="2000" placeholder="What was discussed, next step…"></textarea>
             </mat-form-field>
             <button mat-flat-button color="primary" (click)="saveNote()" [disabled]="!draft().trim() || saving()">{{ saving() ? 'Saving…' : 'Add note' }}</button>
@@ -127,14 +151,40 @@ import { AvatarComponent } from '../../../_common/avatar.component';
             @for (n of notes(); track n.id) {
               <li>
                 <p>{{ n.body }}</p>
-                <span class="muted">{{ authorLabel(n) }} · {{ n.createdAt | date:'medium' }}</span>
+                <span class="muted">{{ authorLabel(n) }} · {{ sharedLabel() }} · {{ n.createdAt | date:'medium' }}</span>
               </li>
             }
           </ul>
         } @else if (!loading()) {
-          <p class="empty">No notes yet — your first coaching session starts the log.</p>
+          <p class="empty">No notes yet — your first coaching session starts the shared log.</p>
         }
       </div>
+
+      @if (inbox()?.teamSize) {
+        <div class="dp-card inbox-card">
+          <div class="card-head">
+            <h3>Notes from your team</h3>
+            <span class="pill">{{ inbox()?.total ?? 0 }}</span>
+          </div>
+          <p class="inbox-sub">Recent notes across the partners you mentor. Open a partner to reply.</p>
+          @if (inbox()?.notes?.length) {
+            <ul class="inbox-list">
+              @for (n of inbox()?.notes ?? []; track n.id) {
+                <li>
+                  <div class="inbox-top">
+                    <a [routerLink]="['/dashboard/mentorship/partners/my-partners/detail', n.memberId]">{{ n.memberName }}</a>
+                    <span class="role" [class.role--coach]="n.authorRole === 'coach'">{{ n.authorRole === 'coach' ? 'Coach note' : 'Member note' }}</span>
+                  </div>
+                  <p>{{ n.body }}</p>
+                  <span class="muted">{{ n.authorName }} · {{ n.createdAt | date:'medium' }}</span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="empty">No notes from your team yet. When they add one, it appears here.</p>
+          }
+        </div>
+      }
     </section>
   `,
   styles: [`
@@ -165,6 +215,23 @@ import { AvatarComponent } from '../../../_common/avatar.component';
     .action-card ul { margin: 0; padding-left: 1.2em; }
     .notes-card { padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
     .notes-card h3 { margin: 0; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5em; }
+    .card-head h3 { margin: 0; }
+    .info-btn { color: var(--ms-text-muted); flex: 0 0 auto; }
+    .shared-label { display: inline-flex; align-items: center; gap: 0.3em; color: var(--ms-primary-strong); font-size: 0.78rem; font-weight: 700; }
+    .shared-label mat-icon { font-size: 1em; width: 1em; height: 1em; }
+    .notes-info { display: flex; gap: 0.6em; align-items: flex-start; background: var(--ms-primary-soft); border: 1px solid var(--ms-line); border-radius: 8px; padding: 0.7em 0.85em; }
+    .notes-info mat-icon { color: var(--ms-primary-strong); flex: 0 0 auto; }
+    .notes-info p { margin: 0; font-size: 0.88em; }
+    .inbox-card { padding: 1em; display: flex; flex-direction: column; gap: 0.65em; }
+    .inbox-sub { margin: 0; color: var(--ms-text-muted); font-size: 0.88em; }
+    .inbox-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
+    .inbox-list li { background: var(--ms-canvas); border: 1px solid var(--ms-line); border-radius: 8px; padding: 0.7em 0.9em; display: flex; flex-direction: column; gap: 0.25em; }
+    .inbox-list p { margin: 0; }
+    .inbox-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5em; }
+    .inbox-top a { font-weight: 700; text-decoration: none; }
+    .role { padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; background: var(--ms-canvas); border: 1px solid var(--ms-line); color: var(--ms-text-muted); }
+    .role--coach { background: var(--ms-primary-soft); border-color: transparent; color: var(--ms-primary-strong); }
     .note-compose { display: flex; flex-direction: column; gap: 0.5em; }
     .note-compose mat-form-field { width: 100%; }
     .note-compose button { align-self: flex-start; min-height: 44px; }
@@ -189,6 +256,8 @@ export class MyCoachComponent implements OnInit {
   protected readonly noteError = signal<string | null>(null);
   protected readonly coach = signal<MyCoach | null>(null);
   protected readonly notes = signal<CoachingNote[]>([]);
+  protected readonly inbox = signal<CoachingInbox | null>(null);
+  protected readonly showNotesInfo = signal(false);
   protected readonly draft = signal('');
   /** coachId → lastSeenAt (null = offline); drives the avatar dot. */
   protected readonly presenceMap = signal<Record<string, string | null>>({});
@@ -217,6 +286,10 @@ export class MyCoachComponent implements OnInit {
     return this.coach()?.coach?.name || 'Coach';
   }
 
+  protected sharedLabel(): string {
+    return this.coach()?.coach ? 'Shared with your coach' : 'Your coaching log';
+  }
+
   ngOnInit(): void {
     this.reload();
   }
@@ -234,6 +307,7 @@ export class MyCoachComponent implements OnInit {
         next: (res) => {
           this.coach.set(res?.data ?? null);
           this.loadNotes();
+          this.loadInbox();
           const coachId = res?.data?.coach?.id;
           if (coachId) {
             this.presence
@@ -253,6 +327,16 @@ export class MyCoachComponent implements OnInit {
       .subscribe({
         next: (res) => this.notes.set(res?.data ?? []),
         error: () => this.notes.set([]),
+      });
+  }
+
+  private loadInbox(): void {
+    this.coaching
+      .inbox()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.inbox.set(res?.data ?? null),
+        error: () => this.inbox.set(null),
       });
   }
 

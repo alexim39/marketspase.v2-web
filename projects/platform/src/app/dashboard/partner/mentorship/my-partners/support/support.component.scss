@@ -17,6 +17,16 @@
 .plain-list li { display: flex; justify-content: space-between; gap: 0.6em; align-items: baseline; }
 .plain-list li.note { flex-direction: column; align-items: stretch; gap: 0.1em; border-top: 1px solid var(--ms-line); padding-top: 0.4em; }
 .plain-list li.note p { margin: 0; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5em; }
+.info-btn { color: var(--ms-text-muted); flex: 0 0 auto; }
+.shared-label { display: inline-flex; align-items: center; gap: 0.3em; color: var(--ms-primary-strong); font-size: 0.78rem; font-weight: 700; }
+.shared-label mat-icon { font-size: 1em; width: 1em; height: 1em; }
+.notes-info { display: flex; gap: 0.6em; align-items: flex-start; background: var(--ms-primary-soft); border: 1px solid var(--ms-line); border-radius: 8px; padding: 0.7em 0.85em; }
+.notes-info mat-icon { color: var(--ms-primary-strong); flex: 0 0 auto; }
+.notes-info p { margin: 0; font-size: 0.88em; }
+.note-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6em; }
+.role { flex: 0 0 auto; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; background: var(--ms-canvas); border: 1px solid var(--ms-line); color: var(--ms-text-muted); }
+.role--coach { background: var(--ms-primary-soft); border-color: transparent; color: var(--ms-primary-strong); }
 .note-form { display: flex; gap: 0.5em; align-items: flex-start; flex-wrap: wrap; }
 .note-form mat-form-field { flex: 1; min-width: 200px; }
 .note-form button { min-height: 44px; }

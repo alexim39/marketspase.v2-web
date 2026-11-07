@@ -101,13 +101,39 @@
   }
 
   <section class="dp-card" aria-label="Coaching notes">
-    <h3>Coaching notes ({{ notes().length }})</h3>
+    <div class="card-head">
+      <h3>Coaching notes ({{ notes().length }})</h3>
+      <button
+        mat-icon-button
+        type="button"
+        class="info-btn"
+        (click)="showNotesInfo.set(!showNotesInfo())"
+        [attr.aria-expanded]="showNotesInfo()"
+        aria-label="How coaching notes work"
+        title="How coaching notes work">
+        <mat-icon>info_outline</mat-icon>
+      </button>
+    </div>
+    <div class="shared-label"><mat-icon>group</mat-icon> Shared with this member</div>
+    @if (showNotesInfo()) {
+      <div class="notes-info" role="note">
+        <mat-icon>info</mat-icon>
+        <p>
+          <strong>This is a shared coaching journal, not a private note.</strong>
+          Everything you write here is visible to {{ displayName() }} on their My Coach page,
+          and anything they write appears here too. Use Chat for a real-time conversation.
+        </p>
+      </div>
+    }
     @if (notes().length > 0) {
       <ul class="plain-list">
         @for (note of notes(); track note.id) {
           <li class="note">
-            <p>{{ note.body }}</p>
-            <span class="muted">{{ note.createdAt | date:'mediumDate' }}</span>
+            <div class="note-top">
+              <p>{{ note.body }}</p>
+              <span class="role" [class.role--coach]="!isMemberNote(note)">{{ isMemberNote(note) ? 'Member note' : 'Coach note' }}</span>
+            </div>
+            <span class="muted">{{ authorName(note) }} · {{ note.createdAt | date:'mediumDate' }}</span>
           </li>
         }
       </ul>
@@ -116,7 +142,7 @@
     }
     <div class="note-form">
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>Log a coaching note</mat-label>
+        <mat-label>Log a shared coaching note</mat-label>
         <textarea matInput rows="2" maxlength="2000" [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)" placeholder="What did you coach, and what is next?"></textarea>
       </mat-form-field>
       <button mat-flat-button color="primary" (click)="saveNote()" [disabled]="!noteDraft().trim() || savingNote()">

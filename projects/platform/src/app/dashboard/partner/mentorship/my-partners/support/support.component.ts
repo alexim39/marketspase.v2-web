@@ -64,6 +64,7 @@ export class MyPartnerSupportComponent implements OnInit, OnChanges {
   protected readonly goals = signal<Goal[]>([]);
   protected readonly stuck = signal<StuckEntry[]>([]);
   protected readonly notes = signal<CoachingNote[]>([]);
+  protected readonly showNotesInfo = signal(false);
   protected readonly noteDraft = signal('');
   protected readonly savingNote = signal(false);
   protected readonly showKpi = signal(false);
@@ -141,8 +142,16 @@ export class MyPartnerSupportComponent implements OnInit, OnChanges {
     });
   }
 
-  protected saveNote(): void {
-    const body = this.noteDraft().trim();
+  /** A note is authored either by the member themselves or by an upline coach. */
+  protected isMemberNote(note: CoachingNote): boolean {
+    return String(note.authorId ?? note.coachId ?? '') === this.memberId();
+  }
+
+  protected authorName(note: CoachingNote): string {
+    return this.isMemberNote(note) ? this.displayName() : 'You (coach)';
+  }
+
+  protected saveNote(): void {    const body = this.noteDraft().trim();
     const id = this.memberId();
     if (!body || !id || this.savingNote()) return;
     this.savingNote.set(true);
