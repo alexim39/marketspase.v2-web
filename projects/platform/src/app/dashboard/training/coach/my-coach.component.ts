@@ -86,7 +86,7 @@ import { AvatarComponent } from '../../../_common/avatar.component';
             <div>
               <p class="eyebrow">Your journey</p>
               <h3>{{ levelLabel(c.journey?.levelLabel) }}</h3>
-              <p class="muted">Next: {{ nextRankLabel(c.journey?.nextLabel) }}</p>
+              <p class="muted">Next rank: {{ nextRankLabel(c.journey?.nextLabel) }}</p>
             </div>
             <span class="pill">{{ c.journey?.percent ?? 0 }}%</span>
           </div>
