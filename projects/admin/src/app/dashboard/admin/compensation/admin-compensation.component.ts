@@ -44,7 +44,7 @@ type Tab = 'entries' | 'bonuses' | 'product';
         <div>
           <p class="eyebrow">Admin desk</p>
           <h1>Compensation</h1>
-          <p class="muted">Release accrued commissions, void bad entries, run the day-7 mentor bonus, and assign commission ranks.</p>
+          <p class="muted">Release accrued commissions, void bad entries, run the mentor bonus, and assign commission ranks.</p>
         </div>
         <button mat-stroked-button type="button" (click)="runBonuses()" [disabled]="running()">
           <mat-icon>volunteer_activism</mat-icon>

@@ -80,7 +80,7 @@ import { formatMoney } from '../../core/format/money';
             </div>
 
             <div class="panel">
-              <div class="panel-head"><div><p class="eyebrow">Mentor bonus</p><h2>Day-7 bonus</h2></div><span class="pill">₦{{ me.plan.mentorBonus.amount | number: '1.0-0' }}</span></div>
+              <div class="panel-head"><div><p class="eyebrow">Mentor bonus</p><h2>Activation bonus</h2></div><span class="pill">₦{{ me.plan.mentorBonus.amount | number: '1.0-0' }}</span></div>
               @if (me.mentorBonuses.length === 0) {
                 <div class="empty"><mat-icon>volunteer_activism</mat-icon><p>No mentor bonus yet. Bonuses are paid to the placement parent after a placed partner completes day {{ me.plan.mentorBonus.daysAfterActivation }}.</p></div>
               } @else {

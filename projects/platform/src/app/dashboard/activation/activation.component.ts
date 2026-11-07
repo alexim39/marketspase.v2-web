@@ -114,7 +114,7 @@ import { States } from '../../_common/services/countries';
               <div class="next-list">
                 <div><mat-icon>inventory_2</mat-icon><p>Your starter product is packed and dispatched to the delivery address on your order.</p></div>
                 <div><mat-icon>hub</mat-icon><p>When an eligible campaign has capacity, you are placed with a campaign owner and mentor.</p></div>
-                <div><mat-icon>trending_up</mat-icon><p>Your Level 1 commission starts when allocated prospects convert; your mentor earns the separate day-7 activation bonus.</p></div>
+                <div><mat-icon>trending_up</mat-icon><p>Your Level 1 commission starts when allocated prospects convert; your mentor earns the separate activation mentor bonus.</p></div>
               </div>
             </div>
 
