@@ -17,7 +17,7 @@ export class FooterService {
  * @returns An Observable that emits the API response or an error.
  */
   submit(formObject: emailSubscriptionInterface): Observable<any> {
-    return this.api.post<emailSubscriptionInterface>('emailSubscription/subscribe', formObject);
+    return this.api.post<emailSubscriptionInterface>('v1/email-subscription/subscribe', formObject);
   }
 
 

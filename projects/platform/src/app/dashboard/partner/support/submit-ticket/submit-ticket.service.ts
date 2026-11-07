@@ -20,7 +20,7 @@ export class TicketService {
 
 // submit ticket
 submitTicket(formObject: FormGroup): Observable<any> {
-  return this.apiService.post<TicketInterface>(`ticket/submit`, formObject, undefined, true);
+  return this.apiService.post<TicketInterface>(`v1/tickets/submit`, formObject, undefined, true);
 }
 
 
