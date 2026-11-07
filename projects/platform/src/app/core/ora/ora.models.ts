@@ -13,6 +13,16 @@ export interface OraContext {
 
 export type OraContextEnvelope = ApiEnvelope<OraContext>;
 
+export interface OraUsage {
+  dateKey: string;
+  limit: number;
+  used: number;
+  remaining: number;
+  resetsAt: string;
+}
+
+export type OraUsageEnvelope = ApiEnvelope<OraUsage>;
+
 export interface OraPlanItem {
   title: string;
   detail?: string;
@@ -71,6 +81,9 @@ export interface OraChatReply {
   conversationId: string;
   reply: string;
   actions: OraAction[];
+  usage?: OraUsage;
+  degraded?: boolean;
+  warning?: string;
 }
 
 export type OraChatEnvelope = ApiEnvelope<OraChatReply>;

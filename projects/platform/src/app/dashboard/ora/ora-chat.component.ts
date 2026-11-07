@@ -11,7 +11,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { OraService } from '../../core/ora/ora.service';
-import { OraAction, OraContext, OraConversationSummary, OraMessage, actionPlanItems } from '../../core/ora/ora.models';
+import { OraAction, OraContext, OraConversationSummary, OraMessage, OraUsage, actionPlanItems } from '../../core/ora/ora.models';
 import { ApiError } from '../../core/http/api-error';
 
 /** Minimal safe markdown: escape first, then bold/code/bullets/breaks. */
@@ -204,16 +204,29 @@ interface ChatMsg extends OraMessage {
           }
         </div>
 
+        @if (usage(); as u) {
+          <div class="ora-usage" [class.limit-reached]="u.remaining === 0">
+            <div class="usage-copy">
+              <span><strong>{{ u.used }}</strong> of {{ u.limit }} messages today</span>
+              <span class="muted">{{ u.remaining === 0 ? 'Resets tomorrow' : u.remaining + ' left' }}</span>
+            </div>
+            <div class="usage-bar" role="progressbar" [attr.aria-valuenow]="u.used" aria-valuemin="0" [attr.aria-valuemax]="u.limit" aria-label="Ora daily usage">
+              <span [style.width.%]="usagePercent(u)"></span>
+            </div>
+          </div>
+        }
+
         <form class="ora-input" (ngSubmit)="send()">
           <input
             name="ora-input"
             [(ngModel)]="draft"
-            placeholder="Ask Ora anything…"
+            [placeholder]="usage()?.remaining === 0 ? 'Daily limit reached - resets tomorrow' : 'Ask Ora anything…'"
             aria-label="Message Ora"
             maxlength="2000"
             autocomplete="off"
+            [disabled]="usage()?.remaining === 0"
           />
-          <button mat-icon-button color="primary" type="submit" [disabled]="!draft().trim() || sending()" aria-label="Send">
+          <button mat-icon-button color="primary" type="submit" [disabled]="!draft().trim() || sending() || usage()?.remaining === 0" aria-label="Send">
             <mat-icon>send</mat-icon>
           </button>
         </form>
@@ -256,6 +269,12 @@ interface ChatMsg extends OraMessage {
     .action-buttons button, .action-buttons a { min-height: 44px; }
     .starters { display: flex; flex-wrap: wrap; gap: 0.4em; }
     .starter { min-height: 44px; border: 1px solid var(--ms-line); border-radius: 999px; text-transform: none; font-weight: 500; }
+    .ora-usage { padding: 0.45em 0.9em 0.15em; border-top: 1px solid var(--ms-line); background: var(--ms-surface); }
+    .ora-usage .usage-copy { display: flex; align-items: center; justify-content: space-between; gap: 0.5em; font-size: 0.76em; margin-bottom: 0.3em; }
+    .ora-usage .usage-bar { height: 4px; border-radius: 999px; background: var(--ms-line); overflow: hidden; }
+    .ora-usage .usage-bar span { display: block; height: 100%; background: var(--ms-primary); transition: width 180ms ease; }
+    .ora-usage.limit-reached .usage-copy { color: var(--ms-error); }
+    .ora-usage.limit-reached .usage-bar span { background: var(--ms-error); }
     .ora-input { display: flex; align-items: center; gap: 0.4em; padding: 0.6em 0.6em 0.6em 0.9em; border-top: 1px solid var(--ms-line); }
     .ora-input input { flex: 1; min-height: 44px; border: 1px solid var(--ms-line); border-radius: 999px; padding: 0 1em; background: var(--ms-canvas); color: inherit; font: inherit; }
     .ora-history { flex: 1; overflow-y: auto; padding: 0.6em; min-height: 0; }
@@ -288,6 +307,7 @@ export class OraChatComponent implements OnInit {
   protected readonly actingId = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly canRetry = signal(false);
+  protected readonly usage = signal<OraUsage | null>(null);
   protected readonly planItems = actionPlanItems;
 
   private lastFailed: string | null = null;
@@ -309,6 +329,11 @@ export class OraChatComponent implements OnInit {
 
   protected render(text: string): string {
     return renderMarkdown(text);
+  }
+
+  protected usagePercent(u: OraUsage): number {
+    if (!u || u.limit <= 0) return 100;
+    return Math.min(100, Math.max(0, Math.round((u.used / u.limit) * 100)));
   }
 
   protected newChat(): void {
@@ -454,6 +479,10 @@ export class OraChatComponent implements OnInit {
   protected send(): void {
     const text = this.draft().trim();
     if (!text || this.sending()) return;
+    if (this.usage()?.remaining === 0) {
+      this.error.set('Daily Ora limit reached — it resets tomorrow.');
+      return;
+    }
     this.draft.set('');
     this.error.set(null);
     this.canRetry.set(false);
@@ -470,14 +499,29 @@ export class OraChatComponent implements OnInit {
             ...this.messages(),
             { role: 'assistant', content: res.data?.reply ?? '', at: null, actions: res.data?.actions ?? [] },
           ]);
+          if (res.data?.usage) this.usage.set(res.data.usage);
+          else this.loadUsage();
           this.sending.set(false);
           this.lastFailed = null;
         },
         error: (err: ApiError) => {
           this.sending.set(false);
           this.error.set(err.message);
-          this.canRetry.set(true);
+          const limitUsage = (err.details as { usage?: OraUsage } | undefined)?.usage;
+          if (limitUsage) this.usage.set(limitUsage);
+          else if (err.code === 'ORA_RATE_LIMITED') this.loadUsage();
+          this.canRetry.set(err.code !== 'ORA_RATE_LIMITED');
         },
+      });
+  }
+
+  private loadUsage(): void {
+    this.ora
+      .usage()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.usage.set(res.data ?? null),
+        error: () => { /* the indicator is optional; never block the chat */ },
       });
   }
 
@@ -493,6 +537,7 @@ export class OraChatComponent implements OnInit {
 
   private boot(): void {
     this.booting.set(true);
+    this.loadUsage();
     this.ora
       .context()
       .pipe(takeUntilDestroyed(this.destroyRef))

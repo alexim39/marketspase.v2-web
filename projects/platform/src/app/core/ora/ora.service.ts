@@ -11,6 +11,7 @@ import {
   OraConversationsEnvelope,
   OraPlanEnvelope,
   OraPlanItem,
+  OraUsageEnvelope,
 } from './ora.models';
 
 /** Ora AI assistant → backend `/v1/ora/*`. Fully typed. */
@@ -20,6 +21,10 @@ export class OraService {
 
   context(): Observable<OraContextEnvelope> {
     return this.api.get<OraContextEnvelope>('v1/ora/context');
+  }
+
+  usage(): Observable<OraUsageEnvelope> {
+    return this.api.get<OraUsageEnvelope>('v1/ora/usage');
   }
 
   plan(): Observable<OraPlanEnvelope> {
