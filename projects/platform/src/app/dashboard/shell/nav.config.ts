@@ -157,6 +157,7 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
     link: '/dashboard/more',
     children: [
       { label: 'Settings', link: '/dashboard/settings/profiles', title: 'Profile, security and billing' },
+      { label: 'Verification & KYC', link: '/dashboard/settings/verification', title: 'Identity status and verification' },
       { label: 'Billing & withdrawals', link: '/dashboard/settings/billing', title: 'Bank account and withdrawals' },
       { label: 'Public page', link: '/dashboard/settings/landing-page', title: 'Public page' },
       { label: 'Notifications', link: '/dashboard/notifications/center', title: 'Alerts and notification settings' },

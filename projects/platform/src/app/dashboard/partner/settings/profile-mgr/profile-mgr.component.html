@@ -9,6 +9,13 @@
     <div class="identity-main">
       <h3>{{ p.name }} {{ p.surname }}</h3>
       <p class="muted">@{{ p.username }} · {{ p.email }}</p>
+      @if (p.kycStatus; as kyc) {
+        <p class="muted verification-line">
+          <mat-icon>verified_user</mat-icon>
+          Identity: {{ kycLabel(kyc) }}
+          <a mat-button routerLink="/dashboard/settings/verification">View verification</a>
+        </p>
+      }
       @if (publicPageUrl(); as url) {
         <p class="muted public-link">Public page: <a [href]="url" target="_blank" rel="noopener">{{ url }}</a>
           <button mat-icon-button type="button" (click)="copyPublicLink()" aria-label="Copy public page link" title="Copy public page link"><mat-icon>content_copy</mat-icon></button>

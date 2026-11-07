@@ -149,6 +149,7 @@ export class MoreHubComponent {
       icon: 'person',
       links: [
         { label: 'Settings', detail: 'Profile, contact details, security and billing.', icon: 'settings', link: '/dashboard/settings/profiles' },
+        { label: 'Verification & KYC', detail: 'Identity status, age check and review notes.', icon: 'verified_user', link: '/dashboard/settings/verification' },
         { label: 'Billing & withdrawals', detail: 'Bank account, deposits and withdrawals.', icon: 'account_balance', link: '/dashboard/settings/billing' },
         { label: 'My public page', detail: 'Edit and preview your public landing page.', icon: 'public', link: '/dashboard/settings/landing-page' },
         { label: 'Notification settings', detail: 'Channels and categories.', icon: 'notifications', link: '/dashboard/notifications/preferences' },

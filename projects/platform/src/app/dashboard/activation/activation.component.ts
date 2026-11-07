@@ -130,6 +130,7 @@ import { States } from '../../_common/services/countries';
               <div class="actions">
                 <a mat-flat-button color="primary" routerLink="/dashboard/campaigns">Fund a growth campaign</a>
                 <a mat-button routerLink="/dashboard">Go to my dashboard</a>
+                <a mat-button routerLink="/dashboard/settings/verification">Identity &amp; KYC</a>
                 <a mat-button routerLink="/dashboard/compensation">Compensation</a>
                 <a mat-button routerLink="/dashboard/wallet">View wallet</a>
               </div>

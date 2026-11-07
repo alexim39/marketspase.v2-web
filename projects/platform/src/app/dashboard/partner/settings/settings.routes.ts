@@ -16,7 +16,12 @@ export const SettingsRoutes: Routes = [
             path: 'profiles',
             component: ProfileMrgContainerComponent,
             title: "Partner Profile Setting - Configure your profile settings",
-        }, 
+        },
+        {
+            path: 'verification',
+            loadComponent: () => import('./verification/verification.component').then(m => m.VerificationComponent),
+            title: "Verification & KYC - Identity status",
+        },
         { path: 'landing-page', 
             component: LandingPageSettingContainerComponent,
             title: "Landing Page Settings - Set what prospect sees on your landing page",

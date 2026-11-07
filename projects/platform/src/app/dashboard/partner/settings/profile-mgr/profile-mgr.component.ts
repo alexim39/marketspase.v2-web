@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -52,6 +53,9 @@ styles: [`
   .identity-main h3 { margin: 0; }
   .identity-main p { margin: 0.15em 0 0; }
   .identity-main a { color: var(--ms-primary-strong); word-break: break-all; }
+  .verification-line { display: flex; align-items: center; gap: 0.35em; flex-wrap: wrap; margin: 0.35em 0 0; }
+  .verification-line mat-icon { font-size: 1.1em; width: 1.1em; height: 1.1em; }
+  .verification-line a { min-height: 36px; }
   .meter { margin-top: 0.5em; }
   .meter-top { display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 0.3em; }
   .meter-bar { height: 8px; border-radius: 999px; background: var(--ms-line); overflow: hidden; }
@@ -84,7 +88,7 @@ styles: [`
 providers: [provideNativeDateAdapter(), ProfileService],
 changeDetection: ChangeDetectionStrategy.OnPush,
 imports: [FormsModule, CommonModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule,
-    ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, MatSnackBarModule, ProfilePictureUploadComponent, DeleteAccountComponent
+    ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, MatSnackBarModule, ProfilePictureUploadComponent, DeleteAccountComponent, RouterModule
 ]
 })
 export class ProfileMgrComponent implements OnInit, OnDestroy {
@@ -194,6 +198,15 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
     const p = this.profile();
     const name = `${p?.name ?? ''} ${p?.surname ?? ''}`.trim();
     return name ? name.charAt(0).toUpperCase() : '?';
+  }
+
+  protected kycLabel(status?: string): string {
+    switch (status) {
+      case 'verified': return 'Verified';
+      case 'pending': return 'Under review';
+      case 'rejected': return 'Rejected';
+      default: return 'Not started';
+    }
   }
 
   protected publicPageUrl(): string | null {
