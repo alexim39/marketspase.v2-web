@@ -172,11 +172,11 @@ import { States } from '../../_common/services/countries';
               } @else {
                 <div class="notice">
                   <mat-icon>badge</mat-icon>
-                  <p>No identity documents are needed right now. Complete this step to unlock activation.</p>
+                  <p>No identity documents are needed right now. This step completes automatically so you can activate.</p>
                 </div>
                 <div class="form-actions">
                   <button mat-flat-button color="primary" type="button" [disabled]="busy() !== null" (click)="submitKyc()">
-                    {{ busy() === 'kyc' ? 'Completing…' : 'Complete identity step' }}
+                    {{ busy() === 'kyc' ? 'Completing automatically…' : 'Complete identity step' }}
                   </button>
                   <span class="muted small">This is recorded automatically. Document verification can be added later when it is reintroduced.</span>
                 </div>
@@ -564,6 +564,7 @@ export class ActivationComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly checkoutKey = globalThis.crypto?.randomUUID?.()
     ?? `activation-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  private identityAutoCompleteRequested = false;
 
   protected readonly loading = signal(true);
   protected readonly busy = signal<'kyc' | 'order' | null>(null);
@@ -693,6 +694,19 @@ export class ActivationComponent implements OnInit {
     });
   }
 
+  /**
+   * The identity step is document-free for now, so members should not have to
+   * click a manual button. Submit it once when the page loads; if the request
+   * fails, the visible button remains as a retry.
+   */
+  private autoCompleteIdentity(status: OnboardingStatus): void {
+    if (this.identityAutoCompleteRequested) return;
+    if (status.partner.accountState !== 'member') return;
+    if ((status.partner.kycStatus ?? 'not_started') !== 'not_started') return;
+    this.identityAutoCompleteRequested = true;
+    this.submitKyc();
+  }
+
   protected pay(): void {
     const product = this.product();
     const partner = this.partner();
@@ -764,6 +778,7 @@ export class ActivationComponent implements OnInit {
         this.status.set(status.data);
         this.products.set(products.data);
         this.prefill(status.data);
+        this.autoCompleteIdentity(status.data);
       },
       error: (err: ApiError) => this.error.set(userError(err)),
     });
