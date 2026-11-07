@@ -13,7 +13,7 @@ imports: [RouterOutlet, OfflineBannerComponent, ConnectionBannerComponent],
 template: `
   <div id="container">
     <div class="body">
-      <async-connection-banner placement="bottom" />
+      <async-connection-banner placement="top" />
       <async-offline-banner/>
       <router-outlet/>
     </div>

@@ -11,7 +11,7 @@ import { SiteHeaderComponent } from './_common/components/site-header.component'
     imports: [RouterModule, FooterComponent, CookieConsentComponent, SiteHeaderComponent, ConnectionBannerComponent],
     template: `
     <div id="container">
-      <async-connection-banner placement="bottom" />
+      <async-connection-banner placement="top" />
       <a class="skip-link" href="#main">Skip to content</a>
       <async-site-header />
       <main id="main">

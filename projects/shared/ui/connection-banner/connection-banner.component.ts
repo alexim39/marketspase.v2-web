@@ -14,6 +14,7 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule],
   host: {
+    '[class.net-banner-host--top]': "placement() === 'top'",
     '[class.net-banner-host--bottom]': "placement() === 'bottom'",
   },
   template: `
@@ -74,7 +75,7 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
   styles: [`
     .net-banner {
       position: fixed;
-      top: 76px;
+      top: calc(env(safe-area-inset-top, 0px) + 76px);
       left: 50%;
       z-index: 1300;
       display: flex;
@@ -90,6 +91,17 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
       color: var(--ms-text);
       box-shadow: var(--ms-shadow-md);
       backdrop-filter: blur(14px);
+    }
+    /* Top-edge notice: floats just below the sticky app header, centered on
+       the content width. The fixed header stays fully usable underneath. */
+    :host(.net-banner-host--top) .net-banner {
+      top: calc(env(safe-area-inset-top, 0px) + 76px);
+      bottom: auto;
+      animation: net-banner-in 180ms ease-out both;
+    }
+    @keyframes net-banner-in {
+      from { opacity: 0; transform: translate(-50%, -8px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
     }
     /* Bottom toast: 12px above the viewport edge on public screens. The
        dashboard sets --ms-connection-banner-bottom so the toast clears the
@@ -134,7 +146,7 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
   `],
 })
 export class ConnectionBannerComponent {
-  /** Host-level placement: defaults to the original top anchor. */
+  /** Host-level placement: defaults to the top edge below the app header. */
   readonly placement = input<'top' | 'bottom'>('top');
 
   protected readonly network = inject(NetworkStatusService);
