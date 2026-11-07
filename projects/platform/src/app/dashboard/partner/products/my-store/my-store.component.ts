@@ -93,6 +93,7 @@ export class MyStoreComponent implements OnInit {
 
   protected readonly loading = signal(true);
   protected readonly saving = signal(false);
+  protected readonly uploadingKind = signal<'logo' | 'banner' | null>(null);
   protected readonly busyId = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly store = signal<StoreProfile | null>(null);
@@ -185,6 +186,49 @@ export class MyStoreComponent implements OnInit {
         next: (response) => {
           this.applyStore(response.data);
           this.ui.success('Store settings saved');
+        },
+        error: (err: ApiError) => this.error.set(userError(err)),
+      });
+  }
+
+  /** One action: persist the current details and open the store. */
+  protected publishStore(): void {
+    if (this.saving()) return;
+    this.saving.set(true);
+    this.error.set(null);
+    this.storeApi.updateStore({ ...this.form(), status: 'published' })
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: (response) => {
+          this.applyStore(response.data);
+          this.ui.success('Store is live');
+          this.load();
+        },
+        error: (err: ApiError) => this.error.set(userError(err)),
+      });
+  }
+
+  protected uploadImage(event: Event, kind: 'logo' | 'banner'): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    input.value = '';
+    if (!file || this.uploadingKind()) return;
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
+      this.ui.info('Choose a JPG, PNG, WebP or GIF image.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.ui.info('Image must be 5MB or smaller.');
+      return;
+    }
+    this.uploadingKind.set(kind);
+    this.error.set(null);
+    this.storeApi.uploadImage(file, kind)
+      .pipe(finalize(() => this.uploadingKind.set(null)))
+      .subscribe({
+        next: (response) => {
+          this.setForm(kind, response.data.url);
+          this.ui.success(`${kind === 'logo' ? 'Logo' : 'Banner'} uploaded. Save or publish to apply it.`);
         },
         error: (err: ApiError) => this.error.set(userError(err)),
       });

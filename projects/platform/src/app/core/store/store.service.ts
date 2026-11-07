@@ -4,6 +4,7 @@ import { ApiClient } from '../http/api-client.service';
 import {
   MyStoreEnvelope,
   StoreEarningsEnvelope,
+  StoreImageUploadEnvelope,
   StoreOrderEnvelope,
   StoreOrdersEnvelope,
   StoreProductEnvelope,
@@ -24,6 +25,14 @@ export class StoreService {
 
   updateStore(body: Record<string, unknown>): Observable<StoreProfileEnvelope> {
     return this.api.patch<StoreProfileEnvelope>('v1/stores/me', body);
+  }
+
+  /** Upload a store logo or banner; returns the hosted URL to save on the store. */
+  uploadImage(file: File, kind: 'logo' | 'banner'): Observable<StoreImageUploadEnvelope> {
+    const form = new FormData();
+    form.append('kind', kind);
+    form.append('image', file);
+    return this.api.upload<StoreImageUploadEnvelope>('v1/stores/me/images', form);
   }
 
   myProducts(): Observable<StoreProductsEnvelope> {

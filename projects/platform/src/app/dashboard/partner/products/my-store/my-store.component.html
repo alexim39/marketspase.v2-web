@@ -99,11 +99,14 @@
             <li [class.done]="form().returnPolicy.trim()"><mat-icon>{{ form().returnPolicy.trim() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon> Return policy</li>
             <li [class.done]="counts().published > 0"><mat-icon>{{ counts().published > 0 ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon> At least one published listing</li>
           </ul>
+          @if (counts().published === 0) {
+            <p class="muted small">You can publish now. Your store link goes live immediately; it joins the marketplace directory once you publish an in-stock listing.</p>
+          }
           <div class="panel-actions">
             <button mat-stroked-button type="button" (click)="setTab('settings')">Edit store details</button>
             @if (s.status !== 'published') {
-              <button mat-flat-button color="primary" type="button" (click)="setStoreStatus('published')" [disabled]="counts().published === 0 || saving()">
-                Publish store
+              <button mat-flat-button color="primary" type="button" (click)="publishStore()" [disabled]="saving()">
+                {{ saving() ? 'Publishing…' : 'Publish store' }}
               </button>
             } @else {
               <button mat-stroked-button type="button" (click)="setStoreStatus('draft')" [disabled]="saving()">Hide store</button>
@@ -235,8 +238,52 @@
         <div class="settings-grid">
           <mat-form-field appearance="outline"><mat-label>Store name</mat-label><input matInput [value]="form().name" (input)="setForm('name', $any($event.target).value)" maxlength="120" /></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>Tagline</mat-label><input matInput [value]="form().tagline" (input)="setForm('tagline', $any($event.target).value)" maxlength="180" /></mat-form-field>
-          <mat-form-field appearance="outline"><mat-label>Logo URL</mat-label><input matInput [value]="form().logo" (input)="setForm('logo', $any($event.target).value)" maxlength="500" /></mat-form-field>
-          <mat-form-field appearance="outline"><mat-label>Banner URL</mat-label><input matInput [value]="form().banner" (input)="setForm('banner', $any($event.target).value)" maxlength="500" /></mat-form-field>
+          <div class="upload-field span-2">
+            <span class="upload-label">Store logo</span>
+            <div class="upload-row">
+              <div class="upload-preview upload-preview--logo">
+                @if (form().logo) {
+                  <img [src]="imageUrl(form().logo)" alt="Store logo preview">
+                } @else {
+                  <mat-icon>storefront</mat-icon>
+                }
+              </div>
+              <div class="upload-actions">
+                <button mat-stroked-button type="button" (click)="logoInput.click()" [disabled]="uploadingKind() !== null">
+                  <mat-icon>upload</mat-icon>
+                  {{ uploadingKind() === 'logo' ? 'Uploading…' : (form().logo ? 'Change logo' : 'Upload logo') }}
+                </button>
+                @if (form().logo) {
+                  <button mat-button type="button" (click)="setForm('logo', '')" [disabled]="uploadingKind() !== null">Remove</button>
+                }
+                <span class="muted small">Square image · JPG, PNG, WebP or GIF · max 5MB</span>
+              </div>
+              <input #logoInput type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden (change)="uploadImage($event, 'logo')" />
+            </div>
+          </div>
+          <div class="upload-field span-2">
+            <span class="upload-label">Store banner</span>
+            <div class="upload-row">
+              <div class="upload-preview upload-preview--banner">
+                @if (form().banner) {
+                  <img [src]="imageUrl(form().banner)" alt="Store banner preview">
+                } @else {
+                  <mat-icon>panorama</mat-icon>
+                }
+              </div>
+              <div class="upload-actions">
+                <button mat-stroked-button type="button" (click)="bannerInput.click()" [disabled]="uploadingKind() !== null">
+                  <mat-icon>upload</mat-icon>
+                  {{ uploadingKind() === 'banner' ? 'Uploading…' : (form().banner ? 'Change banner' : 'Upload banner') }}
+                </button>
+                @if (form().banner) {
+                  <button mat-button type="button" (click)="setForm('banner', '')" [disabled]="uploadingKind() !== null">Remove</button>
+                }
+                <span class="muted small">Wide image · JPG, PNG, WebP or GIF · max 5MB</span>
+              </div>
+              <input #bannerInput type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden (change)="uploadImage($event, 'banner')" />
+            </div>
+          </div>
           <mat-form-field appearance="outline" class="span-2"><mat-label>Store story</mat-label><textarea matInput rows="3" [value]="form().bio" (input)="setForm('bio', $any($event.target).value)" maxlength="4000"></textarea></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>WhatsApp</mat-label><input matInput [value]="form().whatsapp" (input)="setForm('whatsapp', $any($event.target).value)" maxlength="40" /></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>Phone</mat-label><input matInput [value]="form().phone" (input)="setForm('phone', $any($event.target).value)" maxlength="40" /></mat-form-field>
@@ -258,7 +305,7 @@
           @if (s.status === 'published') {
             <button mat-stroked-button type="button" (click)="setStoreStatus('draft')" [disabled]="saving()">Hide store</button>
           } @else {
-            <button mat-stroked-button type="button" (click)="setStoreStatus('published')" [disabled]="saving() || counts().published === 0">Publish store</button>
+            <button mat-stroked-button type="button" (click)="publishStore()" [disabled]="saving()">{{ saving() ? 'Publishing…' : 'Publish store' }}</button>
           }
         </div>
       </section>

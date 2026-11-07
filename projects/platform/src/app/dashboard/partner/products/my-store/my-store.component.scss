@@ -486,6 +486,69 @@
   grid-column: 1 / -1;
 }
 
+.upload-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  padding: 0.7em 0.8em;
+  border: 1px solid var(--ms-line);
+  border-radius: var(--ms-radius-md);
+  background: var(--ms-canvas);
+}
+
+.upload-label {
+  color: var(--ms-text-muted);
+  font-size: 0.78em;
+  font-weight: 650;
+}
+
+.upload-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  flex-wrap: wrap;
+}
+
+.upload-preview {
+  flex: none;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--ms-line);
+  border-radius: var(--ms-radius-sm);
+  background: var(--ms-surface);
+  color: var(--ms-text-soft);
+}
+
+.upload-preview--logo {
+  width: 64px;
+  height: 64px;
+}
+
+.upload-preview--banner {
+  width: 150px;
+  height: 64px;
+}
+
+.upload-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 200px;
+}
+
+.upload-actions button {
+  min-height: 40px;
+}
+
 .toggle-row {
   display: block;
   padding: 0.7em 0.8em;

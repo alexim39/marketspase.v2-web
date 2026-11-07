@@ -206,3 +206,9 @@ export interface StoreEarningsEnvelope {
   message?: string;
   data: StoreEarnings;
 }
+
+export interface StoreImageUploadEnvelope {
+  success: boolean;
+  message?: string;
+  data: { url: string; kind: 'logo' | 'banner' };
+}
