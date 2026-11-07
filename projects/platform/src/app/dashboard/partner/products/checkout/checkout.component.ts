@@ -138,7 +138,7 @@ export class CheckoutComponent {
       });
 
     // Balance can change between shell load and checkout; refresh once.
-    this.partnerService.getPartner()
+    this.partnerService.getPartner({ fresh: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

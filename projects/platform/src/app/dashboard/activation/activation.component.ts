@@ -783,7 +783,7 @@ export class ActivationComponent implements OnInit {
 
   /** Keep the shared partner cache current so Settings shows the shipping address too. */
   private refreshSharedPartner(): void {
-    this.partnerSvc.getPartner().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.partnerSvc.getPartner({ fresh: true }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: { success?: boolean; data?: PartnerInterface }) => {
         if (res?.success && res.data) this.partnerSvc.updatePartnerService(res.data);
       },

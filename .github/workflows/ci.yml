@@ -23,6 +23,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Legacy endpoint guard
+        run: npm run check:legacy-endpoints
+
       - name: Build all apps
         run: npm run build
 
