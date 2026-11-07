@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status.service';
 
@@ -13,6 +13,9 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
   selector: 'async-connection-banner',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule],
+  host: {
+    '[class.net-banner-host--bottom]': "placement() === 'bottom'",
+  },
   template: `
     @if (!network.online()) {
       <aside class="net-banner net-banner--offline" role="status" aria-live="polite">
@@ -87,6 +90,10 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
       box-shadow: var(--ms-shadow-md);
       backdrop-filter: blur(14px);
     }
+    :host(.net-banner-host--bottom) .net-banner {
+      top: auto;
+      bottom: 24px;
+    }
     .net-banner > mat-icon { flex: none; margin-top: 2px; font-size: 21px; width: 21px; height: 21px; }
     .net-banner--offline { border-color: color-mix(in srgb, var(--ms-warning) 38%, var(--ms-line)); }
     .net-banner--offline > mat-icon { color: var(--ms-warning); }
@@ -115,6 +122,11 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
     }
     .net-btn:hover { color: var(--ms-primary-strong); border-color: var(--ms-primary); }
     .net-btn.primary { background: var(--ms-primary-soft); color: var(--ms-primary-strong); border-color: transparent; }
+    @media (max-width: 1024px) {
+      :host(.net-banner-host--bottom) .net-banner {
+        bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+      }
+    }
     @media (max-width: 700px) {
       .net-banner { top: auto; bottom: 80px; flex-wrap: wrap; }
       .net-actions { width: 100%; }
@@ -123,5 +135,8 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
   `],
 })
 export class ConnectionBannerComponent {
+  /** Host-level placement: defaults to the original top anchor. */
+  readonly placement = input<'top' | 'bottom'>('top');
+
   protected readonly network = inject(NetworkStatusService);
 }

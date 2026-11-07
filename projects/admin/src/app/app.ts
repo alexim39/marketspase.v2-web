@@ -7,7 +7,7 @@ import { ConnectionBannerComponent } from '@marketspase/shared/ui/connection-ban
 @Component({
   selector: 'async-root',
   imports: [RouterModule, ConnectionBannerComponent],
-  template: '<async-connection-banner /><router-outlet />',
+  template: '<async-connection-banner placement="bottom" /><router-outlet />',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App implements OnInit {
