@@ -254,9 +254,9 @@
                   {{ uploadingKind() === 'logo' ? 'Uploading…' : (form().logo ? 'Change logo' : 'Upload logo') }}
                 </button>
                 @if (form().logo) {
-                  <button mat-button type="button" (click)="setForm('logo', '')" [disabled]="uploadingKind() !== null">Remove</button>
+                  <button mat-button type="button" (click)="removeImage('logo')" [disabled]="uploadingKind() !== null">Remove</button>
                 }
-                <span class="muted small">Square image · JPG, PNG, WebP or GIF · max 5MB</span>
+                <span class="muted small">Square image · JPG, PNG, WebP or GIF · max 5MB · saves automatically</span>
               </div>
               <input #logoInput type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden (change)="uploadImage($event, 'logo')" />
             </div>
@@ -277,9 +277,9 @@
                   {{ uploadingKind() === 'banner' ? 'Uploading…' : (form().banner ? 'Change banner' : 'Upload banner') }}
                 </button>
                 @if (form().banner) {
-                  <button mat-button type="button" (click)="setForm('banner', '')" [disabled]="uploadingKind() !== null">Remove</button>
+                  <button mat-button type="button" (click)="removeImage('banner')" [disabled]="uploadingKind() !== null">Remove</button>
                 }
-                <span class="muted small">Wide image · JPG, PNG, WebP or GIF · max 5MB</span>
+                <span class="muted small">Wide image · JPG, PNG, WebP or GIF · max 5MB · saves automatically</span>
               </div>
               <input #bannerInput type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden (change)="uploadImage($event, 'banner')" />
             </div>

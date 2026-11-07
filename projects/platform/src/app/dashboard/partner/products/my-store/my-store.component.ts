@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
-import { finalize } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ApiError, userError } from '../../../../core/http/api-error';
@@ -224,13 +224,45 @@ export class MyStoreComponent implements OnInit {
     this.uploadingKind.set(kind);
     this.error.set(null);
     this.storeApi.uploadImage(file, kind)
+      .pipe(
+        switchMap((response) => {
+          const url = response.data.url;
+          this.setForm(kind, url);
+          this.store.update((current) => current ? { ...current, [kind]: url } : current);
+          return this.storeApi.updateStore({ [kind]: url });
+        }),
+        finalize(() => this.uploadingKind.set(null)),
+      )
+      .subscribe({
+        next: (response) => {
+          this.setForm(kind, response.data[kind] ?? '');
+          this.store.set(response.data);
+          this.ui.success(`${kind === 'logo' ? 'Logo' : 'Banner'} uploaded and saved`);
+        },
+        error: (err: ApiError) => this.error.set(userError(err)),
+      });
+  }
+
+  protected removeImage(kind: 'logo' | 'banner'): void {
+    if (this.uploadingKind()) return;
+    const previous = this.form()[kind];
+    this.uploadingKind.set(kind);
+    this.error.set(null);
+    this.setForm(kind, '');
+    this.store.update((current) => current ? { ...current, [kind]: '' } : current);
+    this.storeApi.updateStore({ [kind]: '' })
       .pipe(finalize(() => this.uploadingKind.set(null)))
       .subscribe({
         next: (response) => {
-          this.setForm(kind, response.data.url);
-          this.ui.success(`${kind === 'logo' ? 'Logo' : 'Banner'} uploaded. Save or publish to apply it.`);
+          this.setForm(kind, response.data[kind] ?? '');
+          this.store.set(response.data);
+          this.ui.success(`${kind === 'logo' ? 'Logo' : 'Banner'} removed`);
         },
-        error: (err: ApiError) => this.error.set(userError(err)),
+        error: (err: ApiError) => {
+          this.setForm(kind, previous);
+          this.store.update((current) => current ? { ...current, [kind]: previous } : current);
+          this.error.set(userError(err));
+        },
       });
   }
 
