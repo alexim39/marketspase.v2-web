@@ -49,6 +49,13 @@ export interface StoreProductDetail {
 export interface StoreListEnvelope {
   success: boolean;
   data: StorePublic[];
+  meta?: {
+    count?: number;
+    limit?: number;
+    hasMore?: boolean;
+    nextCursor?: string | null;
+    next_action?: string | null;
+  };
 }
 
 export interface StoreDetailEnvelope {

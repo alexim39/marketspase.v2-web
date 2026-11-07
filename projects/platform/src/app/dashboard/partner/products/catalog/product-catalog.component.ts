@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterModule } from '@angular/router';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { UiFeedbackService } from '../../../../core/ui/ui-feedback.service';
 import { GetProductService } from '../get-product.service';
 import { ProductInterface, ProductService } from '../monthly-purchase.service';
@@ -63,6 +64,8 @@ export class ProductCatalogComponent {
   protected readonly hasMore = signal(false);
   protected readonly products = signal<ProductInterface[]>([]);
   private nextSkip = 0;
+  private loadToken = 0;
+  private readonly search$ = new Subject<string>();
   protected readonly query = signal('');
   protected readonly category = signal('all');
   protected readonly sort = signal<SortKey>('recommended');
@@ -100,7 +103,7 @@ export class ProductCatalogComponent {
     const filtered = this.products().filter((product) => {
       if (category !== 'all' && productCategory(product).key !== category) return false;
       if (!query) return true;
-      const haystack = `${product.name ?? ''} ${product.shortDesc ?? ''} ${product.desc ?? ''} ${product.category ?? ''}`
+      const haystack = `${product.name ?? ''} ${product.shortDesc ?? ''} ${product.desc ?? ''} ${product.category ?? ''} ${product.sku ?? ''}`
         .toLowerCase();
       return haystack.includes(query);
     });
@@ -134,18 +137,27 @@ export class ProductCatalogComponent {
   });
 
   constructor() {
+    this.search$
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => this.load());
     this.load();
   }
 
   protected load(): void {
+    const token = ++this.loadToken;
     this.loading.set(true);
     this.failed.set(false);
     this.nextSkip = 0;
 
-    this.productsApi.getAllProducts({ limit: 60, skip: 0 })
+    this.productsApi.getAllProducts({ limit: 60, skip: 0, q: this.query() })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
+          if (token !== this.loadToken) return;
           const rows = (response.data ?? []).filter((product) => product.status !== 'inactive' && product.status !== 'archived');
           this.products.set(rows);
           this.nextSkip = response.data?.length ?? rows.length;
@@ -153,6 +165,7 @@ export class ProductCatalogComponent {
           this.loading.set(false);
         },
         error: () => {
+          if (token !== this.loadToken) return;
           this.failed.set(true);
           this.loading.set(false);
         },
@@ -161,11 +174,13 @@ export class ProductCatalogComponent {
 
   protected loadMore(): void {
     if (this.loadingMore() || !this.hasMore()) return;
+    const token = this.loadToken;
     this.loadingMore.set(true);
-    this.productsApi.getAllProducts({ limit: 60, skip: this.nextSkip })
+    this.productsApi.getAllProducts({ limit: 60, skip: this.nextSkip, q: this.query() })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
+          if (token !== this.loadToken) return;
           const rows = (response.data ?? []).filter((product) => product.status !== 'inactive' && product.status !== 'archived');
           const seen = new Set(this.products().map((product) => product._id));
           this.products.update((current) => [...current, ...rows.filter((product) => !seen.has(product._id))]);
@@ -173,12 +188,17 @@ export class ProductCatalogComponent {
           this.hasMore.set(response.meta?.hasMore === true);
           this.loadingMore.set(false);
         },
-        error: () => this.loadingMore.set(false),
+        error: () => {
+          if (token !== this.loadToken) return;
+          this.loadingMore.set(false);
+        },
       });
   }
 
   protected setQuery(value: string): void {
-    this.query.set(String(value ?? ''));
+    const next = String(value ?? '');
+    this.query.set(next);
+    this.search$.next(next.trim());
   }
 
   protected setCategory(key: string): void {

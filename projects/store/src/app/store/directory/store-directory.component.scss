@@ -126,3 +126,6 @@
   .search-row { flex-direction: column; }
   .search-row button { width: 100%; }
 }
+
+.load-more-row { display: flex; justify-content: center; margin-top: 1.4em; }
+.load-more-row button { min-height: 44px; }

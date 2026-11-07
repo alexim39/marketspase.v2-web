@@ -15,9 +15,16 @@ import {
 export class StoreService {
   private readonly api = inject(ApiClient);
 
-  listStores(query = ''): Observable<StoreListEnvelope> {
+  listStores(
+    query = '',
+    params: { cursor?: string | null; limit?: number } = {},
+  ): Observable<StoreListEnvelope> {
+    const search = new URLSearchParams();
     const q = query.trim();
-    const suffix = q ? `?q=${encodeURIComponent(q)}` : '';
+    if (q) search.set('q', q);
+    if (params.cursor) search.set('cursor', params.cursor);
+    if (params.limit) search.set('limit', String(params.limit));
+    const suffix = search.toString() ? `?${search.toString()}` : '';
     return this.api.get<StoreListEnvelope>(`v1/stores${suffix}`);
   }
 

@@ -34,6 +34,7 @@ export interface ProductObjectInterface {
   data: Array<ProductInterface>;
   success?: boolean;
   meta?: {
+    q?: string | null;
     count?: number;
     total?: number;
     limit?: number;
@@ -68,11 +69,12 @@ export class ProductService {
   constructor(private apiService: ApiService) {}
 
   // get all products
-  getAllProducts(params: { limit?: number; skip?: number } = {}): Observable<ProductObjectInterface> {
+  getAllProducts(params: { limit?: number; skip?: number; q?: string } = {}): Observable<ProductObjectInterface> {
     const query = new URLSearchParams({
       limit: String(params.limit ?? 60),
       skip: String(params.skip ?? 0),
     });
+    if (params.q?.trim()) query.set('q', params.q.trim());
     return this.apiService.get<ProductObjectInterface>(`products/getAll?${query.toString()}`, undefined, undefined, true);
   }
 
