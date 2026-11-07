@@ -18,11 +18,6 @@ export interface ProspectListInterface {
 export class ProspectService {
   constructor(private apiService: ApiService) {}
  
-  // get prospect owned by the system
-  getAllProspect(): Observable<any> {
-      return this.apiService.get<ProspectListInterface>(`prospect/all`, undefined, undefined, true);
-  }
-
   // get prospect owned by the partner
   getAllMyProspect(username: string): Observable<any> {
       return this.apiService.get<ProspectListInterface>(`prospect/my/${username}`, undefined, undefined, true);
@@ -43,11 +38,6 @@ export class ProspectService {
     return this.apiService.post(`v1/prospects/claim`, { surveyId, source: 'website' }, undefined, true);
   }
 
-   // detele single prospect
-  /*  deleteSingle(prospectId: string): Observable<any> {
-      return this.apiService.get<ProspectListInterface>(`prospect/delete-single/${prospectId}`, undefined, undefined, true);
-    } */
-  
   // get session booking
   getSessionBookingsFor(createdBy: string): Observable<any> {
     return this.apiService.get<ProspectListInterface>(`booking/for/${createdBy}`, undefined, undefined, true);

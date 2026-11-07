@@ -92,9 +92,9 @@ export class ContactsService {
     return this.apiService.post<any>(`v1/prospects/${prospectId}/convert`, body, undefined, true);
   }
 
-  // delete prospect 
+  // delete prospect - session-owned v1 DELETE (legacy GET-as-delete retired)
   deleteProspect(id: string): Observable<any> {
-    return this.apiService.get<string>(`prospect/delete/${id}`, undefined, undefined, true);
+    return this.apiService.delete<any>(`v1/prospects/${id}`, undefined, undefined, true);
   }
 
   // single sms charge

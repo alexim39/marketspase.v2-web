@@ -200,10 +200,10 @@ export class ContactsService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  // delete prospect 
+  // delete prospect - session-owned v1 DELETE (legacy GET-as-delete retired)
   deleteProspect(id: string): Observable<ContactsInterface> {
     return this.http
-      .get<ContactsInterface>(this.apiURL + `/prospect/delete/${id}`, { withCredentials: true })
+      .delete<ContactsInterface>(this.apiURL + `/v1/prospects/${id}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
