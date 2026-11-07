@@ -75,11 +75,11 @@ export class PartnerService {
   constructor(private apiService: ApiService) {}
   
    /**
-   * Get partner data to the backend API.
-   * @returns An Observable that emits the API response or an error.
-   */
+    * Current session partner (server-verified via the v1 session cookie).
+    * @returns An Observable that emits `{ data, message, success }`.
+    */
    getPartner(): Observable<any> {
-    return this.apiService.get<PartnerInterface>(`auth`, undefined, undefined, true);
+    return this.apiService.get<PartnerInterface>('v1/auth/me', undefined, undefined, true);
   }
 
   private partnerSubject = new BehaviorSubject<any>(null); // Initial value can be anything
