@@ -82,6 +82,7 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
       gap: 10px;
       width: min(720px, calc(100vw - 2em));
       padding: 12px 14px;
+      box-sizing: border-box;
       transform: translateX(-50%);
       border: 1px solid var(--ms-line);
       border-radius: 14px;
@@ -90,9 +91,12 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
       box-shadow: var(--ms-shadow-md);
       backdrop-filter: blur(14px);
     }
+    /* Bottom toast: 12px above the viewport edge on public screens. The
+       dashboard sets --ms-connection-banner-bottom so the toast clears the
+       mobile bottom navigation instead of covering it. */
     :host(.net-banner-host--bottom) .net-banner {
       top: auto;
-      bottom: 24px;
+      bottom: var(--ms-connection-banner-bottom, calc(env(safe-area-inset-bottom, 0px) + 12px));
     }
     .net-banner > mat-icon { flex: none; margin-top: 2px; font-size: 21px; width: 21px; height: 21px; }
     .net-banner--offline { border-color: color-mix(in srgb, var(--ms-warning) 38%, var(--ms-line)); }
@@ -108,8 +112,8 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
     .net-copy progress { width: 100%; height: 6px; margin-top: 5px; accent-color: var(--ms-primary); }
     .net-actions { display: flex; gap: 6px; flex-wrap: wrap; flex: none; }
     .net-btn {
-      min-height: 36px;
-      padding: 0 11px;
+      min-height: 44px;
+      padding: 0 12px;
       border: 1px solid var(--ms-line);
       border-radius: 10px;
       background: var(--ms-surface);
@@ -122,13 +126,8 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
     }
     .net-btn:hover { color: var(--ms-primary-strong); border-color: var(--ms-primary); }
     .net-btn.primary { background: var(--ms-primary-soft); color: var(--ms-primary-strong); border-color: transparent; }
-    @media (max-width: 1024px) {
-      :host(.net-banner-host--bottom) .net-banner {
-        bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
-      }
-    }
     @media (max-width: 700px) {
-      .net-banner { top: auto; bottom: 80px; flex-wrap: wrap; }
+      .net-banner { flex-wrap: wrap; }
       .net-actions { width: 100%; }
       .net-btn { flex: 1; }
     }

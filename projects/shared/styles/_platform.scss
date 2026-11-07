@@ -367,3 +367,10 @@ html[data-theme="dark"] {
   .messages-page .composer { padding-bottom: calc(0.6em + env(safe-area-inset-bottom, 0px)); }
   .messages-page .composer textarea { font-size: 16px; }
 }
+
+/* Shared connectivity toast: keep the bottom-edge placement clear of the
+ * platform's mobile dashboard navigation when that nav is present. Public
+ * pages and admin have no bottom nav and use the component's 12px fallback. */
+body:has(.ms-bottom-nav) {
+  --ms-connection-banner-bottom: calc(5rem + env(safe-area-inset-bottom, 0px) + 10px);
+}
