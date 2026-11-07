@@ -22,11 +22,8 @@ import { RouterModule } from '@angular/router';
           </div>
           <p class="mkt-fine">
             Free to join. Activation is a real product purchase.<br />
-            Already have an account?
-            <a routerLink="/partner/signin" style="color: #fff; font-weight: 700;">Sign in</a>
-            or
             <a
-              href="https://wa.me/2348080386208?text=Hello%20MarketSpase%2C%20I%20have%20a%20question%20before%20I%20start."
+              href="https://whatsapp.com/channel/0029Vb77xA51NCrKysUMO11D"
               target="_blank"
               rel="noopener"
               style="color: #fff; font-weight: 700;"
