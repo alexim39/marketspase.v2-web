@@ -88,6 +88,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { label: 'Support tickets', link: '/tickets', icon: 'support_agent' },
       { label: 'Moderation', link: '/moderation', icon: 'flag' },
       { label: 'Audit log', link: '/audit', icon: 'history' },
+      { label: 'Recycle bin', link: '/recycle-bin', icon: 'restore_from_trash' },
     ],
   },
   {

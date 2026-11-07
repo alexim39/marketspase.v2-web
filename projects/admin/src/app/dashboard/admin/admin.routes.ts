@@ -24,6 +24,7 @@ import { AdminStoreOrdersComponent } from './store-orders/admin-store-orders.com
 import { AdminStoreSettlementsComponent } from './store-settlements/admin-store-settlements.component';
 import { AdminSettingsComponent } from './settings/admin-settings.component';
 import { AdminMemberViewComponent } from './members/admin-member-view.component';
+import { AdminRecycleBinComponent } from './recycle-bin/admin-recycle-bin.component';
 
 /**
  * Admin feature routes. The shell and admin role guard live in the root
@@ -123,6 +124,11 @@ export const AdminRoutes: Routes = [
     path: 'audit',
     component: AdminAuditComponent,
     title: 'Audit log - MarketSpase Admin',
+  },
+  {
+    path: 'recycle-bin',
+    component: AdminRecycleBinComponent,
+    title: 'Recycle bin - MarketSpase Admin',
   },
   {
     path: 'tickets',
