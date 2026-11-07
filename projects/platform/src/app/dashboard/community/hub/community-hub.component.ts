@@ -41,8 +41,8 @@ import { ApiError, userError } from '../../../core/http/api-error';
           <p class="muted">Team updates, events and private messages in one place.</p>
         </div>
         <div class="head-actions">
-          <a mat-flat-button color="primary" routerLink="community/feed">Open feed</a>
-          <a mat-stroked-button routerLink="messages">Messages</a>
+          <a mat-flat-button color="primary" routerLink="/dashboard/community/feed">Open feed</a>
+          <a mat-stroked-button routerLink="/dashboard/messages">Messages</a>
         </div>
       </header>
 
@@ -62,22 +62,22 @@ import { ApiError, userError } from '../../../core/http/api-error';
         <div class="metric">
           <span>Unread messages</span>
           <strong>{{ unread() }}</strong>
-          <a routerLink="messages">Open inbox</a>
+          <a routerLink="/dashboard/messages">Open inbox</a>
         </div>
         <div class="metric">
           <span>Upcoming events</span>
           <strong>{{ upcomingEvents().length }}</strong>
-          <a routerLink="community/events">View events</a>
+          <a routerLink="/dashboard/community/events">View events</a>
         </div>
         <div class="metric">
           <span>Latest posts</span>
           <strong>{{ posts().length }}</strong>
-          <a routerLink="community/feed">Read feed</a>
+          <a routerLink="/dashboard/community/feed">Read feed</a>
         </div>
         <div class="metric metric--accent">
           <span>Ask Ora</span>
           <strong class="metric-text">AI coach</strong>
-          <a routerLink="ora">Start a chat</a>
+          <a routerLink="/dashboard/ora">Start a chat</a>
         </div>
       </div>
 
@@ -88,14 +88,14 @@ import { ApiError, userError } from '../../../core/http/api-error';
               <p class="eyebrow">Feed</p>
               <h2>Latest from the team</h2>
             </div>
-            <a mat-button routerLink="community/feed">See all</a>
+            <a mat-button routerLink="/dashboard/community/feed">See all</a>
           </div>
 
           @if (posts().length === 0) {
             <div class="empty">
               <mat-icon>forum</mat-icon>
               <p>Quiet here. Be the first to share an update or recognition.</p>
-              <a mat-flat-button color="primary" routerLink="community/feed">Open feed</a>
+              <a mat-flat-button color="primary" routerLink="/dashboard/community/feed">Open feed</a>
             </div>
           } @else {
             <ul class="post-list">
@@ -124,7 +124,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
                 <p class="eyebrow">Calendar</p>
                 <h2>Upcoming events</h2>
               </div>
-              <a mat-button routerLink="community/events">All</a>
+              <a mat-button routerLink="/dashboard/community/events">All</a>
             </div>
             @if (upcomingEvents().length === 0) {
               <p class="muted empty-line">No upcoming events yet. Check back soon.</p>
@@ -153,7 +153,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
                 <p class="eyebrow">Inbox</p>
                 <h2>Recent messages</h2>
               </div>
-              <a mat-button routerLink="messages">Open</a>
+              <a mat-button routerLink="/dashboard/messages">Open</a>
             </div>
             @if (recentMessages().length === 0) {
               <p class="muted empty-line">No messages yet. Start a conversation with a teammate.</p>
@@ -181,10 +181,10 @@ import { ApiError, userError } from '../../../core/http/api-error';
               </div>
             </div>
             <div class="quick-grid">
-              <a routerLink="community/feed"><mat-icon>dynamic_feed</mat-icon><span>Team feed</span></a>
-              <a routerLink="community/events"><mat-icon>event</mat-icon><span>Events</span></a>
-              <a routerLink="messages"><mat-icon>chat</mat-icon><span>Messages</span></a>
-              <a routerLink="ora"><mat-icon>smart_toy</mat-icon><span>Ask Ora</span></a>
+              <a routerLink="/dashboard/community/feed"><mat-icon>dynamic_feed</mat-icon><span>Team feed</span></a>
+              <a routerLink="/dashboard/community/events"><mat-icon>event</mat-icon><span>Events</span></a>
+              <a routerLink="/dashboard/messages"><mat-icon>chat</mat-icon><span>Messages</span></a>
+              <a routerLink="/dashboard/ora"><mat-icon>smart_toy</mat-icon><span>Ask Ora</span></a>
             </div>
           </div>
         </aside>
