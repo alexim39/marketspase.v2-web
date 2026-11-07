@@ -2,7 +2,7 @@ import { DestroyRef, Injectable, InjectionToken, inject, signal } from '@angular
 import { HttpHeaders } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, filter, map, switchMap, takeUntil, timer } from 'rxjs';
-import { SILENT_LOADING_HEADER } from '../loading/progress.interceptor';
+import { SILENT_LOADING_HEADER } from '@marketspase/shared/core/http/silent-loading';
 import { NotificationService } from './notification.service';
 import { StoredNotificationItem } from './notification.models';
 

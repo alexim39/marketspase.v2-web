@@ -1,7 +1,9 @@
 import { Injectable, computed, signal } from '@angular/core';
 
 const LITE_KEY = 'ms_lite_mode';
-const SLOW_AFTER_MS = 4000;
+const SLOW_AFTER_MS = 8000;
+const SLOW_NOTICE_MUTE_KEY = 'ms_slow_notice_muted_until';
+const SLOW_NOTICE_MUTE_MS = 10 * 60 * 1000;
 
 interface NetworkInformationLike {
   effectiveType?: string;
@@ -35,6 +37,7 @@ export class NetworkStatusService {
 
   private slowTimer: number | null = null;
   private resetTimer: number | null = null;
+  private slowMutedUntil = this.readSlowMute();
 
   constructor() {
     if (typeof document !== 'undefined') {
@@ -54,7 +57,7 @@ export class NetworkStatusService {
     const connection = this.connection();
     connection?.addEventListener?.('change', () => {
       this.effectiveType.set(this.readEffectiveType());
-      if (this.isWeakType()) this.slow.set(true);
+      if (this.isWeakType() && !this.slowNoticeMuted()) this.slow.set(true);
     });
   }
 
@@ -91,11 +94,14 @@ export class NetworkStatusService {
   dismissSlow(): void {
     this.slow.set(false);
     this.clearSlowTimer();
+    this.muteSlowNotice();
   }
 
   enableLiteMode(): void {
     this.setLite(true);
     this.slow.set(false);
+    this.clearSlowTimer();
+    this.muteSlowNotice();
   }
 
   disableLiteMode(): void {
@@ -139,11 +145,31 @@ export class NetworkStatusService {
 
   private scheduleSlow(): void {
     this.clearSlowTimer();
+    if (this.slowNoticeMuted()) return;
     if (this.isWeakType()) {
       this.slow.set(true);
       return;
     }
     this.slowTimer = window.setTimeout(() => this.slow.set(true), SLOW_AFTER_MS);
+  }
+
+  private slowNoticeMuted(): boolean {
+    return Date.now() < this.slowMutedUntil;
+  }
+
+  private muteSlowNotice(): void {
+    this.slowMutedUntil = Date.now() + SLOW_NOTICE_MUTE_MS;
+    try {
+      sessionStorage.setItem(SLOW_NOTICE_MUTE_KEY, String(this.slowMutedUntil));
+    } catch { /* private mode */ }
+  }
+
+  private readSlowMute(): number {
+    try {
+      return Number(sessionStorage.getItem(SLOW_NOTICE_MUTE_KEY) ?? 0) || 0;
+    } catch {
+      return 0;
+    }
   }
 
   private clearSlowTimer(): void {

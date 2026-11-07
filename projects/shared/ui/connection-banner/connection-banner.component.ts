@@ -36,15 +36,19 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
         <mat-icon aria-hidden="true">network_check</mat-icon>
         <div class="net-copy">
           <strong>Your connection is slow.</strong>
-          <span>
-            {{ network.completedRequests() }} of {{ network.totalRequests() }} request{{ network.totalRequests() === 1 ? '' : 's' }} finished.
-            We are still working — no need to refresh.
-          </span>
-          <progress [value]="network.progressPercent()" max="100" aria-label="Requests completed"></progress>
+          <span>Still working — you can keep using the page.</span>
         </div>
         <div class="net-actions">
-          <button type="button" class="net-btn primary" (click)="network.enableLiteMode()">Lighter path</button>
-          <button type="button" class="net-btn" (click)="network.dismissSlow()">Keep waiting</button>
+          <button type="button" class="net-btn primary" (click)="network.enableLiteMode()">Lite mode</button>
+          <button
+            type="button"
+            class="net-btn net-btn--icon"
+            (click)="network.dismissSlow()"
+            aria-label="Dismiss slow connection notice"
+            title="Hide for 10 minutes"
+          >
+            <mat-icon aria-hidden="true">close</mat-icon>
+          </button>
         </div>
       </aside>
     } @else if (network.cacheUsed()) {
@@ -113,8 +117,25 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
     .net-banner > mat-icon { flex: none; margin-top: 2px; font-size: 21px; width: 21px; height: 21px; }
     .net-banner--offline { border-color: color-mix(in srgb, var(--ms-warning) 38%, var(--ms-line)); }
     .net-banner--offline > mat-icon { color: var(--ms-warning); }
-    .net-banner--slow { border-color: color-mix(in srgb, var(--ms-info) 38%, var(--ms-line)); }
-    .net-banner--slow > mat-icon { color: var(--ms-info); }
+    /* Slow is ambient, not an emergency: one compact line with one action and
+       a dismiss control. The global top progress bar carries the detail. */
+    .net-banner--slow {
+      width: min(560px, calc(100vw - 2em));
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-color: color-mix(in srgb, var(--ms-info) 38%, var(--ms-line));
+      border-radius: 16px;
+    }
+    .net-banner--slow > mat-icon { color: var(--ms-info); margin-top: 0; }
+    .net-banner--slow .net-copy {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 0.35em;
+    }
+    .net-banner--slow .net-copy strong { font-size: 0.84rem; white-space: nowrap; }
+    .net-banner--slow .net-copy span { font-size: 0.8rem; }
+    .net-banner--slow .net-actions { align-items: center; flex-wrap: nowrap; }
     .net-banner--cache > mat-icon { color: var(--ms-primary-strong); }
     .net-banner--lite > mat-icon { color: var(--ms-accent); }
     .net-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 0.82rem; line-height: 1.45; }
@@ -138,10 +159,17 @@ import { NetworkStatusService } from '@marketspase/shared/core/ui/network-status
     }
     .net-btn:hover { color: var(--ms-primary-strong); border-color: var(--ms-primary); }
     .net-btn.primary { background: var(--ms-primary-soft); color: var(--ms-primary-strong); border-color: transparent; }
+    .net-btn--icon { display: grid; place-items: center; width: 44px; padding: 0; }
+    .net-btn--icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
     @media (max-width: 700px) {
       .net-banner { flex-wrap: wrap; }
       .net-actions { width: 100%; }
       .net-btn { flex: 1; }
+      .net-banner--slow { flex-wrap: nowrap; gap: 6px; padding: 8px; }
+      .net-banner--slow .net-copy { flex-direction: column; align-items: flex-start; gap: 0; }
+      .net-banner--slow .net-copy span { display: none; }
+      .net-banner--slow .net-actions { width: auto; }
+      .net-banner--slow .net-btn { flex: none; }
     }
   `],
 })
