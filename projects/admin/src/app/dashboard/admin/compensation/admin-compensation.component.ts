@@ -44,7 +44,7 @@ type Tab = 'entries' | 'bonuses' | 'product';
         <div>
           <p class="eyebrow">Admin desk</p>
           <h1>Compensation</h1>
-          <p class="muted">Release accrued commissions, void bad entries, run the mentor bonus, and assign commission ranks.</p>
+          <p class="muted">Commissions auto-release when an order is fulfilled. This desk handles exceptions, mentor bonuses and commission ranks.</p>
         </div>
         <button mat-stroked-button type="button" (click)="runBonuses()" [disabled]="running()">
           <mat-icon>volunteer_activism</mat-icon>
@@ -102,6 +102,7 @@ type Tab = 'entries' | 'bonuses' | 'product';
       </div>
 
       @if (tab() === 'entries') {
+        <p class="muted small auto-note">Activation commissions release automatically when the activation order is fulfilled. The Release button is for manual exceptions only.</p>
         <div class="filters">
           @for (filter of entryFilters; track filter.value) {
             <button type="button" [class.active]="entryStatus() === filter.value" (click)="setEntryStatus(filter.value)">{{ filter.label }}</button>
@@ -173,7 +174,7 @@ type Tab = 'entries' | 'bonuses' | 'product';
             <p class="eyebrow">Product economics</p>
             <h2>Product commission health</h2>
             <p class="muted small">
-              Growth-plan product orders only. Reconciliation repairs missing accruals; it never releases or voids an entry.
+              Growth-plan product orders only. Product commissions release automatically on fulfillment. Reconciliation repairs missing accruals; it never releases or voids an entry.
             </p>
           </div>
           <div class="report-actions">
@@ -355,6 +356,7 @@ type Tab = 'entries' | 'bonuses' | 'product';
     .tabs button.active { border-color: var(--ms-primary); background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
     .tabs mat-icon { font-size: 17px; width: 17px; height: 17px; }
     .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .auto-note { margin: 0 0 10px; }
     .filters button { border: 1px solid var(--ms-line); background: var(--ms-surface); color: var(--ms-text); border-radius: 999px; padding: 5px 11px; font: inherit; font-size: 0.8rem; cursor: pointer; }
     .filters button.active { border-color: var(--ms-primary); background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
     .dp-card { background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: 14px; overflow: hidden; margin-bottom: 14px; }

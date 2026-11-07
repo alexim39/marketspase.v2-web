@@ -150,6 +150,15 @@ export interface AdminActivationOrder extends ActivationOrder {
   fulfilledBy: string | null;
   refundedBy: string | null;
   adminNote: string | null;
+  /** Present on the fulfil response: commissions auto-released with the order. */
+  autoRelease?: {
+    released: number;
+    total: number;
+    repeated?: boolean;
+    skipped?: boolean;
+    reason?: string;
+    error?: boolean;
+  } | null;
 }
 
 export interface AdminKycSubmission extends KycSubmission {

@@ -293,8 +293,20 @@ export class AdminActivationComponent implements OnInit {
     this.busyId.set(order.id);
     this.error.set(null);
     this.onboarding.fulfillOrder(order.id).pipe(finalize(() => this.busyId.set(null))).subscribe({
-      next: () => {
-        this.snack.open('Order marked fulfilled', 'Close', { duration: 3000 });
+      next: (response) => {
+        const release = response.data?.autoRelease;
+        if (release?.released) {
+          const count = release.released;
+          this.snack.open(
+            `Order fulfilled — ${count} commission ${count === 1 ? 'entry' : 'entries'} released`,
+            'Close',
+            { duration: 5000 },
+          );
+        } else if (release?.error) {
+          this.snack.open('Order fulfilled — commission release will retry automatically', 'Close', { duration: 5000 });
+        } else {
+          this.snack.open('Order marked fulfilled', 'Close', { duration: 3000 });
+        }
         this.loadOrders();
       },
       error: (err: ApiError) => this.error.set(userError(err)),
