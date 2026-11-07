@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { API_BASE_URL } from '../config/api-tokens';
 
 interface StoredField {
   key: string;
@@ -28,6 +29,7 @@ const RESTORE_KEY = 'ms_session_restore_v1';
 @Injectable({ providedIn: 'root' })
 export class SessionRecoveryService {
   readonly restored = signal(false);
+  private readonly apiBase = inject(API_BASE_URL, { optional: true }) ?? '';
 
   captureCurrentWork(reason: SavedWork['reason'] = 'expired'): void {
     if (typeof document === 'undefined' || typeof sessionStorage === 'undefined') return;
@@ -62,6 +64,32 @@ export class SessionRecoveryService {
       sessionStorage.setItem(RESTORE_KEY, '1');
     } catch {
       // Private mode: still redirect safely; only the draft is lost.
+    }
+    void this.persistToServer(draft);
+  }
+
+  /**
+   * Best-effort server copy. The local sessionStorage draft always exists;
+   * this survives a browser/device switch if the session is still valid.
+   */
+  private async persistToServer(draft: SavedWork): Promise<void> {
+    try {
+      const base = String(this.apiBase ?? '').replace(/\/+$/, '');
+      await fetch(`${base}/v1/settings/drafts/session-expiry`, {
+        method: 'PUT',
+        credentials: 'include',
+        keepalive: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({
+          payload: { fields: draft.fields, at: draft.at, reason: draft.reason },
+          path: draft.path,
+        }),
+      });
+    } catch {
+      // Offline/expired session: the local draft remains the fallback.
     }
   }
 

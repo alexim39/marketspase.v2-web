@@ -8,6 +8,10 @@ import { HttpInterceptorFn } from '@angular/common/http';
  * are fixed without touching 100+ call sites.
  */
 export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {
-  if (req.withCredentials) return next(req);
-  return next(req.clone({ withCredentials: true }));
+  const withCredentials = req.withCredentials
+    ? req
+    : req.clone({ withCredentials: true });
+  return next(withCredentials.clone({
+    setHeaders: { 'X-Requested-With': 'XMLHttpRequest' },
+  }));
 };

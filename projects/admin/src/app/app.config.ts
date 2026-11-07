@@ -15,6 +15,8 @@ import { adminSessionScopeInterceptor } from './core/http/admin-session-scope.in
 import { httpCacheInterceptor } from '@marketspase/shared/core/http/http-cache.interceptor';
 import { networkStatusInterceptor } from '@marketspase/shared/core/http/network-status.interceptor';
 import { sessionExpiryInterceptor } from '@marketspase/shared/core/http/session-expiry.interceptor';
+import { refreshSessionInterceptor } from '@marketspase/shared/core/http/refresh-session.interceptor';
+import { idempotencyInterceptor } from '@marketspase/shared/core/http/idempotency.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -33,9 +35,11 @@ export const appConfig: ApplicationConfig = {
         credentialsInterceptor,
         authTokenInterceptor,
         httpCacheInterceptor,
+        idempotencyInterceptor,
         networkStatusInterceptor,
         apiErrorInterceptor,
         sessionExpiryInterceptor,
+        refreshSessionInterceptor,
       ]),
     ),
   ],

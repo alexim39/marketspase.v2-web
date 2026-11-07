@@ -15,6 +15,8 @@ import { apiErrorInterceptor } from './core/http/api-error.interceptor';
 import { httpCacheInterceptor } from '@marketspase/shared/core/http/http-cache.interceptor';
 import { networkStatusInterceptor } from '@marketspase/shared/core/http/network-status.interceptor';
 import { sessionExpiryInterceptor } from '@marketspase/shared/core/http/session-expiry.interceptor';
+import { refreshSessionInterceptor } from '@marketspase/shared/core/http/refresh-session.interceptor';
+import { idempotencyInterceptor } from '@marketspase/shared/core/http/idempotency.interceptor';
 import { provideEchartsCore } from 'ngx-echarts';
 import { echarts } from './core/charts/echarts-setup';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -37,11 +39,13 @@ export const appConfig: ApplicationConfig = {
       credentialsInterceptor,
       authTokenInterceptor,
       httpCacheInterceptor,
+      idempotencyInterceptor,
       networkStatusInterceptor,
       progressInterceptor,
       apiErrorInterceptor,
       offlineQueueInterceptor,
       sessionExpiryInterceptor,
+      refreshSessionInterceptor,
     ])),
     // ECharts core once (treeshaken); chart components use NgxEchartsDirective.
     provideEchartsCore({ echarts }),

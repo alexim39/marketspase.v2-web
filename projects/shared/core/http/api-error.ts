@@ -12,11 +12,17 @@ export interface ApiError {
   code: string;
   message: string;
   details?: unknown;
+  fix?: string;
+  requestId?: string;
+  retryAfter?: number;
 }
 
 export function toApiError(error: unknown): ApiError {
   if (error instanceof HttpErrorResponse) {
-    const body = (error.error ?? {}) as { message?: unknown; code?: unknown; details?: unknown };
+    const body = (error.error ?? {}) as {
+      message?: unknown; code?: unknown; details?: unknown; fix?: unknown;
+      requestId?: unknown; retry_after?: unknown;
+    };
     return {
       status: error.status,
       code: typeof body.code === 'string' ? body.code : 'HTTP_ERROR',
@@ -33,6 +39,9 @@ export function toApiError(error: unknown): ApiError {
                   ? 'Too many attempts. Wait a moment, then try again.'
                   : 'Server error occurred, please try again.',
       ...(body.details !== undefined ? { details: body.details } : {}),
+      ...(typeof body.fix === 'string' ? { fix: body.fix } : {}),
+      ...(typeof body.requestId === 'string' ? { requestId: body.requestId } : {}),
+      ...(Number.isFinite(Number(body.retry_after)) ? { retryAfter: Number(body.retry_after) } : {}),
     };
   }
   return { status: 0, code: 'UNKNOWN', message: 'Unexpected error occurred.' };
@@ -101,6 +110,7 @@ const NEXT_STEP_BY_TEXT: Array<[RegExp, string]> = [
 ];
 
 function nextStep(api: ApiError): string | null {
+  if (typeof api.fix === 'string' && api.fix.trim()) return api.fix.trim();
   const hay = typeof api.message === 'string' ? api.message : '';
   let step: string | null = null;
   if (typeof api.code === 'string' && NEXT_STEP_BY_CODE[api.code]) {
