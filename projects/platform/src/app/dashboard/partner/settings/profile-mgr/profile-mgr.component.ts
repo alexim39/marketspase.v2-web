@@ -149,7 +149,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
         email: new FormControl(this.partner.email, [Validators.required, Validators.email]),
         phone: new FormControl(this.partner.phone, [Validators.required, Validators.pattern(/^[0-9+\s()-]{7,20}$/)]),
         dobDatePicker: new FormControl(this.partner.dobDatePicker),
-        bio: new FormControl(this.partner.bio),
+        bio: new FormControl(this.partner.bio ?? ''),
         id: new FormControl(this.partner._id),
       });
       this.usernameForm = new FormGroup({
