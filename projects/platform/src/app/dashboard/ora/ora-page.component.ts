@@ -90,7 +90,13 @@ const RECOMMENDATIONS: Array<{ title: string; body: string; link: string; linkLa
                 <div class="approval">
                   <div>
                     <strong>{{ a.label }}</strong>
-                    <p class="muted">{{ a.summary }}</p>
+                    @if (a.payload?.subject) {
+                      <p class="draft-subject">{{ a.payload?.subject }}</p>
+                    }
+                    @if (a.payload?.body) {
+                      <p class="draft">{{ a.payload?.body }}</p>
+                    }
+                    <p class="muted">{{ a.summary }}{{ a.type === 'send_sms' ? ' · SMS charge applies.' : '' }}</p>
                   </div>
                   <div class="approval-actions">
                     <button mat-flat-button color="primary" type="button" (click)="approve(a)" [disabled]="actingId() === a.id">
@@ -150,6 +156,8 @@ const RECOMMENDATIONS: Array<{ title: string; body: string; link: string; linkLa
     .approval { display: flex; flex-direction: column; gap: 0.5em; border-top: 1px solid var(--ms-line); padding-top: 0.65em; }
     .approval:first-of-type { border-top: none; padding-top: 0; }
     .approval p { margin: 0.15em 0 0; }
+    .approval .draft-subject { color: inherit; font-weight: 700; }
+    .approval .draft { white-space: pre-wrap; max-height: 8em; overflow-y: auto; padding: 0.4em 0.55em; border-left: 2px solid var(--ms-primary); background: var(--ms-canvas); border-radius: 4px; }
     .approval-actions { display: flex; gap: 0.35em; flex-wrap: wrap; }
     .approval-actions button, .approval-actions a { min-height: 44px; }
     .big { margin: 0; font-size: 1.5em; font-weight: 800; }

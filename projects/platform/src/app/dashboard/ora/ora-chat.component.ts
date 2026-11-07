@@ -151,6 +151,12 @@ interface ChatMsg extends OraMessage {
                         [class.failed]="a.status === 'failed'">
                         <div class="action-copy">
                           <strong>{{ a.label }}</strong>
+                          @if (a.payload?.subject) {
+                            <small class="draft-subject">{{ a.payload?.subject }}</small>
+                          }
+                          @if (a.payload?.body) {
+                            <small class="draft">{{ a.payload?.body }}</small>
+                          }
                           <small>{{ actionNote(a) }}</small>
                         </div>
                         <div class="action-buttons">
@@ -231,6 +237,8 @@ interface ChatMsg extends OraMessage {
     .action-copy { display: flex; flex-direction: column; gap: 0.15em; min-width: 0; flex: 1 1 180px; }
     .action-copy strong { font-size: 0.92em; }
     .action-copy small { color: var(--ms-text-muted); line-height: 1.35; }
+    .action-copy .draft-subject { color: inherit; font-weight: 700; }
+    .action-copy .draft { white-space: pre-wrap; max-height: 7.5em; overflow-y: auto; padding: 0.35em 0.45em; border-left: 2px solid var(--ms-primary); background: var(--ms-surface); border-radius: 4px; }
     .action-buttons { display: flex; align-items: center; gap: 0.25em; flex-wrap: wrap; }
     .action-buttons button, .action-buttons a { min-height: 44px; }
     .starters { display: flex; flex-wrap: wrap; gap: 0.4em; }
@@ -360,7 +368,10 @@ export class OraChatComponent implements OnInit {
   }
 
   protected actionNote(a: OraAction): string {
-    if (a.status === 'proposed' || !a.status) return a.summary || 'Waiting for your approval.';
+    if (a.status === 'proposed' || !a.status) {
+      const base = a.summary || 'Waiting for your approval.';
+      return a.type === 'send_sms' ? `${base} SMS charge applies.` : base;
+    }
     if (a.status === 'executing') return 'Working…';
     if (a.status === 'skipped') return 'Skipped.';
     if (a.status === 'failed') return a.error || 'Could not complete this action.';

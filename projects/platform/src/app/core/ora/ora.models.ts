@@ -22,6 +22,14 @@ export interface OraAction {
   summary?: string;
   status?: 'proposed' | 'ready' | 'executing' | 'executed' | 'skipped' | 'failed';
   requiresApproval?: boolean;
+  payload?: {
+    prospectId?: string;
+    body?: string;
+    subject?: string;
+    followUpDate?: string;
+    stage?: string;
+    [key: string]: unknown;
+  };
   result?: unknown;
   error?: string | null;
 }
