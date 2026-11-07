@@ -9,6 +9,8 @@ import {
   OraContextEnvelope,
   OraConversationEnvelope,
   OraConversationsEnvelope,
+  OraPlanEnvelope,
+  OraPlanItem,
 } from './ora.models';
 
 /** Ora AI assistant → backend `/v1/ora/*`. Fully typed. */
@@ -18,6 +20,14 @@ export class OraService {
 
   context(): Observable<OraContextEnvelope> {
     return this.api.get<OraContextEnvelope>('v1/ora/context');
+  }
+
+  plan(): Observable<OraPlanEnvelope> {
+    return this.api.get<OraPlanEnvelope>('v1/ora/plan');
+  }
+
+  savePlan(items: OraPlanItem[]): Observable<OraPlanEnvelope> {
+    return this.api.put<OraPlanEnvelope>('v1/ora/plan', { items });
   }
 
   chat(message: string, conversationId?: string): Observable<OraChatEnvelope> {

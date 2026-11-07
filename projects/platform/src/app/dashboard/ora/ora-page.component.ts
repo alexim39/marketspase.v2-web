@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { OraService } from '../../core/ora/ora.service';
-import { OraAction, OraAnalytics } from '../../core/ora/ora.models';
+import { OraAction, OraAnalytics, OraPlan, actionPlanItems } from '../../core/ora/ora.models';
 import { ApiError } from '../../core/http/api-error';
 import { OraChatComponent } from './ora-chat.component';
 
@@ -69,6 +69,30 @@ const RECOMMENDATIONS: Array<{ title: string; body: string; link: string; linkLa
 
         <aside class="ora-side">
           <article class="card">
+            <h3>Today's plan</h3>
+            @if (loadingPlan()) {
+              <mat-progress-bar mode="indeterminate" aria-label="Loading plan" />
+            } @else if (plan(); as today) {
+              @if (today.items.length) {
+                <ul class="plan">
+                  @for (item of today.items; track item.title) {
+                    <li>
+                      <strong>{{ item.title }}</strong>
+                      @if (item.detail) { <span class="muted">{{ item.detail }}</span> }
+                      @if (item.link) { <a mat-button [routerLink]="item.link">Open</a> }
+                    </li>
+                  }
+                </ul>
+                <p class="muted">Ask Ora to change it; you approve the update.</p>
+              } @else {
+                <p class="muted">Ask Ora to plan your day.</p>
+              }
+            } @else {
+              <p class="muted">Ask Ora to plan your day.</p>
+            }
+          </article>
+
+          <article class="card">
             <h3>Recommended for you</h3>
             @for (r of recommendations; track r.title) {
               <div class="rec">
@@ -95,6 +119,16 @@ const RECOMMENDATIONS: Array<{ title: string; body: string; link: string; linkLa
                     }
                     @if (a.payload?.body) {
                       <p class="draft">{{ a.payload?.body }}</p>
+                    }
+                    @if (a.type === 'save_daily_plan' && planItems(a).length) {
+                      <ul class="plan">
+                        @for (item of planItems(a); track item.title) {
+                          <li>
+                            <strong>{{ item.title }}</strong>
+                            @if (item.detail) { <span class="muted">{{ item.detail }}</span> }
+                          </li>
+                        }
+                      </ul>
                     }
                     <p class="muted">{{ a.summary }}{{ a.type === 'send_sms' ? ' · SMS charge applies.' : '' }}</p>
                   </div>
@@ -158,6 +192,10 @@ const RECOMMENDATIONS: Array<{ title: string; body: string; link: string; linkLa
     .approval p { margin: 0.15em 0 0; }
     .approval .draft-subject { color: inherit; font-weight: 700; }
     .approval .draft { white-space: pre-wrap; max-height: 8em; overflow-y: auto; padding: 0.4em 0.55em; border-left: 2px solid var(--ms-primary); background: var(--ms-canvas); border-radius: 4px; }
+    .plan { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5em; }
+    .plan li { display: flex; flex-direction: column; gap: 0.15em; border-top: 1px solid var(--ms-line); padding-top: 0.5em; }
+    .plan li:first-child { border-top: none; padding-top: 0; }
+    .plan a { align-self: flex-start; min-height: 44px; }
     .approval-actions { display: flex; gap: 0.35em; flex-wrap: wrap; }
     .approval-actions button, .approval-actions a { min-height: 44px; }
     .big { margin: 0; font-size: 1.5em; font-weight: 800; }
@@ -179,9 +217,13 @@ export class OraPageComponent implements OnInit {
   protected readonly loadingStats = signal(true);
   protected readonly pending = signal<OraAction[]>([]);
   protected readonly actingId = signal<string | null>(null);
+  protected readonly plan = signal<OraPlan | null>(null);
+  protected readonly loadingPlan = signal(true);
+  protected readonly planItems = actionPlanItems;
   protected readonly recommendations = RECOMMENDATIONS;
 
   ngOnInit(): void {
+    this.loadPlan();
     this.ora
       .analytics()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -208,6 +250,19 @@ export class OraPageComponent implements OnInit {
       });
   }
 
+  private loadPlan(): void {
+    this.ora
+      .plan()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.plan.set(res.data ?? null);
+          this.loadingPlan.set(false);
+        },
+        error: () => this.loadingPlan.set(false),
+      });
+  }
+
   protected approve(action: OraAction): void {
     if (!action.id || this.actingId()) return;
     this.actingId.set(action.id);
@@ -217,6 +272,7 @@ export class OraPageComponent implements OnInit {
       .subscribe({
         next: () => {
           this.pending.update((rows) => rows.filter((row) => row.id !== action.id));
+          if (action.type === 'save_daily_plan') this.loadPlan();
           this.actingId.set(null);
         },
         error: () => this.actingId.set(null),

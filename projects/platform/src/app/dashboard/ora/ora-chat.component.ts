@@ -11,7 +11,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { OraService } from '../../core/ora/ora.service';
-import { OraAction, OraContext, OraConversationSummary, OraMessage } from '../../core/ora/ora.models';
+import { OraAction, OraContext, OraConversationSummary, OraMessage, actionPlanItems } from '../../core/ora/ora.models';
 import { ApiError } from '../../core/http/api-error';
 
 /** Minimal safe markdown: escape first, then bold/code/bullets/breaks. */
@@ -157,6 +157,16 @@ interface ChatMsg extends OraMessage {
                           @if (a.payload?.body) {
                             <small class="draft">{{ a.payload?.body }}</small>
                           }
+                          @if (a.type === 'save_daily_plan' && planItems(a).length) {
+                            <small class="draft plan-preview">
+                              @for (item of planItems(a); track item.title) {
+                                <span class="plan-item">
+                                  <strong>{{ item.title }}</strong>
+                                  @if (item.detail) { - {{ item.detail }} }
+                                </span>
+                              }
+                            </small>
+                          }
                           <small>{{ actionNote(a) }}</small>
                         </div>
                         <div class="action-buttons">
@@ -239,6 +249,9 @@ interface ChatMsg extends OraMessage {
     .action-copy small { color: var(--ms-text-muted); line-height: 1.35; }
     .action-copy .draft-subject { color: inherit; font-weight: 700; }
     .action-copy .draft { white-space: pre-wrap; max-height: 7.5em; overflow-y: auto; padding: 0.35em 0.45em; border-left: 2px solid var(--ms-primary); background: var(--ms-surface); border-radius: 4px; }
+    .action-copy .plan-preview { display: grid; gap: 0.2em; white-space: normal; }
+    .action-copy .plan-item { display: block; }
+    .action-copy .plan-item strong { color: var(--ms-text); }
     .action-buttons { display: flex; align-items: center; gap: 0.25em; flex-wrap: wrap; }
     .action-buttons button, .action-buttons a { min-height: 44px; }
     .starters { display: flex; flex-wrap: wrap; gap: 0.4em; }
@@ -275,6 +288,7 @@ export class OraChatComponent implements OnInit {
   protected readonly actingId = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly canRetry = signal(false);
+  protected readonly planItems = actionPlanItems;
 
   private lastFailed: string | null = null;
 
@@ -378,6 +392,7 @@ export class OraChatComponent implements OnInit {
     if (a.status === 'executed') {
       const result = (a.result ?? {}) as Record<string, unknown>;
       if (result['sent'] !== undefined) return `Sent ${result['sent']} of ${result['total']}.`;
+      if (result['dateKey']) return 'Plan saved.';
       if (result['followUpDate']) return 'Follow-up scheduled.';
       if (result['stage']) return `Moved to ${result['stage']}.`;
       return 'Done.';

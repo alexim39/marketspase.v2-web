@@ -13,9 +13,24 @@ export interface OraContext {
 
 export type OraContextEnvelope = ApiEnvelope<OraContext>;
 
+export interface OraPlanItem {
+  title: string;
+  detail?: string;
+  link?: string;
+}
+
+export interface OraPlan {
+  dateKey: string;
+  items: OraPlanItem[];
+  source?: string | null;
+  savedAt?: string | null;
+}
+
+export type OraPlanEnvelope = ApiEnvelope<OraPlan>;
+
 export interface OraAction {
   id?: string | null;
-  type?: 'open_page' | 'send_sms' | 'send_email' | 'schedule_followup' | 'advance_stage';
+  type?: 'open_page' | 'send_sms' | 'send_email' | 'schedule_followup' | 'advance_stage' | 'save_daily_plan';
   label: string;
   link?: string;
   title?: string;
@@ -28,11 +43,26 @@ export interface OraAction {
     subject?: string;
     followUpDate?: string;
     stage?: string;
+    dateKey?: string;
+    items?: OraPlanItem[];
     [key: string]: unknown;
   };
   result?: unknown;
   error?: string | null;
 }
+
+/** Plan items are optional and always re-validated by the API. */
+export const actionPlanItems = (action: OraAction): OraPlanItem[] => {
+  const items = action.payload?.items;
+  if (!Array.isArray(items)) return [];
+  return items
+    .filter((item): item is OraPlanItem => Boolean(item && typeof item === 'object' && item.title))
+    .map((item) => ({
+      title: String(item.title),
+      ...(item.detail ? { detail: String(item.detail) } : {}),
+      ...(item.link ? { link: String(item.link) } : {}),
+    }));
+};
 
 export type OraActionsEnvelope = ApiEnvelope<OraAction[]>;
 export type OraActionEnvelope = ApiEnvelope<OraAction>;
