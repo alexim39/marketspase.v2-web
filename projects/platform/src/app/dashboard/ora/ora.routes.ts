@@ -5,6 +5,6 @@ export const OraRoutes: Routes = [
   {
     path: '',
     component: OraPageComponent,
-    title: 'Ora - Your MarketSpase growth coach',
+    title: 'Ora - Your AI Business Partner | MarketSpase',
   },
 ];

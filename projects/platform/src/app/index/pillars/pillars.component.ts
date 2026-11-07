@@ -5,50 +5,88 @@ import { RouterModule } from '@angular/router';
 
 interface Pillar {
   icon: string;
+  tone: string;
   title: string;
   body: string;
-  link: string;
-  cta: string;
 }
 
 @Component({
   selector: 'async-index-pillars',
   imports: [MatButtonModule, MatIconModule, RouterModule],
-template: `
-<section class="pillars" aria-label="What the platform does">
-  <p class="eyebrow">/ WHY PARTNERS LOG IN DAILY</p>
-  <h2>Five jobs. One platform.</h2>
-  <div class="grid">
-    @for (p of pillars; track p.title) {
-      <article class="dp-card card">
-        <mat-icon>{{ p.icon }}</mat-icon>
-        <h3>{{ p.title }}</h3>
-        <p>{{ p.body }}</p>
-        <a mat-button routerLink="{{ p.link }}">{{ p.cta }}</a>
-      </article>
-    }
-  </div>
-</section>
-`,
-changeDetection: ChangeDetectionStrategy.Eager,
-styles: [`
-.pillars { padding: 3em 1.25em; max-width: 1080px; margin: 0 auto; }
-.eyebrow { color: var(--ms-primary-strong); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.15em; margin: 0; }
-.pillars h2 { margin: 0.3em 0 1em; font-size: clamp(1.5rem, 3.5vw, 2.1rem); }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 1em; }
-.card { padding: 1.25em; display: flex; flex-direction: column; gap: 0.5em; }
-.card mat-icon { color: var(--ms-primary-strong); font-size: 2rem; height: 2rem; width: 2rem; }
-.card h3 { margin: 0; font-size: 1.05rem; }
-.card p { margin: 0; color: var(--ms-text-muted); font-size: 0.92rem; line-height: 1.6; flex: 1; }
-.card a { align-self: flex-start; text-decoration: none; color: var(--ms-primary-strong); font-weight: 700; min-height: 44px; display: inline-flex; align-items: center; }
-`],
+  template: `
+    <section class="mkt-section" aria-labelledby="pillars-title">
+      <div class="mkt-section-inner">
+        <div class="mkt-section-head">
+          <p class="mkt-eyebrow">The problems · The fixes</p>
+          <h2 class="mkt-h2" id="pillars-title">Less chasing. More building.</h2>
+          <p class="mkt-sub">
+            Every fear people bring to network marketing gets a direct answer inside MarketSpase.
+            This is how your online business removes the parts you hate.
+          </p>
+        </div>
+
+        <div class="mkt-grid mkt-grid--3">
+          @for (p of pillars; track p.title) {
+            <article class="mkt-card">
+              <span [class]="'mkt-icon-tile ' + p.tone">
+                <mat-icon aria-hidden="true">{{ p.icon }}</mat-icon>
+              </span>
+              <h3>{{ p.title }}</h3>
+              <p>{{ p.body }}</p>
+            </article>
+          }
+        </div>
+
+        <div class="mkt-actions" style="justify-content: center; margin-top: 2rem;">
+          <a mat-flat-button color="primary" routerLink="/partner/signup" (click)="scrollToTop()">Start your online business</a>
+          <a mat-stroked-button routerLink="/ora" (click)="scrollToTop()">Meet Ora first</a>
+        </div>
+      </div>
+    </section>
+  `,
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class PillarsComponent {
   protected readonly pillars: Pillar[] = [
-    { icon: 'person_search', title: 'Manage prospects', body: 'Pipeline, follow-ups, bookings and conversions — never lose a prospect again.', link: 'partner/signin', cta: 'Open pipeline →' },
-    { icon: 'groups', title: 'Grow your team', body: 'Downline tree, activation board, contact lists and coaching — see who needs you next.', link: 'partner/signin', cta: 'See my team →' },
-    { icon: 'campaign', title: 'Promote outward', body: 'Campaigns, invite links and your public page turn effort into inbound interest.', link: 'partner/signin', cta: 'Promote →' },
-    { icon: 'school', title: 'Learn & certify', body: 'IPO, QSG and SMO with quizzes and upline-confirmed certificates that open rank gates.', link: 'partner/signin', cta: 'Start learning →' },
-    { icon: 'insights', title: 'Know your numbers', body: 'Team health, funnel, goals and forecasts — act before problems compound.', link: 'partner/signin', cta: 'View insights →' },
+    {
+      icon: 'do_not_disturb_on',
+      tone: '',
+      title: 'I don’t want to chase people',
+      body: 'MarketSpase runs central ads and routes the interest. You serve people who already raised their hand.',
+    },
+    {
+      icon: 'phone_disabled',
+      tone: 'mkt-icon-tile--rose',
+      title: 'I don’t want to make calls',
+      body: 'No cold, warm or hot call scripts. Conversations are opt-in, and Ora prepares the follow-ups for your approval.',
+    },
+    {
+      icon: 'today',
+      tone: 'mkt-icon-tile--teal',
+      title: 'I don’t know what to do daily',
+      body: 'Ora builds a short daily plan from your rank, pipeline and campaigns. You always know the next move.',
+    },
+    {
+      icon: 'edit_note',
+      tone: 'mkt-icon-tile--violet',
+      title: 'I don’t know what to say',
+      body: 'Need a campaign or follow-up? Ora prepares the draft. You edit, approve or skip.',
+    },
+    {
+      icon: 'people_outline',
+      tone: 'mkt-icon-tile--amber',
+      title: 'I don’t want to pitch friends',
+      body: 'Sharing is optional. Your relationships stay relationships; growth comes from the platform.',
+    },
+    {
+      icon: 'groups',
+      tone: 'mkt-icon-tile--teal',
+      title: 'I don’t want to build alone',
+      body: 'Ora, your team and the community are built in. Support is part of your online business.',
+    },
   ];
+
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }

@@ -13,24 +13,37 @@ import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo
           <a routerLink="/" class="brand" aria-label="MarketSpase home">
             <async-brand-logo variant="full-white" height="30px" alt="" />
           </a>
-          <p>The operating platform for independent network marketing partners.</p>
-          <a class="footer-cta" routerLink="partner/signup">
-            Start your business <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+          <p>
+            The online business opportunity without the chase. Real products, fair allocation
+            and Ora, your AI business partner.
+          </p>
+          <a class="footer-cta" routerLink="/partner/signup">
+            Start your online business <mat-icon aria-hidden="true">arrow_forward</mat-icon>
           </a>
         </div>
 
         <nav class="footer-col" aria-label="Platform">
           <h2>Platform</h2>
           <a routerLink="/">Home</a>
-          <a routerLink="partner/signin">Partner sign in</a>
-          <a routerLink="partner/signup">Create account</a>
+          <a routerLink="/how-it-works">How it works</a>
+          <a routerLink="/ora">Meet Ora</a>
+          <a routerLink="/partner/signup">Start your business</a>
+          <a routerLink="/partner/signin">Partner sign in</a>
         </nav>
 
         <nav class="footer-col" aria-label="Company">
           <h2>Company</h2>
+          <a routerLink="/about">About MarketSpase</a>
+          <a routerLink="/faq">FAQ</a>
           <a href="https://wa.me/2348080386208" target="_blank" rel="noopener">Talk to us</a>
-          <a routerLink="/">Why MarketSpase</a>
-          <a routerLink="/">How it works</a>
+          <a href="mailto:contacts@marketspase.com">Email support</a>
+        </nav>
+
+        <nav class="footer-col" aria-label="Legal">
+          <h2>Legal</h2>
+          <a href="https://marketspase.com/legal/terms" target="_blank" rel="noopener">Terms of Service</a>
+          <a href="https://marketspase.com/legal/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+          <a routerLink="/faq">Common questions</a>
         </nav>
       </div>
 
@@ -52,7 +65,7 @@ import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo
       width: min(1180px, calc(100% - 2.5em));
       margin: 0 auto;
       display: grid;
-      grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(0, 0.7fr));
+      grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 0.65fr));
       gap: 2em;
       padding: 3em 0 2.4em;
     }
@@ -106,6 +119,9 @@ import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo
     }
 
     .footer-col a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
       color: color-mix(in srgb, var(--ms-ink-text) 78%, transparent);
       text-decoration: none;
     }

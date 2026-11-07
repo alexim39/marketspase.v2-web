@@ -3,41 +3,54 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 
-
 @Component({
-    selector: 'async-index-why-we-exist',
-    imports: [RouterModule, MatIconModule, MatButtonModule],
-    template: `
-    <section class="mission" aria-label="Why we exist">
-      <mat-icon class="mark">diamond</mat-icon>
-      <h2>Built so no partner builds alone.</h2>
-      <p>
-        MarketSpase turns effort into duplication: learn the method, work it visibly,
-        and coach others to do the same. This platform is the shared workspace where
-        that compounding happens — pipeline, team, training and community in one login.
-      </p>
-      <a mat-button routerLink="partner/signin" (click)="scrollToTop()">Sign in to your workspace →</a>
+  selector: 'async-index-why-we-exist',
+  imports: [MatButtonModule, MatIconModule, RouterModule],
+  template: `
+    <section class="mkt-section mkt-section--ink" aria-labelledby="mission-title">
+      <div class="mkt-section-inner">
+        <div class="mkt-section-head">
+          <span class="mkt-icon-tile" style="margin: 0 auto 1em;" aria-hidden="true">
+            <mat-icon>auto_awesome</mat-icon>
+          </span>
+          <p class="mkt-eyebrow">Why we exist</p>
+          <h2 class="mkt-h2" id="mission-title">We built the online business opportunity we wished existed.</h2>
+          <p class="mkt-sub">
+            Most network marketing left young people with scripts, group chats and pressure.
+            MarketSpase gives them a real product business, a platform that brings the interest
+            and an AI business partner that prepares the work.
+          </p>
+        </div>
+
+        <div class="mkt-grid mkt-grid--3">
+          <article class="mkt-card mkt-card--ink">
+            <span class="mkt-icon-tile mkt-icon-tile--teal" aria-hidden="true"><mat-icon>do_not_disturb_on</mat-icon></span>
+            <h3>No chasing</h3>
+            <p>MarketSpase runs the ads and routes the interest. You never have to hunt strangers.</p>
+          </article>
+          <article class="mkt-card mkt-card--ink">
+            <span class="mkt-icon-tile" aria-hidden="true"><mat-icon>phone_disabled</mat-icon></span>
+            <h3>No cold calls</h3>
+            <p>Ora prepares the conversation. You approve what sends.</p>
+          </article>
+          <article class="mkt-card mkt-card--ink">
+            <span class="mkt-icon-tile mkt-icon-tile--amber" aria-hidden="true"><mat-icon>inventory_2</mat-icon></span>
+            <h3>Real business</h3>
+            <p>A real product, product margin and a transparent wallet — not a course or a joining fee.</p>
+          </article>
+        </div>
+
+        <div class="mkt-actions" style="justify-content: center; margin-top: 2rem;">
+          <a mat-flat-button color="primary" routerLink="/partner/signup" (click)="scrollToTop()">Start your online business</a>
+          <a mat-stroked-button routerLink="/about" (click)="scrollToTop()">Read our story</a>
+        </div>
+      </div>
     </section>
   `,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styles: [`
-  .mission {
-    padding: 3em 1.25em;
-    text-align: center;
-    background: var(--ms-ink, #14122b);
-    color: var(--ms-ink-text, #f3f4f6);
-  }
-  .mark { color: var(--ms-ink-icon, #8192ee); font-size: 2.5rem; height: 2.5rem; width: 2.5rem; }
-  .mission h2 { margin: 0.5em 0; font-size: clamp(1.4rem, 3.5vw, 2rem); color: var(--ms-ink-text, #f3f4f6); }
-  .mission p { margin: 0 auto 1.25em; max-width: 44em; line-height: 1.7; opacity: 0.85; }
-  .mission a { min-height: 44px; color: var(--ms-ink-icon, #8192ee); font-weight: 700; }
-  `]
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class WhyWeExistComponent{
-
-   // scroll to top when clicked
-   scrollToTop() {
-     window.scrollTo({ top: 0, behavior: 'smooth' });
-   }
-
+export class WhyWeExistComponent {
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }

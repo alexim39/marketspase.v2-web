@@ -50,9 +50,9 @@ import { StatePanelComponent } from '@marketspase/shared/ui/state-panel/state-pa
           <mat-progress-bar mode="indeterminate" class="auth-progress" aria-label="Signing you in"></mat-progress-bar>
         }
         <a class="back" routerLink="/" (click)="scrollTop()">← Back to home</a>
-        <p class="eyebrow">MarketSpase · Partner Platform</p>
+        <p class="eyebrow">MarketSpase · Welcome back</p>
         <h1>Welcome back</h1>
-        <p class="sub">Sign in to work your pipeline, coach your team and track your numbers.</p>
+        <p class="sub">Sign in to check your plan, talk to Ora and keep your online business moving.</p>
         <form [formGroup]="signInForm" (ngSubmit)="onSubmit()">
           <mat-form-field appearance="outline">
             <mat-label>Email address</mat-label>

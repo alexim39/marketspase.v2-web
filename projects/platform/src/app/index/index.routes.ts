@@ -18,7 +18,27 @@ export const IndexRoutes: Routes = [
             {
                 path: 'join',
                 loadComponent: () => import('./join/join-landing.component').then(c => c.JoinLandingComponent),
-                title: "Join MarketSpase - Partner business"
+                title: "Join MarketSpase - Start Your Online Business Without the Chase"
+            },
+            {
+                path: 'how-it-works',
+                loadComponent: () => import('./how-it-works/how-it-works.component').then(c => c.HowItWorksComponent),
+                title: "How Your Online Business Works - MarketSpase"
+            },
+            {
+                path: 'ora',
+                loadComponent: () => import('./ora/ora-page.component').then(c => c.OraPublicPageComponent),
+                title: "Meet Ora - Your AI Business Partner | MarketSpase"
+            },
+            {
+                path: 'about',
+                loadComponent: () => import('./about/about-page.component').then(c => c.AboutPageComponent),
+                title: "About MarketSpase - A Real Online Business Opportunity"
+            },
+            {
+                path: 'faq',
+                loadComponent: () => import('./faq-page/faq-page.component').then(c => c.FaqPageComponent),
+                title: "Online Business Questions - MarketSpase FAQ"
             },
             {
                 path: 'partner',
@@ -31,12 +51,12 @@ export const IndexRoutes: Routes = [
                     {
                         path: 'signin',
                         component: PartnerSigninComponent,
-                        title: "Partner Signin - MarketSpase Partner Sign in",
+                        title: "Sign In - MarketSpase Partner Platform",
                     },
                     {
                         path: 'signup',
                         component: PartnerSignupComponent,
-                        title: "Partner Signup - MarketSpase Partner Sign up"
+                        title: "Create Your Free Account - MarketSpase"
                     },
                     {
                         path: 'verify-email',

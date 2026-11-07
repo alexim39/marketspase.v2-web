@@ -4,9 +4,9 @@
       <mat-progress-bar mode="indeterminate" class="auth-progress" aria-label="Creating your account"></mat-progress-bar>
     }
     <a class="back" routerLink="/" (click)="scrollToTop()">← Back to home</a>
-    <p class="eyebrow">MarketSpase · Partner Platform</p>
-    <h1>Create your partner account</h1>
-    <p class="sub">Create your free MarketSpase account. We&rsquo;ll email you a verification link before your first sign-in.</p>
+    <p class="eyebrow">MarketSpase · Start your online business</p>
+    <h1>Create your free business account</h1>
+    <p class="sub">This is where your online business starts. We&rsquo;ll email you a verification link, then Ora will meet you with your first plan.</p>
 
     <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
       <div class="names-row">
@@ -77,7 +77,7 @@
             <span>Creating your account…</span>
           </span>
         } @else {
-          <span class="btn-inline"><span>Create account</span></span>
+          <span class="btn-inline"><span>Create my business account</span></span>
         }
       </button>
       @if (isSubmitting()) {

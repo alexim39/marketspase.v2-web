@@ -16,20 +16,21 @@ const CAMPAIGN_KEY = 'ms_campaign';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatButtonModule, MatIconModule, RouterModule],
   template: `
-    <section class="join-page">
-      <div class="join-hero">
-        <div class="hero-copy">
-          <p class="eyebrow">MarketSpase · Partner business</p>
-          <h1>Own a real product business. Let the platform bring the growth.</h1>
-          <p class="lede">
-            MarketSpase runs the advertising, captures interest and allocates activated partners fairly.
-            You activate with a real clothing product, build your team and earn from product margin — not recruitment fees.
+    <div class="mkt-hero">
+      <div class="mkt-hero-inner">
+        <div class="mkt-hero-copy">
+          <p class="mkt-eyebrow">Your online business opportunity · Without the chase</p>
+          <h1>Start a real online business <span class="mkt-accent">without chasing anyone.</span></h1>
+          <p class="mkt-lede">
+            MarketSpase gives you a product-backed online business, brings the interest and puts
+            <strong>Ora</strong>, your AI business partner, in your corner. Ora plans and prepares;
+            you approve the next move.
           </p>
-          <div class="hero-actions">
-            <a mat-flat-button color="primary" class="cta" [routerLink]="['/partner/signup']" [queryParams]="signupParams()">
-              Create your account
+          <div class="mkt-actions">
+            <a mat-flat-button color="primary" [routerLink]="['/partner/signup']" [queryParams]="signupParams()">
+              Start your online business
             </a>
-            <a mat-stroked-button routerLink="/partner/signin">I already have an account</a>
+            <a mat-stroked-button routerLink="/how-it-works">See how it works</a>
           </div>
           @if (campaign()) {
             <p class="campaign-chip" role="status">
@@ -37,86 +38,145 @@ const CAMPAIGN_KEY = 'ms_campaign';
               Campaign: {{ campaign() }}
             </p>
           }
-          <p class="fine">
-            No guaranteed placement or income. Activation buys a real product; commissions follow product margin and qualification.
+          <p class="mkt-fine">
+            Activation buys a real product; commissions follow product sales and qualification.
           </p>
         </div>
 
-        <div class="hero-card">
-          <p class="card-eyebrow">How it works</p>
-          <ol class="steps">
+        <aside class="join-card" aria-label="How MarketSpase works">
+          <p class="join-card-eyebrow">Your first four moves</p>
+          <ol class="join-steps">
             <li>
-              <span class="step-num">1</span>
-              <div><strong>Create your free account</strong><span>Verify your email and complete your profile.</span></div>
+              <span class="join-step-num">1</span>
+              <div><strong>Create your free account</strong><span>Verify your email, meet Ora and get your first plan.</span></div>
             </li>
             <li>
-              <span class="step-num">2</span>
-              <div><strong>Activate with the starter product</strong><span>A real MarketSpase clothing set, shipped to you.</span></div>
+              <span class="join-step-num">2</span>
+              <div><strong>Activate your online business</strong><span>A real MarketSpase clothing set, shipped to you. Complete KYC.</span></div>
             </li>
             <li>
-              <span class="step-num">3</span>
-              <div><strong>Enter the allocation queue</strong><span>Fair weighting places you with an eligible campaign owner.</span></div>
+              <span class="join-step-num">3</span>
+              <div><strong>Let the platform bring the interest</strong><span>Central ads and fair allocation. You don&rsquo;t chase.</span></div>
             </li>
             <li>
-              <span class="step-num">4</span>
-              <div><strong>Earn and build</strong><span>Product commissions, mentor bonus and team growth.</span></div>
+              <span class="join-step-num">4</span>
+              <div><strong>Approve the next move</strong><span>Ora prepares follow-ups and campaigns. You approve and track your wallet.</span></div>
             </li>
           </ol>
-        </div>
+          <a class="join-more" routerLink="/how-it-works">
+            Read the full journey <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+          </a>
+        </aside>
       </div>
+    </div>
 
-      <div class="value-grid">
-        <article>
-          <mat-icon>verified</mat-icon>
-          <strong>A real product</strong>
-          <p>The activation purchase buys a standalone clothing set — not a joining fee.</p>
-        </article>
-        <article>
-          <mat-icon>hub</mat-icon>
-          <strong>Central acquisition</strong>
-          <p>MarketSpase advertises and captures prospects; partners are allocated fairly.</p>
-        </article>
-        <article>
-          <mat-icon>balance</mat-icon>
-          <strong>Explainable allocation</strong>
-          <p>Wait time, capped campaign contribution, fit and capacity decide placement.</p>
-        </article>
-        <article>
-          <mat-icon>payments</mat-icon>
-          <strong>Margin-based rewards</strong>
-          <p>Commissions and mentor bonuses are funded by product gross margin, never campaign spend.</p>
-        </article>
+    <section class="mkt-section" aria-labelledby="join-why-title">
+      <div class="mkt-section-inner">
+        <div class="mkt-section-head">
+          <p class="mkt-eyebrow">Why start here</p>
+          <h2 class="mkt-h2" id="join-why-title">A real online business. Without the old hustle.</h2>
+          <p class="mkt-sub">
+            No cold calls. No chasing friends. No guesswork. Just a product-backed business
+            and a coach who prepares the work.
+          </p>
+        </div>
+        <div class="mkt-grid mkt-grid--4">
+          <article class="mkt-card">
+            <span class="mkt-icon-tile" aria-hidden="true"><mat-icon>do_not_disturb_on</mat-icon></span>
+            <h3>No chasing</h3>
+            <p>MarketSpase runs central ads and routes the interest through fair allocation.</p>
+          </article>
+          <article class="mkt-card">
+            <span class="mkt-icon-tile mkt-icon-tile--violet" aria-hidden="true"><mat-icon>auto_awesome</mat-icon></span>
+            <h3>Ora prepares, you approve</h3>
+            <p>Daily plans, follow-ups and campaign drafts — you stay in control.</p>
+          </article>
+          <article class="mkt-card">
+            <span class="mkt-icon-tile mkt-icon-tile--teal" aria-hidden="true"><mat-icon>verified</mat-icon></span>
+            <h3>A real product business</h3>
+            <p>Product-backed, not a course or a joining fee. Real margin, transparent wallet.</p>
+          </article>
+          <article class="mkt-card">
+            <span class="mkt-icon-tile mkt-icon-tile--amber" aria-hidden="true"><mat-icon>groups</mat-icon></span>
+            <h3>Support built in</h3>
+            <p>Ora, your team and the community are in your corner from day one.</p>
+          </article>
+        </div>
+
+        <div class="mkt-cta" style="margin-top: 2rem;">
+          <p class="mkt-eyebrow">Start free</p>
+          <h2>Your online business starts here.</h2>
+          <p>Create your account, look around and ask Ora your first question. You can activate when you are ready.</p>
+          <div class="mkt-actions">
+            <a mat-flat-button color="primary" [routerLink]="['/partner/signup']" [queryParams]="signupParams()">Start your online business</a>
+            <a mat-stroked-button routerLink="/ora">Meet Ora first</a>
+          </div>
+          <p class="mkt-fine">Free to join. Activation is a real product purchase.</p>
+        </div>
       </div>
     </section>
   `,
   styles: [`
-    .join-page { max-width: 1180px; margin: 0 auto; padding: 32px 20px 56px; display: flex; flex-direction: column; gap: 22px; }
-    .join-hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.9fr); gap: 22px; align-items: center; }
-    .eyebrow { margin: 0 0 8px; color: var(--ms-primary-strong); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
-    h1 { margin: 0 0 12px; font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.06; letter-spacing: -0.035em; }
-    .lede { margin: 0; max-width: 46em; color: var(--ms-text-muted); font-size: 1.02rem; line-height: 1.6; }
-    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
-    .hero-actions a { min-height: 48px; text-decoration: none; }
-    .cta { font-weight: 800; }
-    .campaign-chip { display: inline-flex; align-items: center; gap: 6px; margin: 14px 0 0; padding: 5px 11px; border-radius: 999px; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-size: 0.8em; font-weight: 700; }
-    .campaign-chip mat-icon { font-size: 16px; height: 16px; width: 16px; }
-    .fine { margin: 14px 0 0; color: var(--ms-text-muted); font-size: 0.8rem; line-height: 1.5; max-width: 44em; }
-    .hero-card { background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-xl); padding: 20px; box-shadow: var(--ms-shadow-md); }
-    .card-eyebrow { margin: 0 0 12px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ms-text-muted); }
-    .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
-    .steps li { display: flex; gap: 12px; align-items: flex-start; }
-    .step-num { width: 30px; height: 30px; flex: none; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; font-weight: 800; font-size: 0.85em; }
-    .steps strong { display: block; font-size: 0.98em; }
-    .steps span { display: block; color: var(--ms-text-muted); font-size: 0.86em; line-height: 1.45; margin-top: 2px; }
-    .value-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-    .value-grid article { background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 6px; }
-    .value-grid mat-icon { color: var(--ms-primary-strong); }
-    .value-grid strong { font-size: 0.98em; }
-    .value-grid p { margin: 0; color: var(--ms-text-muted); font-size: 0.86em; line-height: 1.5; }
-    @media (max-width: 860px) {
-      .join-hero { grid-template-columns: 1fr; }
-      .join-page { padding-top: 20px; }
+    .campaign-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 14px 0 0;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--ms-ink-icon);
+      font-size: 0.78rem;
+      font-weight: 700;
     }
+    .campaign-chip mat-icon { width: 16px; height: 16px; font-size: 16px; }
+
+    .join-card {
+      width: min(440px, 100%);
+      margin: 0 auto;
+      padding: 1.35em;
+      border-radius: var(--ms-radius-xl);
+      background: #ffffff;
+      color: #12131a;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.42);
+    }
+    .join-card-eyebrow {
+      margin: 0 0 0.9em;
+      color: #676c7e;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .join-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.9em; }
+    .join-steps li { display: flex; align-items: flex-start; gap: 0.7em; }
+    .join-step-num {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      flex: none;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+    .join-steps strong { display: block; font-size: 0.94rem; line-height: 1.25; }
+    .join-steps span { display: block; margin-top: 2px; color: #676c7e; font-size: 0.83rem; line-height: 1.45; }
+    .join-more {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3em;
+      min-height: 44px;
+      margin-top: 0.8em;
+      color: #4c5bd4;
+      font-size: 0.83rem;
+      font-weight: 750;
+      text-decoration: none;
+    }
+    .join-more mat-icon { width: 17px; height: 17px; font-size: 17px; }
   `],
 })
 export class JoinLandingComponent implements OnInit {

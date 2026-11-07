@@ -4,53 +4,68 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 
 @Component({
-selector: 'async-index-pathway',
-imports: [MatButtonModule, MatIconModule, RouterModule],
-template: `
-<section class="pathway" aria-label="How it works">
-  <p class="eyebrow">/ HOW IT WORKS</p>
-  <h2>Three steps. Then compound.</h2>
-  <ol class="steps">
-    <li class="dp-card">
-      <span class="num">1</span>
-      <h3>Create your account</h3>
-      <p>Sign up free with your name, phone and email, verify your email, and your workspace is ready.</p>
-    </li>
-    <li class="dp-card">
-      <span class="num">2</span>
-      <h3>Learn &amp; get confirmed</h3>
-      <p>Complete IPO, QSG and SMO, pass the quizzes. Training is recorded automatically — no upline confirmation.</p>
-    </li>
-    <li class="dp-card">
-      <span class="num">3</span>
-      <h3>Duplicate daily</h3>
-      <p>Work your pipeline, coach your downline, track your numbers. The platform tells you the next move.</p>
-    </li>
-  </ol>
-  <div class="ladder" aria-label="Rank path">
-    <span>Partner</span><mat-icon>arrow_forward</mat-icon>
-    <span>Builder</span><mat-icon>arrow_forward</mat-icon>
-    <span>Leader</span><mat-icon>arrow_forward</mat-icon>
-    <span><strong>Ambassador</strong></span>
-  </div>
-  <a mat-flat-button color="primary" routerLink="partner/signup" (click)="scrollToTop()">Start step one</a>
-</section>
-`,
-changeDetection: ChangeDetectionStrategy.Eager,
-styles: [`
-.pathway { background: var(--ms-canvas); border-top: 1px solid var(--ms-line); border-bottom: 1px solid var(--ms-line); padding: 3em 1.25em; text-align: center; }
-.eyebrow { color: var(--ms-primary-strong); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.15em; margin: 0; }
-.pathway h2 { margin: 0.3em 0 1em; font-size: clamp(1.5rem, 3.5vw, 2.1rem); }
-.steps { list-style: none; margin: 0 auto 1.5em; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 1em; max-width: 960px; text-align: left; }
-.steps li { padding: 1.25em; }
-.num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--ms-ink); color: var(--ms-primary); font-weight: 800; margin-bottom: 0.5em; }
-.steps h3 { margin: 0 0 0.3em; }
-.steps p { margin: 0; color: var(--ms-text-muted); font-size: 0.92rem; line-height: 1.6; }
-.ladder { display: flex; align-items: center; justify-content: center; gap: 0.4em; flex-wrap: wrap; margin-bottom: 1.5em; font-size: 0.9em; color: var(--ms-text-muted); }
-.ladder mat-icon { font-size: 18px; height: 18px; width: 18px; color: var(--ms-primary-strong); }
-.ladder strong { color: var(--ms-primary-strong); }
-a[mat-flat-button] { min-height: 48px; }
-`],
+  selector: 'async-index-pathway',
+  imports: [MatButtonModule, MatIconModule, RouterModule],
+  template: `
+    <section class="mkt-section mkt-section--soft" aria-labelledby="pathway-title">
+      <div class="mkt-section-inner">
+        <div class="mkt-section-head">
+          <p class="mkt-eyebrow">How your online business works</p>
+          <h2 class="mkt-h2" id="pathway-title">From &ldquo;I want to earn online&rdquo; to a business that knows its next move.</h2>
+          <p class="mkt-sub">
+            No chasing, no cold calls, no guessing. Here is the whole journey from a free
+            account to a business that knows what it is doing today.
+          </p>
+        </div>
+
+        <ol class="mkt-steps">
+          <li class="mkt-step">
+            <span class="mkt-step-num">1</span>
+            <h3>Start free. Meet Ora.</h3>
+            <p>Create your account, verify your email and get your first plan. No pressure, no calls.</p>
+          </li>
+          <li class="mkt-step mkt-step--accent">
+            <span class="mkt-step-num">2</span>
+            <h3>Activate your online business</h3>
+            <p>Get the MarketSpase starter product — a real product, shipped to you. Complete KYC and join the allocation queue.</p>
+          </li>
+          <li class="mkt-step">
+            <span class="mkt-step-num">3</span>
+            <h3>Let the platform bring the interest</h3>
+            <p>MarketSpase runs central ads and allocates activated partners fairly to funded campaigns. You don&rsquo;t chase.</p>
+          </li>
+          <li class="mkt-step">
+            <span class="mkt-step-num">4</span>
+            <h3>Approve the next move. Grow.</h3>
+            <p>Ora prepares follow-ups, campaigns and team check-ins. You approve, track your wallet and build.</p>
+          </li>
+        </ol>
+
+        <div style="margin-top: 2.2rem; text-align: center;">
+          <p class="mkt-eyebrow" style="margin-bottom: 0.7em;">Your rank path</p>
+          <ul class="mkt-ladder" aria-label="Partner rank path">
+            <li>Partner</li>
+            <li class="mkt-ladder-arrow" aria-hidden="true"><mat-icon>arrow_forward</mat-icon></li>
+            <li>Builder</li>
+            <li class="mkt-ladder-arrow" aria-hidden="true"><mat-icon>arrow_forward</mat-icon></li>
+            <li>Leader</li>
+            <li class="mkt-ladder-arrow" aria-hidden="true"><mat-icon>arrow_forward</mat-icon></li>
+            <li class="is-current">Ambassador</li>
+          </ul>
+        </div>
+
+        <div class="mkt-actions" style="justify-content: center; margin-top: 2rem;">
+          <a mat-flat-button color="primary" routerLink="/partner/signup" (click)="scrollToTop()">Start your online business</a>
+          <a mat-stroked-button routerLink="/how-it-works" (click)="scrollToTop()">See the full journey</a>
+        </div>
+        <p class="mkt-fine" style="text-align: center; max-width: 44em; margin-left: auto; margin-right: auto;">
+          Activation is a product purchase, not a recruitment fee — and your dashboard shows every next step.
+          You earn from product sales and qualification.
+        </p>
+      </div>
+    </section>
+  `,
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class PathwayComponent {
   scrollToTop() {

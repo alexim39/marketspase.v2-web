@@ -57,8 +57,8 @@ const RECOMMENDATIONS: Array<{ title: string; body: string; link: string; linkLa
     <section class="ora-page">
       <div class="page-head">
         <div>
-          <h2>Ora — your growth coach</h2>
-          <p class="subtitle">Business growth, leadership and community guidance.</p>
+          <h2>Ora — your AI business partner</h2>
+          <p class="subtitle">You approve the next move. Ora prepares the work from your pipeline, campaigns, team and goals.</p>
         </div>
       </div>
 

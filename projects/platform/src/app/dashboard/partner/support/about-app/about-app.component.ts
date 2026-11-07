@@ -22,11 +22,11 @@ template: `
     <section class="about-page">
       <div class="dp-card hero">
         <p class="eyebrow">About {{ appName }}</p>
-        <h1>Network marketing, rebuilt for the digital age</h1>
+        <h1>Your online business, without the chase</h1>
         <p class="lede">
-          MarketSpase is a digital network marketing platform built for independent partners and online users.
-          It gives you the tools to grow your team, manage prospects and customers, track performance and promote your business from anywhere.
-          Built around three core goals, the platform helps you <strong>Grow Team</strong> through digital innovation, intelligent <strong>Team Management</strong> and strategic <strong>Business Promotion</strong>.
+          MarketSpase is a product-backed online business opportunity built for independent partners and online users.
+          It gives you the tools to grow your team, manage prospects and customers, track performance and promote your business from anywhere —
+          with <strong>Ora</strong> preparing the work and you approving the next move.
         </p>
       </div>
 
@@ -37,7 +37,7 @@ template: `
           This connected ecosystem ensures that no partner operates in isolation, fostering collective success through shared knowledge and mutual support.
         </p>
         <p class="dp-muted">
-          The platform transforms traditional network marketing by combining proven relationship-building principles with modern technology, creating unprecedented opportunities for business growth and financial independence in the digital marketplace.
+          MarketSpase replaces the old chase with central acquisition, fair allocation and an AI business partner that prepares the work — so you can build a real online business without cold calls or pitching friends.
         </p>
       </div>
 
@@ -53,7 +53,7 @@ template: `
           <mat-icon>trending_up</mat-icon>
           <h2>Grow your network</h2>
           <p>
-            Partners leverage sophisticated digital marketing tools and automated systems to identify, connect with, and recruit new team members across global markets, exponentially expanding their network reach.
+            MarketSpase runs central advertising and routes the interest through fair allocation, so partners can grow without chasing strangers or cold-calling.
           </p>
         </div>
         <div class="dp-card highlight-card">

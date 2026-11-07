@@ -60,7 +60,7 @@ type CampaignTab = 'studio' | 'campaigns' | 'placement';
         <div>
           <p class="eyebrow">Partner acquisition · Growth engine</p>
           <h1>Fund central acquisition. Receive activated partners.</h1>
-          <p class="muted">Your budget is held for MarketSpase ad operations. It is not commissionable, rank volume, or a guaranteed placement.</p>
+          <p class="muted">Your budget is held for MarketSpase ad operations. It stays separate from commissions and rank volume, and allocation follows the fairness rules shown below.</p>
         </div>
         <div class="head-actions">
           <a mat-stroked-button routerLink="/dashboard">Dashboard</a>
@@ -272,7 +272,7 @@ type CampaignTab = 'studio' | 'campaigns' | 'placement';
                     <li><strong>Fair allocation.</strong><span>The engine places activated partners using wait time, capped contribution, preferred states, capacity and support. If no preferred-state prospect is available, it falls back to other eligible states.</span></li>
                     <li><strong>Automatic close-out.</strong><span>When the budget or partner slots are exhausted, the campaign ends and any unspent budget returns to your wallet.</span></li>
                   </ol>
-                  <p class="fine">Campaign spend never counts as commissionable volume or rank volume, and never guarantees a fixed number of partners.</p>
+                  <p class="fine">Campaign spend stays separate from commissionable volume and rank volume. Allocation follows the fairness rules and available capacity.</p>
                 </aside>
               </div>
             }

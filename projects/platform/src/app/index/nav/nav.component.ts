@@ -21,8 +21,12 @@ import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
 
         <nav class="nav-links" aria-label="Primary navigation">
           <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Home</a>
-          <a mat-button routerLink="partner/signin" routerLinkActive="active" (click)="scrollToTop()">Sign in</a>
-          <a mat-flat-button color="primary" routerLink="partner/signup" routerLinkActive="active" (click)="scrollToTop()">Create account</a>
+          <a mat-button routerLink="/how-it-works" routerLinkActive="active" (click)="scrollToTop()">How it works</a>
+          <a mat-button routerLink="/ora" routerLinkActive="active" (click)="scrollToTop()">Ora</a>
+          <a mat-button routerLink="/about" routerLinkActive="active" (click)="scrollToTop()">About</a>
+          <a mat-button routerLink="/faq" routerLinkActive="active" (click)="scrollToTop()">FAQ</a>
+          <a mat-button routerLink="/partner/signin" routerLinkActive="active" (click)="scrollToTop()">Sign in</a>
+          <a mat-flat-button color="primary" routerLink="/partner/signup" routerLinkActive="active" (click)="scrollToTop()">Start your business</a>
           <button
             class="theme-toggle"
             type="button"
@@ -48,7 +52,7 @@ import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
             (click)="menuOpen.set(!menuOpen())"
             [attr.aria-expanded]="menuOpen()"
             aria-controls="platform-mobile-nav"
-            aria-label="Open navigation menu"
+            [attr.aria-label]="menuOpen() ? 'Close navigation menu' : 'Open navigation menu'"
           >
             <mat-icon aria-hidden="true">{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
           </button>
@@ -58,8 +62,12 @@ import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
       @if (menuOpen()) {
         <nav id="platform-mobile-nav" class="mobile-nav" aria-label="Mobile navigation">
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeAndScroll()">Home</a>
-          <a routerLink="partner/signin" routerLinkActive="active" (click)="closeAndScroll()">Sign in</a>
-          <a class="mobile-cta" routerLink="partner/signup" routerLinkActive="active" (click)="closeAndScroll()">Create account</a>
+          <a routerLink="/how-it-works" routerLinkActive="active" (click)="closeAndScroll()">How it works</a>
+          <a routerLink="/ora" routerLinkActive="active" (click)="closeAndScroll()">Meet Ora</a>
+          <a routerLink="/about" routerLinkActive="active" (click)="closeAndScroll()">About</a>
+          <a routerLink="/faq" routerLinkActive="active" (click)="closeAndScroll()">FAQ</a>
+          <a routerLink="/partner/signin" routerLinkActive="active" (click)="closeAndScroll()">Sign in</a>
+          <a class="mobile-cta" routerLink="/partner/signup" routerLinkActive="active" (click)="closeAndScroll()">Start your business</a>
         </nav>
       }
     </header>
@@ -150,7 +158,7 @@ import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
       display: none;
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 1024px) {
       .nav-inner {
         min-height: 62px;
         width: calc(100% - 1.5em);
