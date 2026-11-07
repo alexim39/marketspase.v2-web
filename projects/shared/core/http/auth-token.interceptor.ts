@@ -26,7 +26,7 @@ export const authTokenInterceptor: HttpInterceptorFn = (req, next) => {
 
   const isApiRequest = base
     ? req.url.startsWith(base)
-    : req.url.startsWith('/v1/') || req.url.startsWith('/uploads/');
+    : !/^https?:\/\//i.test(req.url);
 
   if (!token || !isApiRequest) return next(req);
   return next(req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));

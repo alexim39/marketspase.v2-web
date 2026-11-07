@@ -14,7 +14,8 @@ export const adminSessionScopeInterceptor: HttpInterceptorFn = (req, next) => {
   const base = getBase() ?? '';
   const isApiRequest = base
     ? req.url.startsWith(base)
-    : req.url.startsWith('/v1/') || req.url.startsWith('/uploads/');
+    : !/^https?:\/\//i.test(req.url);
+
   if (!isApiRequest) return next(req);
   return next(req.clone({ setHeaders: { 'X-Client': 'admin' } }));
 };

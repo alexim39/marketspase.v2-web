@@ -61,7 +61,7 @@ export const refreshSessionInterceptor: HttpInterceptorFn = (req, next) => {
   const key = getTokenKey() ?? '';
   const isApiRequest = base
     ? req.url.startsWith(base)
-    : req.url.startsWith('/v1/');
+    : !/^https?:\/\//i.test(req.url);
   if (!isApiRequest || !key || isAuthEndpoint(req.url)) return next(req);
 
   return next(req).pipe(
