@@ -35,7 +35,7 @@ import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo
           <h2>Company</h2>
           <a routerLink="/about">About MarketSpase</a>
           <a routerLink="/faq">FAQ</a>
-          <a href="https://wa.me/2348080386208" target="_blank" rel="noopener">Talk to us</a>
+          <a href="https://whatsapp.com/channel/0029Vb77xA51NCrKysUMO11D" target="_blank" rel="noopener">WhatsApp channel</a>
           <a href="mailto:contacts@marketspase.com">Email support</a>
         </nav>
 

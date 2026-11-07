@@ -23,16 +23,38 @@ import { RouterModule } from '@angular/router';
           <p class="mkt-fine">
             Free to join. Activation is a real product purchase.<br />
             <a
+              class="whatsapp-link"
               href="https://whatsapp.com/channel/0029Vb77xA51NCrKysUMO11D"
               target="_blank"
               rel="noopener"
-              style="color: #fff; font-weight: 700;"
-            >chat with a human on WhatsApp</a>.
+              title="Open the MarketSpase WhatsApp channel"
+            >
+              <mat-icon aria-hidden="true">chat</mat-icon>
+              chat with a human on WhatsApp
+            </a>.
           </p>
         </div>
       </div>
     </section>
   `,
+  styles: [`
+    .whatsapp-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35em;
+      min-height: 44px;
+      color: #fff;
+      font-weight: 750;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-thickness: 1px;
+    }
+    .whatsapp-link mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class BePartnerComponent {
