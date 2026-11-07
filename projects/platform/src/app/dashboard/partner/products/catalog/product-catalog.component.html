@@ -191,6 +191,14 @@
           }
         </div>
       }
+      @if (hasMore()) {
+        <div class="load-more-row">
+          <button mat-stroked-button type="button" (click)="loadMore()" [disabled]="loadingMore()">
+            <mat-icon>{{ loadingMore() ? 'hourglass_top' : 'expand_more' }}</mat-icon>
+            {{ loadingMore() ? 'Loading more.' : 'Load more products' }}
+          </button>
+        </div>
+      }
     </section>
 
     <section class="help-strip dp-card">

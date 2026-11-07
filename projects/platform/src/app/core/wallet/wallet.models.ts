@@ -13,4 +13,12 @@ export interface WalletTransaction {
 
 export interface WalletHistoryEnvelope extends ApiEnvelope<WalletTransaction[]> {
   data: WalletTransaction[];
+  meta?: {
+    count?: number;
+    total?: number;
+    limit?: number;
+    skip?: number;
+    hasMore?: boolean;
+    next_action?: string | null;
+  };
 }

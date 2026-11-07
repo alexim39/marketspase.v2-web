@@ -4,6 +4,7 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
@@ -25,7 +26,7 @@ import { formatSignedMoney, isWalletCredit } from '../../../core/format/money';
 @Component({
   selector: 'async-wallet-history',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatSelectModule, MatTableModule, PageSkeletonComponent, RouterModule],
+  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule, MatSelectModule, MatTableModule, PageSkeletonComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -112,6 +113,14 @@ import { formatSignedMoney, isWalletCredit } from '../../../core/format/money';
             [pageSizeOptions]="[25, 50, 100]"
             (page)="onPage($event)"
           ></mat-paginator>
+          @if (hasMore()) {
+            <div class="load-more-row">
+              <button mat-stroked-button type="button" (click)="loadMore()" [disabled]="loadingMore()">
+                <mat-icon>{{ loadingMore() ? 'hourglass_top' : 'expand_more' }}</mat-icon>
+                {{ loadingMore() ? 'Loading more.' : 'Load more transactions' }}
+              </button>
+            </div>
+          }
         </div>
       } @else if (!loading() && !error()) {
         <p class="empty">No transactions{{ hasFilters() ? ' match these filters' : ' yet — deposits and purchases will land here' }}.</p>
@@ -134,6 +143,7 @@ import { formatSignedMoney, isWalletCredit } from '../../../core/format/money';
     .muted { color: var(--ms-text-muted); font-size: 0.85em; }
     .empty { color: var(--ms-text-muted); }
     .error { color: var(--ms-error); display: flex; align-items: center; gap: 0.5em; }
+    .load-more-row { display: flex; justify-content: center; padding: 1em 0 0.5em; }
     button { min-height: 44px; }
   `],
 })
@@ -142,6 +152,8 @@ export class WalletHistoryComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
+  protected readonly loadingMore = signal(false);
+  protected readonly hasMore = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly rows = signal<WalletTransaction[]>([]);
   protected readonly query = signal('');
@@ -149,6 +161,7 @@ export class WalletHistoryComponent implements OnInit {
   protected readonly statusFilter = signal('');
   protected readonly pageIndex = signal(0);
   protected readonly pageSize = signal(25);
+  private nextSkip = 0;
 
   protected readonly displayedColumns = ['at', 'type', 'amount', 'status', 'ref'];
 
@@ -202,13 +215,16 @@ export class WalletHistoryComponent implements OnInit {
   protected reload(): void {
     this.loading.set(true);
     this.error.set(null);
+    this.nextSkip = 0;
     this.wallet
-      .history()
+      .historyPage({ limit: 100, skip: 0 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (rows) => {
-          this.rows.set([...rows].sort((a, b) =>
+        next: (res) => {
+          this.rows.set([...res.data].sort((a, b) =>
             new Date(b.at ?? 0).getTime() - new Date(a.at ?? 0).getTime()));
+          this.nextSkip = res.data.length;
+          this.hasMore.set(res.meta?.hasMore === true);
           this.pageIndex.set(0);
           this.loading.set(false);
         },
@@ -216,6 +232,26 @@ export class WalletHistoryComponent implements OnInit {
           this.error.set(err.message);
           this.loading.set(false);
         },
+      });
+  }
+
+  protected loadMore(): void {
+    if (this.loadingMore() || !this.hasMore()) return;
+    this.loadingMore.set(true);
+    this.wallet.historyPage({ limit: 100, skip: this.nextSkip })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const seen = new Set(this.rows().map((row) => row.id));
+          this.rows.update((current) => [
+            ...current,
+            ...res.data.filter((row) => !seen.has(row.id)),
+          ]);
+          this.nextSkip += res.data.length;
+          this.hasMore.set(res.meta?.hasMore === true);
+          this.loadingMore.set(false);
+        },
+        error: () => this.loadingMore.set(false),
       });
   }
 }

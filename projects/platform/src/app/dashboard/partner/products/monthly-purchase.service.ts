@@ -30,10 +30,17 @@ export interface ProductInterface {
 }
   
 export interface ProductObjectInterface {
-
   message: string;
   data: Array<ProductInterface>;
   success?: boolean;
+  meta?: {
+    count?: number;
+    total?: number;
+    limit?: number;
+    skip?: number;
+    hasMore?: boolean;
+    next_action?: string | null;
+  };
 }
 
 export interface ResaleProductInterface extends ProductInterface {
@@ -61,8 +68,12 @@ export class ProductService {
   constructor(private apiService: ApiService) {}
 
   // get all products
-  getAllProducts(): Observable<ProductObjectInterface> {
-    return this.apiService.get<ProductObjectInterface>(`products/getAll`, undefined, undefined, true);
+  getAllProducts(params: { limit?: number; skip?: number } = {}): Observable<ProductObjectInterface> {
+    const query = new URLSearchParams({
+      limit: String(params.limit ?? 60),
+      skip: String(params.skip ?? 0),
+    });
+    return this.apiService.get<ProductObjectInterface>(`products/getAll?${query.toString()}`, undefined, undefined, true);
   }
 
   // get one product for the full product page

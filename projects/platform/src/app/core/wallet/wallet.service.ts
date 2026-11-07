@@ -83,11 +83,22 @@ export class WalletService {
     return (this.auth.currentUser()?.id as string | undefined) ?? null;
   }
 
-  history(): Observable<WalletTransaction[]> {
+  historyPage(params: { limit?: number; skip?: number } = {}): Observable<WalletHistoryEnvelope> {
     const id = this.ownerId() ?? '';
+    const query = new URLSearchParams({
+      limit: String(params.limit ?? 50),
+      skip: String(params.skip ?? 0),
+    });
     return this.api
-      .get<WalletHistoryEnvelope>(`billing/transaction/${id}`)
-      .pipe(map((res) => ((res.data ?? []) as unknown[]).map((r) => this.shape(r))));
+      .get<WalletHistoryEnvelope>(`billing/transaction/${id}?${query.toString()}`)
+      .pipe(map((res) => ({
+        ...res,
+        data: ((res.data ?? []) as unknown[]).map((r) => this.shape(r)),
+      })));
+  }
+
+  history(): Observable<WalletTransaction[]> {
+    return this.historyPage({ limit: 50, skip: 0 }).pipe(map((res) => res.data));
   }
 
   /** Open an Opay cashier session — the response carries the redirect URL. */

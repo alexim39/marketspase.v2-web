@@ -618,6 +618,9 @@
   }
 }
 
+.load-more-row { display: flex; justify-content: center; margin-top: 1.2em; }
+.load-more-row button { min-height: 44px; }
+
 @media (max-width: 360px) {
   .product-grid {
     grid-template-columns: 1fr;

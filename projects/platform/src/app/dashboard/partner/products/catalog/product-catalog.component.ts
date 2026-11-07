@@ -58,8 +58,11 @@ export class ProductCatalogComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
+  protected readonly loadingMore = signal(false);
   protected readonly failed = signal(false);
+  protected readonly hasMore = signal(false);
   protected readonly products = signal<ProductInterface[]>([]);
+  private nextSkip = 0;
   protected readonly query = signal('');
   protected readonly category = signal('all');
   protected readonly sort = signal<SortKey>('recommended');
@@ -137,20 +140,40 @@ export class ProductCatalogComponent {
   protected load(): void {
     this.loading.set(true);
     this.failed.set(false);
+    this.nextSkip = 0;
 
-    this.productsApi.getAllProducts()
+    this.productsApi.getAllProducts({ limit: 60, skip: 0 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.products.set(
-            (response.data ?? []).filter((product) => product.status !== 'inactive' && product.status !== 'archived'),
-          );
+          const rows = (response.data ?? []).filter((product) => product.status !== 'inactive' && product.status !== 'archived');
+          this.products.set(rows);
+          this.nextSkip = response.data?.length ?? rows.length;
+          this.hasMore.set(response.meta?.hasMore === true);
           this.loading.set(false);
         },
         error: () => {
           this.failed.set(true);
           this.loading.set(false);
         },
+      });
+  }
+
+  protected loadMore(): void {
+    if (this.loadingMore() || !this.hasMore()) return;
+    this.loadingMore.set(true);
+    this.productsApi.getAllProducts({ limit: 60, skip: this.nextSkip })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const rows = (response.data ?? []).filter((product) => product.status !== 'inactive' && product.status !== 'archived');
+          const seen = new Set(this.products().map((product) => product._id));
+          this.products.update((current) => [...current, ...rows.filter((product) => !seen.has(product._id))]);
+          this.nextSkip += response.data?.length ?? rows.length;
+          this.hasMore.set(response.meta?.hasMore === true);
+          this.loadingMore.set(false);
+        },
+        error: () => this.loadingMore.set(false),
       });
   }
 
