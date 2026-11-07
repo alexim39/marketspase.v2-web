@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { OraService } from '../../core/ora/ora.service';
-import { OraAnalytics } from '../../core/ora/ora.models';
+import { OraAction, OraAnalytics } from '../../core/ora/ora.models';
 import { ApiError } from '../../core/http/api-error';
 import { OraChatComponent } from './ora-chat.component';
 
@@ -82,6 +82,31 @@ const RECOMMENDATIONS: Array<{ title: string; body: string; link: string; linkLa
           </article>
 
           <article class="card">
+            <h3>Waiting for your approval</h3>
+            @if (pending().length === 0) {
+              <p class="muted">Nothing waiting. Ask Ora for today’s plan.</p>
+            } @else {
+              @for (a of pending(); track a.id) {
+                <div class="approval">
+                  <div>
+                    <strong>{{ a.label }}</strong>
+                    <p class="muted">{{ a.summary }}</p>
+                  </div>
+                  <div class="approval-actions">
+                    <button mat-flat-button color="primary" type="button" (click)="approve(a)" [disabled]="actingId() === a.id">
+                      {{ actingId() === a.id ? 'Working…' : 'Approve' }}
+                    </button>
+                    <button mat-stroked-button type="button" (click)="skip(a)" [disabled]="actingId() === a.id">Skip</button>
+                    @if (a.link) {
+                      <a mat-button [routerLink]="a.link">Open</a>
+                    }
+                  </div>
+                </div>
+              }
+            }
+          </article>
+
+          <article class="card">
             <h3>Your Ora journey</h3>
             @if (loadingStats()) {
               <mat-progress-bar mode="indeterminate" aria-label="Loading" />
@@ -122,6 +147,11 @@ const RECOMMENDATIONS: Array<{ title: string; body: string; link: string; linkLa
     .rec { display: flex; justify-content: space-between; align-items: center; gap: 0.6em; border-top: 1px solid var(--ms-line); padding-top: 0.6em; }
     .rec p { margin: 0.15em 0 0; }
     .rec a { flex: none; min-height: 44px; }
+    .approval { display: flex; flex-direction: column; gap: 0.5em; border-top: 1px solid var(--ms-line); padding-top: 0.65em; }
+    .approval:first-of-type { border-top: none; padding-top: 0; }
+    .approval p { margin: 0.15em 0 0; }
+    .approval-actions { display: flex; gap: 0.35em; flex-wrap: wrap; }
+    .approval-actions button, .approval-actions a { min-height: 44px; }
     .big { margin: 0; font-size: 1.5em; font-weight: 800; }
     .topics { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4em; }
     .topics li { display: flex; align-items: center; gap: 0.6em; font-size: 0.9em; }
@@ -139,6 +169,8 @@ export class OraPageComponent implements OnInit {
 
   protected readonly stats = signal<OraAnalytics | null>(null);
   protected readonly loadingStats = signal(true);
+  protected readonly pending = signal<OraAction[]>([]);
+  protected readonly actingId = signal<string | null>(null);
   protected readonly recommendations = RECOMMENDATIONS;
 
   ngOnInit(): void {
@@ -154,6 +186,47 @@ export class OraPageComponent implements OnInit {
           void err;
           this.loadingStats.set(false);
         },
+      });
+    this.loadPending();
+  }
+
+  private loadPending(): void {
+    this.ora
+      .pendingActions()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.pending.set(res.data ?? []),
+        error: () => this.pending.set([]),
+      });
+  }
+
+  protected approve(action: OraAction): void {
+    if (!action.id || this.actingId()) return;
+    this.actingId.set(action.id);
+    this.ora
+      .approveAction(action.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.pending.update((rows) => rows.filter((row) => row.id !== action.id));
+          this.actingId.set(null);
+        },
+        error: () => this.actingId.set(null),
+      });
+  }
+
+  protected skip(action: OraAction): void {
+    if (!action.id || this.actingId()) return;
+    this.actingId.set(action.id);
+    this.ora
+      .skipAction(action.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.pending.update((rows) => rows.filter((row) => row.id !== action.id));
+          this.actingId.set(null);
+        },
+        error: () => this.actingId.set(null),
       });
   }
 

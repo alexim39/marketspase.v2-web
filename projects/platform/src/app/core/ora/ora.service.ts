@@ -2,6 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 import {
+  OraActionEnvelope,
+  OraActionsEnvelope,
   OraAnalyticsEnvelope,
   OraChatEnvelope,
   OraContextEnvelope,
@@ -45,5 +47,17 @@ export class OraService {
 
   analytics(days = 30): Observable<OraAnalyticsEnvelope> {
     return this.api.get<OraAnalyticsEnvelope>(`v1/ora/analytics?days=${days}`);
+  }
+
+  pendingActions(limit = 20): Observable<OraActionsEnvelope> {
+    return this.api.get<OraActionsEnvelope>(`v1/ora/actions?status=proposed&limit=${limit}`);
+  }
+
+  approveAction(id: string): Observable<OraActionEnvelope> {
+    return this.api.post<OraActionEnvelope>(`v1/ora/actions/${id}/approve`, {});
+  }
+
+  skipAction(id: string): Observable<OraActionEnvelope> {
+    return this.api.post<OraActionEnvelope>(`v1/ora/actions/${id}/skip`, {});
   }
 }

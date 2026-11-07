@@ -14,9 +14,20 @@ export interface OraContext {
 export type OraContextEnvelope = ApiEnvelope<OraContext>;
 
 export interface OraAction {
+  id?: string | null;
+  type?: 'open_page' | 'send_sms' | 'send_email' | 'schedule_followup' | 'advance_stage';
   label: string;
-  link: string;
+  link?: string;
+  title?: string;
+  summary?: string;
+  status?: 'proposed' | 'ready' | 'executing' | 'executed' | 'skipped' | 'failed';
+  requiresApproval?: boolean;
+  result?: unknown;
+  error?: string | null;
 }
+
+export type OraActionsEnvelope = ApiEnvelope<OraAction[]>;
+export type OraActionEnvelope = ApiEnvelope<OraAction>;
 
 export interface OraChatReply {
   conversationId: string;

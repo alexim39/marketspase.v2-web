@@ -57,6 +57,8 @@ const ACTIONS = [
   'broadcast.send',
   'broadcast.delete',
   'content.restore',
+  'ora.action.execute',
+  'ora.action.skip',
 ];
 
 /**

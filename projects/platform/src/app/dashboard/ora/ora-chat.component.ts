@@ -144,8 +144,32 @@ interface ChatMsg extends OraMessage {
               <div [innerHTML]="render(m.content)"></div>
               @if (m.actions?.length) {
                 <div class="actions">
-                  @for (a of m.actions; track a.link) {
-                    <a mat-button class="action-card" [routerLink]="a.link">{{ a.label }}</a>
+                  @for (a of m.actions; track a.id ?? a.link ?? a.label) {
+                    @if (a.requiresApproval) {
+                      <div class="action-card approval"
+                        [class.done]="a.status === 'executed'"
+                        [class.failed]="a.status === 'failed'">
+                        <div class="action-copy">
+                          <strong>{{ a.label }}</strong>
+                          <small>{{ actionNote(a) }}</small>
+                        </div>
+                        <div class="action-buttons">
+                          @if (!a.status || a.status === 'proposed') {
+                            <button mat-flat-button color="primary" type="button"
+                              (click)="approveAction(a)" [disabled]="actingId() === a.id">
+                              {{ actingId() === a.id ? 'Working…' : 'Approve' }}
+                            </button>
+                            <button mat-stroked-button type="button"
+                              (click)="skipAction(a)" [disabled]="actingId() === a.id">Skip</button>
+                          }
+                          @if (a.link) {
+                            <a mat-button [routerLink]="a.link">Open</a>
+                          }
+                        </div>
+                      </div>
+                    } @else if (a.link) {
+                      <a mat-button class="action-card" [routerLink]="a.link">{{ a.label }}</a>
+                    }
                   }
                 </div>
               }
@@ -201,6 +225,14 @@ interface ChatMsg extends OraMessage {
     .thinking { opacity: 0.75; }
     .actions { display: flex; flex-wrap: wrap; gap: 0.35em; margin-top: 0.5em; }
     .action-card { min-height: 44px; border: 1px solid var(--ms-primary); border-radius: 999px; text-transform: none; font-weight: 600; text-decoration: none; }
+    .action-card.approval { display: flex; align-items: center; justify-content: space-between; gap: 0.6em; width: 100%; border-radius: 12px; padding: 0.55em 0.65em; background: var(--ms-primary-soft); flex-wrap: wrap; }
+    .action-card.approval.done { border-color: var(--ms-success); }
+    .action-card.approval.failed { border-color: var(--ms-error); background: var(--ms-canvas); }
+    .action-copy { display: flex; flex-direction: column; gap: 0.15em; min-width: 0; flex: 1 1 180px; }
+    .action-copy strong { font-size: 0.92em; }
+    .action-copy small { color: var(--ms-text-muted); line-height: 1.35; }
+    .action-buttons { display: flex; align-items: center; gap: 0.25em; flex-wrap: wrap; }
+    .action-buttons button, .action-buttons a { min-height: 44px; }
     .starters { display: flex; flex-wrap: wrap; gap: 0.4em; }
     .starter { min-height: 44px; border: 1px solid var(--ms-line); border-radius: 999px; text-transform: none; font-weight: 500; }
     .ora-input { display: flex; align-items: center; gap: 0.4em; padding: 0.6em 0.6em 0.6em 0.9em; border-top: 1px solid var(--ms-line); }
@@ -232,6 +264,7 @@ export class OraChatComponent implements OnInit {
   protected readonly searchDraft = signal('');
   protected readonly draft = signal('');
   protected readonly sending = signal(false);
+  protected readonly actingId = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly canRetry = signal(false);
 
@@ -324,6 +357,65 @@ export class OraChatComponent implements OnInit {
   protected ask(prompt: string): void {
     this.draft.set(prompt);
     this.send();
+  }
+
+  protected actionNote(a: OraAction): string {
+    if (a.status === 'proposed' || !a.status) return a.summary || 'Waiting for your approval.';
+    if (a.status === 'executing') return 'Working…';
+    if (a.status === 'skipped') return 'Skipped.';
+    if (a.status === 'failed') return a.error || 'Could not complete this action.';
+    if (a.status === 'executed') {
+      const result = (a.result ?? {}) as Record<string, unknown>;
+      if (result['sent'] !== undefined) return `Sent ${result['sent']} of ${result['total']}.`;
+      if (result['followUpDate']) return 'Follow-up scheduled.';
+      if (result['stage']) return `Moved to ${result['stage']}.`;
+      return 'Done.';
+    }
+    return a.summary || '';
+  }
+
+  protected approveAction(a: OraAction): void {
+    if (!a.id || this.actingId()) return;
+    this.actingId.set(a.id);
+    this.ora
+      .approveAction(a.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.patchAction(a.id as string, res.data ?? { status: 'executed' });
+          this.actingId.set(null);
+        },
+        error: (err: ApiError) => {
+          this.patchAction(a.id as string, { status: 'failed', error: err.message });
+          this.actingId.set(null);
+        },
+      });
+  }
+
+  protected skipAction(a: OraAction): void {
+    if (!a.id || this.actingId()) return;
+    this.actingId.set(a.id);
+    this.ora
+      .skipAction(a.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.patchAction(a.id as string, res.data ?? { status: 'skipped' });
+          this.actingId.set(null);
+        },
+        error: (err: ApiError) => {
+          this.patchAction(a.id as string, { status: 'failed', error: err.message });
+          this.actingId.set(null);
+        },
+      });
+  }
+
+  private patchAction(id: string, patch: Partial<OraAction>): void {
+    this.messages.update((messages) => messages.map((message) => (
+      message.actions
+        ? { ...message, actions: message.actions.map((action) => (action.id === id ? { ...action, ...patch } : action)) }
+        : message
+    )));
   }
 
   protected retry(): void {
