@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -41,9 +41,11 @@ import { StatePanelComponent } from '@marketspase/shared/ui/state-panel/state-pa
               : 'The page is protected by a role your account does not hold.'"
             [fix]="notice === 'expired'
               ? 'Sign in again and we will return you to the same page, with your saved work restored.'
-              : 'Sign in with a permitted account, or return to the dashboard.'"
+              : 'Sign in with a permitted account to continue.'"
           >
-            <a mat-stroked-button routerLink="/">Go to dashboard</a>
+            <button mat-stroked-button type="button" (click)="focusSignIn()">
+              {{ notice === 'expired' ? 'Sign in again' : 'Use another account' }}
+            </button>
           </async-state-panel>
         }
         @if (isSubmitting()) {
@@ -56,7 +58,7 @@ import { StatePanelComponent } from '@marketspase/shared/ui/state-panel/state-pa
         <form [formGroup]="signInForm" (ngSubmit)="onSubmit()">
           <mat-form-field appearance="outline">
             <mat-label>Email address</mat-label>
-            <input matInput type="email" formControlName="email" autocomplete="email" />
+            <input matInput #emailInput type="email" formControlName="email" autocomplete="email" />
             @if (email?.hasError('email') && email?.touched) {
               <mat-error>Use a valid email, like ada@example.com.</mat-error>
             }
@@ -234,6 +236,7 @@ export class PartnerSigninComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly hide = signal(true);
+  protected readonly emailInput = viewChild<ElementRef<HTMLInputElement>>('emailInput');
   protected readonly isSubmitting = signal(false);
   protected readonly isResending = signal(false);
   protected readonly serverError = signal<string | null>(null);
@@ -260,6 +263,15 @@ export class PartnerSigninComponent {
 
   protected scrollTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /** The user is already on the sign-in route; guide them to the form instead
+   *  of navigating to a protected page the auth guard would bounce back. */
+  protected focusSignIn(): void {
+    const input = this.emailInput()?.nativeElement;
+    if (!input) return;
+    input.focus({ preventScroll: true });
+    input.scrollIntoView({ block: 'center', behavior: 'smooth' });
   }
 
   protected onSubmit(): void {
