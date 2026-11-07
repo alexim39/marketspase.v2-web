@@ -11,7 +11,7 @@ export interface MyCoach {
 }
 
 export interface CoachingNote {
-  id: string; memberId: string; coachId: string; body: string; createdAt: string;
+  id: string; memberId: string; coachId: string; authorId?: string; body: string; createdAt: string;
 }
 
 export type MyCoachEnvelope = ApiEnvelope<MyCoach>;

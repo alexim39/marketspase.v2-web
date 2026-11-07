@@ -1,7 +1,10 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -68,6 +71,8 @@ import { AvatarComponent } from '../../../_common/avatar.component';
               }
               @if (c.nextAction) {
                 <p class="next-action">{{ c.nextAction }}</p>
+              } @else {
+                <p class="muted">No next action recorded yet.</p>
               }
             } @else {
               <strong>No coach assigned yet</strong>
@@ -76,14 +81,39 @@ import { AvatarComponent } from '../../../_common/avatar.component';
           </div>
         </div>
 
+        <div class="dp-card journey-card">
+          <div class="journey-head">
+            <div>
+              <p class="eyebrow">Your journey</p>
+              <h3>{{ levelLabel(c.journey?.levelLabel) }}</h3>
+              <p class="muted">Next: {{ nextRankLabel(c.journey?.nextLabel) }}</p>
+            </div>
+            <span class="pill">{{ c.journey?.percent ?? 0 }}%</span>
+          </div>
+          <div class="meter" role="progressbar" [attr.aria-valuenow]="c.journey?.percent ?? 0" aria-valuemin="0" aria-valuemax="100" aria-label="Journey progress">
+            <span [style.width.%]="c.journey?.percent ?? 0"></span>
+          </div>
+          @if (c.missing?.length) {
+            <ul class="missing-list">
+              @for (m of c.missing; track m.key) {
+                <li>
+                  <strong>{{ m.label }}</strong>
+                  <span class="muted">{{ m.action }}</span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="muted">No outstanding steps right now.</p>
+          }
+        </div>
       }
 
       <div class="dp-card notes-card">
         <h3>Coaching notes</h3>
-        @if (coach()?.coach) {
+        @if (coach()) {
           <div class="note-compose">
             <mat-form-field appearance="outline">
-              <mat-label>Note for your coach / member</mat-label>
+              <mat-label>Add a note to your coaching log</mat-label>
               <textarea matInput rows="2" [value]="draft()" (input)="draft.set($any($event.target).value)" maxlength="2000" placeholder="What was discussed, next step…"></textarea>
             </mat-form-field>
             <button mat-flat-button color="primary" (click)="saveNote()" [disabled]="!draft().trim() || saving()">{{ saving() ? 'Saving…' : 'Add note' }}</button>
@@ -97,7 +127,7 @@ import { AvatarComponent } from '../../../_common/avatar.component';
             @for (n of notes(); track n.id) {
               <li>
                 <p>{{ n.body }}</p>
-                <span class="muted">{{ n.createdAt | date:'medium' }}</span>
+                <span class="muted">{{ authorLabel(n) }} · {{ n.createdAt | date:'medium' }}</span>
               </li>
             }
           </ul>
@@ -118,6 +148,18 @@ import { AvatarComponent } from '../../../_common/avatar.component';
     .coach-card { padding: 1em; display: flex; gap: 1em; align-items: flex-start; }
     .coach-card strong { display: block; }
     .next-action { margin: 0.4em 0 0; font-weight: 600; }
+    .next-action { display: flex; align-items: center; gap: 0.35em; }
+    .next-action mat-icon { font-size: 1.1em; width: 1.1em; height: 1.1em; color: var(--ms-primary-strong); }
+    .journey-card { padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
+    .journey-head { display: flex; justify-content: space-between; gap: 1em; align-items: flex-start; }
+    .journey-head h3 { margin: 0.1em 0 0.15em; }
+    .eyebrow { margin: 0; color: var(--ms-primary-strong); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+    .pill { align-self: center; padding: 4px 10px; border-radius: 999px; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-weight: 800; }
+    .meter { height: 8px; border-radius: 999px; background: var(--ms-line); overflow: hidden; }
+    .meter span { display: block; height: 100%; background: var(--ms-primary); transition: width 0.25s ease; }
+    .missing-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5em; }
+    .missing-list li { display: flex; flex-direction: column; gap: 0.1em; border-top: 1px solid var(--ms-line); padding-top: 0.5em; }
+    .missing-list li:first-child { border-top: none; padding-top: 0; }
     .action-card { padding: 1em; }
     .action-card h3 { margin: 0 0 0.4em; }
     .action-card ul { margin: 0; padding-left: 1.2em; }
@@ -150,12 +192,29 @@ export class MyCoachComponent implements OnInit {
   protected readonly draft = signal('');
   /** coachId → lastSeenAt (null = offline); drives the avatar dot. */
   protected readonly presenceMap = signal<Record<string, string | null>>({});
+  protected readonly meId = computed(() => String(this.auth.currentUser()?.id ?? ''));
 
   /** Presence dot for the coach avatar (null hides it). */
   protected coachPresence(): PresenceStatus {
     const id = this.coach()?.coach?.id;
     if (!id) return null;
     return this.presence.statusOf(this.presenceMap()[id] ?? null);
+  }
+
+  protected levelLabel(value?: string | null): string {
+    const text = String(value ?? '').trim();
+    return text ? text.charAt(0).toUpperCase() + text.slice(1) : 'Partner';
+  }
+
+  protected nextRankLabel(value?: string | null): string {
+    const text = String(value ?? '').trim();
+    return text ? this.levelLabel(text) : 'Not set yet';
+  }
+
+  protected authorLabel(note: CoachingNote): string {
+    const author = String(note.authorId ?? note.coachId ?? '');
+    if (author && author === this.meId()) return 'You';
+    return this.coach()?.coach?.name || 'Coach';
   }
 
   ngOnInit(): void {
@@ -167,13 +226,15 @@ export class MyCoachComponent implements OnInit {
     this.error.set(null);
     this.coaching
       .mine()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
+      )
       .subscribe({
         next: (res) => {
-          this.coach.set(res.data ?? null);
-          this.loading.set(false);
+          this.coach.set(res?.data ?? null);
           this.loadNotes();
-          const coachId = res.data?.coach?.id;
+          const coachId = res?.data?.coach?.id;
           if (coachId) {
             this.presence
               .lookup([coachId])
@@ -181,10 +242,7 @@ export class MyCoachComponent implements OnInit {
               .subscribe((map) => this.presenceMap.set({ ...this.presenceMap(), ...map }));
           }
         },
-        error: (err: ApiError) => {
-          this.error.set(err.message);
-          this.loading.set(false);
-        },
+        error: (err: ApiError) => this.error.set(err.message),
       });
   }
 
@@ -193,7 +251,7 @@ export class MyCoachComponent implements OnInit {
       .notes()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res) => this.notes.set(res.data ?? []),
+        next: (res) => this.notes.set(res?.data ?? []),
         error: () => this.notes.set([]),
       });
   }
@@ -203,25 +261,24 @@ export class MyCoachComponent implements OnInit {
     if (!body || this.saving()) return;
     this.saving.set(true);
     this.noteError.set(null);
-    const me = String(this.auth.currentUser()?.id ?? '').trim();
+    const me = this.meId();
     if (!me) {
       this.saving.set(false);
-      this.noteError.set('Could not determine your account — please sign in again.');
+      this.noteError.set('Could not determine your account - please sign in again.');
       return;
     }
     this.coaching
       .addNote(me, body)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.saving.set(false)),
+      )
       .subscribe({
         next: () => {
-          this.saving.set(false);
           this.draft.set('');
           this.loadNotes();
         },
-        error: (err: ApiError) => {
-          this.saving.set(false);
-          this.noteError.set(err.message);
-        },
+        error: (err: ApiError) => this.noteError.set(err.message),
       });
   }
 }
