@@ -79,8 +79,11 @@ import {
             </div>
             <div class="rank-actions">
               @if (group.groupId) {
+                <a mat-flat-button color="primary" [routerLink]="['/rank-groups', group.rank]">
+                  <mat-icon>shield</mat-icon> Manage
+                </a>
                 <a mat-stroked-button [href]="groupUrl(group.groupId)" target="_blank" rel="noopener">
-                  <mat-icon>forum</mat-icon> Open group chat
+                  <mat-icon>open_in_new</mat-icon> Partner view
                 </a>
               } @else {
                 <span class="missing">Not created yet — run Sync all members.</span>
@@ -100,8 +103,8 @@ import {
           <strong>How these groups work</strong>
           <p>
             Members are added and removed automatically from their journey level. They can mute the group
-            but cannot leave, rename or delete it. Open a group chat here to read, reply and moderate.
-            Admin and partner sessions are separate, so the partner platform may ask you to sign in once.
+            but cannot leave, rename or delete it. Use Manage to read, reply, remove messages, update the
+            pinned welcome and ban or unban members without leaving the admin app.
           </p>
         </div>
       </div>

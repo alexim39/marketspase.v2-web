@@ -146,6 +146,11 @@ export const AdminRoutes: Routes = [
     title: 'Rank groups - MarketSpase Admin',
   },
   {
+    path: 'rank-groups/:rank',
+    loadComponent: () => import('./rank-groups/admin-rank-group-detail.component').then((r) => r.AdminRankGroupDetailComponent),
+    title: 'Rank group - MarketSpase Admin',
+  },
+  {
     path: 'broadcast',
     component: AdminBroadcastComponent,
     title: 'Broadcast - MarketSpase Admin',
