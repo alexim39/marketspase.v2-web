@@ -42,17 +42,31 @@ import { PublicLeadPage } from '../store.models';
                 <p class="eyebrow">{{ text(p, 'heroBadge') || 'Your next step' }}</p>
                 <p class="partner-name">{{ p.name }}</p>
                 <p class="handle">&#64;{{ p.username }}</p>
+                @if (text(p, 'jobTitle'); as role) {
+                  <p class="role">{{ role }}</p>
+                }
+                @if (text(p, 'bio'); as shortBio) {
+                  <p class="bio-line">{{ shortBio }}</p>
+                }
               </div>
             </div>
 
             <div class="hero-copy">
               <h1>{{ text(p, 'headline') || 'Build a business around your life.' }}</h1>
-              <p class="sub">{{ text(p, 'subHeadline') || text(p, 'businessTagline') || 'A simple conversation could change your direction.' }}</p>
+              @if (text(p, 'businessTagline'); as tagline) {
+                <p class="tagline">{{ tagline }}</p>
+              }
+              <p class="sub">{{ text(p, 'subHeadline') || 'A simple conversation could change your direction.' }}</p>
               <div class="hero-actions">
                 <a class="primary-btn" href="#lead-form">Start the conversation</a>
                 @if (whatsappUrl(); as wa) {
                   <a class="ghost-btn" [href]="wa" target="_blank" rel="noopener">
                     <mat-icon>chat</mat-icon> {{ text(p, 'whatsappCtaText') || 'Chat on WhatsApp' }}
+                  </a>
+                }
+                @if (groupUrl(); as group) {
+                  <a class="ghost-btn" [href]="group" target="_blank" rel="noopener">
+                    <mat-icon>groups</mat-icon> Join WhatsApp group
                   </a>
                 }
               </div>
@@ -62,10 +76,20 @@ import { PublicLeadPage } from '../store.models';
 
         <section class="content-grid">
           <div class="story">
-            @if (text(p, 'aboutStory') || text(p, 'bio'); as story) {
+            @if (text(p, 'aboutStory'); as story) {
               <p class="eyebrow">The story</p>
               <h2>Why this work matters</h2>
               <p class="story-copy">{{ story }}</p>
+            }
+
+            @if (achievementLines(p).length > 0) {
+              <p class="eyebrow">Milestones</p>
+              <h2>Progress worth sharing</h2>
+              <ul class="achievements">
+                @for (achievement of achievementLines(p); track achievement) {
+                  <li><mat-icon>workspace_premium</mat-icon><span>{{ achievement }}</span></li>
+                }
+              </ul>
             }
 
             @if (points(p).length > 0) {
@@ -81,8 +105,28 @@ import { PublicLeadPage } from '../store.models';
             @if (text(p, 'testimonial'); as quote) {
               <blockquote>
                 <p>“{{ quote }}”</p>
-                <footer>{{ text(p, 'inviteNote') || 'A partner building on MarketSpase' }}</footer>
+                <footer>— {{ p.name }}</footer>
               </blockquote>
+            }
+
+            @if (videoUrl(p); as video) {
+              <a class="video-card" [href]="video" target="_blank" rel="noopener">
+                <span class="video-icon"><mat-icon>play_arrow</mat-icon></span>
+                <span>
+                  <strong>Watch the video testimonial</strong>
+                  <small>{{ videoDomain(video) }}</small>
+                </span>
+              </a>
+            }
+
+            @if (text(p, 'inviteNote'); as note) {
+              <div class="invite-note">
+                <mat-icon>waving_hand</mat-icon>
+                <div>
+                  <strong>A note from {{ firstName(p.name) }}</strong>
+                  <p>{{ note }}</p>
+                </div>
+              </div>
             }
           </div>
 
@@ -163,6 +207,23 @@ import { PublicLeadPage } from '../store.models';
           </div>
         </section>
 
+        @if (socials(p).length > 0) {
+          <section class="social-strip">
+            <div>
+              <p class="eyebrow">Follow the journey</p>
+              <h2>More from {{ firstName(p.name) }}</h2>
+            </div>
+            <div class="social-links">
+              @for (social of socials(p); track social.label) {
+                <a [href]="social.url" target="_blank" rel="noopener">
+                  <mat-icon>{{ social.icon }}</mat-icon>
+                  <span>{{ social.label }}</span>
+                </a>
+              }
+            </div>
+          </section>
+        }
+
         <footer class="page-footer">
           <span>MarketSpase · independent partner page</span>
           @if (text(p, 'locationDisplay'); as location) { <span>{{ location }}</span> }
@@ -184,6 +245,9 @@ import { PublicLeadPage } from '../store.models';
     .avatar.initials { display: grid; place-items: center; font-size: 2em; font-weight: 800; color: #fff; background: linear-gradient(145deg, var(--ms-primary), #1f3d2f); }
     .partner-name { margin: 0.35em 0 0; font-weight: 800; font-size: 1.05em; }
     .handle { margin: 0.1em 0 0; color: var(--ms-text-muted); font-size: 0.85em; }
+    .role { margin: 0.35em 0 0; color: var(--ms-primary-strong); font-size: 0.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .bio-line { margin: 0.45em 0 0; color: var(--ms-text-muted); font-size: 0.86em; line-height: 1.5; max-width: 24em; }
+    .tagline { margin: 0.55em 0 0; color: var(--ms-primary-strong); font-size: 0.82em; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
     .eyebrow { margin: 0; color: var(--ms-primary-strong); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
     h1 { margin: 0.35em 0 0; font-size: clamp(2.1rem, 5vw, 4rem); line-height: 1.02; letter-spacing: -0.04em; }
     .sub { margin: 0.8em 0 0; font-size: clamp(1rem, 1.6vw, 1.2rem); line-height: 1.6; color: var(--ms-text-muted); max-width: 38em; }
@@ -198,6 +262,17 @@ import { PublicLeadPage } from '../store.models';
     .points { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.65em; }
     .points li { display: flex; gap: 0.55em; align-items: flex-start; line-height: 1.5; }
     .points mat-icon { color: var(--ms-success); flex: none; }
+    .achievements { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.65em; }
+    .achievements li { display: flex; gap: 0.55em; align-items: flex-start; padding: 0.8em; border-radius: 12px; background: var(--ms-surface); border: 1px solid var(--ms-line); line-height: 1.45; }
+    .achievements mat-icon { color: var(--ms-primary-strong); flex: none; }
+    .video-card { display: flex; align-items: center; gap: 0.8em; padding: 1em; border-radius: 16px; background: linear-gradient(135deg, var(--ms-primary), #1f3d2f); color: #fff; text-decoration: none; box-shadow: 0 14px 34px rgba(20, 40, 30, 0.18); }
+    .video-card .video-icon { width: 46px; height: 46px; flex: none; display: grid; place-items: center; border-radius: 50%; background: rgba(255,255,255,0.18); }
+    .video-card strong { display: block; }
+    .video-card small { display: block; margin-top: 0.15em; opacity: 0.75; }
+    .invite-note { display: flex; gap: 0.8em; align-items: flex-start; padding: 1em; border-radius: 14px; background: var(--ms-primary-soft); color: var(--ms-text); }
+    .invite-note mat-icon { color: var(--ms-primary-strong); flex: none; }
+    .invite-note strong { display: block; margin-bottom: 0.2em; }
+    .invite-note p { margin: 0; line-height: 1.55; color: var(--ms-text-muted); }
     blockquote { margin: 1em 0 0; padding: 1.2em; border-left: 3px solid var(--ms-primary); background: var(--ms-surface); border-radius: 0 12px 12px 0; }
     blockquote p { margin: 0; font-size: 1.05em; line-height: 1.65; }
     blockquote footer { margin-top: 0.6em; color: var(--ms-text-muted); font-size: 0.82em; }
@@ -219,6 +294,12 @@ import { PublicLeadPage } from '../store.models';
     .contact-strip h2 { margin: 0.2em 0 0; font-size: 1.35em; }
     .contact-actions { display: flex; gap: 0.5em; flex-wrap: wrap; }
     .contact-actions mat-icon { margin-right: 0.25em; }
+    .social-strip { margin-top: 1.5em; padding: 1.5em; border-radius: 18px; border: 1px solid var(--ms-line); background: var(--ms-surface); display: flex; justify-content: space-between; gap: 1em; align-items: center; flex-wrap: wrap; }
+    .social-strip h2 { margin: 0.2em 0 0; font-size: 1.35em; }
+    .social-links { display: flex; gap: 0.45em; flex-wrap: wrap; }
+    .social-links a { display: inline-flex; align-items: center; gap: 0.3em; padding: 0.5em 0.8em; border-radius: 999px; border: 1px solid var(--ms-line); color: var(--ms-text); text-decoration: none; font-size: 0.82em; font-weight: 700; }
+    .social-links a:hover { border-color: var(--ms-primary); color: var(--ms-primary-strong); }
+    .social-links mat-icon { font-size: 18px; width: 18px; height: 18px; }
     .page-footer { display: flex; justify-content: space-between; gap: 1em; flex-wrap: wrap; padding-top: 1.5em; color: var(--ms-text-muted); font-size: 0.75em; }
     @media (max-width: 900px) {
       .hero-inner, .content-grid { grid-template-columns: 1fr; }
@@ -323,6 +404,50 @@ export class PersonalLeadPageComponent implements OnInit {
     return Array.isArray(value) ? value.map((v) => String(v).trim()).filter(Boolean).slice(0, 8) : [];
   }
 
+  protected achievementLines(page: PublicLeadPage): string[] {
+    const raw = this.text(page, 'achievements');
+    if (!raw) return [];
+    return raw
+      .split(/\r?\n|;/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .slice(0, 8);
+  }
+
+  protected videoUrl(page: PublicLeadPage): string | null {
+    const url = this.text(page, 'videoTestimonialUrl');
+    return /^https?:\/\//i.test(url) ? url : null;
+  }
+
+  protected videoDomain(url: string): string {
+    try {
+      return new URL(url).hostname.replace(/^www\./, '');
+    } catch {
+      return 'Video testimonial';
+    }
+  }
+
+  protected groupUrl(): string | null {
+    const page = this.page();
+    if (!page) return null;
+    const group = this.text(page, 'whatsappGroupLink');
+    return /^https?:\/\//i.test(group) ? group : null;
+  }
+
+  protected socials(page: PublicLeadPage): Array<{ label: string; url: string; icon: string }> {
+    const links: Array<{ key: string; label: string; icon: string }> = [
+      { key: 'facebookPage', label: 'Facebook', icon: 'public' },
+      { key: 'instagramPage', label: 'Instagram', icon: 'photo_camera' },
+      { key: 'tiktokPage', label: 'TikTok', icon: 'music_note' },
+      { key: 'twitterPage', label: 'X', icon: 'alternate_email' },
+      { key: 'linkedinPage', label: 'LinkedIn', icon: 'work' },
+      { key: 'youtubePage', label: 'YouTube', icon: 'play_circle' },
+    ];
+    return links
+      .map(({ key, label, icon }) => ({ label, icon, url: this.text(page, key) }))
+      .filter((link) => /^https?:\/\//i.test(link.url));
+  }
+
   protected image(value: string): string {
     return storeAssetUrl(value);
   }
@@ -340,8 +465,6 @@ export class PersonalLeadPageComponent implements OnInit {
     if (!page) return null;
     const direct = this.text(page, 'whatsappChatLink');
     if (direct && /^https?:\/\//i.test(direct)) return direct;
-    const group = this.text(page, 'whatsappGroupLink');
-    if (group && /^https?:\/\//i.test(group)) return group;
     const phone = this.text(page, 'displayPhone');
     if (!phone) return null;
     const digits = phone.replace(/\D/g, '').replace(/^0/, '234');
