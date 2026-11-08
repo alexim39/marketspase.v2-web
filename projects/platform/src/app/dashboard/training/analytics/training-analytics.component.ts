@@ -108,7 +108,7 @@ import { ApiError } from '../../../core/http/api-error';
           }
           @if (team().length > 0) {
             <table>
-              <tr><th>Member</th><th>Depth</th><th>Overall</th><th>Certs</th><th>IPO</th><th>QSG</th><th>SMO</th></tr>
+              <tr><th>Member</th><th>Depth</th><th>Overall</th><th>Certs</th><th>IPO</th><th>QSG</th><th>SMO</th><th>Leadership</th></tr>
               @for (m of team().slice(0, 50); track m.partnerId) {
                 <tr class="member-row" (click)="toggleMember(m)" (keydown.enter)="toggleMember(m)" tabindex="0">
                   <td><button mat-button>{{ m.member?.name ?? m.partnerId.slice(-6) }}</button></td>
@@ -118,10 +118,11 @@ import { ApiError } from '../../../core/http/api-error';
                   <td>{{ coursePct(m, 'ipo') }}%</td>
                   <td>{{ coursePct(m, 'qsg') }}%</td>
                   <td>{{ coursePct(m, 'smo') }}%</td>
+                  <td>{{ coursePct(m, 'leadership') }}%</td>
                 </tr>
                 @if (expandedId() === m.partnerId) {
                   <tr class="detail-row">
-                    <td colspan="7">
+                    <td colspan="8">
                       @if (detailLoading() === m.partnerId) {
                         <mat-progress-bar mode="indeterminate" aria-label="Loading" />
                       } @else if (details()[m.partnerId]; as d) {

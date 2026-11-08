@@ -18,6 +18,11 @@ export const SettingsRoutes: Routes = [
             title: "Partner Profile Setting - Configure your profile settings",
         },
         {
+            path: 'appearance',
+            loadComponent: () => import('./appearance/appearance.component').then(m => m.AppearanceSettingsComponent),
+            title: "Appearance Settings - Light, dark or system theme",
+        },
+        {
             path: 'verification',
             loadComponent: () => import('./verification/verification.component').then(m => m.VerificationComponent),
             title: "Verification & KYC - Identity status",

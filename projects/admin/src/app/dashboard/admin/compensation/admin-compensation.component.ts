@@ -78,7 +78,7 @@ type Tab = 'entries' | 'bonuses' | 'product';
               }
             </div>
           </div>
-          <p class="muted small plan-foot">Mentor bonus ₦{{ p.mentorBonus.amount | number: '1.0-0' }} · due day {{ p.mentorBonus.daysAfterActivation }} after activation. Ranks are assigned manually until promotion automation ships.</p>
+          <p class="muted small plan-foot">Mentor bonus ₦{{ p.mentorBonus.amount | number: '1.0-0' }} · paid immediately on activation. Commission depth is assigned manually; journey rank follows the training gates.</p>
         </div>
       }
 

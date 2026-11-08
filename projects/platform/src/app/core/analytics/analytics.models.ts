@@ -60,7 +60,6 @@ export interface BenchAnalytics {
   capped: boolean;
   distribution: Record<string, number>;
   pendingConfirmations: number;
-  pendingNominations: number;
   leaders: number;
 }
 

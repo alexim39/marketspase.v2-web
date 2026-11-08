@@ -37,7 +37,7 @@ import { ApiError } from '../../../core/http/api-error';
       <div class="page-head">
         <div>
           <h2>Training Center</h2>
-          <p class="subtitle">Take IPO, QSG and SMO online — certificates count toward promotion.</p>
+          <p class="subtitle">Take IPO, QSG, SMO and Leadership online - certificates count toward promotion.</p>
         </div>
         <a mat-button routerLink="/dashboard/progress">My Journey</a>
       </div>

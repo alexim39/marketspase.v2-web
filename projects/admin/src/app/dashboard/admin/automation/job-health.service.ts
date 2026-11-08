@@ -18,7 +18,7 @@ export interface JobHealthRow {
 }
 
 const JOB_LABELS: Record<string, string> = {
-  'campaign-allocation': 'Lead allocation',
+  'growth-campaign-allocation': 'Partner allocation',
   'campaign-expiry': 'Flight expiry',
   'leadpool-sweep': 'Pool work-or-return',
 };

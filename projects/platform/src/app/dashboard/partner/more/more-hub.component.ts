@@ -149,6 +149,7 @@ export class MoreHubComponent {
       icon: 'person',
       links: [
         { label: 'Settings', detail: 'Profile, contact details, security and billing.', icon: 'settings', link: '/dashboard/settings/profiles' },
+        { label: 'Appearance', detail: 'Light, dark or system theme for this device.', icon: 'palette', link: '/dashboard/settings/appearance' },
         { label: 'Verification & KYC', detail: 'Identity status, age check and review notes.', icon: 'verified_user', link: '/dashboard/settings/verification' },
         { label: 'Billing & withdrawals', detail: 'Bank account, deposits and withdrawals.', icon: 'account_balance', link: '/dashboard/settings/billing' },
         { label: 'My public page', detail: 'Edit and preview your public landing page.', icon: 'public', link: '/dashboard/settings/landing-page' },
@@ -164,6 +165,8 @@ export class MoreHubComponent {
         { label: "How I'm doing", detail: 'Personal and team health summary.', icon: 'monitoring', link: '/dashboard/insights' },
         { label: 'My Business', detail: 'Your numbers and next moves in one screen.', icon: 'business_center', link: '/dashboard/insights/my-business' },
         { label: 'Reports & downloads', detail: 'Export your business data.', icon: 'download', link: '/dashboard/insights/downloads' },
+        { label: 'Team reports', detail: 'Report up and request updates from your team.', icon: 'summarize', link: '/dashboard/insights/team-reports' },
+        { label: 'Cell meeting', detail: 'Open the meeting room and track attendance.', icon: 'meeting_room', link: '/dashboard/cell-meeting' },
         { label: 'Contact analytics', detail: 'Source, conversion and activity.', icon: 'analytics', link: '/dashboard/insights/contact-analytics' },
       ],
     },

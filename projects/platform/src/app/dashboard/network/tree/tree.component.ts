@@ -53,7 +53,7 @@ const FALLBACK_PLAN: CompensationPlan = {
     { rank: 'Leader', depth: 3 },
     { rank: 'Ambassador', depth: 5 },
   ],
-  mentorBonus: { amount: 1000, daysAfterActivation: 7 },
+  mentorBonus: { amount: 1000, daysAfterActivation: 0 },
 };
 
 /**
@@ -377,6 +377,9 @@ const FALLBACK_PLAN: CompensationPlan = {
               </p>
             </div>
             <span class="spacer"></span>
+            @if (detail.depth > 0) {
+              <a mat-button [routerLink]="['/dashboard/network/view', detail.id]">Member 360</a>
+            }
             <a mat-button [routerLink]="['/dashboard/messages']" [queryParams]="{ chat: detail.id, chatName: names(detail) }">Chat</a>
             <button mat-flat-button color="primary" (click)="focus(detail.id)">Focus subtree</button>
           </div>

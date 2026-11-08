@@ -1,76 +1,63 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { retry, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
-import { PartnerInterface } from '../../../../_common/services/partner.service';
 
-export interface CellMeetingInterface {
-  message: string;
-  data?: Array<{
-    prospectName: string;
-    prospectSurname: string;
-    prospectEmail: string;
-    prospectPhone: string;
-    prospectSource: string;
-    prospectRemark?: string;
-    createdAt: Date;
-    status: string;
-    id: string;
-  }> 
+export interface CellMeetingRow {
+  id: string;
+  meetingDate: string;
+  durationSeconds: number;
+  minutes: number;
+  sessions: number;
+  firstJoinedAt: string | null;
+  lastJoinedAt: string | null;
+  partnerId?: string;
+  name?: string;
+  username?: string;
 }
-  
+
+export interface CellMeetingSummary {
+  totalMinutes: number;
+  sessions: number;
+  rows: CellMeetingRow[];
+}
+
+interface CellMeetingEnvelope<T> {
+  message: string;
+  data: T;
+  success: boolean;
+}
 
 @Injectable()
 export class CellMeetingService {
-  // Define API
-  /** Base URL comes from the Angular environment (dev/prod swapped at build). */
   apiURL = environment.apiUrl;
 
-  
   constructor(private http: HttpClient) {}
-  /*========================================
-    CRUD Methods for consuming RESTful API
-  =========================================*/
-  // Http Options
+
   httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-    }),
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   };
 
-  // Error handling
-  private handleError(error: any) {
-    let errorMessage: {code: string, message: string};
-    if (error.error instanceof ErrorEvent) {
-      // Get client-side error
-      errorMessage = error.error.message;
-    } else {
-      // Get server-side error
-      errorMessage = {'code': error.status, 'message': error.message};
-    }
-    //window.alert(errorMessage);
-    return throwError(() => {
-      return errorMessage;
-    });
+  /** Record one completed meeting session for the signed-in member. */
+  recordAttendance(durationSeconds: number): Observable<CellMeetingEnvelope<CellMeetingRow>> {
+    return this.http.post<CellMeetingEnvelope<CellMeetingRow>>(
+      `${this.apiURL}/v1/mentorship/cell-meeting`,
+      { durationSeconds },
+      { withCredentials: true },
+    );
   }
 
-// send single email
-/* sendProspectEmail(emailObject: {partnerId: string, prospectEmail: string, emailBody: string}): Observable<ContactsInterface> {
-  console.log('record', emailObject);
-  return this.http
-    .post<ContactsInterface>(this.apiURL + `/prospect/send-single-email/`, emailObject, { withCredentials: true })
-    .pipe(retry(1), catchError(this.handleError));
-} */
-
-  recordAttendance(timeSpent: string, partner: PartnerInterface) {
-    const dataObject = { timeSpent, meetingDate: new Date(), partner:  partner};
-    console.log('record', dataObject);
-    
-    return this.http
-    .post<CellMeetingInterface>(this.apiURL + `/mentorship/cell-meeting/`, dataObject, { withCredentials: true })
-    .pipe(retry(1), catchError(this.handleError));
+  myAttendance(): Observable<CellMeetingEnvelope<CellMeetingSummary>> {
+    return this.http.get<CellMeetingEnvelope<CellMeetingSummary>>(
+      `${this.apiURL}/v1/mentorship/cell-meeting/mine`,
+      { withCredentials: true },
+    );
   }
 
-   
+  teamAttendance(): Observable<CellMeetingEnvelope<CellMeetingRow[]>> {
+    return this.http.get<CellMeetingEnvelope<CellMeetingRow[]>>(
+      `${this.apiURL}/v1/mentorship/cell-meeting/team`,
+      { withCredentials: true },
+    );
+  }
 }

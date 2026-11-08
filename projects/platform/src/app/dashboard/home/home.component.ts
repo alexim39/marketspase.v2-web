@@ -857,7 +857,7 @@ export class HomeComponent implements OnInit {
   protected roleFocus(): string | null {
     if (!this.journey()) return null;
     const rank = this.rankLabel();
-    if (rank === 'Partner') return 'Focus: complete IPO, QSG and SMO, then make your first customer moves';
+    if (rank === 'Partner') return 'Focus: complete IPO and QSG, then connect your first personal recruit';
     if (rank === 'Builder') return 'Focus: build your retail customer base and your frontline partners';
     if (rank === 'Leader') return 'Focus: develop Builders and lead your frontline teams';
     return 'Focus: organisation volume, leadership depth and Ambassador recognition';

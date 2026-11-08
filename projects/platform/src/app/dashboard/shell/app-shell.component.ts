@@ -205,10 +205,6 @@ export class AppShellComponent {
     });
   }
 
-  toggleTheme(): void {
-    this.themes.toggle();
-  }
-
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }

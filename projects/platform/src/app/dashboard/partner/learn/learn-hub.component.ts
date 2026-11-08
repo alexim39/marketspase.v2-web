@@ -74,11 +74,11 @@ import { ApiError, userError } from '../../../core/http/api-error';
         <div class="metric">
           <span>Next rank</span>
           <strong class="metric-text">{{ nextRank()?.label ?? 'Top rank' }}</strong>
-          <span class="metric-note">{{ coreTrainingCount() }}/3 core trainings recorded</span>
+          <span class="metric-note">{{ coreTrainingCount() }}/4 core trainings recorded</span>
         </div>
         <div class="metric">
           <span>Core training</span>
-          <strong>{{ coreTrainingCount() }}/3</strong>
+          <strong>{{ coreTrainingCount() }}/4</strong>
           <span class="metric-note">Recorded automatically</span>
         </div>
         <div class="metric metric--attention">
@@ -276,12 +276,16 @@ export class LearnHubComponent implements OnInit {
   protected readonly courses = signal<CourseSummary[]>([]);
 
   protected readonly currentRank = computed<AppRank>(() =>
-    (this.auth.currentUser()?.commissionRank as AppRank | undefined) ?? 'Partner');
+    ((this.journey()?.levelLabel ?? this.auth.currentUser()?.commissionRank) as AppRank | undefined) ?? 'Partner');
   protected readonly currentRankIndex = computed(() => appRankIndex(this.currentRank()));
-  protected readonly nextRank = computed(() => APP_RANKS[this.currentRankIndex() + 1] ?? null);
+  protected readonly nextRank = computed(() => {
+    const label = this.journey()?.nextLabel as AppRank | null | undefined;
+    if (label) return APP_RANKS.find((r) => r.rank === label) ?? null;
+    return APP_RANKS[this.currentRankIndex() + 1] ?? null;
+  });
   protected readonly coreTrainingCount = computed(() => {
     const miles = (this.journey()?.milestones ?? {}) as Record<string, { done?: boolean }>;
-    return ['ipo', 'qsg', 'smo'].filter((key) => miles?.[key]?.done === true).length;
+    return ['ipo', 'qsg', 'smo', 'leadership'].filter((key) => miles?.[key]?.done === true).length;
   });
 
   protected readonly coursesInProgress = computed(() =>

@@ -70,7 +70,8 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
       { label: 'Reminders', link: '/dashboard/prospects/reminders', title: 'Follow-up promises due' },
       { label: 'Deal board', link: '/dashboard/prospects/board', title: 'Move deals forward' },
       { label: 'Sessions', link: '/dashboard/prospects/bookings', title: 'Booked chats' },
-      { label: 'Page leads', link: '/dashboard/prospects/personal-list', title: 'Leads from your public page' },
+      { label: 'Page leads', link: '/dashboard/prospects/personal-list', title: 'Page submissions and referral signups' },
+      { label: 'My contacts', link: '/dashboard/tools/contacts/new', title: 'Import contacts and submit your warm list' },
     ],
   },
   {
@@ -85,6 +86,9 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
       { label: 'Activation', link: '/dashboard/mentorship/team/activation', title: 'Who needs you next' },
       { label: 'Partner acquisition', link: '/dashboard/campaigns', title: 'Fund central acquisition and receive activated partners' },
       { label: 'My partners', link: '/dashboard/mentorship/partners/my-partners', title: 'Your partners' },
+      { label: 'Contact lists', link: '/dashboard/mentorship/team/contact-lists', title: 'Warm lists submitted by your team' },
+      { label: 'Team reports', link: '/dashboard/insights/team-reports', title: 'Report up, request down' },
+      { label: 'Cell meeting', link: '/dashboard/cell-meeting', title: 'Cell meeting room and attendance' },
       { label: 'Team tree', link: '/dashboard/network/tree', title: 'Tree view' },
       { label: 'Coaching notes', link: '/dashboard/training/coach', title: 'Coaching notes' },
     ],
@@ -157,6 +161,7 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
     link: '/dashboard/more',
     children: [
       { label: 'Settings', link: '/dashboard/settings/profiles', title: 'Profile, security and billing' },
+      { label: 'Appearance', link: '/dashboard/settings/appearance', title: 'Light, dark or system theme' },
       { label: 'Verification & KYC', link: '/dashboard/settings/verification', title: 'Identity status and verification' },
       { label: 'Billing & withdrawals', link: '/dashboard/settings/billing', title: 'Bank account and withdrawals' },
       { label: 'Public page', link: '/dashboard/settings/landing-page', title: 'Public page' },

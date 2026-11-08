@@ -32,7 +32,8 @@ interface InboxRow extends ProspectListInterface {
   referral?: string;
   referralCode?: string;
   state?: string;
-  campaignId?: string;
+  joined?: boolean;
+  partnerId?: string;
 }
 
 /**
@@ -61,7 +62,7 @@ interface InboxRow extends ProspectListInterface {
           <p class="subtitle">
             Private submissions via your public page
             @if (partner?.username) { <strong>/{{ partner.username }}</strong> }
-            — accept each to work it in My follow-ups.
+            and partners who signed up through your referral link. Accept page leads to work them; joined members open in your coaching dossier.
           </p>
         </div>
         <mat-button-toggle-group>
@@ -84,8 +85,13 @@ interface InboxRow extends ProspectListInterface {
       <div class="kpi-grid">
         <mat-card class="kpi"><mat-card-content>
           <mat-icon>inbox</mat-icon>
-          <span class="kpi-value">{{ rows().length }}</span>
+          <span class="kpi-value">{{ awaitingCount() }}</span>
           <span class="kpi-label">Awaiting accept</span>
+        </mat-card-content></mat-card>
+        <mat-card class="kpi"><mat-card-content>
+          <mat-icon>group_add</mat-icon>
+          <span class="kpi-value">{{ joinedCount() }}</span>
+          <span class="kpi-label">Joined via link</span>
         </mat-card-content></mat-card>
         <mat-card class="kpi"><mat-card-content>
           <mat-icon>fiber_new</mat-icon>
@@ -122,12 +128,15 @@ interface InboxRow extends ProspectListInterface {
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Name</th>
               <td mat-cell *matCellDef="let row" class="name-cell" data-label="Lead">
-                <button class="name-btn" (click)="view(row)" [matTooltip]="'View full answers'" matTooltipPosition="above">
-                  {{ row.name }} {{ row.surname }}
-                </button>
-                <div class="muted">{{ row.state || '' }}</div>
-                @if (row.campaignId) {
-                  <div><span class="dp-status dp-status--info">Campaign lead</span></div>
+                @if (row.joined) {
+                  <span class="name-btn static">{{ row.name }} {{ row.surname }}</span>
+                  <div class="muted">{{ row.state || '' }}</div>
+                  <div><span class="joined-badge">Joined your team</span></div>
+                } @else {
+                  <button class="name-btn" (click)="view(row)" [matTooltip]="'View full answers'" matTooltipPosition="above">
+                    {{ row.name }} {{ row.surname }}
+                  </button>
+                  <div class="muted">{{ row.state || '' }}</div>
                 }
               </td>
             </ng-container>
@@ -155,14 +164,15 @@ interface InboxRow extends ProspectListInterface {
             <ng-container matColumnDef="action">
               <th mat-header-cell *matHeaderCellDef>Action</th>
               <td mat-cell *matCellDef="let row" class="action-cell" data-label="Actions">
-                <button mat-button (click)="view(row)">View</button>
-                @if (confirmId() === row._id) {
-                  <button mat-flat-button color="primary" (click)="accept(row)" [disabled]="accepting()">Confirm accept?</button>
-                  <button mat-button (click)="confirmId.set(null)">Back</button>
+                @if (row.joined) {
+                  <a mat-button [routerLink]="['/dashboard/mentorship/partners/my-partners/detail', row.partnerId]">Open dossier</a>
                 } @else {
-                  <button mat-flat-button color="primary" (click)="confirmId.set(row._id)" [disabled]="accepting()">Accept</button>
-                  @if (row.campaignId) {
-                    <button mat-button (click)="report(row)" [disabled]="accepting()" title="Flag this allocated lead as bad">Report</button>
+                  <button mat-button (click)="view(row)">View</button>
+                  @if (confirmId() === row._id) {
+                    <button mat-flat-button color="primary" (click)="accept(row)" [disabled]="accepting()">Confirm accept?</button>
+                    <button mat-button (click)="confirmId.set(null)">Back</button>
+                  } @else {
+                    <button mat-flat-button color="primary" (click)="confirmId.set(row._id)" [disabled]="accepting()">Accept</button>
                   }
                 }
               </td>
@@ -171,7 +181,7 @@ interface InboxRow extends ProspectListInterface {
             <tr mat-row *matRowDef="let row; columns: columns;"></tr>
           </table>
         </div>
-        <p class="total muted">Showing {{ filtered().length }} of {{ rows().length }} awaiting accept</p>
+        <p class="total muted">Showing {{ filtered().length }} of {{ rows().length }} entries · {{ awaitingCount() }} awaiting accept</p>
       }
     </section>
   `,
@@ -199,7 +209,10 @@ interface InboxRow extends ProspectListInterface {
     table { width: 100%; }
     .name-cell { font-weight: 600; }
     .name-btn { background: none; border: none; padding: 0; font: inherit; font-weight: 700; cursor: pointer; color: inherit; text-transform: capitalize; }
+    .name-btn.static { cursor: default; }
     .name-btn:hover { color: var(--ms-primary-strong); text-decoration: underline; }
+    .name-btn.static:hover { color: inherit; text-decoration: none; }
+    .joined-badge { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: 0.74em; font-weight: 700; background: var(--ms-success-soft, var(--ms-primary-soft)); color: var(--ms-success, var(--ms-primary-strong)); }
     .muted { color: var(--ms-text-muted); font-size: 0.85em; }
     .total { margin: 0; }
     .empty-card { display: flex; flex-direction: column; align-items: center; gap: 0.7em; text-align: center; background: var(--ms-canvas); border: 1px dashed var(--ms-line); border-radius: 14px; padding: 2.5em 1.5em; color: var(--ms-text-muted); }
@@ -257,6 +270,9 @@ export class MyProspectListComponent implements OnInit, OnChanges {
     return this.rows().filter((r) => String((r as { createdAt?: unknown }).createdAt ?? '').slice(0, 10) === today).length;
   });
 
+  protected readonly awaitingCount = computed(() => this.rows().filter((r) => !r.joined).length);
+  protected readonly joinedCount = computed(() => this.rows().filter((r) => r.joined).length);
+
   ngOnInit(): void {
     this.resetRows(this.prospectList);
   }
@@ -275,6 +291,7 @@ export class MyProspectListComponent implements OnInit, OnChanges {
   }
 
   protected view(row: InboxRow): void {
+    if (row.joined) return;
     this.dialog.open(ProspectResponseComponent, {
       data: { prospect: row, partner: this.partner },
     }).afterClosed().subscribe((res: { accepted?: boolean; id?: string } | undefined) => {
@@ -307,31 +324,10 @@ export class MyProspectListComponent implements OnInit, OnChanges {
       });
   }
 
-  /** Flag an allocated inbox lead as bad — admin reviews for credit/replacement. */
-  protected report(row: InboxRow): void {
-    const reason = window.prompt('Why is this lead bad? (dead line, wrong person, …)');
-    if (!reason || !reason.trim() || this.accepting()) return;
-    this.accepting.set(true);
-    this.error.set(null);
-    this.leads
-      .reportAllocatedLead(row._id, reason.trim())
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.accepting.set(false);
-          this.notice.set(res.message ?? 'Lead reported — AI Admin will review it.');
-        },
-        error: (err: ApiError) => {
-          this.accepting.set(false);
-          this.error.set(userError(err));
-        },
-      });
-  }
-
   protected showDescription(): void {
     this.dialog.open(HelpDialogComponent, {
       data: {
-        help: 'My Page Leads: people who joined via your public page (/:your-username). Accept each for free — it moves to My follow-ups.',
+        help: 'My Page Leads: people who joined via your public page (/:your-username) or signed up through your referral link. Accept page submissions for free — they move to My follow-ups. Referral signups open in your coaching dossier.',
       },
     });
   }

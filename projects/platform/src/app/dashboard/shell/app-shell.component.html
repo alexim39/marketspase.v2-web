@@ -133,10 +133,6 @@
           <mat-icon aria-hidden="true">settings</mat-icon>
         </a>
 
-        <button mat-icon-button (click)="toggleTheme()" [title]="theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'" aria-label="Toggle color theme">
-          <mat-icon aria-hidden="true">{{ theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
-        </button>
-
         <button mat-icon-button (click)="signOut()" title="Sign out" aria-label="Sign out">
           <mat-icon aria-hidden="true">power_settings_circle</mat-icon>
         </button>

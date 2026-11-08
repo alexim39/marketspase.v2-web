@@ -34,7 +34,7 @@ import { ApiError } from '../../core/http/api-error';
       <div class="page-head">
         <div>
           <h2>My progress</h2>
-          <p class="subtitle">Partner → Builder → Leader → Ambassador. IPO, QSG and SMO training is recorded automatically; rank is assigned by the AI Admin after review.</p>
+          <p class="subtitle">Partner → Builder → Leader → Ambassador. The journey rank updates automatically as you complete training and hit the team gates; commission depth is assigned separately on the Compensation desk.</p>
         </div>
         <div class="head-actions">
           <a mat-stroked-button routerLink="/dashboard/training">Academy</a>
@@ -57,7 +57,7 @@ import { ApiError } from '../../core/http/api-error';
         <div>
           <span class="eyebrow">Current rank</span>
           <h3>{{ currentRank() }}</h3>
-          <p class="muted">{{ currentDefinition().tagline }} · {{ currentDefinition().commission }} · Assigned by the AI Admin after review.</p>
+          <p class="muted">{{ currentDefinition().tagline }} · {{ currentDefinition().commission }} · Journey rank updates automatically.</p>
         </div>
         <div class="rank-position">
           <span>Rank</span>
@@ -91,7 +91,7 @@ import { ApiError } from '../../core/http/api-error';
       <div class="content-grid">
         <div class="dp-card">
           <h3>Training record</h3>
-          <p class="muted">These three certificates are recorded and confirmed by the system. No upline approval is needed.</p>
+          <p class="muted">These four certificates are recorded and confirmed by the system. No upline approval is needed.</p>
           @if (journey()) {
             <ul class="training-list">
               @for (t of training; track t.key) {
@@ -122,15 +122,23 @@ import { ApiError } from '../../core/http/api-error';
         </div>
 
         <div class="dp-card">
-          <h3>Promotion review · {{ nextRank()?.label ?? 'top rank' }}</h3>
+          <h3>Next gate · {{ nextRank()?.label ?? 'top rank' }}</h3>
           @if (nextRank(); as next) {
-            <p class="muted">Criteria the AI Admin reviews for {{ next.label }}:</p>
-            <ul class="criteria">
-              @for (criterion of next.criteria; track criterion) {
-                <li><mat-icon>chevron_right</mat-icon><span>{{ criterion }}</span></li>
-              }
-            </ul>
-            <p class="muted review-note">Meeting these criteria does not auto-promote you. Rank is assigned after the review.</p>
+            <p class="muted">Requirements still open for {{ next.label }}:</p>
+            @if (journey()?.missing?.length) {
+              <ul class="criteria">
+                @for (item of (journey()?.missing ?? []); track item.key) {
+                  <li><mat-icon>chevron_right</mat-icon><span><strong>{{ item.label }}</strong> — {{ item.action }}</span></li>
+                }
+              </ul>
+            } @else {
+              <ul class="criteria">
+                @for (criterion of next.criteria; track criterion) {
+                  <li><mat-icon>chevron_right</mat-icon><span>{{ criterion }}</span></li>
+                }
+              </ul>
+            }
+            <p class="muted review-note">Journey rank promotes automatically when every gate is met. Commission depth is set separately by the compensation team.</p>
           } @else {
             <p class="empty">You are at the top rank. Keep leading and developing the next generation.</p>
           }
@@ -144,8 +152,8 @@ import { ApiError } from '../../core/http/api-error';
           <span><strong>{{ journey()?.signals?.activeDownline ?? 0 }}</strong> active downline</span>
         </div>
         <p class="muted">
-          These signals support your promotion review alongside retail activity and the training record. They do not
-          auto-promote you — the AI Admin assigns each rank after review.
+          These signals support your next gate alongside the training record. Journey rank promotes automatically when
+          every requirement is met; commission depth is assigned separately.
         </p>
       </div>
     </section>
@@ -214,11 +222,15 @@ export class ProgressComponent implements OnInit {
   protected readonly journey = signal<Journey | null>(null);
 
   protected readonly currentRank = computed<AppRank>(() =>
-    (this.auth.currentUser()?.commissionRank as AppRank | undefined) ?? 'Partner',
+    ((this.journey()?.levelLabel ?? this.auth.currentUser()?.commissionRank) as AppRank | undefined) ?? 'Partner',
   );
   protected readonly rankIndex = computed(() => appRankIndex(this.currentRank()));
   protected readonly currentDefinition = computed(() => APP_RANKS[this.rankIndex()] ?? APP_RANKS[0]);
-  protected readonly nextRank = computed(() => APP_RANKS[this.rankIndex() + 1] ?? null);
+  protected readonly nextRank = computed(() => {
+    const label = this.journey()?.nextLabel as AppRank | null | undefined;
+    if (label) return APP_RANKS.find((r) => r.rank === label) ?? null;
+    return APP_RANKS[this.rankIndex() + 1] ?? null;
+  });
 
   private readonly milestones = computed(() => {
     const raw = (this.journey()?.milestones ?? {}) as Record<string, {

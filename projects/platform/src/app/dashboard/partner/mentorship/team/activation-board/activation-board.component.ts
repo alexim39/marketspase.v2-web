@@ -42,7 +42,7 @@ const PAGE_SIZE = 10;
       <div class="page-head">
         <div>
           <h2>Activation board</h2>
-          <p class="subtitle">Your team, oldest need first — IPO/QSG/SMO progress, list work and the one next move per member.</p>
+          <p class="subtitle">Your team, oldest need first - IPO/QSG/SMO/Leadership progress, list work and the one next move per member.</p>
         </div>
         <div class="head-actions">
           <a mat-button routerLink="../contact-lists">Warm lists</a>
@@ -140,7 +140,7 @@ const PAGE_SIZE = 10;
           <div class="empty-card">
             <mat-icon>group_add</mat-icon>
             <p><strong>No downline yet.</strong></p>
-            <p class="muted">When partners join or are placed under you, each gets one row here with IPO/QSG/SMO, list progress and the next move.</p>
+            <p class="muted">When partners join or are placed under you, each gets one row here with IPO/QSG/SMO/Leadership, list progress and the next move.</p>
             <a mat-button routerLink="/dashboard/mentorship/partners/my-partners">Check my downline</a>
           </div>
         } @else {

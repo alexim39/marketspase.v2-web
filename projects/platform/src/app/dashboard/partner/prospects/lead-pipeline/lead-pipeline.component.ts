@@ -318,11 +318,6 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
                     <mat-icon>verified</mat-icon><span>Joined your team</span>
                   </span>
                 }
-                @if (lead.campaignId) {
-                  <span class="camp-badge" [title]="'Allocated by ' + (campaignNames()[lead.campaignId] ?? 'campaign')">
-                    <mat-icon>campaign</mat-icon><span>{{ campaignNames()[lead.campaignId] ?? 'Campaign lead' }}</span>
-                  </span>
-                }
               </td>
             </ng-container>
             <ng-container matColumnDef="contact">
@@ -556,7 +551,6 @@ export class LeadPipelineComponent implements OnInit {
   protected readonly pageSize = signal(50);
   protected readonly pageIndex = signal(0);
   protected readonly stuckDays = signal<Record<string, StuckEntry>>({});
-  protected readonly campaignNames = signal<Record<string, string>>({});
   protected readonly actingId = signal<string | null>(null);
   protected readonly confirmId = signal<string | null>(null);
   protected readonly convertedNotice = signal<{ name: string; leadId: string } | null>(null);
@@ -747,7 +741,6 @@ export class LeadPipelineComponent implements OnInit {
     this.serverStageCounts.set(leads?.meta?.stageCounts ?? {});
     this.selected.set(new Set());
     this.loading.set(false);
-    this.resolveCampaignNames();
   }
 
   protected toggleStuckOnly(): void {
@@ -761,21 +754,6 @@ export class LeadPipelineComponent implements OnInit {
     this.search.set(value);
     this.pageIndex.set(0);
     this.reload();
-  }
-
-  /** Batch-resolve owning campaign names for allocated rows (one round trip). */
-  protected resolveCampaignNames(): void {
-    const ids = [...new Set(
-      this.rows().map((r) => String((r as ProspectLead & { campaignId?: unknown }).campaignId ?? '').trim()).filter(Boolean),
-    )].filter((id) => !(id in this.campaignNames()));
-    if (ids.length === 0) return;
-    this.leads
-      .campaignNames(ids)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => this.campaignNames.set({ ...this.campaignNames(), ...(res?.data ?? {}) }),
-        error: () => null,
-      });
   }
 
   /** Downloadable CSV template — exact headers the importer accepts. */

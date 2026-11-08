@@ -189,7 +189,7 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
       }
       @if (bench(); as b) {
         <h3>Leadership bench</h3>
-        <p class="muted">{{ b.leaders | number }} leaders in {{ b.total | number }} downline · {{ b.pendingNominations | number }} nominations pending</p>
+        <p class="muted">{{ b.leaders | number }} leaders in {{ b.total | number }} downline</p>
       }
 
       <h3>Take your data</h3>

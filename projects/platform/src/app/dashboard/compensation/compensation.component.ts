@@ -60,7 +60,7 @@ import { formatMoney } from '../../core/format/money';
           <div class="summary-grid">
             <div class="panel stat"><mat-icon>hourglass_top</mat-icon><div><small>Pending commission</small><strong>₦{{ me.summary.pending | number: '1.0-0' }}</strong><span>{{ me.summary.pendingCount }} entr{{ me.summary.pendingCount === 1 ? 'y' : 'ies' }}</span></div></div>
             <div class="panel stat"><mat-icon>account_balance_wallet</mat-icon><div><small>Released to wallet</small><strong>₦{{ me.summary.released | number: '1.0-0' }}</strong><span>{{ me.summary.releasedCount }} entr{{ me.summary.releasedCount === 1 ? 'y' : 'ies' }}</span></div></div>
-            <div class="panel stat"><mat-icon>volunteer_activism</mat-icon><div><small>Mentor bonus earned</small><strong>₦{{ me.summary.mentorPaid | number: '1.0-0' }}</strong><span>Paid day {{ me.plan.mentorBonus.daysAfterActivation }}</span></div></div>
+            <div class="panel stat"><mat-icon>volunteer_activism</mat-icon><div><small>Mentor bonus earned</small><strong>₦{{ me.summary.mentorPaid | number: '1.0-0' }}</strong><span>Paid immediately</span></div></div>
           </div>
 
           <div class="content-grid">
@@ -82,7 +82,7 @@ import { formatMoney } from '../../core/format/money';
             <div class="panel">
               <div class="panel-head"><div><p class="eyebrow">Mentor bonus</p><h2>Activation bonus</h2></div><span class="pill">₦{{ me.plan.mentorBonus.amount | number: '1.0-0' }}</span></div>
               @if (me.mentorBonuses.length === 0) {
-                <div class="empty"><mat-icon>volunteer_activism</mat-icon><p>No mentor bonus yet. Bonuses are paid to the placement parent after a placed partner completes day {{ me.plan.mentorBonus.daysAfterActivation }}.</p></div>
+                <div class="empty"><mat-icon>volunteer_activism</mat-icon><p>No mentor bonus yet. Bonuses are paid to the referral mentor immediately when a referred partner activates.</p></div>
               } @else {
                 <div class="bonus-list">
                   @for (bonus of me.mentorBonuses; track bonus.id) {

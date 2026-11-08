@@ -203,9 +203,12 @@ export class AcademyDashboardComponent implements OnInit {
 
   protected readonly trainingTrack = TRAINING_TRACK;
   protected readonly currentRank = computed<AppRank>(() =>
-    (this.auth.currentUser()?.commissionRank as AppRank | undefined) ?? 'Partner');
-  protected readonly nextRank = computed(() =>
-    APP_RANKS[appRankIndex(this.currentRank()) + 1] ?? null);
+    ((this.journey()?.levelLabel ?? this.auth.currentUser()?.commissionRank) as AppRank | undefined) ?? 'Partner');
+  protected readonly nextRank = computed(() => {
+    const label = this.journey()?.nextLabel as AppRank | null | undefined;
+    if (label) return APP_RANKS.find((r) => r.rank === label) ?? null;
+    return APP_RANKS[appRankIndex(this.currentRank()) + 1] ?? null;
+  });
 
   protected trainingDone(key: string): boolean {
     const stamp = (this.journey()?.milestones?.[key] ?? {}) as { done?: boolean };
