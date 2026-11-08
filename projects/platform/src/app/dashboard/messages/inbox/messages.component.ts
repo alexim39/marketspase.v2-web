@@ -26,11 +26,14 @@ import { SmsApprovalDialogComponent } from './sms-approval-dialog.component';
 type ComposeKind = 'direct' | 'announcement' | 'team';
 type ChatMsg = Message & { clientId?: string; pending?: boolean; failed?: boolean };
 
-/** Newest-activity-first ordering shared by every group list refresh. */
+/** Official level groups stay visible first; everything else is newest-first. */
 function sortGroupSummaries(rows: GroupSummary[]): GroupSummary[] {
-  return [...rows].sort((a, b) =>
-    new Date(b.lastMessage?.createdAt ?? b.createdAt ?? 0).getTime()
-    - new Date(a.lastMessage?.createdAt ?? a.createdAt ?? 0).getTime());
+  return [...rows].sort((a, b) => {
+    const rank = Number(!a.rankGroup) - Number(!b.rankGroup);
+    if (rank !== 0) return rank;
+    return new Date(b.lastMessage?.createdAt ?? b.createdAt ?? 0).getTime()
+      - new Date(a.lastMessage?.createdAt ?? a.createdAt ?? 0).getTime();
+  });
 }
 
 const POLL_THREAD_MS = 8000;
