@@ -101,6 +101,7 @@ import {
           <p>
             Members are added and removed automatically from their journey level. They can mute the group
             but cannot leave, rename or delete it. Open a group chat here to read, reply and moderate.
+            Admin and partner sessions are separate, so the partner platform may ask you to sign in once.
           </p>
         </div>
       </div>
