@@ -95,18 +95,6 @@ const FALLBACK_PLAN: CompensationPlan = {
         </mat-button-toggle-group>
       </div>
 
-      <mat-button-toggle-group class="chain-tabs" [value]="chain()" (change)="setChain($event.value)" aria-label="Network chain">
-        <mat-button-toggle value="growth" title="Campaign placement chain — earns growth commissions">
-          <mat-icon>hub</mat-icon> Growth network
-        </mat-button-toggle>
-        <mat-button-toggle value="referral" title="Referral chain — shop commissions and invites">
-          <mat-icon>share</mat-icon> Referral network
-        </mat-button-toggle>
-        <mat-button-toggle value="all" title="Full team view — both relationships">
-          <mat-icon>account_tree</mat-icon> All connections
-        </mat-button-toggle>
-      </mat-button-toggle-group>
-
       @if (systemRoot(); as root) {
         <div class="system-root-banner" role="note">
           <span class="root-mark" aria-hidden="true">{{ root.name.slice(0, 1) }}</span>
@@ -139,7 +127,7 @@ const FALLBACK_PLAN: CompensationPlan = {
 
       @if (upline().length > 0) {
         <nav class="upline" aria-label="Upline">
-          <span class="upline-label">{{ chain() === 'growth' ? 'Growth upline' : chain() === 'referral' ? 'Referral upline' : 'Upline' }}</span>
+          <span class="upline-label">Upline</span>
           <mat-icon>arrow_upward</mat-icon>
           @for (ancestor of upline(); track ancestor.id; let last = $last) {
             <button mat-button (click)="focus(ancestor.id)">{{ names(ancestor) }}</button>
@@ -209,13 +197,9 @@ const FALLBACK_PLAN: CompensationPlan = {
         <div class="stats">
           <span><strong>{{ m.total }}</strong> partners</span>
           <span><strong>{{ m.perLevel.length - 1 }}</strong> generations shown</span>
-          @if (chain() === 'growth') {
-            <span class="ok"><strong>{{ summary().earning }}</strong> earning in view</span>
-            <span class="muted"><strong>{{ summary().locked }}</strong> locked within L1–5</span>
-            <span class="muted"><strong>{{ summary().viewOnly }}</strong> view-only beyond L5</span>
-          } @else {
-            <span class="muted"><strong>{{ summary().total }}</strong> in this view</span>
-          }
+          <span class="ok"><strong>{{ summary().earning }}</strong> earning in view</span>
+          <span class="muted"><strong>{{ summary().locked }}</strong> locked within L1–5</span>
+          <span class="muted"><strong>{{ summary().viewOnly }}</strong> view-only beyond L5</span>
           @if (m.truncated) {
             <span class="warn">Showing partial tree — raise depth or focus a subtree.</span>
           }
@@ -388,7 +372,7 @@ const FALLBACK_PLAN: CompensationPlan = {
                 <span class="rank-pill">{{ detail.commissionRank }} · earns L1–{{ detail.commissionDepth }}</span>
                 <span class="relation-pill" [class.placement]="detail.relationType === 'placement'">{{ relationLabel(detail) }}</span>
               </div>
-              <p class="earning-note" [class.locked]="isNodeLocked(detail)" [class.referral-only]="isReferralOnly(detail)">
+              <p class="earning-note" [class.locked]="isNodeLocked(detail)">
                 {{ earningNote(detail) }}
               </p>
             </div>
@@ -410,7 +394,6 @@ const FALLBACK_PLAN: CompensationPlan = {
     .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
     .page-head h2 { margin: 0; }
     .subtitle { margin: 0.25em 0 0; color: var(--ms-text-muted); }
-    .chain-tabs { align-self: flex-start; }
     .plan-summary { display: flex; justify-content: space-between; align-items: center; gap: 1.25em; flex-wrap: wrap; padding: 1em 1.1em; border: 1px solid var(--ms-line); border-radius: 12px; background: linear-gradient(120deg, var(--ms-primary-soft), var(--ms-surface)); }
     .plan-you, .plan-next { display: flex; flex-direction: column; gap: 0.12em; }
     .plan-next { text-align: right; }
@@ -511,7 +494,6 @@ const FALLBACK_PLAN: CompensationPlan = {
     .relation-pill.placement { background: var(--ms-info-soft); color: var(--ms-info); border-color: transparent; }
     .earning-note { margin: 0.15em 0 0; font-size: 0.84em; line-height: 1.45; }
     .earning-note.locked { color: var(--ms-warning); font-weight: 600; }
-    .earning-note.referral-only { color: var(--ms-text-muted); }
     .muted { color: var(--ms-text-muted); font-size: 0.85em; }
     .error { color: var(--ms-error); display: flex; align-items: center; gap: 0.5em; }
     .empty { color: var(--ms-text-muted); }
@@ -535,7 +517,7 @@ export class NetworkTreeComponent implements OnInit {
   protected readonly systemRoot = signal<NetworkRoot | null>(null);
   protected readonly rootId = signal<string | null>(null);
   protected readonly depth = signal(5);
-  protected readonly chain = signal<NetworkChain>('growth');
+  protected readonly chain = signal<NetworkChain>('all');
   protected readonly plan = signal<CompensationPlan | null>(null);
   protected readonly search = signal('');
   protected readonly collapsed = signal<ReadonlySet<string>>(new Set());
@@ -590,31 +572,17 @@ export class NetworkTreeComponent implements OnInit {
     return index >= 0 ? ranks[index + 1] ?? null : null;
   });
 
-  protected readonly chainSubtitle = computed(() => {
-    if (this.chain() === 'growth') {
-      return 'Campaign placement chain — the network that pays growth commissions.';
-    }
-    if (this.chain() === 'referral') {
-      return 'Referral chain — who you invited. Growth commissions follow campaign placement, not this chain.';
-    }
-    return 'Full team view — solid lines are referrals, dashed lines are campaign placements.';
-  });
+  protected readonly chainSubtitle = computed(() =>
+    'One team network — every member has one upline. Campaign history stays on the node, not in a second tree.',
+  );
 
-  protected readonly chainHint = computed(() => {
-    if (this.chain() === 'growth') return 'This is the chain that pays growth commissions.';
-    if (this.chain() === 'referral') return 'Referral chain · shop plan and invites. Growth commissions follow campaign placement.';
-    return 'Mixed view · only dashed placement lines can pay growth commission.';
-  });
+  protected readonly chainHint = computed(() =>
+    'One upline tree. Rank depth controls commission levels; earnings stop at Level 5.',
+  );
 
-  protected readonly depthHint = computed(() => {
-    if (this.chain() === 'growth') {
-      return `Rows show the growth plan. Node badges are each member's own rank; the row rate is what this member earns. Earnings stop at Level ${this.rootDepth()} now and never exceed Level 5.`;
-    }
-    if (this.chain() === 'referral') {
-      return 'Rows show referral generations. Shop commissions use a separate rate table; growth commissions follow campaign placement.';
-    }
-    return 'Rows show all connections. Solid = referral; dashed = campaign placement. Growth commissions follow dashed lines only.';
-  });
+  protected readonly depthHint = computed(() =>
+    `Rows show your team. Node badges are each member's own rank; the row rate is what this member earns. Earnings stop at Level ${this.rootDepth()} now and never exceed Level 5.`,
+  );
 
   protected readonly summary = computed(() => {
     const nodes = this.layout()?.nodes ?? [];
@@ -632,7 +600,6 @@ export class NetworkTreeComponent implements OnInit {
 
   protected readonly bands = computed(() => {
     const depth = this.depth();
-    const growth = this.chain() === 'growth';
     const bands: Array<{
       level: number; y: number; height: number; labelY: number;
       title: string; subtitle: string; state: 'root' | 'active' | 'locked' | 'info';
@@ -646,18 +613,14 @@ export class NetworkTreeComponent implements OnInit {
       state: 'root',
     }];
     for (let level = 1; level <= Math.min(5, depth); level += 1) {
-      const state = growth
-        ? (level <= this.rootDepth() ? 'active' as const : 'locked' as const)
-        : 'info' as const;
+      const state = level <= this.rootDepth() ? 'active' as const : 'locked' as const;
       bands.push({
         level,
         y: level * Y_GAP + 8,
         height: Y_GAP - 8,
         labelY: level * Y_GAP + 57,
-        title: growth ? `Level ${level} · ${this.rateFor(level)}%` : `Generation ${level}`,
-        subtitle: growth
-          ? (state === 'active' ? 'Active — earns this level' : `Locked · ${this.unlockRank(level)}`)
-          : (this.chain() === 'referral' ? 'Referral · shop plan' : 'Mixed view'),
+        title: `Level ${level} · ${this.rateFor(level)}%`,
+        subtitle: state === 'active' ? 'Active — earns this level' : `Locked · ${this.unlockRank(level)}`,
         state,
       });
     }
@@ -673,17 +636,6 @@ export class NetworkTreeComponent implements OnInit {
       labelY: 6 * Y_GAP + 57,
     };
   });
-
-  protected setChain(value: NetworkChain): void {
-    if (value === this.chain()) return;
-    this.chain.set(value);
-    this.tree.set(null);
-    this.meta.set(null);
-    this.upline.set([]);
-    this.selectedId.set(null);
-    this.collapsed.set(new Set());
-    this.reload();
-  }
 
   protected rateFor(level: number): number {
     const rate = (this.plan() ?? FALLBACK_PLAN).rates.find((r) => r.level === level);
@@ -953,15 +905,8 @@ export class NetworkTreeComponent implements OnInit {
     return node.relationType === 'placement' ? 'Campaign placement' : 'Referral';
   }
 
-  protected isReferralOnly(node: PositionedNode): boolean {
-    if (node.depth === 0) return false;
-    if (this.chain() === 'referral') return true;
-    return this.chain() === 'all' && node.relationType !== 'placement';
-  }
-
   protected isNodeLocked(node: PositionedNode): boolean {
-    if (node.depth === 0 || this.chain() === 'referral') return false;
-    if (this.chain() === 'all' && node.relationType !== 'placement') return false;
+    if (node.depth === 0) return false;
     return node.depth > this.rootDepth() && node.depth <= 5;
   }
 
@@ -970,9 +915,6 @@ export class NetworkTreeComponent implements OnInit {
       return this.isSelf()
         ? 'This is you — the root of your network.'
         : 'This member is the root of the current view.';
-    }
-    if (this.isReferralOnly(node)) {
-      return 'Referral link only — this edge does not pay growth commission. Shop commissions use the separate referral plan.';
     }
     if (node.depth > 5) return 'Beyond Level 5 — view only, no commission.';
     const earner = this.isSelf() ? 'You' : 'This member';
@@ -983,13 +925,7 @@ export class NetworkTreeComponent implements OnInit {
   }
 
   protected emptyLabel(): string {
-    if (this.chain() === 'growth') {
-      return 'No campaign placements yet — growth commissions start when partners are placed under this member.';
-    }
-    if (this.chain() === 'referral') {
-      return 'No referrals yet — invite someone with your referral link.';
-    }
-    return 'No connections yet — referrals and campaign placements will appear here.';
+    return 'No team yet — invite someone with your referral link or wait for a system-owned campaign placement.';
   }
 
   protected shortName(node: PositionedNode): string {

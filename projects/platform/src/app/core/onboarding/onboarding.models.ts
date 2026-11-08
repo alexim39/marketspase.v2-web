@@ -55,7 +55,6 @@ export interface ActivationQueue {
   enteredAt: string;
   allocatedAt: string | null;
   campaignId: string | null;
-  placementParentId: string | null;
   cancelledAt: string | null;
   position: number | null;
 }
