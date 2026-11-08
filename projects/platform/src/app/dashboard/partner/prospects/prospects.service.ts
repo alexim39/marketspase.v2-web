@@ -29,15 +29,6 @@ export class ProspectService {
   }
 
   // get contacts createdby
-  importSingle(importId: any): Observable<any> {
-    return this.apiService.get<ProspectListInterface>(`prospect/import-single/${importId.partnerId}/${importId.prospectId}/${importId.source}`, undefined, undefined, true);
-  }
-
-  // paid pool claim — session-owned v1 (fee debited from wallet).
-  claimLead(surveyId: string): Observable<{ message: string; success: boolean; data: { prospectId: string; fee: number; balance: number } }> {
-    return this.apiService.post(`v1/prospects/claim`, { surveyId, source: 'website' }, undefined, true);
-  }
-
   // get session booking
   getSessionBookingsFor(createdBy: string): Observable<any> {
     return this.apiService.get<ProspectListInterface>(`booking/for/${createdBy}`, undefined, undefined, true);

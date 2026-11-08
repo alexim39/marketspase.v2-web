@@ -76,7 +76,7 @@ const num = (v: unknown): number => {
         </div>
         <div class="panel">
           <h3>Growth</h3>
-          <p>{{ p.growth.activeLeads ?? '—' }} active leads · {{ p.growth.claims7d ?? '—' }} claims (7d)@if (p.growth.rating !== null) { · rated {{ p.growth.rating }}/5 ({{ p.growth.ratingCount }})}</p>
+          <p>{{ p.growth.activeLeads ?? '—' }} active leads</p>
           <p class="muted">Deposits: {{ p.growth.deposits ?? '—' }}</p>
         </div>
         <div class="actions">

@@ -54,10 +54,11 @@ interface StageRow {
         <div>
           <p class="eyebrow">Pipeline · Daily sales engine</p>
           <h1>Who needs you today</h1>
-          <p class="muted">Follow-ups, deal board, page leads and the shared pool in one place.</p>
+          <p class="muted">Follow-ups, deal board and page leads in one place.</p>
         </div>
         <div class="head-actions">
           <a mat-flat-button color="primary" routerLink="/dashboard/prospects/pipeline">Open pipeline</a>
+          <a mat-stroked-button routerLink="/dashboard/prospects/personal-list">Page leads</a>
           <a mat-stroked-button routerLink="/dashboard/tools/contacts/new">Add prospect</a>
         </div>
       </header>
@@ -143,7 +144,7 @@ interface StageRow {
               <span class="count">{{ prospectTotal() | number }}</span>
             </div>
             @if (stageRows().length === 0) {
-              <p class="muted empty-line">No prospects yet — add someone or claim from the pool.</p>
+              <p class="muted empty-line">No prospects yet — add someone or accept a page lead.</p>
             } @else {
               <div class="stage-list">
                 @for (row of stageRows(); track row.stage) {

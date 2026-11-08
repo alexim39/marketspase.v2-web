@@ -45,11 +45,8 @@ export interface ProspectLead {
   communications?: Array<{ interestLevel?: string; date?: string }>;
   createdAt?: string;
   updatedAt?: string;
-  /** Historical pool origin + pickup time (kept for legacy records). */
+  /** Historical page-lead origin. */
   surverId?: string | null;
-  claimedAt?: string | null;
-  /** Owning campaign for system-allocated leads (drives the pipeline badge). */
-  campaignId?: string | null;
 }
 
 export interface ProspectListEnvelope extends ApiEnvelope<ProspectLead[]> {

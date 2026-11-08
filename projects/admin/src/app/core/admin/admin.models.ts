@@ -51,7 +51,7 @@ export interface Member360 {
     txCount: number | null;
     recent: Array<{ amount: number; kind: string; method: string; status: string; at: string | null }>;
   };
-  growth: { activeLeads: number | null; claims7d: number | null; rating: number | null; ratingCount: number; deposits: number | null };
+  growth: { activeLeads: number | null; deposits: number | null };
   journey: { level: string | null; rankAt: string | null };
   upline: { id: string; name: string; username: string | null } | null;
   risks: Array<{ tone: string; label: string }>;

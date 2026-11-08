@@ -129,10 +129,6 @@
           <mat-icon aria-hidden="false" [attr.aria-label]="stream.unreadCount() ? 'Notifications, ' + stream.unreadCount() + ' unread' : 'Notifications'" [matBadge]="stream.unreadCount()" [matBadgeHidden]="stream.unreadCount() === 0" matBadgeColor="warn" matBadgeDescription="unread notifications">notifications</mat-icon>
         </button>
 
-        <a mat-icon-button routerLink="/dashboard/settings/profiles" title="Settings" aria-label="Settings">
-          <mat-icon aria-hidden="true">settings</mat-icon>
-        </a>
-
         <button mat-icon-button (click)="signOut()" title="Sign out" aria-label="Sign out">
           <mat-icon aria-hidden="true">power_settings_circle</mat-icon>
         </button>

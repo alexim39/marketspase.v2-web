@@ -47,7 +47,6 @@ export interface ProspectLead {
   updatedAt?: string;
   /** Historical pool origin + pickup time (kept for legacy records). */
   surverId?: string | null;
-  claimedAt?: string | null;
   /** Set after the converted lead completes signup under the owner. */
   convertedPartnerId?: string | null;
   convertedAt?: string | null;

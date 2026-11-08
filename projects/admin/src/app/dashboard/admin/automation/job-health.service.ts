@@ -20,7 +20,6 @@ export interface JobHealthRow {
 const JOB_LABELS: Record<string, string> = {
   'growth-campaign-allocation': 'Partner allocation',
   'campaign-expiry': 'Flight expiry',
-  'leadpool-sweep': 'Pool work-or-return',
 };
 
 /** Admin automation health — are the scheduled sweeps actually firing? */

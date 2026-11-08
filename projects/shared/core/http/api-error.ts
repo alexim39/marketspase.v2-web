@@ -99,13 +99,9 @@ const NEXT_STEP_BY_CODE: Record<string, string> = {
 
 const NEXT_STEP_BY_TEXT: Array<[RegExp, string]> = [
   [/at least 8 characters/i, 'Add a few more characters and try again.'],
-  [/daily claim limit/i, 'Come back tomorrow for 3 fresh claims.'],
   [/already in your contacts|already exists in your contacts/i, 'That lead is already in your contacts — pick another one.'],
-  [/just claimed/i, 'Someone just claimed it — pick another lead.'],
-  [/return window closed/i, 'The 7-day return window has passed for this lead.'],
   [/current password is incorrect/i, 'Check caps lock and retry, or use Forgot password.'],
   [/cannot be the same/i, 'Pick a password different from the current one.'],
-  [/fund your wallet to claim/i, 'Fund your wallet from the Wallet page, then retry.'],
   [/insufficient balance/i, 'Fund your wallet from the Wallet page, then retry.'],
 ];
 

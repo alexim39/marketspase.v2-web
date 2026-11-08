@@ -70,9 +70,17 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
       { label: 'Reminders', link: '/dashboard/prospects/reminders', title: 'Follow-up promises due' },
       { label: 'Deal board', link: '/dashboard/prospects/board', title: 'Move deals forward' },
       { label: 'Sessions', link: '/dashboard/prospects/bookings', title: 'Booked chats' },
-      { label: 'Page leads', link: '/dashboard/prospects/personal-list', title: 'Page submissions and referral signups' },
       { label: 'My contacts', link: '/dashboard/tools/contacts/new', title: 'Import contacts and submit your warm list' },
     ],
+  },
+  {
+    key: 'page-leads',
+    label: 'Page leads',
+    icon: 'inbox',
+    description: 'Inbound leads',
+    section: 'workspace',
+    title: 'Page leads from your public page and referral link',
+    link: '/dashboard/prospects/personal-list',
   },
   {
     key: 'team',
