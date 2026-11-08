@@ -75,12 +75,12 @@ at least 81.5% of margin before overheads.
 
 - Active partners only: `accountState = partner`, not suspended, KYC verified.
 - The buyer is excluded.
-- Walk the **referral tree** (`partnerOf`), the same chain the legacy shop
-  plan already uses. Product sales are retail purchases; a member has a
-  recruiter (`partnerOf`) but may never enter the activation placement tree,
-  so walking `placementParentId` would pay nobody on member purchases.
-- Activation, mentor bonus and growth placement stay on `placementParentId`.
-  The two chains are deliberately separate in the network read model.
+- Walk the single upline chain (`partnerOf`). Every member — referred or
+  campaign-allocated — has one upline. Product sales, activation commissions,
+  mentor bonuses and the network tree all use this one chain, so a referred
+  reseller's purchases pay their actual sponsor.
+- Campaign history stays on `placementCampaignId`/`placedAt` for reporting and
+  the “Campaign placement” badge; it is not a second parent edge.
 - Members can buy products but do not earn unilevel commission until they
   activate.
 - Rank is read at accrual time and stored on the entry, as the growth ledger
