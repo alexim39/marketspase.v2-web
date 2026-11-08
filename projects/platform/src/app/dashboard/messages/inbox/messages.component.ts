@@ -1039,6 +1039,8 @@ export class MessagesComponent implements OnInit {
   protected readonly openThreadName = signal<{ id: string; name: string } | null>(null);
   /** Deep-link handoff from team pages: open this thread once contacts load. */
   private pendingDirectChat: { id: string; name: string } | null = null;
+  /** Admin deep link (?group=) — open an official or ordinary group directly. */
+  private pendingGroupId: string | null = null;
   protected readonly threadMsgs = signal<ChatMsg[]>([]);
   protected readonly threadLoading = signal(false);
   protected readonly threadError = signal<string | null>(null);
@@ -1133,6 +1135,11 @@ export class MessagesComponent implements OnInit {
     const directChatId = this.route.snapshot.queryParamMap.get('chat')?.trim() ?? '';
     const directChatName = this.route.snapshot.queryParamMap.get('chatName')?.trim() ?? '';
     if (directChatId) this.pendingDirectChat = { id: directChatId, name: directChatName };
+    const groupChatId = this.route.snapshot.queryParamMap.get('group')?.trim() ?? '';
+    if (groupChatId) {
+      this.pendingGroupId = groupChatId;
+      this.view.set('groups');
+    }
     this.reload();
     this.chat.connect();
     this.wireSocket();
@@ -1303,6 +1310,7 @@ export class MessagesComponent implements OnInit {
           this.loading.set(false);
           this.refreshPresence();
           this.openPendingDirectChat();
+          this.openPendingGroupChat();
         },
         error: (err: ApiError) => {
           this.error.set(userError(err));
@@ -1585,6 +1593,15 @@ export class MessagesComponent implements OnInit {
     if (!pending) return;
     this.pendingDirectChat = null;
     this.openChat(pending.id, pending.name);
+  }
+
+  private openPendingGroupChat(): void {
+    const groupId = this.pendingGroupId;
+    if (!groupId) return;
+    this.pendingGroupId = null;
+    if (this.groups().some((group) => String(group.id) === String(groupId))) {
+      this.openGroupChat(groupId);
+    }
   }
 
   protected openChat(counterpartId: string, preferredName = ''): void {
