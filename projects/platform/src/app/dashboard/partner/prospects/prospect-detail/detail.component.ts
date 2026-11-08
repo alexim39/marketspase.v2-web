@@ -85,7 +85,7 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
         <a routerLink="/dashboard">Dashboard</a> &gt;
-        <a routerLink="../board">Pipeline</a> &gt;
+        <a routerLink="/dashboard/prospects/pipeline">Pipeline</a> &gt;
         <span>{{ names() }}</span>
       </div>
     </section>
@@ -146,7 +146,7 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
         <div class="dp-card context-card" aria-label="Contact context">
           <div class="context-head">
             <strong>Contact context</strong>
-            <a mat-button [routerLink]="['../edit', prospectId()]">Edit contact</a>
+            <a mat-button [routerLink]="['/dashboard/prospects/edit', prospectId()]">Edit contact</a>
           </div>
           <dl class="facts">
             <div><dt>Relationship</dt><dd>{{ prospect.relationship || '—' }}</dd></div>
@@ -274,7 +274,7 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
                 {{ logging() ? 'Saving…' : 'Save activity' }}
               </button>
               @if (showHotNudge()) {
-                <a mat-button [routerLink]="['../booking', prospectId()]">Next best move: Book session →</a>
+                <a mat-button [routerLink]="['/dashboard/prospects/booking', prospectId()]">Next best move: Book session →</a>
               }
               @if (logError(); as err) {
                 <span class="error" role="alert">{{ err }}</span>
