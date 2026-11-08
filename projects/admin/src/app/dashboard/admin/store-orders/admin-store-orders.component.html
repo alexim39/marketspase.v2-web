@@ -42,12 +42,12 @@
             <span class="muted small">Status: {{ request.status }}</span>
           </div>
           <div class="return-actions">
-            @if (request.status === 'received' || request.status === 'approved') {
+            @if (request.status === 'received') {
               <button mat-flat-button color="warn" type="button" (click)="refundReturn(request)" [disabled]="refundingId() === 'return:' + request.id">
                 {{ refundingId() === 'return:' + request.id ? 'Refunding…' : 'Refund return' }}
               </button>
             } @else {
-              <span class="muted small">{{ request.status === 'refunded' ? 'Refunded' : 'Waiting for partner' }}</span>
+              <span class="muted small">{{ request.status === 'refunded' ? 'Refunded' : 'Waiting for partner receipt' }}</span>
             }
           </div>
         </article>
