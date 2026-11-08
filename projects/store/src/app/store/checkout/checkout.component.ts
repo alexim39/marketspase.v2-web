@@ -65,6 +65,11 @@ export class StoreCheckoutComponent {
         window.location.assign(response.data.checkoutUrl);
       },
       error: (err: unknown) => {
+        const status = Number((err as { status?: number })?.status ?? 0);
+        const code = String((err as { code?: string })?.code ?? '');
+        if (status === 400 || (status === 409 && code === 'IDEMPOTENCY_KEY_REUSED')) {
+          this.cart.resetCheckoutKey();
+        }
         this.error.set(storeError(err));
       },
     });

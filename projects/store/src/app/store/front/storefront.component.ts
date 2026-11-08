@@ -33,6 +33,12 @@ export class StorefrontComponent implements OnInit {
   protected readonly store = computed(() => this.detail()?.store ?? null);
   protected readonly products = computed(() => this.detail()?.products ?? []);
   protected readonly marketing = computed<StoreMarketing | null>(() => this.store()?.marketing ?? null);
+  protected readonly hasMarketing = computed(() => {
+    const m = this.marketing();
+    return !!m && Boolean(
+      m.headline || m.subHeadline || m.aboutStory || m.bio || m.opportunityPoints.length || m.testimonial,
+    );
+  });
 
   protected readonly categories = computed(() => {
     const counts = new Map<string, number>();
@@ -122,6 +128,10 @@ export class StorefrontComponent implements OnInit {
           this.detail.set(response.data);
           this.loading.set(false);
           const store = response.data.store;
+          if (store.slug && store.slug !== slug) {
+            this.router.navigate(['/', store.slug], { replaceUrl: true });
+            return;
+          }
           this.seo.setPage({
             title: `${store.name} | MarketSpase Store`,
             description: store.tagline || `Shop from ${store.name} on MarketSpase Store.`,

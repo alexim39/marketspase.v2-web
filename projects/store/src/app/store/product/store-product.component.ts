@@ -149,6 +149,10 @@ export class StoreProductComponent implements OnInit {
           this.loading.set(false);
           const product = response.data.product;
           const store = response.data.store;
+          if (store.slug && store.slug !== slug) {
+            this.router.navigate(['/', store.slug, 'product', product.id], { replaceUrl: true });
+            return;
+          }
           this.seo.setPage({
             title: `${product.name} | ${store.name} | MarketSpase Store`,
             description: product.shortDesc || `Buy ${product.name} from ${store.name} on MarketSpase Store.`,

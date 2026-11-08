@@ -182,10 +182,7 @@ export class StoreOrderTrackComponent implements OnInit {
   protected readonly notice = signal<string | null>(null);
   protected readonly order = signal<StoreOrder | null>(null);
   protected readonly returnRequest = signal<{ status: string; reason?: string } | null>(null);
-  protected readonly isReceived = computed(() => {
-    const status = this.order()?.status;
-    return status === 'shipped' || status === 'processing' || status === 'paid';
-  });
+  protected readonly isReceived = computed(() => this.order()?.status === 'shipped');
   protected readonly canRequestReturn = computed(() => {
     const order = this.order();
     return Boolean(order?.deliveredAt) && order?.status === 'delivered';
