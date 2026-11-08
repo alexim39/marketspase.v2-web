@@ -3,6 +3,7 @@ import { CurrencyPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SeoService } from '../../_common/services/seo.service';
+import { environment } from '../../../environments/environment';
 import { StoreDetail, StoreMarketing, StoreProductPublic, StorePublic } from '../store.models';
 import {
   StoreService,
@@ -94,6 +95,14 @@ export class StorefrontComponent implements OnInit {
     if (!raw) return '';
     const number = raw.startsWith('0') ? `234${raw.slice(1)}` : raw;
     return `https://wa.me/${number}`;
+  }
+
+  protected joinUrl(): string | null {
+    const store = this.store();
+    if (!store?.slug) return null;
+    const base = String((environment as { platformUrl?: string }).platformUrl ?? '').replace(/\/+$/, '');
+    if (!base) return null;
+    return `${base}/join?ref=${encodeURIComponent(store.slug)}`;
   }
 
   protected marketingWhatsApp(marketing: StoreMarketing): string {

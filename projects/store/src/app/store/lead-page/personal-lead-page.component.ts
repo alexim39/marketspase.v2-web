@@ -9,6 +9,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { finalize } from 'rxjs';
 import { StoreService, storeAssetUrl, storeError } from '../store.service';
 import { PublicLeadPage } from '../store.models';
+import { environment } from '../../../environments/environment';
 
 /**
  * Public personal lead page — the shareable page that belongs to the partner,
@@ -67,6 +68,11 @@ import { PublicLeadPage } from '../store.models';
                 @if (groupUrl(); as group) {
                   <a class="ghost-btn" [href]="group" target="_blank" rel="noopener">
                     <mat-icon>groups</mat-icon> Join WhatsApp group
+                  </a>
+                }
+                @if (joinUrl(); as join) {
+                  <a class="ghost-btn join-btn" [href]="join">
+                    <mat-icon>person_add</mat-icon> Join my team
                   </a>
                 }
               </div>
@@ -137,6 +143,9 @@ import { PublicLeadPage } from '../store.models';
                 <h2>You're on the list</h2>
                 <p>{{ successMessage() }}</p>
                 <button mat-stroked-button type="button" (click)="reset()">Send another message</button>
+                @if (joinUrl(); as join) {
+                  <a mat-flat-button color="primary" [href]="join">Ready now? Join my team</a>
+                }
               </div>
             } @else {
               <p class="eyebrow">Say hello</p>
@@ -204,6 +213,9 @@ import { PublicLeadPage } from '../store.models';
             @if (p.store; as store) {
               <a mat-stroked-button [routerLink]="['/', store.slug]"><mat-icon>storefront</mat-icon> Visit store</a>
             }
+            @if (joinUrl(); as join) {
+              <a mat-flat-button color="primary" [href]="join"><mat-icon>person_add</mat-icon> Join my team</a>
+            }
           </div>
         </section>
 
@@ -255,6 +267,7 @@ import { PublicLeadPage } from '../store.models';
     .primary-btn, .ghost-btn { display: inline-flex; align-items: center; gap: 0.35em; min-height: 46px; padding: 0 1.1em; border-radius: 999px; text-decoration: none; font-weight: 700; }
     .primary-btn { background: var(--ms-primary); color: #fff; }
     .ghost-btn { border: 1px solid var(--ms-line); color: var(--ms-text); }
+    .join-btn { background: var(--ms-primary); border-color: var(--ms-primary); color: #fff; }
     .content-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 0.75fr); gap: 1.5em; align-items: start; }
     .story { display: flex; flex-direction: column; gap: 1.1em; padding: 1.5em 0; }
     .story h2 { margin: 0.25em 0 0; font-size: clamp(1.4rem, 2.5vw, 2rem); letter-spacing: -0.02em; }
@@ -432,6 +445,14 @@ export class PersonalLeadPageComponent implements OnInit {
     if (!page) return null;
     const group = this.text(page, 'whatsappGroupLink');
     return /^https?:\/\//i.test(group) ? group : null;
+  }
+
+  protected joinUrl(): string | null {
+    const page = this.page();
+    if (!page?.username) return null;
+    const base = String((environment as { platformUrl?: string }).platformUrl ?? '').replace(/\/+$/, '');
+    if (!base) return null;
+    return `${base}/join?ref=${encodeURIComponent(page.username)}`;
   }
 
   protected socials(page: PublicLeadPage): Array<{ label: string; url: string; icon: string }> {

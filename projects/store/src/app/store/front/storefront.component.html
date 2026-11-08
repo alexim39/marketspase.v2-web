@@ -83,6 +83,9 @@
             }
             <button class="btn btn-ghost" type="button" (click)="shareStore()">Share store</button>
             <a class="btn btn-ghost" [routerLink]="['/lead', s.slug]">Connect with partner</a>
+            @if (joinUrl(); as join) {
+              <a class="btn btn-primary" [href]="join">Join {{ s.name || 'my' }}'s team</a>
+            }
           </div>
         </div>
       </div>
