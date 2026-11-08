@@ -10,6 +10,7 @@ import { finalize } from 'rxjs';
 import { StoreService, storeAssetUrl, storeError } from '../store.service';
 import { PublicLeadPage } from '../store.models';
 import { environment } from '../../../environments/environment';
+import { scrollToSection } from '../../_common/utils/scroll-to-section';
 
 /**
  * Public personal lead page — the shareable page that belongs to the partner,
@@ -59,7 +60,7 @@ import { environment } from '../../../environments/environment';
               }
               <p class="sub">{{ text(p, 'subHeadline') || 'A simple conversation could change your direction.' }}</p>
               <div class="hero-actions">
-                <a class="primary-btn" href="#lead-form">Start the conversation</a>
+                <a class="primary-btn" href="#lead-form" (click)="scrollToForm($event)">Start the conversation</a>
                 @if (whatsappUrl(); as wa) {
                   <a class="ghost-btn" [href]="wa" target="_blank" rel="noopener">
                     <mat-icon>chat</mat-icon> {{ text(p, 'whatsappCtaText') || 'Chat on WhatsApp' }}
@@ -360,12 +361,19 @@ export class PersonalLeadPageComponent implements OnInit {
         this.page.set(res.data);
         this.title.setTitle(`${res.data.name} · MarketSpase`);
         this.loading.set(false);
+        if (typeof window !== 'undefined' && window.location.hash === '#lead-form') {
+          setTimeout(() => scrollToSection(null, 'lead-form', 'instant'), 0);
+        }
       },
       error: (err: unknown) => {
         this.error.set(storeError(err));
         this.loading.set(false);
       },
     });
+  }
+
+  protected scrollToForm(event: Event): void {
+    scrollToSection(event, 'lead-form');
   }
 
   protected submit(form: NgForm): void {

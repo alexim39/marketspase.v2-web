@@ -5,6 +5,7 @@ import { ConnectionBannerComponent } from '@marketspase/shared/ui/connection-ban
 import { FooterComponent } from './footer/footer.component';
 import { CookieConsentComponent } from './cookie-consent.component';
 import { SiteHeaderComponent } from './_common/components/site-header.component';
+import { scrollToSection } from './_common/utils/scroll-to-section';
 
 @Component({
     selector: 'async-root',
@@ -12,7 +13,7 @@ import { SiteHeaderComponent } from './_common/components/site-header.component'
     template: `
     <div id="container">
       <async-connection-banner placement="top" />
-      <a class="skip-link" href="#main">Skip to content</a>
+      <a class="skip-link" href="#main" (click)="skipToContent($event)">Skip to content</a>
       <async-site-header />
       <main id="main">
         <router-outlet id="outlet" />
@@ -61,5 +62,9 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.themes.init();
+  }
+
+  protected skipToContent(event: Event): void {
+    scrollToSection(event, 'main');
   }
 }

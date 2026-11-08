@@ -35,7 +35,7 @@
               <blockquote class="marketing-quote">“{{ m.testimonial }}”</blockquote>
             }
             <div class="marketing-actions">
-              <a class="btn btn-primary" href="#shop">Shop the store</a>
+              <a class="btn btn-primary" href="#shop" (click)="scrollToShop($event)">Shop the store</a>
               @if (marketingWhatsApp(m)) {
                 <a class="btn btn-ghost" [href]="marketingWhatsApp(m)" target="_blank" rel="noopener">Chat with partner</a>
               }

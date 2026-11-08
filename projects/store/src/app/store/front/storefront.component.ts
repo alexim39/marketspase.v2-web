@@ -11,6 +11,7 @@ import {
   storeError,
   storeProductImage,
 } from '../store.service';
+import { scrollToSection } from '../../_common/utils/scroll-to-section';
 
 @Component({
   selector: 'async-storefront',
@@ -68,6 +69,10 @@ export class StorefrontComponent implements OnInit {
 
   protected setCategory(value: string): void {
     this.category.set(value);
+  }
+
+  protected scrollToShop(event: Event): void {
+    scrollToSection(event, 'shop');
   }
 
   protected storeImage(store: StorePublic): string {
