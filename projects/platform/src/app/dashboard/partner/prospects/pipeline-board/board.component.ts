@@ -50,7 +50,7 @@ import { formatStuckDuration } from '../stuck-duration';
         </div>
         <div class="head-links">
           <a mat-button routerLink="../pipeline">Table view</a>
-          <a mat-button routerLink="../personal-list">Contact list</a>
+          <a mat-button routerLink="../customer-leads">Customer leads</a>
         </div>
       </div>
 

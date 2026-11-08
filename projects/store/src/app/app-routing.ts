@@ -8,6 +8,8 @@ import { StoreSupportComponent } from './store/support/store-support.component';
 import { StoreCartComponent } from './store/cart/cart.component';
 import { StoreCheckoutComponent } from './store/checkout/checkout.component';
 import { StoreCheckoutResultComponent } from './store/checkout/checkout-result.component';
+import { PersonalLeadPageComponent } from './store/lead-page/personal-lead-page.component';
+import { StoreOrderTrackComponent } from './store/order-track/order-track.component';
 
 export const routes: Routes = [
   {
@@ -41,6 +43,11 @@ export const routes: Routes = [
     title: 'Checkout | MarketSpase Store',
   },
   {
+    path: 'order/:reference',
+    component: StoreOrderTrackComponent,
+    title: 'Track order | MarketSpase Store',
+  },
+  {
     path: 'legal',
     loadChildren: () => import('./legal/legal-routes').then((r) => r.legalRoutes),
   },
@@ -51,6 +58,11 @@ export const routes: Routes = [
   { path: 'contact', redirectTo: 'support', pathMatch: 'full' },
   { path: 'events', redirectTo: '', pathMatch: 'full' },
 
+  {
+    path: 'lead/:username',
+    component: PersonalLeadPageComponent,
+    title: 'Connect | MarketSpase',
+  },
   {
     path: ':username/product/:productId',
     component: StoreProductComponent,

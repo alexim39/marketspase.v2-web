@@ -183,7 +183,7 @@
     } @else {
       <p class="muted">Contact details are hidden for privacy — use Chat to reach this partner.</p>
     }
-    <div class="detail-row"><span class="muted">Public page</span><a [href]="publicLink()" target="_blank" rel="noopener">{{ publicLink().replace('https://', '') }}</a></div>
+    <div class="detail-row"><span class="muted">Lead page</span><a [href]="publicLink()" target="_blank" rel="noopener">{{ publicLink().replace('https://', '') }}</a></div>
     <div class="detail-row"><span class="muted">Downline</span><span>{{ myPartnerPartners ? myPartnerPartners.length : 0 }} direct partners</span></div>
     @if (myPartner?.createdAt) {
       <div class="detail-row"><span class="muted">Joined</span><span>{{ myPartner.createdAt | date:'mediumDate' }}</span></div>

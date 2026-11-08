@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { MyProspectListContainerComponent } from './personal-prospect-list/personal-prospect-list-container.component';
+import { CustomerLeadsComponent } from './customer-leads/customer-leads.component';
 import { ProspectBookingContainerComponent } from './prospect-booking/prospect-booking-container.component';
 import { LeadPipelineComponent } from './lead-pipeline/lead-pipeline.component';
 import { PipelineBoardComponent } from './pipeline-board/board.component';
@@ -24,11 +24,14 @@ export const ProspectsRoutes: Routes = [
             title: "General Prospects Bookings - View all bookings",
         },
         {
-            // My Page Leads — private inbox for leads submitted via this
-            // partner's public page (/:partnerUsername).
+            path: 'customer-leads',
+            component: CustomerLeadsComponent,
+            title: "Customer Leads - People who checked out from your store",
+        },
+        {
             path: 'personal-list',
-            component: MyProspectListContainerComponent,
-            title: "My Page Leads - Leads from your public page",
+            redirectTo: 'customer-leads',
+            pathMatch: 'full',
         },
         {
             path: 'pipeline',

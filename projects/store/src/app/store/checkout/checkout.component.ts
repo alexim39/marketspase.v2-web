@@ -12,7 +12,7 @@ import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-hea
 import { FieldErrorComponent } from '@marketspase/shared/ui/field-error/field-error.component';
 import { finalize } from 'rxjs';
 import { CartService } from '../cart/cart.service';
-import { storeError, storeProductImage, StoreService } from '../store.service';
+import { storeError, storeProductImage, saveOrderToken, StoreService } from '../store.service';
 
 @Component({
   selector: 'async-store-checkout',
@@ -37,6 +37,7 @@ export class StoreCheckoutComponent {
     state: '',
     country: 'Nigeria',
     note: '',
+    consentToContact: false,
   };
 
   protected imageUrl(image: string): string {
@@ -51,15 +52,16 @@ export class StoreCheckoutComponent {
     }
     this.submitting.set(true);
     this.error.set(null);
+    const idempotencyKey = this.cart.ensureCheckoutKey();
     this.storesApi.createOrder(this.cart.storeSlug(), {
       items: this.cart.items().map((item) => ({
         storeProductId: item.storeProductId,
         quantity: item.quantity,
       })),
       customer: { ...this.form },
-    }).pipe(finalize(() => this.submitting.set(false))).subscribe({
+    }, idempotencyKey).pipe(finalize(() => this.submitting.set(false))).subscribe({
       next: (response) => {
-        this.cart.clear();
+        saveOrderToken(response.data.order.reference, response.data.orderToken);
         window.location.assign(response.data.checkoutUrl);
       },
       error: (err: unknown) => {

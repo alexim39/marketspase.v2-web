@@ -14,7 +14,7 @@ const DEMOS: OraDemo[] = [
     prompt: 'What should I do in my online business today?',
     answer: [
       'Morning. Based on your pipeline and campaign activity, here are your three moves:',
-      'Follow up with 2 interested prospects who opened your last message. Review 4 new page leads before 2pm. Check in with one teammate who has not activated yet.',
+      'Follow up with 2 interested prospects who opened your last message. Review 4 new customer leads before 2pm. Check in with one teammate who has not activated yet.',
     ],
     actions: ['Approve plan', 'Edit plan'],
   },

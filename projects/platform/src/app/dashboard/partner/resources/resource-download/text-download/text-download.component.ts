@@ -166,7 +166,7 @@ export class TextDownloadComponent {
     }
 
     protected partnerLink(): string {
-      return `https://marketspase.com/${this.partner?.username ?? ''}`;
+      return `https://marketspase.com/lead/${this.partner?.username ?? ''}`;
     }
 
     private fullContent(template: TextTemplate): string {

@@ -7,6 +7,8 @@ import {
   AdminStoreListEnvelope,
   AdminStoreOrderEnvelope,
   AdminStoreOrdersEnvelope,
+  AdminStoreReturnEnvelope,
+  AdminStoreReturnsEnvelope,
   AdminStoreSettingsEnvelope,
   AdminStoreSummary,
 } from './admin-store.models';
@@ -60,11 +62,28 @@ export class AdminStoreService {
     return this.api.get<AdminSettlementsEnvelope>('v1/admin/store-settlements');
   }
 
+  returns(status?: string): Observable<AdminStoreReturnsEnvelope> {
+    const suffix = status ? `?status=${encodeURIComponent(status)}` : '';
+    return this.api.get<AdminStoreReturnsEnvelope>(`v1/admin/store-returns${suffix}`);
+  }
+
+  refundReturn(returnId: string, reason: string, adminNote = ''): Observable<AdminStoreReturnEnvelope> {
+    return this.api.post<AdminStoreReturnEnvelope>(`v1/admin/store-returns/${returnId}/refund`, {
+      reason,
+      adminNote,
+    });
+  }
+
   settings(): Observable<AdminStoreSettingsEnvelope> {
     return this.api.get<AdminStoreSettingsEnvelope>('v1/admin/settings/store');
   }
 
-  updateSettings(body: { serviceFeePercent: number; escrowHoldDays: number }): Observable<AdminStoreSettingsEnvelope> {
+  updateSettings(body: {
+    serviceFeePercent: number;
+    escrowHoldDays: number;
+    autoDeliverDays?: number;
+    returnWindowDays?: number;
+  }): Observable<AdminStoreSettingsEnvelope> {
     return this.api.put<AdminStoreSettingsEnvelope>('v1/admin/settings/store', body);
   }
 }

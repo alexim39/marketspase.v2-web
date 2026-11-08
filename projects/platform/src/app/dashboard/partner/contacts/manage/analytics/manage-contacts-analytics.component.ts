@@ -211,7 +211,7 @@ export class ManageContactsAnalyticsComponent implements OnInit {
   }
 
   copyLink() {
-    const link = `https://marketspase.com/${this.partner.username}`;
+    const link = `https://marketspase.com/lead/${this.partner.username}`;
     navigator.clipboard.writeText(link).then(() => {
       this.snackBar.open('Link copied to clipboard!', 'Close', {
         duration: 2000,

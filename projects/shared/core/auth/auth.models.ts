@@ -38,6 +38,20 @@ export interface AuthUser {
   emailVerified?: boolean;
   accountState?: 'member' | 'partner';
   kycStatus?: 'not_started' | 'pending' | 'verified' | 'rejected';
+  storeSlug?: string | null;
+  capabilities?: {
+    accountState?: 'member' | 'partner';
+    kycStatus?: string;
+    activated?: boolean;
+    kycVerified?: boolean;
+    suspended?: boolean;
+    canActivate?: boolean;
+    canFundCampaign?: boolean;
+    canOpenStore?: boolean;
+    canBuyResale?: boolean;
+    canReceiveCommissions?: boolean;
+    canUsePartnerWorkspace?: boolean;
+  };
   commissionRank?: 'Partner' | 'Builder' | 'Leader' | 'Ambassador';
   activatedAt?: string | null;
   [key: string]: unknown;

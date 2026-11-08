@@ -402,7 +402,7 @@ export class MyPartnerContactsDetailComponent implements OnInit {
   }
 
   copyLink(): void {
-    const link = `https://marketspase.com/${String(this.partner?.username ?? '').toLowerCase()}`;
+    const link = `https://marketspase.com/lead/${String(this.partner?.username ?? '').toLowerCase()}`;
     navigator.clipboard.writeText(link).then(() => {
       this.snackBar.open('Link copied to clipboard!', 'Close', {
         duration: 2000,

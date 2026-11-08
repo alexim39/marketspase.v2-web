@@ -18,11 +18,6 @@ export interface ProspectListInterface {
 export class ProspectService {
   constructor(private apiService: ApiService) {}
  
-  // get prospect owned by the partner
-  getAllMyProspect(username: string): Observable<any> {
-      return this.apiService.get<ProspectListInterface>(`prospect/my/${username}`, undefined, undefined, true);
-  }
-
   // get prospect owned
   getProspectFor(createdBy: string): Observable<any> {
       return this.apiService.get<ProspectListInterface>(`prospect/for/${createdBy}`, undefined, undefined, true);

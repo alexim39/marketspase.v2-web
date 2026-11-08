@@ -33,6 +33,18 @@
           <mat-hint>Standard release is delivery plus this return window.</mat-hint>
         </mat-form-field>
 
+        <mat-form-field appearance="outline">
+          <mat-label>Auto-deliver after shipping (days)</mat-label>
+          <input matInput type="number" min="0" max="60" step="1" [(ngModel)]="autoDeliverDays" />
+          <mat-hint>If the partner forgets, the order is treated as delivered after this window.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Customer return window (days)</mat-label>
+          <input matInput type="number" min="0" max="60" step="1" [(ngModel)]="returnWindowDays" />
+          <mat-hint>Returns open after delivery and close after this many days.</mat-hint>
+        </mat-form-field>
+
         <button mat-flat-button color="primary" type="button" (click)="save()" [disabled]="saving()">
           {{ saving() ? 'Saving…' : 'Save settings' }}
         </button>

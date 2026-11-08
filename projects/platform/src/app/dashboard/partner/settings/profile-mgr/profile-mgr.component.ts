@@ -213,14 +213,14 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
     const username = String(this.profile()?.username ?? '').trim();
     if (!username) return null;
     const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://marketspase.com';
-    return `${String(base).replace(/\/+$/, '')}/${username.toLowerCase()}`;
+    return `${String(base).replace(/\/+$/, '')}/lead/${username.toLowerCase()}`;
   }
 
   /** Copy the public page link — same flow as the landing-page editor. */
   protected copyPublicLink(): void {
     const url = this.publicPageUrl();
     if (!url) return;
-    const done = () => this.snack.open('Public page link copied — share it anywhere', 'OK', { duration: 3000 });
+    const done = () => this.snack.open('Personal lead page link copied - share it anywhere', 'OK', { duration: 3000 });
     if (navigator.clipboard?.writeText) navigator.clipboard.writeText(url).then(done, done);
     else done();
   }
@@ -329,7 +329,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
     this.dialog.open(HelpDialogComponent, {
       data: {help: `
         Make sure your username, which is part of your unique link, is meaningful and easy to remember.
-        For example, in marketspase.com/business, "business" is a meaninful and easy to remember username.
+        For example, in marketspase.com/lead/business, "business" is a meaninful and easy to remember username.
 
         <p>Other examples of good unique link:
           <ul>

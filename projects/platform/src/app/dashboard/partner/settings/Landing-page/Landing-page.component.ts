@@ -30,15 +30,15 @@ import { userError } from '../../../../core/http/api-error';
     <div class="breadcrumb">
       <a routerLink="/dashboard">Dashboard</a> &gt;
       <a>Me &amp; Settings</a> &gt;
-      <span>My public page</span>
+      <span>My personal lead page</span>
     </div>
   </section>
 
   <section class="lp-page">
     <div class="page-head">
       <div>
-        <h2>My public page <mat-icon class="help" (click)="showDescription()">help</mat-icon></h2>
-        <p class="subtitle">What you save here is what friends &amp; family see on your professional one-page website. Share it to grow your business.</p>
+        <h2>My personal lead page <mat-icon class="help" (click)="showDescription()">help</mat-icon></h2>
+        <p class="subtitle">What you save here is what visitors see on your personal lead page. Share it to grow your pipeline.</p>
       </div>
       @if (publicUrl()) {
         <div class="share-box dp-card">
@@ -194,7 +194,7 @@ import { userError } from '../../../../core/http/api-error';
 
       <div class="actions">
         @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
-        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving()">Save my public page</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving()">Save my personal page</button>
         <span class="muted">Saves everything above at once.</span>
       </div>
     </form>
@@ -276,13 +276,13 @@ export class LandingPageSettingComponent implements OnChanges, OnDestroy {
     // Prod share domain is marketspase.com (public site), not
     // marketspase.com (partner dashboard). Dev keeps localhost:4201.
     const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://marketspase.com';
-    return `${String(base).replace(/\/+$/, '')}/${u}`;
+    return `${String(base).replace(/\/+$/, '')}/lead/${u}`;
   }
 
   protected copyLink(): void {
     const url = this.publicUrl();
     if (!url) return;
-    const done = () => this.snack.open('Public page link copied — share it anywhere', 'OK', { duration: 3000 });
+    const done = () => this.snack.open('Personal lead page link copied - share it anywhere', 'OK', { duration: 3000 });
     if (navigator.clipboard?.writeText) navigator.clipboard.writeText(url).then(done, done);
     else done();
   }
@@ -356,7 +356,7 @@ export class LandingPageSettingComponent implements OnChanges, OnDestroy {
           this.saving.set(false);
           const updated = res?.data ?? { ...this.partner, ...payload };
           try { this.partners.updatePartnerService({ ...this.partner, ...updated }); } catch { /* preview only */ }
-          this.snack.open('Your public page is live — preview or copy the link', 'OK', { duration: 3500 });
+          this.snack.open('Your personal page is live - preview or copy the link', 'OK', { duration: 3500 });
         },
         error: (err: any) => {
           this.saving.set(false);
@@ -368,7 +368,7 @@ export class LandingPageSettingComponent implements OnChanges, OnDestroy {
 
   showDescription(): void {
     this.dialog.open(HelpDialogComponent, {
-      data: { help: 'Everything here renders on your public page (/:your-username). Fill hero + story + opportunity + proof, save once, then copy your link and share it. Leads submit Get Started and land in Prospects → My Page Leads.' },
+      data: { help: 'Everything here renders on your personal lead page (/lead/your-username). Fill hero + story + opportunity + proof, save once, then copy your link and share it. Leads submit the form and land in Prospects → Pipeline.' },
     });
   }
 

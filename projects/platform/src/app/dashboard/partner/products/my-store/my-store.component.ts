@@ -117,6 +117,14 @@ export class MyStoreComponent implements OnInit {
     return `${base}/${slug}`;
   });
 
+  protected readonly leadPageUrl = computed(() => {
+    const username = String(this.auth.currentUser()?.username ?? '').trim();
+    if (!username) return '';
+    const base = String((environment as { publicSiteUrl?: string }).publicSiteUrl ?? '')
+      .replace(/\/+$/, '');
+    return `${base}/lead/${encodeURIComponent(username)}`;
+  });
+
   protected readonly readiness = computed(() => {
     const f = this.form();
     const checks = [
@@ -169,6 +177,17 @@ export class MyStoreComponent implements OnInit {
     const url = this.storeUrl();
     if (!url) return;
     const done = () => this.ui.success('Store link copied');
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(done, done);
+    } else {
+      done();
+    }
+  }
+
+  protected copyLeadPageLink(): void {
+    const url = this.leadPageUrl();
+    if (!url) return;
+    const done = () => this.ui.success('Personal lead page link copied');
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(url).then(done, done);
     } else {

@@ -802,7 +802,7 @@ export class CommunityEventsComponent implements OnInit {
   protected personalLink(): string {
     const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://marketspase.com';
     const me = this.auth.currentUser();
-    const handle = String(me?.username ?? '').trim().toLowerCase();
+    const handle = String(me?.storeSlug ?? me?.username ?? '').trim().toLowerCase();
     return `${String(base).replace(/\/+$/, '')}/${handle}`;
   }
 

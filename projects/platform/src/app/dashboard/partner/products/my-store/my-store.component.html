@@ -17,8 +17,11 @@
     </div>
     @if (store(); as s) {
       <div class="head-actions">
+        <button mat-stroked-button type="button" (click)="copyLeadPageLink()">
+          <mat-icon>person_add</mat-icon> Lead page link
+        </button>
         <button mat-stroked-button type="button" (click)="copyStoreLink()">
-          <mat-icon>content_copy</mat-icon> Copy link
+          <mat-icon>content_copy</mat-icon> Copy store link
         </button>
         <a mat-flat-button color="primary" [href]="storeUrl()" target="_blank" rel="noopener">
           <mat-icon>open_in_new</mat-icon> View store

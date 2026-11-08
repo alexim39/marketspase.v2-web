@@ -170,3 +170,11 @@
   .stats-grid { grid-template-columns: 1fr; }
   .order-total { align-items: flex-start; }
 }
+
+.returns-panel { padding: 1em; display: flex; flex-direction: column; gap: 0.8em; border-left: 4px solid var(--ms-warning); }
+.returns-head { display: flex; justify-content: space-between; gap: 1em; flex-wrap: wrap; align-items: flex-start; }
+.returns-head h2 { margin: 0.1em 0; }
+.return-row { display: flex; justify-content: space-between; gap: 1em; flex-wrap: wrap; border-top: 1px solid var(--ms-line); padding-top: 0.75em; }
+.return-main { display: flex; flex-direction: column; gap: 0.25em; flex: 1; min-width: 0; }
+.return-main p { margin: 0; overflow-wrap: anywhere; }
+.return-actions { display: flex; gap: 0.4em; flex-wrap: wrap; }

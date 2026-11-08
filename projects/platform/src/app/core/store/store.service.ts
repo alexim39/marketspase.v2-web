@@ -4,6 +4,8 @@ import { ApiClient } from '../http/api-client.service';
 import {
   MyStoreEnvelope,
   StoreEarningsEnvelope,
+  StoreCustomerLeadEnvelope,
+  StoreCustomerLeadsEnvelope,
   StoreImageUploadEnvelope,
   StoreOrderEnvelope,
   StoreOrdersEnvelope,
@@ -12,6 +14,8 @@ import {
   StoreProfileEnvelope,
   StoreReceiptConfirmEnvelope,
   StoreReceiptsEnvelope,
+  StoreReturnEnvelope,
+  StoreReturnsEnvelope,
 } from './store.models';
 
 /** Partner storefront management — authenticated platform endpoints. */
@@ -62,5 +66,32 @@ export class StoreService {
 
   updateOrder(orderId: string, body: Record<string, unknown>): Observable<StoreOrderEnvelope> {
     return this.api.patch<StoreOrderEnvelope>(`v1/stores/me/orders/${orderId}`, body);
+  }
+
+  returns(status?: string): Observable<StoreReturnsEnvelope> {
+    const suffix = status ? `?status=${encodeURIComponent(status)}` : '';
+    return this.api.get<StoreReturnsEnvelope>(`v1/stores/me/returns${suffix}`);
+  }
+
+  updateReturn(
+    returnId: string,
+    action: 'approve' | 'reject' | 'receive',
+    note = '',
+  ): Observable<StoreReturnEnvelope> {
+    return this.api.patch<StoreReturnEnvelope>(`v1/stores/me/returns/${returnId}`, { action, note });
+  }
+
+  customerLeads(query: { q?: string; status?: string; limit?: number; skip?: number } = {}): Observable<StoreCustomerLeadsEnvelope> {
+    const params = new URLSearchParams();
+    if (query.q) params.set('q', query.q);
+    if (query.status) params.set('status', query.status);
+    if (query.limit) params.set('limit', String(query.limit));
+    if (query.skip) params.set('skip', String(query.skip));
+    const suffix = params.toString() ? `?${params.toString()}` : '';
+    return this.api.get<StoreCustomerLeadsEnvelope>(`v1/stores/me/customer-leads${suffix}`);
+  }
+
+  updateCustomerLead(id: string, body: Record<string, unknown>): Observable<StoreCustomerLeadEnvelope> {
+    return this.api.patch<StoreCustomerLeadEnvelope>(`v1/stores/me/customer-leads/${id}`, body);
   }
 }

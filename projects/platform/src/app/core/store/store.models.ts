@@ -201,6 +201,35 @@ export interface StoreEarnings {
   currency: string;
 }
 
+export interface StoreReturn {
+  id: string;
+  status: 'requested' | 'approved' | 'rejected' | 'received' | 'refunded' | 'cancelled';
+  reason: string;
+  note: string;
+  adminNote: string;
+  requestedAt: string | null;
+  decidedAt: string | null;
+  receivedAt: string | null;
+  refundedAt: string | null;
+  refundReference: string;
+  orderId: string;
+  reference: string;
+  orderNumber: string;
+  customerEmail: string;
+  items: Array<{ storeProductId: string; name: string; quantity: number }>;
+}
+
+export interface StoreReturnsEnvelope {
+  success: boolean;
+  data: StoreReturn[];
+}
+
+export interface StoreReturnEnvelope {
+  success: boolean;
+  message?: string;
+  data: StoreReturn;
+}
+
 export interface StoreEarningsEnvelope {
   success: boolean;
   message?: string;
@@ -211,4 +240,52 @@ export interface StoreImageUploadEnvelope {
   success: boolean;
   message?: string;
   data: { url: string; kind: 'logo' | 'banner' };
+}
+
+export interface StoreCustomerLead {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  note: string;
+  consentToContact: boolean;
+  status: 'New' | 'Contacted' | 'Qualified' | 'Converted' | 'Closed';
+  partnerNotes: string;
+  tags: string[];
+  checkoutCount: number;
+  paidOrders: number;
+  refundedOrders: number;
+  totalSpent: number;
+  firstSeenAt: string | null;
+  lastCheckoutAt: string | null;
+  lastPaidAt: string | null;
+}
+
+export interface StoreCustomerLeadsEnvelope {
+  success: boolean;
+  message?: string;
+  data: StoreCustomerLead[];
+  meta: {
+    total: number;
+    limit: number;
+    skip: number;
+    summary: {
+      totalLeads: number;
+      repeatCustomers: number;
+      paidOrders: number;
+      revenue: number;
+      newThisMonth: number;
+    };
+    statusCounts: Record<string, number>;
+  };
+}
+
+export interface StoreCustomerLeadEnvelope {
+  success: boolean;
+  message?: string;
+  data: StoreCustomerLead;
 }

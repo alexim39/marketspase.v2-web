@@ -54,6 +54,38 @@
       </p>
     }
 
+    @if (openReturns().length > 0) {
+      <section class="dp-card returns-card">
+        <div class="returns-head">
+          <div>
+            <p class="eyebrow">Returns</p>
+            <h2>Return requests</h2>
+          </div>
+          <span class="dp-status dp-status--warn">{{ openReturns().length }} open</span>
+        </div>
+        @for (request of openReturns(); track request.id) {
+          <article class="return-row">
+            <div class="return-main">
+              <strong>{{ request.orderNumber }} · {{ request.reason }}</strong>
+              <span class="muted small">{{ request.customerEmail || 'Customer' }} · {{ request.requestedAt | date:'medium' }}</span>
+              @if (request.note) { <p>{{ request.note }}</p> }
+              <span class="muted small">Status: {{ request.status }}</span>
+            </div>
+            <div class="return-actions">
+              @if (request.status === 'requested') {
+                <button mat-flat-button color="primary" type="button" (click)="decideReturn(request, 'approve')" [disabled]="busyId() === 'return:' + request.id">Approve</button>
+                <button mat-stroked-button type="button" (click)="decideReturn(request, 'reject')" [disabled]="busyId() === 'return:' + request.id">Decline</button>
+              } @else if (request.status === 'approved') {
+                <button mat-flat-button color="primary" type="button" (click)="decideReturn(request, 'receive')" [disabled]="busyId() === 'return:' + request.id">Mark received</button>
+              } @else if (request.status === 'received') {
+                <span class="muted small">Waiting for MarketSpase to refund the customer.</span>
+              }
+            </div>
+          </article>
+        }
+      </section>
+    }
+
     <div class="tabs" role="group" aria-label="Order filters">
       <button type="button" [class.active]="filter() === 'action'" [attr.aria-pressed]="filter() === 'action'" (click)="setFilter('action')">
         Needs action <span>{{ actionCount() }}</span>

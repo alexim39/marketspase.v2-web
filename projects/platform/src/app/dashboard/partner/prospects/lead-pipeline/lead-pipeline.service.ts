@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../../../../core/http/api-client.service';
-import { ContactListMineEnvelope, ContactPhoneMatchEnvelope, ConvertEnvelope, CreateContactPayload, ActivationBoardEnvelope, DownlineContactListsEnvelope, ImportReportEnvelope, LogCommunicationPayload, ProspectDetailEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, RemindersEnvelope, StuckEnvelope } from './lead.models';
+import { ContactListMineEnvelope, ContactPhoneMatchEnvelope, ConvertEnvelope, CreateContactPayload, ActivationBoardEnvelope, DownlineContactListsEnvelope, ImportReportEnvelope, LogCommunicationPayload, ProspectDetailEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, ReferralMembersEnvelope, RemindersEnvelope, StuckEnvelope } from './lead.models';
 
 /**
  * Lead pipeline data access — talks to backend `/v1/prospects` (crm slice).
@@ -29,6 +29,14 @@ export class LeadPipelineService {
   /** Bulk-import parsed contact rows (server validates + dedupes per row). */
   importContacts(rows: Array<Record<string, unknown>>): Observable<ImportReportEnvelope> {
     return this.api.post<ImportReportEnvelope>('v1/prospects/import', { rows });
+  }
+
+  /** Referral signups who are still members (not activated). */
+  referralMembers(partnerId: string, q = ''): Observable<ReferralMembersEnvelope> {
+    const params = new URLSearchParams();
+    if (q.trim()) params.set('q', q.trim());
+    const suffix = params.toString() ? `?${params.toString()}` : '';
+    return this.api.get<ReferralMembersEnvelope>(`v1/prospects/referral-members/${partnerId}${suffix}`);
   }
 
   stuck(partnerId: string): Observable<StuckEnvelope> {
@@ -66,11 +74,6 @@ export class LeadPipelineService {
 
   removeProspect(prospectId: string): Observable<unknown> {
     return this.api.delete(`v1/prospects/${prospectId}`);
-  }
-
-  /** Accept your own page lead (free, no wallet movement). */
-  acceptPageLead(surveyId: string): Observable<{ message: string; success: boolean; data: { prospectId: string } }> {
-    return this.api.post<{ message: string; success: boolean; data: { prospectId: string } }>('v1/prospects/accept-page-lead', { surveyId });
   }
 
   /** 1-5 star quality vote on a worked lead. */

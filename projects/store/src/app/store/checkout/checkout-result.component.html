@@ -42,6 +42,12 @@
         </button>
       }
 
+      @if (paid || o.status === 'shipped' || o.status === 'delivered' || o.status === 'processing') {
+        <p class="tracking-link">
+          <a class="btn ghost" [routerLink]="trackingLink()">Track this order</a>
+        </p>
+      }
+
       <div class="order-meta">
         <div><span>Order</span><strong>{{ o.orderNumber }}</strong></div>
         <div><span>Store</span><strong><a [routerLink]="['/', o.store.slug]">{{ o.store.name }}</a></strong></div>
@@ -73,7 +79,7 @@
             <li><strong>Still waiting?</strong><span>Contact support with order {{ o.orderNumber }}.</span></li>
           } @else if (o.status === 'cancelled') {
             <li><strong>No charge was completed.</strong><span>MarketSpase Store did not capture this payment.</span></li>
-            <li><strong>Your cart is still saved.</strong><span>You can return to checkout and try again.</span></li>
+            <li><strong>Your cart is still saved.</strong><span>You can return to checkout and try again with a fresh payment attempt.</span></li>
             <li><strong>Need a hand?</strong><span>Contact support with reference {{ reference || o.orderNumber }}.</span></li>
           } @else {
             <li><strong>We are waiting for Paystack.</strong><span>Complete the payment window if it is still open.</span></li>

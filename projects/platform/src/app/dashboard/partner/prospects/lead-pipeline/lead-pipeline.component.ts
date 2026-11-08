@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,10 +14,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { environment } from '../../../../../environments/environment';
 import { ApiError, userError } from '../../../../core/http/api-error';
 import { LeadPipelineService } from './lead-pipeline.service';
 import {
   ImportReport, nextStage, ProspectLead, ProspectListEnvelope, ProspectStage,
+  ReferralMember,
   STAGE_META, STAGE_ORDER, STAGE_TONE, StuckEntry, StuckEnvelope,
 } from './lead.models';
 import { formatStuckDuration } from '../stuck-duration';
@@ -108,7 +111,7 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
   imports: [
     MatTableModule, MatChipsModule, MatButtonModule, MatCheckboxModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatPaginatorModule, MatTooltipModule,
-    MatSnackBarModule, EmptyStateComponent, ErrorStateComponent, PageSkeletonComponent, RouterModule,
+    MatSnackBarModule, EmptyStateComponent, ErrorStateComponent, PageSkeletonComponent, RouterModule, DatePipe,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -132,9 +135,12 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
             <button mat-flat-button color="primary" type="button" (click)="copyReferralLink()">
               <mat-icon>link</mat-icon> Copy my referral link
             </button>
-            <a mat-stroked-button routerLink="../personal-list" title="Leads from your public page">
-              <mat-icon>inbox</mat-icon> Page leads
+            <a mat-stroked-button routerLink="/dashboard/prospects/customer-leads" title="People who checked out in your store">
+              <mat-icon>groups</mat-icon> Customer leads
             </a>
+            <button mat-stroked-button type="button" (click)="copyLeadPageLink()" title="Share your personal lead page">
+              <mat-icon>person_add</mat-icon> Copy lead page
+            </button>
             <a mat-stroked-button routerLink="/dashboard/tools/contacts/new" title="Add someone to your pipeline">
               <mat-icon>person_add</mat-icon> Add prospect
             </a>
@@ -181,6 +187,32 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
       @if (loading()) {
         <async-page-skeleton layout="table" [rows]="5" label="lead pipeline" [showHeader]="false" />
       } @else {
+
+      @if (signupRows().length > 0) {
+        <div class="dp-card signup-panel">
+          <div class="signup-head">
+            <div>
+              <p class="eyebrow">Referral signups</p>
+              <h3>{{ signupRows().length }} joined your team and are not activated yet</h3>
+              <p class="muted">These people used your referral link and created an account. Help them activate — they are already in your team.</p>
+            </div>
+            <span class="signup-count">{{ signupRows().length }}</span>
+          </div>
+          <div class="signup-list">
+            @for (member of signupRows(); track member.id) {
+              <div class="signup-row">
+                <span class="signup-avatar">{{ memberInitial(member) }}</span>
+                <div class="signup-copy">
+                  <strong>{{ member.name }} {{ member.surname }}</strong>
+                  <span class="muted">&#64;{{ member.username }} · joined {{ member.joinedAt | date:'mediumDate' }}</span>
+                </div>
+                <span class="signup-stage">Signed up</span>
+                <a mat-button [routerLink]="['/dashboard/mentorship/partners/my-partners/detail', member.id]">Open dossier</a>
+              </div>
+            }
+          </div>
+        </div>
+      }
 
       <div class="stage-cards">
         @for (entry of stageCounts(); track entry.stage) {
@@ -449,6 +481,17 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
     .conversion-link { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.78em; background: var(--ms-surface); border-radius: 6px; padding: 0.25em 0.45em; }
     .converted-actions { display: flex; gap: 0.4em; flex-wrap: wrap; }
     .converted-actions button { min-height: 42px; }
+    .signup-panel { padding: 1em 1.1em; display: flex; flex-direction: column; gap: 0.8em; border-left: 4px solid var(--ms-primary); }
+    .signup-head { display: flex; justify-content: space-between; gap: 1em; align-items: flex-start; flex-wrap: wrap; }
+    .signup-head h3 { margin: 0.15em 0 0.25em; }
+    .signup-head p { margin: 0; }
+    .signup-count { min-width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-weight: 800; }
+    .signup-list { display: flex; flex-direction: column; }
+    .signup-row { display: flex; align-items: center; gap: 0.7em; padding: 0.6em 0; border-top: 1px solid var(--ms-line); flex-wrap: wrap; }
+    .signup-avatar { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--ms-surface-3); font-weight: 800; color: var(--ms-primary-strong); }
+    .signup-copy { display: flex; flex-direction: column; gap: 0.05em; min-width: 0; flex: 1; }
+    .signup-copy strong { text-transform: capitalize; }
+    .signup-stage { border-radius: 999px; padding: 3px 9px; font-size: 0.72em; font-weight: 700; background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
     .stage-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75em; }
     .stage-card {
       display: flex; flex-direction: column; align-items: center; gap: 0.15em;
@@ -551,6 +594,7 @@ export class LeadPipelineComponent implements OnInit {
   protected readonly pageSize = signal(50);
   protected readonly pageIndex = signal(0);
   protected readonly stuckDays = signal<Record<string, StuckEntry>>({});
+  protected readonly signupRows = signal<ReferralMember[]>([]);
   protected readonly actingId = signal<string | null>(null);
   protected readonly confirmId = signal<string | null>(null);
   protected readonly convertedNotice = signal<{ name: string; leadId: string } | null>(null);
@@ -692,6 +736,12 @@ export class LeadPipelineComponent implements OnInit {
     }
     this.loading.set(true);
     this.error.set(null);
+    this.leads.referralMembers(partnerId, this.search().trim())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.signupRows.set(res.data ?? []),
+        error: () => this.signupRows.set([]),
+      });
     const limit = this.pageSize();
     const skip = this.pageIndex() * limit;
     const q = this.search().trim() || undefined;
@@ -911,6 +961,24 @@ export class LeadPipelineComponent implements OnInit {
   protected conversionLink(leadId: string): string | null {
     const base = this.referralLink();
     return base ? `${base}&lead=${encodeURIComponent(leadId)}` : null;
+  }
+
+  protected leadPageLink(): string | null {
+    const username = String(this.auth.currentUser()?.username ?? '').trim();
+    if (!username) return null;
+    const base = String((environment as { publicSiteUrl?: string }).publicSiteUrl ?? '')
+      .replace(/\/+$/, '') || (typeof location !== 'undefined' ? location.origin : '');
+    return `${base}/lead/${encodeURIComponent(username)}`;
+  }
+
+  protected copyLeadPageLink(): void {
+    const url = this.leadPageLink();
+    if (!url) return;
+    this.copyText(url, 'Personal lead page copied');
+  }
+
+  protected memberInitial(member: ReferralMember): string {
+    return String(member.name || member.username || 'M').trim().charAt(0).toUpperCase();
   }
 
   protected copyReferralLink(): void {

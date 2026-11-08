@@ -17,7 +17,7 @@
         </p>
       }
       @if (publicPageUrl(); as url) {
-        <p class="muted public-link">Public page: <a [href]="url" target="_blank" rel="noopener">{{ url }}</a>
+        <p class="muted public-link">Personal lead page: <a [href]="url" target="_blank" rel="noopener">{{ url }}</a>
           <button mat-icon-button type="button" (click)="copyPublicLink()" aria-label="Copy public page link" title="Copy public page link"><mat-icon>content_copy</mat-icon></button>
           <span aria-hidden="true">·</span> {{ p.visits ?? 0 }} views</p>
       }

@@ -54,11 +54,11 @@ interface StageRow {
         <div>
           <p class="eyebrow">Pipeline · Daily sales engine</p>
           <h1>Who needs you today</h1>
-          <p class="muted">Follow-ups, deal board and page leads in one place.</p>
+          <p class="muted">Follow-ups, deal board and referral signups in one place.</p>
         </div>
         <div class="head-actions">
           <a mat-flat-button color="primary" routerLink="/dashboard/prospects/pipeline">Open pipeline</a>
-          <a mat-stroked-button routerLink="/dashboard/prospects/personal-list">Page leads</a>
+          <a mat-stroked-button routerLink="/dashboard/prospects/customer-leads">Customer leads</a>
           <a mat-stroked-button routerLink="/dashboard/tools/contacts/new">Add prospect</a>
         </div>
       </header>
@@ -144,7 +144,7 @@ interface StageRow {
               <span class="count">{{ prospectTotal() | number }}</span>
             </div>
             @if (stageRows().length === 0) {
-              <p class="muted empty-line">No prospects yet — add someone or accept a page lead.</p>
+              <p class="muted empty-line">No prospects yet — add someone or share your personal lead page.</p>
             } @else {
               <div class="stage-list">
                 @for (row of stageRows(); track row.stage) {
@@ -167,7 +167,7 @@ interface StageRow {
             </div>
             <div class="quick-grid">
               <a routerLink="/dashboard/prospects/board"><mat-icon>view_kanban</mat-icon><span>Deal board</span></a>
-              <a routerLink="/dashboard/prospects/personal-list"><mat-icon>inbox</mat-icon><span>Page leads</span></a>
+              <a routerLink="/dashboard/prospects/customer-leads"><mat-icon>groups</mat-icon><span>Customer leads</span></a>
               <a routerLink="/dashboard/prospects/bookings"><mat-icon>event</mat-icon><span>Sessions</span></a>
               <a routerLink="/dashboard/prospects/kits"><mat-icon>present_to_all</mat-icon><span>Presentations</span></a>
               <a routerLink="/dashboard/tools/contacts/new"><mat-icon>person_add</mat-icon><span>Add someone</span></a>

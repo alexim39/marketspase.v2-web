@@ -92,6 +92,10 @@
                 <input matInput name="note" [(ngModel)]="form.note" maxlength="1000" placeholder="Landmark, preferred time, etc." />
               </mat-form-field>
             </div>
+            <label class="consent">
+              <input type="checkbox" name="consentToContact" [(ngModel)]="form.consentToContact" />
+              <span>Keep me updated about offers and new products from this store. Optional.</span>
+            </label>
           </div>
         </section>
 

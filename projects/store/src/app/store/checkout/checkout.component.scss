@@ -75,6 +75,23 @@
   grid-column: 1 / -1;
 }
 
+.consent {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55em;
+  padding: 0.35em 0.1em;
+  color: var(--ms-text-muted);
+  font-size: 0.82em;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.consent input {
+  margin-top: 0.2em;
+  accent-color: var(--ms-primary);
+}
+
 .btn {
   display: inline-flex;
   align-items: center;

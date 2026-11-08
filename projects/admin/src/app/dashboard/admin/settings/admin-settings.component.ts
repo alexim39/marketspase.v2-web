@@ -26,6 +26,8 @@ export class AdminSettingsComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected serviceFeePercent = 2;
   protected escrowHoldDays = 7;
+  protected autoDeliverDays = 10;
+  protected returnWindowDays = 7;
 
   ngOnInit(): void {
     this.load();
@@ -38,10 +40,14 @@ export class AdminSettingsComponent implements OnInit {
     this.storeApi.updateSettings({
       serviceFeePercent: Number(this.serviceFeePercent),
       escrowHoldDays: Number(this.escrowHoldDays),
+      autoDeliverDays: Number(this.autoDeliverDays),
+      returnWindowDays: Number(this.returnWindowDays),
     }).pipe(finalize(() => this.saving.set(false))).subscribe({
       next: (response) => {
         this.serviceFeePercent = response.data.serviceFeePercent;
         this.escrowHoldDays = response.data.escrowHoldDays;
+        this.autoDeliverDays = response.data.autoDeliverDays;
+        this.returnWindowDays = response.data.returnWindowDays;
         this.ui.success('Store settings updated');
       },
       error: (err: ApiError) => this.error.set(userError(err)),
@@ -55,6 +61,8 @@ export class AdminSettingsComponent implements OnInit {
       next: (response) => {
         this.serviceFeePercent = response.data.serviceFeePercent;
         this.escrowHoldDays = response.data.escrowHoldDays;
+        this.autoDeliverDays = response.data.autoDeliverDays;
+        this.returnWindowDays = response.data.returnWindowDays;
       },
       error: (err: ApiError) => this.error.set(userError(err)),
     });

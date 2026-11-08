@@ -17,6 +17,34 @@
       </div>
     </div>
   } @else if (store(); as s) {
+    @if (marketing(); as m) {
+      <section class="marketing-hero">
+        <div class="ms-store-page marketing-inner">
+          <div class="marketing-copy">
+            <p class="eyebrow">{{ m.heroBadge || 'Your next step' }}</p>
+            <h1>{{ marketingHeroTitle(m) }}</h1>
+            <p class="marketing-sub">{{ marketingHeroSub(m) }}</p>
+            @if (m.aboutStory || m.bio) {
+              <p class="marketing-story">{{ m.aboutStory || m.bio }}</p>
+            }
+            <div class="marketing-actions">
+              <a class="btn btn-primary" href="#shop">Shop the store</a>
+              @if (marketingWhatsApp(m)) {
+                <a class="btn btn-ghost" [href]="marketingWhatsApp(m)" target="_blank" rel="noopener">Chat with partner</a>
+              }
+            </div>
+          </div>
+          @if (m.opportunityPoints.length > 0) {
+            <ul class="marketing-points">
+              @for (point of m.opportunityPoints; track point) {
+                <li>{{ point }}</li>
+              }
+            </ul>
+          }
+        </div>
+      </section>
+    }
+
     <header class="store-hero">
       <div class="hero-banner" [style.background-image]="storeImage(s) ? 'url(' + storeImage(s) + ')' : null">
         @if (!storeImage(s)) {
@@ -40,6 +68,7 @@
               <a class="btn btn-primary" [href]="whatsappLink(s)" target="_blank" rel="noopener">Chat with partner</a>
             }
             <button class="btn btn-ghost" type="button" (click)="shareStore()">Share store</button>
+            <a class="btn btn-ghost" [routerLink]="['/lead', s.slug]">Connect with partner</a>
           </div>
         </div>
       </div>
@@ -53,7 +82,7 @@
         </section>
       }
 
-      <section class="products-section">
+      <section class="products-section" id="shop">
         <div class="section-head">
           <div>
             <p class="eyebrow">Shop</p>

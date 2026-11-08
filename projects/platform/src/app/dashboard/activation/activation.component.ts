@@ -611,10 +611,7 @@ export class ActivationComponent implements OnInit {
   protected readonly wallet = computed(() => this.partner()?.balance ?? 0);
   protected readonly isPartner = computed(() => this.partner()?.accountState === 'partner');
   protected readonly kycStatus = computed(() => this.partner()?.kycStatus ?? 'not_started');
-  protected readonly kycSubmitted = computed(() => {
-    const status = this.kycStatus();
-    return status === 'pending' || status === 'verified';
-  });
+  protected readonly kycSubmitted = computed(() => this.kycStatus() === 'verified');
   protected readonly walletReady = computed(() => {
     const product = this.product();
     return !!product && this.wallet() >= product.price;
@@ -777,7 +774,9 @@ export class ActivationComponent implements OnInit {
 
   protected kycStatusText(): string {
     const status = this.kycStatus();
-    if (status === 'verified' || status === 'pending') return 'Verified';
+    if (status === 'verified') return 'Verified';
+    if (status === 'pending') return 'Under review — activation opens once verified';
+    if (status === 'rejected') return 'Verification rejected — resubmit';
     return 'Not started';
   }
 

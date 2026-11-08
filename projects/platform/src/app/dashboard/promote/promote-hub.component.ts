@@ -24,8 +24,8 @@ interface PromotionCard {
 /**
  * @title Promote — the public-page growth hub.
  *
- * Promotion starts with the partner's public page: complete it, share the
- * link, use the content library and guides, then work the page leads.
+ * Promotion starts with the partner's personal lead page: complete it, share the
+ * link, use the content library and guides, then work the pipeline.
  * SMS/email remain under Outreach; partner acquisition is separate.
  */
 @Component({
@@ -43,9 +43,9 @@ interface PromotionCard {
     <section class="promote-page">
       <header class="page-head">
         <div>
-          <p class="eyebrow">Promote · Your public page</p>
+          <span class="eyebrow">Promote · Your personal page</span>
           <h1>Your page is the asset. Put it to work.</h1>
-          <p class="subtitle">Complete your page, share it with your network, and turn page visits into page leads.</p>
+          <p class="subtitle">Complete your personal page, share it, and turn conversations into pipeline leads.</p>
         </div>
         <a mat-flat-button color="primary" routerLink="/dashboard/settings/landing-page">
           <mat-icon>edit</mat-icon> Edit my page
@@ -54,7 +54,7 @@ interface PromotionCard {
 
       <section class="hero dp-card">
         <div class="hero-main">
-          <span class="eyebrow">Your share link</span>
+          <span class="eyebrow">Your personal lead page</span>
           @if (publicUrl(); as url) {
             <div class="share-row">
               <code>{{ url }}</code>
@@ -62,10 +62,10 @@ interface PromotionCard {
               <a mat-stroked-button [href]="url" target="_blank" rel="noopener"><mat-icon>open_in_new</mat-icon>Preview</a>
             </div>
           } @else {
-            <p class="muted">Your public page link will appear here once your username is set.</p>
+            <p class="muted">Your personal lead page link will appear here once your username is set.</p>
           }
           <p class="muted share-note">
-            This is the page to share on WhatsApp, Facebook, Instagram, TikTok, LinkedIn and X. Every visit can become a page lead.
+            Share this page on WhatsApp, Facebook, Instagram, TikTok, LinkedIn and X. Visitors who submit it land in your pipeline.
           </p>
 
           @if (referralUrl(); as referral) {
@@ -80,7 +80,7 @@ interface PromotionCard {
               </a>
             </div>
             <p class="muted share-note">
-              Anyone who signs up through this link joins your team automatically. Keep sharing your public page for lead capture.
+              Anyone who signs up through this link joins your team automatically. Share your personal lead page for people who are not ready to join yet.
             </p>
           }
 
@@ -133,7 +133,7 @@ interface PromotionCard {
       </section>
 
       <p class="cross-link muted">
-        Need activated partners rather than page leads? That is a separate growth engine —
+        Need activated partners rather than leads? That is a separate growth engine —
         <a routerLink="/dashboard/campaigns">Partner acquisition</a> under Team.
       </p>
     </section>
@@ -194,7 +194,7 @@ export class PromoteHubComponent {
     const username = String(this.partner()?.['username'] ?? '').trim();
     if (!username) return null;
     const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://marketspase.com';
-    return `${String(base).replace(/\/+$/, '')}/${username}`;
+    return `${String(base).replace(/\/+$/, '')}/lead/${username}`;
   });
 
   protected readonly referralUrl = computed(() => {
@@ -266,7 +266,7 @@ export class PromoteHubComponent {
   protected copyLink(): void {
     const url = this.publicUrl();
     if (!url) return;
-    const done = () => this.snack.open('Public page link copied — share it anywhere', 'OK', { duration: 3000 });
+    const done = () => this.snack.open('Personal lead page link copied - share it anywhere', 'OK', { duration: 3000 });
     if (navigator.clipboard?.writeText) navigator.clipboard.writeText(url).then(done, done);
     else done();
   }

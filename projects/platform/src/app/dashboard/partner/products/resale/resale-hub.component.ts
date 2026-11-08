@@ -88,8 +88,8 @@ export class ResaleHubComponent {
   protected readonly publicUrl = computed(() => {
     const base = String((environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://marketspase.com')
       .replace(/\/+$/, '');
-    const username = String(this.partner()?.username ?? '').trim();
-    return username ? `${base}/${username}` : base;
+    const handle = String(this.partner()?.storeSlug ?? this.partner()?.username ?? '').trim();
+    return handle ? `${base}/${handle}` : base;
   });
 
   protected readonly categories = computed(() => {

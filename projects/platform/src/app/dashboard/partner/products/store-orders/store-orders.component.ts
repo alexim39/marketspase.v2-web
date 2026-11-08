@@ -8,7 +8,7 @@ import { RouterModule } from '@angular/router';
 import { forkJoin, finalize } from 'rxjs';
 import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
-import { StoreEarnings, StoreOrderSummary } from '../../../../core/store/store.models';
+import { StoreEarnings, StoreOrderSummary, StoreReturn } from '../../../../core/store/store.models';
 import { StoreService } from '../../../../core/store/store.service';
 import { ApiError, userError } from '../../../../core/http/api-error';
 import { UiFeedbackService } from '../../../../core/ui/ui-feedback.service';
@@ -41,12 +41,18 @@ export class StoreOrdersComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected readonly busyId = signal<string | null>(null);
   protected readonly orders = signal<StoreOrderSummary[]>([]);
+  protected readonly returns = signal<StoreReturn[]>([]);
   protected readonly earnings = signal<StoreEarnings | null>(null);
   protected readonly filter = signal<Filter>('action');
   protected readonly drafts = signal<Record<string, { courier: string; trackingNumber: string }>>({});
 
   protected readonly actionCount = computed(() => (
     this.orders().filter((order) => ['paid', 'processing', 'shipped'].includes(order.status)).length
+    + this.returns().filter((request) => request.status === 'requested').length
+  ));
+
+  protected readonly openReturns = computed(() => (
+    this.returns().filter((request) => ['requested', 'approved', 'received'].includes(request.status))
   ));
 
   protected readonly visibleOrders = computed(() => {
@@ -122,6 +128,21 @@ export class StoreOrdersComponent implements OnInit {
       });
   }
 
+  protected decideReturn(request: StoreReturn, action: 'approve' | 'reject' | 'receive'): void {
+    if (this.busyId()) return;
+    this.busyId.set(`return:${request.id}`);
+    this.error.set(null);
+    this.storeApi.updateReturn(request.id, action, '')
+      .pipe(finalize(() => this.busyId.set(null)))
+      .subscribe({
+        next: (response) => {
+          this.returns.update((rows) => rows.map((row) => row.id === response.data.id ? response.data : row));
+          this.ui.success(`Return ${response.data.status}`);
+        },
+        error: (err: ApiError) => this.error.set(userError(err)),
+      });
+  }
+
   protected statusLabel(status: string): string {
     const labels: Record<string, string> = {
       pending_payment: 'Awaiting payment',
@@ -155,12 +176,13 @@ export class StoreOrdersComponent implements OnInit {
   private load(): void {
     this.loading.set(true);
     this.error.set(null);
-    forkJoin([this.storeApi.orders(), this.storeApi.earnings()])
+    forkJoin([this.storeApi.orders(), this.storeApi.earnings(), this.storeApi.returns()])
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: ([orders, earnings]) => {
+        next: ([orders, earnings, returns]) => {
           this.orders.set(orders.data ?? []);
           this.earnings.set(earnings.data);
+          this.returns.set(returns.data ?? []);
         },
         error: (err: ApiError) => this.error.set(userError(err)),
       });

@@ -154,6 +154,8 @@ export interface AdminSettlementsEnvelope {
 export interface AdminStoreSettings {
   serviceFeePercent: number;
   escrowHoldDays: number;
+  autoDeliverDays: number;
+  returnWindowDays: number;
   currency: string;
 }
 
@@ -161,4 +163,34 @@ export interface AdminStoreSettingsEnvelope {
   success: boolean;
   message?: string;
   data: AdminStoreSettings;
+}
+
+export interface AdminStoreReturn {
+  id: string;
+  status: 'requested' | 'approved' | 'rejected' | 'received' | 'refunded' | 'cancelled';
+  reason: string;
+  note: string;
+  adminNote: string;
+  requestedAt: string | null;
+  decidedAt: string | null;
+  receivedAt: string | null;
+  refundedAt: string | null;
+  refundReference: string;
+  orderId: string;
+  reference: string;
+  orderNumber: string;
+  partnerId: string;
+  customerEmail: string;
+  items: Array<{ storeProductId: string; name: string; quantity: number }>;
+}
+
+export interface AdminStoreReturnsEnvelope {
+  success: boolean;
+  data: AdminStoreReturn[];
+}
+
+export interface AdminStoreReturnEnvelope {
+  success: boolean;
+  message?: string;
+  data: AdminStoreReturn;
 }

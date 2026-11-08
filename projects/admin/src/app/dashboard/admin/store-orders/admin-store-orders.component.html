@@ -23,6 +23,38 @@
     </section>
   }
 
+  @if (returns().length > 0) {
+    <section class="dp-card returns-panel">
+      <div class="returns-head">
+        <div>
+          <p class="eyebrow">After-sales</p>
+          <h2>Return requests</h2>
+          <p class="muted">Refund only after the partner confirms the item was received.</p>
+        </div>
+        <span class="dp-status dp-status--warn">{{ counts().returns }} open</span>
+      </div>
+      @for (request of returns(); track request.id) {
+        <article class="return-row">
+          <div class="return-main">
+            <strong>{{ request.orderNumber }} · {{ request.reason }}</strong>
+            <span class="muted small">{{ request.customerEmail || 'Customer' }} · {{ request.requestedAt | date:'medium' }}</span>
+            @if (request.note) { <p>{{ request.note }}</p> }
+            <span class="muted small">Status: {{ request.status }}</span>
+          </div>
+          <div class="return-actions">
+            @if (request.status === 'received' || request.status === 'approved') {
+              <button mat-flat-button color="warn" type="button" (click)="refundReturn(request)" [disabled]="refundingId() === 'return:' + request.id">
+                {{ refundingId() === 'return:' + request.id ? 'Refunding…' : 'Refund return' }}
+              </button>
+            } @else {
+              <span class="muted small">{{ request.status === 'refunded' ? 'Refunded' : 'Waiting for partner' }}</span>
+            }
+          </div>
+        </article>
+      }
+    </section>
+  }
+
   @if (refundTarget(); as target) {
     <section class="dp-card refund-panel" aria-label="Refund order">
       <div>

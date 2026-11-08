@@ -118,7 +118,12 @@ export class MyPartnerSupportComponent implements OnInit, OnChanges {
 
   protected publicLink(): string {
     const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://marketspase.com';
-    return `${String(base).replace(/\/+$/, '')}/${String(this.myPartner?.username ?? '').toLowerCase()}`;
+    const handle = String(
+      (this.myPartner as unknown as { storeSlug?: string })?.storeSlug
+      ?? this.myPartner?.username
+      ?? '',
+    ).toLowerCase();
+    return `${String(base).replace(/\/+$/, '')}/${handle}`;
   }
 
   protected back(): void {

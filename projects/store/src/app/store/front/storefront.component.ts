@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SeoService } from '../../_common/services/seo.service';
-import { StoreDetail, StoreProductPublic, StorePublic } from '../store.models';
+import { StoreDetail, StoreMarketing, StoreProductPublic, StorePublic } from '../store.models';
 import {
   StoreService,
   storeAssetUrl,
@@ -20,6 +20,7 @@ import {
 })
 export class StorefrontComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly storesApi = inject(StoreService);
   private readonly seo = inject(SeoService);
   private readonly destroyRef = inject(DestroyRef);
@@ -31,6 +32,7 @@ export class StorefrontComponent implements OnInit {
 
   protected readonly store = computed(() => this.detail()?.store ?? null);
   protected readonly products = computed(() => this.detail()?.products ?? []);
+  protected readonly marketing = computed<StoreMarketing | null>(() => this.store()?.marketing ?? null);
 
   protected readonly categories = computed(() => {
     const counts = new Map<string, number>();
@@ -88,6 +90,20 @@ export class StorefrontComponent implements OnInit {
     return `https://wa.me/${number}`;
   }
 
+  protected marketingWhatsApp(marketing: StoreMarketing): string {
+    const raw = String(marketing.whatsappChatLink || '').trim();
+    if (raw) return raw;
+    return this.whatsappLink(this.store() as StorePublic);
+  }
+
+  protected marketingHeroTitle(marketing: StoreMarketing): string {
+    return marketing.headline || marketing.businessTagline || `Meet ${marketing.name}`;
+  }
+
+  protected marketingHeroSub(marketing: StoreMarketing): string {
+    return marketing.subHeadline || marketing.jobTitle || 'Independent MarketSpase partner';
+  }
+
   protected shareStore(): void {
     const url = window.location.href;
     const done = () => undefined;
@@ -114,8 +130,22 @@ export class StorefrontComponent implements OnInit {
           });
         },
         error: (err: unknown) => {
-          this.error.set(storeError(err));
-          this.loading.set(false);
+          this.storesApi.resolveStore(slug)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: (resolved) => {
+                if (resolved.data.canonical) {
+                  this.error.set(storeError(err));
+                  this.loading.set(false);
+                  return;
+                }
+                this.router.navigate(['/', resolved.data.slug], { replaceUrl: true });
+              },
+              error: () => {
+                this.error.set(storeError(err));
+                this.loading.set(false);
+              },
+            });
         },
       });
   }

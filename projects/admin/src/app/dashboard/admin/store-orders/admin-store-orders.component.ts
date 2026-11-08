@@ -10,7 +10,7 @@ import { finalize, forkJoin } from 'rxjs';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { environment } from '../../../../environments/environment';
 import { AdminStoreService } from '../../../core/store-admin/admin-store.service';
-import { AdminSettlements, AdminStoreOrder } from '../../../core/store-admin/admin-store.models';
+import { AdminSettlements, AdminStoreOrder, AdminStoreReturn } from '../../../core/store-admin/admin-store.models';
 import { ApiError, userError } from '../../../core/http/api-error';
 import { UiFeedbackService } from '../../../core/ui/ui-feedback.service';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
@@ -43,6 +43,7 @@ export class AdminStoreOrdersComponent implements OnInit {
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly orders = signal<AdminStoreOrder[]>([]);
+  protected readonly returns = signal<AdminStoreReturn[]>([]);
   protected readonly settlements = signal<AdminSettlements | null>(null);
   protected readonly busyId = signal<string | null>(null);
   protected readonly refundingId = signal<string | null>(null);
@@ -59,6 +60,7 @@ export class AdminStoreOrdersComponent implements OnInit {
       held: all.filter((order) => order.escrow.status === 'held').length,
       delivered: all.filter((order) => order.status === 'delivered').length,
       awaiting: all.filter((order) => order.payment.status === 'paid' && !['delivered', 'cancelled', 'refunded'].includes(order.status)).length,
+      returns: this.returns().filter((request) => ['requested', 'approved', 'received'].includes(request.status)).length,
     };
   });
 
@@ -135,6 +137,24 @@ export class AdminStoreOrdersComponent implements OnInit {
       });
   }
 
+  protected refundReturn(request: AdminStoreReturn): void {
+    if (this.refundingId()) return;
+    const reason = window.prompt('Reason for refunding this return?', request.reason || 'Return approved');
+    if (!reason || reason.trim().length < 3) return;
+    this.refundingId.set(`return:${request.id}`);
+    this.error.set(null);
+    this.storeApi.refundReturn(request.id, reason.trim())
+      .pipe(finalize(() => this.refundingId.set(null)))
+      .subscribe({
+        next: (response) => {
+          this.returns.update((rows) => rows.map((row) => row.id === response.data.id ? response.data : row));
+          this.ui.success(`Return ${response.data.orderNumber} refunded`);
+          this.loadSettlements();
+        },
+        error: (err: ApiError) => this.error.set(userError(err)),
+      });
+  }
+
   protected statusLabel(status: string): string {
     const labels: Record<string, string> = {
       pending_payment: 'Awaiting payment',
@@ -168,10 +188,12 @@ export class AdminStoreOrdersComponent implements OnInit {
     forkJoin([
       this.storeApi.orders({ q: this.query, status: this.status() === 'all' ? undefined : this.status() }),
       this.storeApi.settlements(),
+      this.storeApi.returns(),
     ]).pipe(finalize(() => this.loading.set(false))).subscribe({
-      next: ([orders, settlements]) => {
+      next: ([orders, settlements, returns]) => {
         this.orders.set(orders.data ?? []);
         this.settlements.set(settlements.data);
+        this.returns.set(returns.data ?? []);
       },
       error: (err: ApiError) => this.error.set(userError(err)),
     });

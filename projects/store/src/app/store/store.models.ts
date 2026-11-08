@@ -1,3 +1,25 @@
+export interface StoreMarketing {
+  username: string;
+  name: string;
+  heroBadge: string;
+  headline: string;
+  subHeadline: string;
+  businessTagline: string;
+  jobTitle: string;
+  bio: string;
+  aboutStory: string;
+  achievements: string;
+  locationDisplay: string;
+  opportunityPoints: string[];
+  inviteNote: string;
+  testimonial: string;
+  videoTestimonialUrl: string;
+  whatsappCtaText: string;
+  whatsappChatLink: string;
+  displayPhone: string;
+  displayEmail: string;
+}
+
 export interface StorePublic {
   id: string;
   slug: string;
@@ -19,6 +41,7 @@ export interface StorePublic {
   status: string;
   productCount: number;
   categories: string[];
+  marketing?: StoreMarketing | null;
 }
 
 export interface StoreProductPublic {
@@ -77,6 +100,19 @@ export interface StoreOrderItem {
   unitPrice: number;
   quantity: number;
   lineTotal: number;
+}
+
+export interface StoreReturnRequest {
+  id: string;
+  status: 'requested' | 'approved' | 'rejected' | 'received' | 'refunded' | 'cancelled';
+  reason: string;
+  note: string;
+  adminNote: string;
+  requestedAt: string | null;
+  decidedAt: string | null;
+  receivedAt: string | null;
+  refundedAt: string | null;
+  refundReference: string;
 }
 
 export interface StoreOrder {
@@ -144,6 +180,7 @@ export interface StoreOrder {
     note: string;
   };
   events: Array<{ type: string; at: string; note: string }>;
+  returnRequest?: StoreReturnRequest | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -153,6 +190,8 @@ export interface StoreOrderCreateEnvelope {
   message?: string;
   data: {
     order: StoreOrder;
+    orderToken: string;
+    trackingUrl: string;
     checkoutUrl: string;
   };
 }
@@ -171,4 +210,30 @@ export interface StoreOrderVerifyEnvelope {
     status: string;
     deduped?: boolean;
   };
+}
+
+export interface StoreReturnEnvelope {
+  success: boolean;
+  message?: string;
+  data: StoreReturnRequest;
+}
+
+export interface PublicLeadPage {
+  username: string;
+  name: string;
+  profileImage: string;
+  landing: Record<string, string | string[]>;
+  store: { slug: string; name: string; tagline: string; logo: string } | null;
+}
+
+export interface PublicLeadPageEnvelope {
+  success: boolean;
+  message?: string;
+  data: PublicLeadPage;
+}
+
+export interface PublicLeadSubmitEnvelope {
+  success: boolean;
+  message?: string;
+  data: { id?: string; already?: boolean };
 }

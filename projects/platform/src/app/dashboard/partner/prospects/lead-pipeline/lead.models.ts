@@ -286,3 +286,21 @@ export function nextStage(stage: ProspectStage | undefined): ProspectStage | nul
   const idx = STAGE_ORDER.indexOf(current as ProspectStage);
   return idx < 0 ? 'Contacted' : (STAGE_ORDER[idx + 1] ?? null);
 }
+
+export interface ReferralMember {
+  id: string;
+  name: string;
+  surname: string;
+  username: string;
+  phone: string;
+  email: string;
+  accountState: string;
+  kycStatus: string;
+  joinedAt: string | null;
+}
+
+export interface ReferralMembersEnvelope {
+  success: boolean;
+  message?: string;
+  data: ReferralMember[];
+}
