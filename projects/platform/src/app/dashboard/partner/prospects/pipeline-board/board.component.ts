@@ -118,9 +118,13 @@ import { formatStuckDuration } from '../stuck-duration';
                   <span class="muted">{{ lead.prospectPhone }}</span>
                   <a class="card-work" [routerLink]="['/dashboard/insights/contact-analytics']" [queryParams]="{ id: lead.id }" title="Work {{ names(lead) }}">Work contact →</a>
                   @if (isConverted(lead)) {
-                    <button mat-button type="button" class="card-link" (click)="copyConversionLink(lead.id)">
-                      Copy signup link
-                    </button>
+                    @if (lead.convertedPartnerId) {
+                      <span class="joined-badge"><mat-icon>verified</mat-icon> Joined your team</span>
+                    } @else {
+                      <button mat-button type="button" class="card-link" (click)="copyConversionLink(lead.id)">
+                        Copy signup link
+                      </button>
+                    }
                   }
                   @if (stuckOf(lead); as stuck) {
                     <span class="stuck-badge" [title]="'No movement for ' + stuckDuration(stuck.daysInStage) + ' (threshold ' + stuck.limit + 'd)'">⚠ stuck {{ stuckDuration(stuck.daysInStage) }}</span>
@@ -150,6 +154,8 @@ import { formatStuckDuration } from '../stuck-duration';
     .code-banner code { font-size: 1.2em; font-weight: 700; letter-spacing: 0.1em; background: var(--ms-surface); padding: 0.1em 0.5em; border-radius: 4px; }
     .code-banner .conversion-link { display: block; max-width: 100%; margin-top: 0.35em; overflow: hidden; font-size: 0.72em; font-weight: 500; letter-spacing: 0; text-overflow: ellipsis; white-space: nowrap; }
     .card-link { align-self: flex-start; min-height: 36px; font-size: 0.82em; }
+    .joined-badge { display: inline-flex; align-items: center; gap: 0.2em; align-self: flex-start; padding: 0.1em 0.55em; border-radius: 999px; background: var(--ms-success-soft); color: var(--ms-success); font-size: 0.76em; font-weight: 700; }
+    .joined-badge mat-icon { width: 15px; height: 15px; font-size: 15px; }
     .code-banner div, .confirm-banner div { flex: 1; }
     .confirm-banner { background: var(--ms-warning-soft); border: 1px solid var(--ms-warning); }
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }

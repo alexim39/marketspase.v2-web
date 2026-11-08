@@ -14,7 +14,7 @@ import { PresenceService, PresenceStatus } from '../../../core/presence/presence
 import { ApiError } from '../../../core/http/api-error';
 import { NetworkService } from '../tree/network.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
-import { NetworkNode, NetworkTreeMeta } from '../tree/network.models';
+import { NetworkNode, NetworkRoot, NetworkTreeMeta } from '../tree/network.models';
 
 interface OrgLevel {
   depth: number;
@@ -55,6 +55,17 @@ interface OrgLevel {
           <a mat-button routerLink="../tree">Tree view</a>
         </div>
       </div>
+
+      @if (systemRoot(); as root) {
+        <div class="system-root-banner" role="note">
+          <span class="root-mark" aria-hidden="true">{{ root.name.slice(0, 1) }}</span>
+          <div class="root-copy">
+            <strong>{{ root.name }} root</strong>
+            <span>Structural root · non-earning · every generation sits below this root.</span>
+          </div>
+          <span class="root-pill">System</span>
+        </div>
+      }
 
       <div class="toolbar">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -152,6 +163,17 @@ interface OrgLevel {
     .page-head h2 { margin: 0; }
     .subtitle { margin: 0.25em 0 0; color: var(--ms-text-muted); }
     .head-links { display: flex; gap: 0.25em; }
+    .system-root-banner {
+      display: flex; align-items: center; gap: 0.7em; padding: 0.7em 0.9em;
+      border: 1px solid color-mix(in srgb, var(--ms-primary) 28%, var(--ms-line));
+      border-radius: 12px;
+      background: linear-gradient(120deg, color-mix(in srgb, var(--ms-primary-soft) 78%, var(--ms-surface)), var(--ms-surface));
+    }
+    .root-mark { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--ms-primary); color: #fff; font-weight: 800; }
+    .root-copy { display: flex; flex-direction: column; gap: 0.05em; min-width: 0; flex: 1; }
+    .root-copy strong { font-size: 0.9em; }
+    .root-copy span { color: var(--ms-text-muted); font-size: 0.78em; line-height: 1.35; }
+    .root-pill { flex: none; padding: 2px 9px; border-radius: 999px; background: var(--ms-surface); border: 1px solid var(--ms-line); color: var(--ms-text-muted); font-size: 0.7em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; }
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
     .toolbar mat-form-field { flex: 1; min-width: 200px; }
     .depth-field { max-width: 150px; }
@@ -187,6 +209,7 @@ export class OrgChartComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected readonly tree = signal<NetworkNode | null>(null);
   protected readonly meta = signal<NetworkTreeMeta | null>(null);
+  protected readonly systemRoot = signal<NetworkRoot | null>(null);
   protected readonly rootId = signal<string | null>(null);
   protected readonly depth = signal(4);
   protected readonly search = signal('');
@@ -268,6 +291,7 @@ export class OrgChartComponent implements OnInit {
         next: (res) => {
           this.tree.set(res.data.tree);
           this.meta.set(res.data.meta);
+          this.systemRoot.set(res.data.systemRoot ?? null);
           this.collapsed.set(new Set());
           this.selectedId.set(null);
           this.loading.set(false);

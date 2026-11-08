@@ -19,7 +19,7 @@ import { API_BASE_URL } from '../../../core/config/api-tokens';
 import { NetworkService } from './network.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
 import {
-  NetworkChain, NetworkNode, NetworkTreeMeta, PositionedNode, TreeEdge,
+  NetworkChain, NetworkNode, NetworkRoot, NetworkTreeMeta, PositionedNode, TreeEdge,
 } from './network.models';
 
 const NODE_W = 168;
@@ -106,6 +106,17 @@ const FALLBACK_PLAN: CompensationPlan = {
           <mat-icon>account_tree</mat-icon> All connections
         </mat-button-toggle>
       </mat-button-toggle-group>
+
+      @if (systemRoot(); as root) {
+        <div class="system-root-banner" role="note">
+          <span class="root-mark" aria-hidden="true">{{ root.name.slice(0, 1) }}</span>
+          <div class="root-copy">
+            <strong>{{ root.name }} root</strong>
+            <span>Structural root · non-earning · every partner and team connects here.</span>
+          </div>
+          <span class="root-pill">System</span>
+        </div>
+      }
 
       <div class="plan-summary">
         <div class="plan-you">
@@ -406,6 +417,41 @@ const FALLBACK_PLAN: CompensationPlan = {
     .plan-summary strong { font-size: 1.05em; }
     .eyebrow { margin: 0; color: var(--ms-primary-strong); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
     .upline { display: flex; align-items: center; gap: 0.25em; flex-wrap: wrap; background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: 8px; padding: 0.4em 0.8em; }
+    .system-root-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+      padding: 0.7em 0.9em;
+      border: 1px solid color-mix(in srgb, var(--ms-primary) 28%, var(--ms-line));
+      border-radius: 12px;
+      background: linear-gradient(120deg, color-mix(in srgb, var(--ms-primary-soft) 78%, var(--ms-surface)), var(--ms-surface));
+    }
+    .root-mark {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--ms-primary);
+      color: #fff;
+      font-weight: 800;
+    }
+    .root-copy { display: flex; flex-direction: column; gap: 0.05em; min-width: 0; flex: 1; }
+    .root-copy strong { font-size: 0.9em; }
+    .root-copy span { color: var(--ms-text-muted); font-size: 0.78em; line-height: 1.35; }
+    .root-pill {
+      flex: none;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: var(--ms-surface);
+      border: 1px solid var(--ms-line);
+      color: var(--ms-text-muted);
+      font-size: 0.7em;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
     .upline .sep { color: var(--ms-text-muted); }
     .upline-label { color: var(--ms-text-muted); font-size: 0.78em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-right: 0.25em; }
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
@@ -486,6 +532,7 @@ export class NetworkTreeComponent implements OnInit {
   protected readonly tree = signal<NetworkNode | null>(null);
   protected readonly meta = signal<NetworkTreeMeta | null>(null);
   protected readonly upline = signal<NetworkNode[]>([]);
+  protected readonly systemRoot = signal<NetworkRoot | null>(null);
   protected readonly rootId = signal<string | null>(null);
   protected readonly depth = signal(5);
   protected readonly chain = signal<NetworkChain>('growth');
@@ -755,6 +802,7 @@ export class NetworkTreeComponent implements OnInit {
         next: (res) => {
           this.tree.set(res.data.tree);
           this.meta.set(res.data.meta);
+          this.systemRoot.set(res.data.systemRoot ?? null);
           this.collapsed.set(new Set());
           this.selectedId.set(null);
           this.matchIdx.set(0);

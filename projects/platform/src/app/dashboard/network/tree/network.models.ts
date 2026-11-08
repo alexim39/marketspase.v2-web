@@ -22,6 +22,16 @@ export interface NetworkNode {
   truncated: boolean;
 }
 
+export interface NetworkRoot {
+  id: string;
+  username: string;
+  name: string;
+  surname?: string;
+  role: 'system';
+  systemRoot: true;
+  earning: false;
+}
+
 export interface NetworkTreeMeta {
   depth: number;
   chain?: NetworkChain;
@@ -30,12 +40,12 @@ export interface NetworkTreeMeta {
   truncated: boolean;
 }
 
-export interface NetworkTreeEnvelope extends ApiEnvelope<{ tree: NetworkNode; meta: NetworkTreeMeta }> {
-  data: { tree: NetworkNode; meta: NetworkTreeMeta };
+export interface NetworkTreeEnvelope extends ApiEnvelope<{ tree: NetworkNode; meta: NetworkTreeMeta; systemRoot?: NetworkRoot }> {
+  data: { tree: NetworkNode; meta: NetworkTreeMeta; systemRoot?: NetworkRoot };
 }
 
-export interface UplineEnvelope extends ApiEnvelope<{ chain: NetworkNode[]; depth: number; chainMode?: NetworkChain }> {
-  data: { chain: NetworkNode[]; depth: number; chainMode?: NetworkChain };
+export interface UplineEnvelope extends ApiEnvelope<{ chain: NetworkNode[]; depth: number; chainMode?: NetworkChain; systemRoot?: NetworkRoot }> {
+  data: { chain: NetworkNode[]; depth: number; chainMode?: NetworkChain; systemRoot?: NetworkRoot };
 }
 
 /** Positioned node for the SVG tidy-tree layout. */

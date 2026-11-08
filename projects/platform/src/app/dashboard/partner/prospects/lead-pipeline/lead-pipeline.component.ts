@@ -313,6 +313,11 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Name</th>
               <td mat-cell *matCellDef="let lead" class="name-cell" data-label="Prospect"><a [routerLink]="['../detail', lead.id]" class="name-link">{{ names(lead) }}</a>
+                @if (lead.convertedPartnerId) {
+                  <span class="joined-badge" title="This converted lead signed up under you">
+                    <mat-icon>verified</mat-icon><span>Joined your team</span>
+                  </span>
+                }
                 @if (lead.campaignId) {
                   <span class="camp-badge" [title]="'Allocated by ' + (campaignNames()[lead.campaignId] ?? 'campaign')">
                     <mat-icon>campaign</mat-icon><span>{{ campaignNames()[lead.campaignId] ?? 'Campaign lead' }}</span>
@@ -381,12 +386,16 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
                   }
                 }
                 @if (isConverted(lead)) {
-                  <button mat-stroked-button type="button" (click)="copyConversionLink(lead.id)">
-                    <mat-icon>link</mat-icon> Copy signup link
-                  </button>
-                  <button mat-button type="button" (click)="shareConversionOnWhatsApp(lead)">
-                    <mat-icon>chat</mat-icon> WhatsApp
-                  </button>
+                  @if (lead.convertedPartnerId) {
+                    <span class="joined-badge"><mat-icon>verified</mat-icon> Joined your team</span>
+                  } @else {
+                    <button mat-stroked-button type="button" (click)="copyConversionLink(lead.id)">
+                      <mat-icon>link</mat-icon> Copy signup link
+                    </button>
+                    <button mat-button type="button" (click)="shareConversionOnWhatsApp(lead)">
+                      <mat-icon>chat</mat-icon> WhatsApp
+                    </button>
+                  }
                 }
               </td>
             </ng-container>
@@ -482,6 +491,8 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
     .camp-badge mat-icon { font-size: 15px; height: 15px; width: 15px; }
     .camp-badge span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .camp-badge:hover { background: var(--ms-primary-soft); }
+    .joined-badge { display: inline-flex; align-items: center; gap: 0.25em; margin-top: 0.3em; padding: 0.12em 0.6em; border-radius: 999px; background: var(--ms-success-soft); color: var(--ms-success); font-size: 0.75em; font-weight: 700; }
+    .joined-badge mat-icon { width: 15px; height: 15px; font-size: 15px; }
     .stuck-badge { color: var(--ms-error); font-size: 0.85em; font-weight: 600; margin-top: 0.25em; }
     .muted { color: var(--ms-text-muted); font-size: 0.85em; }
     .interest-cell { text-transform: capitalize; }
