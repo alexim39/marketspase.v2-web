@@ -94,12 +94,15 @@ export interface PeopleEnvelope extends ApiEnvelope<PersonHit[]> {
 
 export type GroupRole = 'admin' | 'member';
 
+export type RankGroup = 'Partner' | 'Builder' | 'Leader' | 'Ambassador';
+
 export interface GroupSummary {
   id: string;
   name: string;
   description?: string | null;
   photo?: string | null;
   joinPolicy?: 'open' | 'approval';
+  rankGroup?: RankGroup | null;
   memberCount?: number;
   myRole?: GroupRole;
   muted?: boolean;
@@ -157,6 +160,7 @@ export interface GroupDetail {
   description?: string | null;
   photo?: string | null;
   joinPolicy?: 'open' | 'approval';
+  rankGroup?: RankGroup | null;
   createdBy?: string;
   members: GroupMember[];
   myRole: GroupRole;

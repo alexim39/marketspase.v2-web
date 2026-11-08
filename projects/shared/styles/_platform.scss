@@ -320,6 +320,20 @@ html[data-theme="dark"] {
 .messages-page .pinned-bar .convo-snippet { flex: 1; }
 .messages-page .bubble-sender { display: block; font-size: 0.75em; font-weight: 700; color: var(--ms-primary-strong); margin-bottom: 0.15em; }
 .messages-page .admin-badge { font-weight: 400; font-size: 0.9em; background: var(--ms-primary-soft); border: 1px solid var(--ms-primary); border-radius: 999px; padding: 0 0.5em; margin-left: 0.3em; }
+.messages-page .rank-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.05em 0.5em;
+  margin-left: 0.15em;
+  border-radius: 999px;
+  background: var(--ms-primary-soft);
+  color: var(--ms-primary-strong);
+  font-size: 0.62em;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 .messages-page .edited-tag { font-style: italic; }
 .messages-page .mini-btn { width: 28px; height: 28px; line-height: 28px; }
 .messages-page .mini-btn mat-icon { font-size: 16px; height: 16px; width: 16px; }

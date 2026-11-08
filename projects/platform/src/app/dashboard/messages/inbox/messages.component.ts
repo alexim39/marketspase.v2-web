@@ -383,6 +383,9 @@ const TYPING_CLEAR_MS = 3500;
                     <span class="convo-main">
                       <span class="convo-top">
                         <strong>{{ g.name }}</strong>
+                        @if (g.rankGroup) {
+                          <span class="rank-badge">Official</span>
+                        }
                         <span class="muted">{{ groupLastAt(g) }}</span>
                       </span>
                       <span class="convo-sub">
@@ -419,7 +422,10 @@ const TYPING_CLEAR_MS = 3500;
                 <async-avatar [name]="grp.name" size="sm" [photo]="grp.photo ?? null" />
                 <span class="chat-peer group-peer" (click)="toggleGroupPanel(true)" role="button" tabindex="0" title="Group info">
                   <strong>{{ grp.name }}</strong>
-                  <span class="muted">{{ grp.members.length }} member{{ grp.members.length === 1 ? '' : 's' }}{{ grp.muted ? ' · Muted' : '' }}</span>
+                  <span class="muted">
+                    @if (grp.rankGroup) { Official level group · }
+                    {{ grp.members.length }} member{{ grp.members.length === 1 ? '' : 's' }}{{ grp.muted ? ' · Muted' : '' }}
+                  </span>
                 </span>
                 <span class="spacer"></span>
                 <button mat-icon-button (click)="toggleFind()" [title]="findOpen() ? 'Close find' : 'Find in conversation'" aria-label="Find in conversation">
@@ -674,16 +680,18 @@ const TYPING_CLEAR_MS = 3500;
               <div class="panel-tabs" role="tablist">
                 <button mat-button [class.active-tab]="groupPanel() === 'members'" (click)="groupPanel.set('members')">Members</button>
                 @if (isGroupAdmin()) {
-                  <button mat-button [class.active-tab]="groupPanel() === 'requests'" (click)="switchGroupPanel('requests')">
-                    Requests @if ((grp.pendingRequests?.length ?? 0) > 0) { ({{ grp.pendingRequests!.length }}) }
-                  </button>
+                  @if (!grp.rankGroup) {
+                    <button mat-button [class.active-tab]="groupPanel() === 'requests'" (click)="switchGroupPanel('requests')">
+                      Requests @if ((grp.pendingRequests?.length ?? 0) > 0) { ({{ grp.pendingRequests!.length }}) }
+                    </button>
+                  }
                   <button mat-button [class.active-tab]="groupPanel() === 'reports'" (click)="switchGroupPanel('reports')">Reports</button>
                 }
                 <button mat-button [class.active-tab]="groupPanel() === 'settings'" (click)="groupPanel.set('settings')">Settings</button>
               </div>
 
               @if (groupPanel() === 'members') {
-                @if (isGroupAdmin()) {
+                @if (isGroupAdmin() && !grp.rankGroup) {
                   <p class="muted add-hint">Add anyone on the platform — search by name or username.</p>
                   <mat-form-field appearance="outline" subscriptSizing="dynamic">
                     <mat-label>Find anyone…</mat-label>
@@ -724,9 +732,11 @@ const TYPING_CLEAR_MS = 3500;
                         <button mat-icon-button [title]="memberRoleOf(m.id) === 'admin' ? 'Demote' : 'Make admin'" (click)="toggleAdmin(m)">
                           <mat-icon>{{ memberRoleOf(m.id) === 'admin' ? 'star' : 'star_outline' }}</mat-icon>
                         </button>
-                        <button mat-icon-button title="Remove" aria-label="Remove member" (click)="removeMember(m.id)">
-                          <mat-icon>person_remove</mat-icon>
-                        </button>
+                        @if (!grp.rankGroup) {
+                          <button mat-icon-button title="Remove" aria-label="Remove member" (click)="removeMember(m.id)">
+                            <mat-icon>person_remove</mat-icon>
+                          </button>
+                        }
                         <button mat-icon-button title="Ban" aria-label="Ban member" (click)="banMember(m.id)">
                           <mat-icon>block</mat-icon>
                         </button>
@@ -798,55 +808,68 @@ const TYPING_CLEAR_MS = 3500;
               }
 
               @if (groupPanel() === 'settings') {
-                <div class="settings-stack">
-                  <button mat-stroked-button (click)="copyInviteLink()">
-                    <mat-icon>link</mat-icon> Copy invite link
-                  </button>
-                  @if (isGroupAdmin()) {
-                    <div class="photo-row">
-                      <async-avatar [name]="grp.name" size="md" [photo]="grp.photo ?? null" />
-                      <span class="photo-actions">
-                        <input
-                          #groupPhotoInput
-                          type="file" accept="image/jpeg,image/png,image/webp" hidden
-                          (change)="onGroupPhotoSelected($any($event.target).files?.[0]); $any($event.target).value = ''"
-                          [disabled]="groupPhotoBusy()"
-                          aria-label="Upload group photo"
-                        />
-                        <button mat-stroked-button type="button" (click)="groupPhotoInput.click()" [disabled]="groupPhotoBusy()">
-                          {{ groupPhotoBusy() ? 'Uploading…' : 'Change photo' }}
-                        </button>
-                        @if (groupPhotoError(); as err) {
-                          <span class="error" role="alert">{{ err }}</span>
-                        }
-                      </span>
-                    </div>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                      <mat-label>Group name</mat-label>
-                      <input matInput [value]="groupSettingsName()" (input)="groupSettingsName.set($any($event.target).value)" maxlength="80" />
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                      <mat-label>Description</mat-label>
-                      <input matInput [value]="groupSettingsDesc()" (input)="groupSettingsDesc.set($any($event.target).value)" maxlength="500" />
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                      <mat-label>Join policy</mat-label>
-                      <mat-select [value]="groupSettingsPolicy()" (selectionChange)="groupSettingsPolicy.set($event.value)">
-                        <mat-option value="approval">Approval</mat-option>
-                        <mat-option value="open">Open</mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                    <button mat-stroked-button (click)="saveGroupSettings()" [disabled]="groupActionBusy() === 'settings'">Save settings</button>
-                  }
-                  <button mat-stroked-button (click)="toggleMuteGroup()">{{ grp.muted ? 'Unmute this group' : 'Mute this group' }}</button>
-                  <button mat-stroked-button color="warn" (click)="leaveGroup()">Leave group</button>
-                  @if (isGroupCreator() || isGroupAdmin()) {
-                    <button mat-stroked-button color="warn" (click)="deleteGroup()" [disabled]="groupActionBusy() === 'delete'">Delete group</button>
-                  }
-                  @if (groupNotice(); as note) {
-                    <p class="notice" role="status">{{ note }}</p>
-                  }
-                </div>
+                @if (grp.rankGroup) {
+                  <div class="settings-stack">
+                    <p class="muted">
+                      This is your official {{ grp.rankGroup }} level group. Membership is automatic —
+                      you can mute it, but you cannot leave.
+                    </p>
+                    <button mat-stroked-button (click)="toggleMuteGroup()">{{ grp.muted ? 'Unmute this group' : 'Mute this group' }}</button>
+                    @if (groupNotice(); as note) {
+                      <p class="notice" role="status">{{ note }}</p>
+                    }
+                  </div>
+                } @else {
+                  <div class="settings-stack">
+                    <button mat-stroked-button (click)="copyInviteLink()">
+                      <mat-icon>link</mat-icon> Copy invite link
+                    </button>
+                    @if (isGroupAdmin()) {
+                      <div class="photo-row">
+                        <async-avatar [name]="grp.name" size="md" [photo]="grp.photo ?? null" />
+                        <span class="photo-actions">
+                          <input
+                            #groupPhotoInput
+                            type="file" accept="image/jpeg,image/png,image/webp" hidden
+                            (change)="onGroupPhotoSelected($any($event.target).files?.[0]); $any($event.target).value = ''"
+                            [disabled]="groupPhotoBusy()"
+                            aria-label="Upload group photo"
+                          />
+                          <button mat-stroked-button type="button" (click)="groupPhotoInput.click()" [disabled]="groupPhotoBusy()">
+                            {{ groupPhotoBusy() ? 'Uploading…' : 'Change photo' }}
+                          </button>
+                          @if (groupPhotoError(); as err) {
+                            <span class="error" role="alert">{{ err }}</span>
+                          }
+                        </span>
+                      </div>
+                      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>Group name</mat-label>
+                        <input matInput [value]="groupSettingsName()" (input)="groupSettingsName.set($any($event.target).value)" maxlength="80" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>Description</mat-label>
+                        <input matInput [value]="groupSettingsDesc()" (input)="groupSettingsDesc.set($any($event.target).value)" maxlength="500" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>Join policy</mat-label>
+                        <mat-select [value]="groupSettingsPolicy()" (selectionChange)="groupSettingsPolicy.set($event.value)">
+                          <mat-option value="approval">Approval</mat-option>
+                          <mat-option value="open">Open</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                      <button mat-stroked-button (click)="saveGroupSettings()" [disabled]="groupActionBusy() === 'settings'">Save settings</button>
+                    }
+                    <button mat-stroked-button (click)="toggleMuteGroup()">{{ grp.muted ? 'Unmute this group' : 'Mute this group' }}</button>
+                    <button mat-stroked-button color="warn" (click)="leaveGroup()">Leave group</button>
+                    @if (isGroupCreator() || isGroupAdmin()) {
+                      <button mat-stroked-button color="warn" (click)="deleteGroup()" [disabled]="groupActionBusy() === 'delete'">Delete group</button>
+                    }
+                    @if (groupNotice(); as note) {
+                      <p class="notice" role="status">{{ note }}</p>
+                    }
+                  </div>
+                }
               }
             </aside>
           }
