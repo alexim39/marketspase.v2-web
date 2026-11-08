@@ -3,7 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { Observable, Subject } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { API_BASE_URL } from '../config/api-tokens';
-import type { GroupAttachment, GroupMessage, Message } from './message.models';
+import type { GroupAttachment, GroupMessage, Message, RankGroup } from './message.models';
 
 export interface SocketAck<T = unknown> {
   ok: boolean;
@@ -36,6 +36,17 @@ export interface ReadEvent {
   readerId: string;
 }
 
+/** Official rank-group membership moved the partner to a new circle. */
+export interface RankGroupChangedEvent {
+  partnerId: string;
+  rank: RankGroup | null;
+  groupId: string;
+  groupName: string | null;
+  fromGroupId: string | null;
+  fromRank: RankGroup | null;
+  at: string;
+}
+
 /**
  * Live chat transport — socket.io with automatic REST fallback.
  *
@@ -62,6 +73,7 @@ export class ChatSocketService {
   private readonly typingEvents = new Subject<TypingEvent>();
   private readonly groupTypingEvents = new Subject<GroupTypingEvent>();
   private readonly presenceEvents = new Subject<PresenceEvent>();
+  private readonly rankGroupEvents = new Subject<RankGroupChangedEvent>();
   private readonly reconnects = new Subject<void>();
 
   readonly message$: Observable<Message> = this.incoming.asObservable();
@@ -72,6 +84,8 @@ export class ChatSocketService {
   /** Group typing carries the groupId so indicators stay per-room. */
   readonly groupTyping$: Observable<GroupTypingEvent> = this.groupTypingEvents.asObservable();
   readonly presence$: Observable<PresenceEvent> = this.presenceEvents.asObservable();
+  /** Official rank-group membership changed — refresh lists and switch rooms. */
+  readonly rankGroupChanged$: Observable<RankGroupChangedEvent> = this.rankGroupEvents.asObservable();
   readonly reconnected$: Observable<void> = this.reconnects.asObservable();
 
   /** Idempotent connect — no token means REST-only mode (still fully usable). */
@@ -123,6 +137,18 @@ export class ChatSocketService {
     });
     socket.on('presence', (payload: PresenceEvent) => {
       if (payload?.userId) this.presenceEvents.next(payload);
+    });
+    socket.on('rank:group-changed', (payload: RankGroupChangedEvent) => {
+      if (!payload?.groupId) return;
+      this.rankGroupEvents.next({
+        partnerId: String(payload.partnerId ?? ''),
+        rank: payload.rank ?? null,
+        groupId: String(payload.groupId),
+        groupName: payload.groupName ? String(payload.groupName) : null,
+        fromGroupId: payload.fromGroupId ? String(payload.fromGroupId) : null,
+        fromRank: payload.fromRank ?? null,
+        at: payload.at ? String(payload.at) : new Date().toISOString(),
+      });
     });
   }
 

@@ -15,7 +15,7 @@ import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page
 import { forkJoin, interval, fromEvent, Observable } from 'rxjs';
 import { MessageService } from '../../../core/messaging/message.service';
 import { CommunityService } from '../../../core/community/community.service';
-import { ChatSocketService } from '../../../core/messaging/chat-socket.service';
+import { ChatSocketService, RankGroupChangedEvent } from '../../../core/messaging/chat-socket.service';
 import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
@@ -1215,6 +1215,7 @@ export class MessagesComponent implements OnInit {
   private wireSocket(): void {
     this.chat.message$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((m) => this.onSocketMessage(m));
     this.chat.groupMessage$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ message, groupId }) => this.onGroupSocketMessage(message, groupId));
+    this.chat.rankGroupChanged$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => this.onRankGroupChanged(event));
     this.chat.groupTyping$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ from, typing, groupId }) => {
       const key = `${groupId}:${from}`;
       if (String(from) === this.myId()) return;
@@ -2057,6 +2058,7 @@ export class MessagesComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
+          if (String(this.openGroupId()) !== String(groupId)) return;
           if (!res.data) {
             this.groupLoading.set(false);
             this.groupError.set('Group not found.');
@@ -2071,6 +2073,7 @@ export class MessagesComponent implements OnInit {
           this.markGroupRead(groupId);
         },
         error: (err: ApiError) => {
+          if (String(this.openGroupId()) !== String(groupId)) return;
           this.groupLoading.set(false);
           this.groupError.set(userError(err));
         },
@@ -2212,6 +2215,35 @@ export class MessagesComponent implements OnInit {
       this.groups.set(this.groups().map((g) =>
         String(g.id) === gid ? { ...g, unread: (g.unread ?? 0) + 1 } : g));
     }
+  }
+
+  /**
+   * The server moved this member to a new official circle. Refresh the group
+   * list and, when the old circle was open, carry the conversation across to
+   * the new one instead of leaving a dead room on screen.
+   */
+  private onRankGroupChanged(event: RankGroupChangedEvent): void {
+    const groupId = String(event.groupId ?? '').trim();
+    if (!groupId) return;
+    const previousId = event.fromGroupId ? String(event.fromGroupId) : null;
+    const groupName = String(event.groupName ?? '').trim()
+      || `${event.rank ?? 'New'} Circle`;
+    const previousName = event.fromRank ? `${event.fromRank} Circle` : 'your previous circle';
+    const moved = !!previousId && previousId !== groupId;
+    const openId = String(this.openGroupId() ?? '');
+    const oldGroupOpen = !!previousId && openId === previousId;
+
+    if (oldGroupOpen) {
+      if (this.view() === 'groups') this.openGroupChat(groupId);
+      else this.closeGroupChat();
+    } else if (openId === groupId) {
+      this.loadGroupThreadSilent(groupId);
+    }
+
+    this.loadGroupsSilent();
+    this.groupNotice.set(moved
+      ? `Your journey level changed. You moved from ${previousName} to ${groupName}.`
+      : `You joined ${groupName}. Say hello — the group is ready.`);
   }
 
   /** Group an open group thread into day sections for dividers. */
