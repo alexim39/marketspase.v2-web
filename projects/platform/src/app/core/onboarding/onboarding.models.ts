@@ -90,6 +90,7 @@ export interface OnboardingStatus {
   activationOrder: ActivationOrder | null;
   kyc: KycSubmission | null;
   queue: ActivationQueue | null;
+  sponsor?: { id: string; name: string; username: string } | null;
 }
 
 export interface KycInput {

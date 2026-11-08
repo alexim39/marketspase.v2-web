@@ -8,6 +8,20 @@
     <h1>Create your free business account</h1>
     <p class="sub">This is where your online business starts. We&rsquo;ll email you a verification link, then Ora will meet you with your first plan.</p>
 
+    @if (referralCode() || leadId()) {
+      <p class="referral-note" role="status">
+        <mat-icon aria-hidden="true">handshake</mat-icon>
+        <span>
+          @if (referralCode()) {
+            You&rsquo;re joining through <strong>&#64;{{ referralCode() }}</strong>. Your sponsor will be your mentor and team upline.
+          } @else {
+            Your application is linked to a partner. Your sponsor will be your mentor and team upline.
+          }
+          If that link is no longer active, MarketSpase will still create your account and place you for onboarding.
+        </span>
+      </p>
+    }
+
     <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
       <div class="names-row">
         <mat-form-field appearance="outline">

@@ -68,6 +68,22 @@ interface PromotionCard {
             This is the page to share on WhatsApp, Facebook, Instagram, TikTok, LinkedIn and X. Every visit can become a page lead.
           </p>
 
+          @if (referralUrl(); as referral) {
+            <span class="eyebrow">Your team referral link</span>
+            <div class="share-row">
+              <code>{{ referral }}</code>
+              <button mat-stroked-button type="button" (click)="copyReferralLink()">
+                <mat-icon>content_copy</mat-icon> Copy referral link
+              </button>
+              <a mat-stroked-button [href]="referral" target="_blank" rel="noopener">
+                <mat-icon>open_in_new</mat-icon> Preview
+              </a>
+            </div>
+            <p class="muted share-note">
+              Anyone who signs up through this link joins your team automatically. Keep sharing your public page for lead capture.
+            </p>
+          }
+
           <div class="mini-stats">
             <span><strong>{{ completedCount() }}/{{ checks().length }}</strong> page essentials</span>
             <span><strong>{{ socialCount() }}</strong> social profiles linked</span>
@@ -181,6 +197,12 @@ export class PromoteHubComponent {
     return `${String(base).replace(/\/+$/, '')}/${username}`;
   });
 
+  protected readonly referralUrl = computed(() => {
+    const username = String(this.partner()?.['username'] ?? '').trim();
+    if (!username || typeof window === 'undefined') return null;
+    return `${window.location.origin}/join?ref=${encodeURIComponent(username)}`;
+  });
+
   protected readonly checks = computed<ReadinessCheck[]>(() => {
     const p = this.partner() ?? {};
     const filled = (value: unknown) => String(value ?? '').trim().length > 0;
@@ -245,6 +267,14 @@ export class PromoteHubComponent {
     const url = this.publicUrl();
     if (!url) return;
     const done = () => this.snack.open('Public page link copied — share it anywhere', 'OK', { duration: 3000 });
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(url).then(done, done);
+    else done();
+  }
+
+  protected copyReferralLink(): void {
+    const url = this.referralUrl();
+    if (!url) return;
+    const done = () => this.snack.open('Referral link copied — new signups join your team', 'OK', { duration: 3000 });
     if (navigator.clipboard?.writeText) navigator.clipboard.writeText(url).then(done, done);
     else done();
   }

@@ -30,6 +30,21 @@ import { minDigitsValidator } from '../../_common/services/phone-number-checker'
       .signup-panel { position: relative; overflow: hidden; }
       .terms-check { margin: 0.35em 0 0; align-self: flex-start; text-align: left; }
       .field-error { color: var(--ms-error); font-size: 0.85em; margin: 0.25em 0 0; }
+      .referral-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5em;
+        margin: 0.75em 0 0;
+        padding: 0.7em 0.85em;
+        border: 1px solid color-mix(in srgb, var(--ms-success) 35%, transparent);
+        border-radius: 10px;
+        background: var(--ms-success-soft);
+        color: var(--ms-text);
+        font-size: 0.85rem;
+        line-height: 1.45;
+        text-align: left;
+      }
+      .referral-note mat-icon { flex: none; color: var(--ms-success); font-size: 20px; width: 20px; height: 20px; }
       .auth-progress {
         position: absolute;
         inset: 0 0 auto;
@@ -78,6 +93,8 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
   protected readonly isSubmitting = signal(false);
   /** Acquisition attribution captured from /join?campaign=... */
   protected readonly campaignCode = signal<string | null>(null);
+  protected readonly referralCode = signal<string | null>(null);
+  protected readonly leadId = signal<string | null>(null);
 
   protected signUpForm: FormGroup = new FormGroup({});
   protected subscriptions: Array<Subscription> = [];
@@ -96,6 +113,21 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
     if (code) {
       this.campaignCode.set(code);
       try { localStorage.setItem('ms_campaign', code); } catch { /* ignore */ }
+    }
+
+    const refQuery = String(this.route.snapshot.queryParamMap.get('ref') ?? '').trim();
+    const ref = refQuery || readStorage('ms_ref');
+    if (ref) {
+      const clean = ref.replace(/^@/, '');
+      this.referralCode.set(clean);
+      try { localStorage.setItem('ms_ref', clean); } catch { /* ignore */ }
+    }
+
+    const leadQuery = String(this.route.snapshot.queryParamMap.get('lead') ?? '').trim();
+    const lead = leadQuery || readStorage('ms_lead');
+    if (/^[a-fA-F0-9]{24}$/.test(lead)) {
+      this.leadId.set(lead);
+      try { localStorage.setItem('ms_lead', lead); } catch { /* ignore */ }
     }
 
     this.signUpForm = this.fb.group({
@@ -118,12 +150,18 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
     const formData = {
       ...formValue,
       ...(this.campaignCode() ? { campaign: this.campaignCode() } : {}),
+      ...(this.referralCode() ? { ref: this.referralCode() } : {}),
+      ...(this.leadId() ? { lead: this.leadId() } : {}),
     } as SignupRequest;
     this.subscriptions.push(
       this.partnerSignUpService.signup(formData).subscribe({
         next: (res: SignupResponse) => {
           this.isSubmitting.set(false);
-          try { localStorage.removeItem('ms_campaign'); } catch { /* ignore */ }
+          try {
+            localStorage.removeItem('ms_campaign');
+            localStorage.removeItem('ms_ref');
+            localStorage.removeItem('ms_lead');
+          } catch { /* ignore */ }
           void this.ui.alert({
             title: 'Account created',
             message: res?.message ?? 'Check your email to verify your account.',
@@ -151,5 +189,13 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
 
   protected scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function readStorage(key: string): string {
+  try {
+    return localStorage.getItem(key) ?? '';
+  } catch {
+    return '';
   }
 }

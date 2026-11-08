@@ -4,6 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 const CAMPAIGN_KEY = 'ms_campaign';
+const REF_KEY = 'ms_ref';
+const LEAD_KEY = 'ms_lead';
 
 /**
  * Public acquisition landing — the destination for campaign tracking links
@@ -32,6 +34,12 @@ const CAMPAIGN_KEY = 'ms_campaign';
             </a>
             <a mat-stroked-button routerLink="/how-it-works">See how it works</a>
           </div>
+          @if (referrer()) {
+            <p class="referral-chip" role="status">
+              <mat-icon aria-hidden="true">handshake</mat-icon>
+              Referred by &#64;{{ referrer() }}
+            </p>
+          }
           @if (campaign()) {
             <p class="campaign-chip" role="status">
               <mat-icon aria-hidden="true">campaign</mat-icon>
@@ -131,6 +139,20 @@ const CAMPAIGN_KEY = 'ms_campaign';
       font-weight: 700;
     }
     .campaign-chip mat-icon { width: 16px; height: 16px; font-size: 16px; }
+    .referral-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 14px 0 0;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: rgba(87, 220, 160, 0.16);
+      border: 1px solid rgba(87, 220, 160, 0.38);
+      color: #c7ffe3;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .referral-chip mat-icon { width: 16px; height: 16px; font-size: 16px; }
 
     .join-card {
       width: min(440px, 100%);
@@ -182,6 +204,8 @@ const CAMPAIGN_KEY = 'ms_campaign';
 export class JoinLandingComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   protected readonly campaign = signal<string | null>(null);
+  protected readonly referrer = signal<string | null>(null);
+  protected readonly lead = signal<string | null>(null);
 
   ngOnInit(): void {
     const fromQuery = String(this.route.snapshot.queryParamMap.get('campaign') ?? '').trim();
@@ -192,10 +216,38 @@ export class JoinLandingComponent implements OnInit {
       this.campaign.set(code);
       try { localStorage.setItem(CAMPAIGN_KEY, code); } catch { /* ignore */ }
     }
+
+    const refQuery = String(this.route.snapshot.queryParamMap.get('ref') ?? '').trim();
+    const refStore = readKey(REF_KEY);
+    const ref = refQuery || refStore;
+    if (ref) {
+      const clean = ref.replace(/^@/, '');
+      this.referrer.set(clean);
+      try { localStorage.setItem(REF_KEY, clean); } catch { /* ignore */ }
+    }
+
+    const leadQuery = String(this.route.snapshot.queryParamMap.get('lead') ?? '').trim();
+    const leadStore = readKey(LEAD_KEY);
+    const lead = leadQuery || leadStore;
+    if (/^[a-fA-F0-9]{24}$/.test(lead)) {
+      this.lead.set(lead);
+      try { localStorage.setItem(LEAD_KEY, lead); } catch { /* ignore */ }
+    }
   }
 
   protected signupParams(): Record<string, string> {
-    const code = this.campaign();
-    return code ? { campaign: code } : {};
+    return {
+      ...(this.campaign() ? { campaign: this.campaign()! } : {}),
+      ...(this.referrer() ? { ref: this.referrer()! } : {}),
+      ...(this.lead() ? { lead: this.lead()! } : {}),
+    };
+  }
+}
+
+function readKey(key: string): string {
+  try {
+    return localStorage.getItem(key) ?? '';
+  } catch {
+    return '';
   }
 }

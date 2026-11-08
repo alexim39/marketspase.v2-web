@@ -25,8 +25,8 @@ import { Subscription } from 'rxjs';
     <h2 mat-dialog-title>Convert {{ data.prospectName | titlecase }} {{ data.prospectSurname | titlecase }}?</h2>
 
     <mat-dialog-content>
-      <p>Mark this prospect as <strong>Converted</strong>. They can then sign up through open registration.</p>
-      <p class="muted">No reservation code is required. The system will place the new partner in the team.</p>
+      <p>Mark this prospect as <strong>Converted</strong>. They can then sign up as a partner.</p>
+      <p class="muted">After converting, share their personal signup link from the pipeline. Anyone who signs up through it — or with the email on this lead — joins your team automatically.</p>
     </mat-dialog-content>
 
     <mat-dialog-actions>
@@ -71,7 +71,7 @@ export class CollectCodeComponent implements OnDestroy {
         this.dialogRef.close({ converted: true });
         void this.ui.alert({
           title: 'Prospect converted',
-          message: `${this.data.prospectName} ${this.data.prospectSurname} can now sign up as a partner. No code is needed.`,
+          message: `${this.data.prospectName} ${this.data.prospectSurname} can now sign up. Share their personal signup link from the pipeline so they join your team automatically.`,
           tone: 'success',
         });
       },

@@ -6,6 +6,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { forkJoin } from 'rxjs';
@@ -30,7 +31,7 @@ import { formatStuckDuration } from '../stuck-duration';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DragDropModule, MatButtonModule, MatChipsModule, MatFormFieldModule,
-    MatIconModule, MatInputModule, PageSkeletonComponent, RouterModule,
+    MatIconModule, MatInputModule, MatSnackBarModule, PageSkeletonComponent, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -57,9 +58,12 @@ import { formatStuckDuration } from '../stuck-duration';
         <div class="code-banner" role="status">
           <mat-icon>celebration</mat-icon>
           <div>
-            <strong>{{ converted.name }}</strong> is marked converted. Share your open registration or referral link
-            so they can join.
+            <strong>{{ converted.name }}</strong> is converted. Share their signup link so they join your team.
+            @if (conversionLink(converted.leadId); as link) {
+              <code class="conversion-link">{{ link }}</code>
+            }
           </div>
+          <button mat-stroked-button type="button" (click)="copyConversionLink(converted.leadId)">Copy link</button>
           <button mat-icon-button (click)="convertedNotice.set(null)" aria-label="Dismiss">
             <mat-icon>close</mat-icon>
           </button>
@@ -113,6 +117,11 @@ import { formatStuckDuration } from '../stuck-duration';
                   <a class="card-name" [routerLink]="['../detail', lead.id]">{{ names(lead) }}</a>
                   <span class="muted">{{ lead.prospectPhone }}</span>
                   <a class="card-work" [routerLink]="['/dashboard/insights/contact-analytics']" [queryParams]="{ id: lead.id }" title="Work {{ names(lead) }}">Work contact →</a>
+                  @if (isConverted(lead)) {
+                    <button mat-button type="button" class="card-link" (click)="copyConversionLink(lead.id)">
+                      Copy signup link
+                    </button>
+                  }
                   @if (stuckOf(lead); as stuck) {
                     <span class="stuck-badge" [title]="'No movement for ' + stuckDuration(stuck.daysInStage) + ' (threshold ' + stuck.limit + 'd)'">⚠ stuck {{ stuckDuration(stuck.daysInStage) }}</span>
                   }
@@ -139,6 +148,8 @@ import { formatStuckDuration } from '../stuck-duration';
     .code-banner button, .confirm-banner button { min-height: 44px; }
     .code-banner { background: var(--ms-success-soft); border: 1px solid var(--ms-success); }
     .code-banner code { font-size: 1.2em; font-weight: 700; letter-spacing: 0.1em; background: var(--ms-surface); padding: 0.1em 0.5em; border-radius: 4px; }
+    .code-banner .conversion-link { display: block; max-width: 100%; margin-top: 0.35em; overflow: hidden; font-size: 0.72em; font-weight: 500; letter-spacing: 0; text-overflow: ellipsis; white-space: nowrap; }
+    .card-link { align-self: flex-start; min-height: 36px; font-size: 0.82em; }
     .code-banner div, .confirm-banner div { flex: 1; }
     .confirm-banner { background: var(--ms-warning-soft); border: 1px solid var(--ms-warning); }
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
@@ -166,6 +177,7 @@ export class PipelineBoardComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
+  private readonly snack = inject(MatSnackBar);
 
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
@@ -174,7 +186,7 @@ export class PipelineBoardComponent implements OnInit {
   protected readonly stuckDays = signal<Record<string, StuckEntry>>({});
   protected readonly actingId = signal<string | null>(null);
   protected readonly pendingConvert = signal<ProspectLead | null>(null);
-  protected readonly convertedNotice = signal<{ name: string } | null>(null);
+  protected readonly convertedNotice = signal<{ name: string; leadId: string } | null>(null);
 
   protected readonly boardStages: ProspectStage[] = [...STAGE_ORDER, 'Closed'];
 
@@ -264,6 +276,29 @@ export class PipelineBoardComponent implements OnInit {
       });
   }
 
+  protected isConverted(lead: ProspectLead): boolean {
+    return lead.status?.stage === 'Converted';
+  }
+
+  protected referralLink(): string | null {
+    const username = String(this.auth.currentUser()?.username ?? '').trim();
+    if (!username || typeof location === 'undefined') return null;
+    return `${location.origin}/join?ref=${encodeURIComponent(username)}`;
+  }
+
+  protected conversionLink(leadId: string): string | null {
+    const base = this.referralLink();
+    return base ? `${base}&lead=${encodeURIComponent(leadId)}` : null;
+  }
+
+  protected copyConversionLink(leadId: string): void {
+    const url = this.conversionLink(leadId);
+    if (!url) return;
+    const done = () => this.snack.open('Signup link copied — this lead will join your team', 'Close', { duration: 3000 });
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(url).then(done, done);
+    else done();
+  }
+
   protected confirmConvert(): void {
     const lead = this.pendingConvert();
     if (!lead) return;
@@ -274,7 +309,7 @@ export class PipelineBoardComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res: any) => {
         if (res?.converted) {
-          this.convertedNotice.set({ name: this.names(lead) });
+          this.convertedNotice.set({ name: this.names(lead), leadId: lead.id });
           this.reload();
         }
       });

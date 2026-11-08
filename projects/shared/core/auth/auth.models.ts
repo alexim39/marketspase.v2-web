@@ -17,6 +17,10 @@ export interface SignupRequest {
   tnc: boolean;
   /** Acquisition attribution from /join?campaign=... */
   campaign?: string;
+  /** Partner referral from /join?ref=username */
+  ref?: string;
+  /** Converted pipeline lead from /join?ref=username&lead=prospectId */
+  lead?: string;
 }
 
 /** Canonical roles — legacy G8 accounts read as Leader. */

@@ -25,7 +25,6 @@ import { RateLeadDialogComponent } from './rate-lead-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
 import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
-import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { forkJoin, map, of, switchMap } from 'rxjs';
 
@@ -109,7 +108,7 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
   imports: [
     MatTableModule, MatChipsModule, MatButtonModule, MatCheckboxModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatPaginatorModule, MatTooltipModule,
-    MatSnackBarModule, EmptyStateComponent, ErrorStateComponent, PageHeaderComponent, PageSkeletonComponent, RouterModule,
+    MatSnackBarModule, EmptyStateComponent, ErrorStateComponent, PageSkeletonComponent, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -121,25 +120,57 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
     </section>
 
     <section class="pipeline-page">
-      <async-page-header
-        eyebrow="Prospects · Lead pipeline"
-        title="Lead Pipeline"
-        subtitle="Work your leads from first contact to converted partner."
-      >
-        <a mat-stroked-button routerLink="../personal-list" title="My Page Leads — submissions from your public page">
-          <mat-icon>inbox</mat-icon> My Page Leads
-        </a>
-        <a mat-flat-button color="primary" routerLink="/dashboard/tools/contacts/new" title="Add someone to your contact list">
-          <mat-icon>person_add</mat-icon> Add someone
-        </a>
-      </async-page-header>
+      <header class="pipeline-hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Prospects · Team builder</p>
+          <h1>Turn conversations into partners.</h1>
+          <p class="hero-lede">
+            Every lead you convert is protected for your team. Share your referral link, work the conversation,
+            and when they sign up they join under you — never under a random campaign owner.
+          </p>
+          <div class="hero-actions">
+            <button mat-flat-button color="primary" type="button" (click)="copyReferralLink()">
+              <mat-icon>link</mat-icon> Copy my referral link
+            </button>
+            <a mat-stroked-button routerLink="../personal-list" title="Leads from your public page">
+              <mat-icon>inbox</mat-icon> Page leads
+            </a>
+            <a mat-stroked-button routerLink="/dashboard/tools/contacts/new" title="Add someone to your pipeline">
+              <mat-icon>person_add</mat-icon> Add prospect
+            </a>
+          </div>
+          @if (referralLink(); as link) {
+            <div class="hero-link">
+              <code>{{ link }}</code>
+              <button mat-button type="button" (click)="copyReferralLink()">Copy</button>
+            </div>
+          }
+        </div>
+        <div class="hero-steps" aria-label="How conversion works">
+          <div><span>1</span><strong>Capture</strong><small>Add or import a lead</small></div>
+          <div><span>2</span><strong>Work</strong><small>Advance the conversation</small></div>
+          <div><span>3</span><strong>Convert</strong><small>Mark them ready to join</small></div>
+          <div><span>4</span><strong>Join your team</strong><small>Share their personal signup link</small></div>
+        </div>
+      </header>
 
       @if (convertedNotice(); as converted) {
         <div class="code-banner" role="status">
           <mat-icon>celebration</mat-icon>
-          <div>
-            <strong>{{ converted.name }}</strong> is marked converted. Share your open registration or referral link
-            so they can join.
+          <div class="converted-copy">
+            <strong>{{ converted.name }} is converted.</strong>
+            <span>Share their signup link — they join your team automatically.</span>
+            @if (conversionLink(converted.leadId); as link) {
+              <code class="conversion-link">{{ link }}</code>
+            }
+          </div>
+          <div class="converted-actions">
+            <button mat-flat-button color="primary" type="button" (click)="copyConversionLink(converted.leadId)">
+              <mat-icon>content_copy</mat-icon> Copy link
+            </button>
+            <button mat-stroked-button type="button" (click)="shareConvertedOnWhatsApp(converted.leadId, converted.name)">
+              <mat-icon>chat</mat-icon> WhatsApp
+            </button>
           </div>
           <button mat-icon-button (click)="convertedNotice.set(null)" aria-label="Dismiss">
             <mat-icon>close</mat-icon>
@@ -350,7 +381,12 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
                   }
                 }
                 @if (isConverted(lead)) {
-                  <span class="muted">Enrolled ✓</span>
+                  <button mat-stroked-button type="button" (click)="copyConversionLink(lead.id)">
+                    <mat-icon>link</mat-icon> Copy signup link
+                  </button>
+                  <button mat-button type="button" (click)="shareConversionOnWhatsApp(lead)">
+                    <mat-icon>chat</mat-icon> WhatsApp
+                  </button>
                 }
               </td>
             </ng-container>
@@ -375,22 +411,51 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
     .breadcrumb-wrapper { margin-bottom: 1em; }
     .breadcrumb a { text-decoration: none; }
     .pipeline-page { display: flex; flex-direction: column; gap: 1.25em; }
-    .code-banner {
-      display: flex; align-items: center; gap: 0.75em;
-      background: var(--ms-success-soft); border: 1px solid var(--ms-success); border-radius: 8px; padding: 0.75em 1em;
+    .pipeline-hero {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+      gap: 1em;
+      padding: 1.35em;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #17152e 0%, #2d2a5c 55%, #4f46e5 100%);
+      color: #fff;
+      box-shadow: 0 18px 44px rgba(20, 18, 43, 0.24);
     }
-    .code-banner code { font-size: 1.2em; font-weight: 700; letter-spacing: 0.1em; background: var(--ms-surface); padding: 0.1em 0.5em; border-radius: 4px; }
-    .code-banner div { flex: 1; }
+    .pipeline-hero .eyebrow { color: #c7d2fe; }
+    .pipeline-hero h1 { margin: 0.2em 0 0.3em; font-size: clamp(1.7rem, 3vw, 2.35rem); letter-spacing: -0.03em; line-height: 1.1; }
+    .hero-lede { max-width: 52em; margin: 0; color: rgba(255, 255, 255, 0.78); line-height: 1.55; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 0.45em; margin-top: 1em; }
+    .hero-actions a, .hero-actions button { min-height: 44px; }
+    .hero-link { display: flex; align-items: center; gap: 0.5em; max-width: 100%; margin-top: 0.9em; padding: 0.5em 0.6em; border-radius: 10px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.16); }
+    .hero-link code { flex: 1; min-width: 0; overflow: hidden; color: #e0e7ff; font-size: 0.8em; text-overflow: ellipsis; white-space: nowrap; }
+    .hero-link button { color: #e0e7ff; min-height: 36px; }
+    .hero-steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5em; align-content: start; }
+    .hero-steps > div { display: flex; flex-direction: column; gap: 0.1em; padding: 0.65em 0.7em; border-radius: 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.14); }
+    .hero-steps span { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-bottom: 0.15em; border-radius: 50%; background: rgba(255, 255, 255, 0.16); font-size: 0.72em; font-weight: 800; }
+    .hero-steps strong { font-size: 0.82em; }
+    .hero-steps small { color: rgba(255, 255, 255, 0.68); font-size: 0.72em; line-height: 1.35; }
+    .code-banner {
+      display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap;
+      background: var(--ms-success-soft); border: 1px solid var(--ms-success); border-radius: 12px; padding: 0.8em 1em;
+    }
+    .converted-copy { display: flex; flex-direction: column; gap: 0.15em; flex: 1; min-width: 220px; }
+    .converted-copy > span { color: var(--ms-text-muted); font-size: 0.85em; }
+    .conversion-link { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.78em; background: var(--ms-surface); border-radius: 6px; padding: 0.25em 0.45em; }
+    .converted-actions { display: flex; gap: 0.4em; flex-wrap: wrap; }
+    .converted-actions button { min-height: 42px; }
     .stage-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75em; }
     .stage-card {
       display: flex; flex-direction: column; align-items: center; gap: 0.15em;
-      background: color-mix(in srgb, var(--chip-bg) 20%, var(--ms-surface));
+      background: linear-gradient(160deg, color-mix(in srgb, var(--chip-bg) 30%, var(--ms-surface)), var(--ms-surface));
       color: var(--chip-fg);
-      border: 2px solid transparent; border-radius: 10px; padding: 0.8em 0.5em; cursor: pointer;
-      transition: border-color 140ms ease, transform 140ms ease;
+      border: 2px solid transparent; border-radius: 14px; padding: 0.9em 0.55em; cursor: pointer;
+      transition: border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+      box-shadow: 0 6px 16px rgba(20, 18, 43, 0.05);
     }
-    .stage-card:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--chip-fg) 36%, transparent); }
-    .stage-card.active { border-color: var(--ms-primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ms-primary) 20%, transparent); }
+    .stage-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--chip-fg) 36%, transparent); }
+    .stage-card.active { border-color: var(--ms-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ms-primary) 18%, transparent); }
     :host-context(html[data-theme="dark"]) .stage-card { color: var(--ms-text); }
     .stage-card .count { font-size: 1.6em; font-weight: 700; }
     .stage-card .label { font-size: 0.85em; }
@@ -422,10 +487,19 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
     .interest-cell { text-transform: capitalize; }
     .error { color: var(--ms-error); display: flex; align-items: center; gap: 0.5em; }
     .total { margin: 0; }
+    @media only screen and (max-width: 900px) {
+      .pipeline-hero { grid-template-columns: 1fr; }
+      .hero-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
     @media only screen and (max-width: 600px) {
       /* Paginator controls overflow 360px viewports — page-size stays 50. */
       .mat-mdc-paginator-page-size { display: none; }
       .ms-head-actions { width: 100%; }
+      .hero-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero-actions { width: 100%; }
+      .hero-actions a, .hero-actions button { flex: 1 1 auto; }
+      .converted-actions { width: 100%; }
+      .converted-actions button { flex: 1; }
       .stage-cards { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.5em; }
       /* Mobile card layout: rows become labeled cards, no sideways scroll. */
       .table-wrap { overflow-x: visible; }
@@ -474,7 +548,7 @@ export class LeadPipelineComponent implements OnInit {
   protected readonly campaignNames = signal<Record<string, string>>({});
   protected readonly actingId = signal<string | null>(null);
   protected readonly confirmId = signal<string | null>(null);
-  protected readonly convertedNotice = signal<{ name: string } | null>(null);
+  protected readonly convertedNotice = signal<{ name: string; leadId: string } | null>(null);
   protected readonly serverStageCounts = signal<Record<string, number>>({});
   protected readonly showImport = signal(false);
   protected readonly importRows = signal<Array<Record<string, string>>>([]);
@@ -832,11 +906,55 @@ export class LeadPipelineComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res: any) => {
         if (res?.converted) {
-          this.convertedNotice.set({ name: this.names(lead) });
+          this.convertedNotice.set({ name: this.names(lead), leadId: lead.id });
           this.reload();
           this.askRating(lead, 'converted');
         }
       });
+  }
+
+  protected referralLink(): string | null {
+    const username = String(this.auth.currentUser()?.username ?? '').trim();
+    if (!username || typeof location === 'undefined') return null;
+    return `${location.origin}/join?ref=${encodeURIComponent(username)}`;
+  }
+
+  protected conversionLink(leadId: string): string | null {
+    const base = this.referralLink();
+    return base ? `${base}&lead=${encodeURIComponent(leadId)}` : null;
+  }
+
+  protected copyReferralLink(): void {
+    const url = this.referralLink();
+    if (!url) return;
+    this.copyText(url, 'Referral link copied — new signups join your team');
+  }
+
+  protected copyConversionLink(leadId: string): void {
+    const url = this.conversionLink(leadId);
+    if (!url) return;
+    this.copyText(url, 'Signup link copied — this lead will join your team');
+  }
+
+  protected shareConversionOnWhatsApp(lead: ProspectLead): void {
+    this.shareConversionLink(lead.id, this.names(lead));
+  }
+
+  protected shareConvertedOnWhatsApp(leadId: string, name: string): void {
+    this.shareConversionLink(leadId, name);
+  }
+
+  private shareConversionLink(leadId: string, name: string): void {
+    const url = this.conversionLink(leadId);
+    if (!url) return;
+    const text = `Hi ${name}, your MarketSpase account is ready. Use my link to join my team: ${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+  }
+
+  private copyText(url: string, message: string): void {
+    const done = () => this.snack.open(message, 'Close', { duration: 3000 });
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(url).then(done, done);
+    else done();
   }
 
   /** Quality vote after convert/release — skippable, feeds pool ranking. */

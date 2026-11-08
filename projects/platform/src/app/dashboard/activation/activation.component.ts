@@ -95,27 +95,43 @@ import { States } from '../../_common/services/countries';
 
           <div class="content-grid">
             <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <p class="eyebrow">Allocation</p>
-                  <h3>Your campaign queue</h3>
+              @if (sponsor(); as sp) {
+                <div class="panel-head">
+                  <div>
+                    <p class="eyebrow">Your sponsor</p>
+                    <h3>Your team upline</h3>
+                  </div>
+                  <span class="status-pill verified">Connected</span>
                 </div>
-                <span class="status-pill" [class.queued]="queue()?.status === 'queued'">
-                  {{ queue()?.status ?? 'preparing' }}
-                </span>
-              </div>
-              <p class="queue-copy">{{ queueCopy() }}</p>
-              @if (queue()?.position; as position) {
-                <div class="queue-position">
-                  <strong>#{{ position }}</strong>
-                  <span>Your current place in the activation queue</span>
+                <p class="queue-copy">{{ sp.name }} referred you. They are your sponsor, mentor and commission upline — no campaign allocation is needed.</p>
+                <div class="next-list">
+                  <div><mat-icon>inventory_2</mat-icon><p>Your starter product is packed and dispatched to the delivery address on your order.</p></div>
+                  <div><mat-icon>handshake</mat-icon><p>{{ sp.name }} is your onboarding mentor. Reach out through Chat for your first steps.</p></div>
+                  <div><mat-icon>trending_up</mat-icon><p>Your Level 1 commission starts when allocated prospects convert; your sponsor earns the activation mentor bonus.</p></div>
+                </div>
+              } @else {
+                <div class="panel-head">
+                  <div>
+                    <p class="eyebrow">Allocation</p>
+                    <h3>Your campaign queue</h3>
+                  </div>
+                  <span class="status-pill" [class.queued]="queue()?.status === 'queued'">
+                    {{ queue()?.status ?? 'preparing' }}
+                  </span>
+                </div>
+                <p class="queue-copy">{{ queueCopy() }}</p>
+                @if (queue()?.position; as position) {
+                  <div class="queue-position">
+                    <strong>#{{ position }}</strong>
+                    <span>Your current place in the activation queue</span>
+                  </div>
+                }
+                <div class="next-list">
+                  <div><mat-icon>inventory_2</mat-icon><p>Your starter product is packed and dispatched to the delivery address on your order.</p></div>
+                  <div><mat-icon>hub</mat-icon><p>When an eligible campaign has capacity, you are placed with a campaign owner and mentor.</p></div>
+                  <div><mat-icon>trending_up</mat-icon><p>Your Level 1 commission starts when allocated prospects convert; your mentor earns the separate activation mentor bonus.</p></div>
                 </div>
               }
-              <div class="next-list">
-                <div><mat-icon>inventory_2</mat-icon><p>Your starter product is packed and dispatched to the delivery address on your order.</p></div>
-                <div><mat-icon>hub</mat-icon><p>When an eligible campaign has capacity, you are placed with a campaign owner and mentor.</p></div>
-                <div><mat-icon>trending_up</mat-icon><p>Your Level 1 commission starts when allocated prospects convert; your mentor earns the separate activation mentor bonus.</p></div>
-              </div>
             </div>
 
             <div class="panel">
@@ -588,6 +604,7 @@ export class ActivationComponent implements OnInit {
   ];
 
   protected readonly partner = computed(() => this.status()?.partner ?? null);
+  protected readonly sponsor = computed(() => this.status()?.sponsor ?? null);
   protected readonly order = computed(() => this.status()?.activationOrder ?? null);
   protected readonly queue = computed(() => this.status()?.queue ?? null);
   protected readonly product = computed(() => this.products()[0] ?? null);
