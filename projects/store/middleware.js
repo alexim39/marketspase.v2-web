@@ -168,7 +168,7 @@ export default async function middleware(request) {
       return passThrough();
     }
 
-    const apiBase = (process.env.STORE_API_URL || process.env.API_BASE_URL || 'https://c21fg-f054fmrs.b4a.run').replace(/\/+$/, '');
+    const apiBase = (process.env.STORE_API_URL || process.env.API_BASE_URL || 'https://marketspasev2api-p3jkxlvy.back4.app').replace(/\/+$/, '');
     const storeResponse = await fetch(`${apiBase}/v1/stores/${encodeURIComponent(slug)}`, {
       headers: { accept: 'application/json' },
       signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(2500) : undefined

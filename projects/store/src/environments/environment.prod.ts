@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
   title: "Production Environment Variables",
-  apiUrl: 'https://c21fg-f054fmrs.b4a.run',
+  apiUrl: 'https://marketspasev2api-p3jkxlvy.back4.app',
   publicSiteUrl: 'https://marketspase.com',
   platformUrl: 'https://c21fg.online',
   productImageBaseUrl: 'https://c21fg.online/img/products',

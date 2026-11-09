@@ -194,7 +194,7 @@ The embedded browser cannot reach the dev server reliably (502s), so this pass u
   self-hosted; the landing YouTube iframe is click-to-play; the 404 page no longer
   hotlinks Dribbble.
 - **Production audit**: see `PRODUCTION_READINESS.md`. Key blocker: the deployed
-  b4a.run API does not yet allow `https://marketspase.com` /
+  The hosted API did not yet allow `https://marketspase.com` /
   `https://www.marketspase.com`; redeploy or set `EXTRA_CORS_ORIGINS`.
 
 ## Step 17 - First-party feedback surfaces (SweetAlert2 removed)

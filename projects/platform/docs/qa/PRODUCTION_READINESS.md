@@ -14,23 +14,22 @@ redeploy, the single-upline migration and the production PII keyring.
 | Web CI | **Green** on the latest web commit |
 | Cross-browser layout (Edge + WebKit) | **92 / 92 runs, 0 overflow** (2026-11-04 audit) |
 | Axe (authenticated, light/dark/mobile/desktop) | **68 scans, 0 violations** (2026-11-04 audit) |
-| Live API reachable | **No** — `https://c21fg-f054fmrs.b4a.run/health` returns **404**, so the host is still on an old build |
-| Live API CORS for `marketspase.com` | **Blocked** until redeploy (see below) |
+| Live API reachable | **Verify after deploy** — `https://marketspasev2api-p3jkxlvy.back4.app/health` should return **200** |
+| Live API CORS for `marketspase.com` | **Verify after deploy** (see below) |
 | Single-upline migration | **Not yet run in production** |
 | Production PII keyring | **Not yet configured/verified** |
 | Production env checklist | Documented below; values live in the host dashboard |
 
-## Critical — stale production API
+## Critical — production API host
 
-The deployed API is not the current build. `GET /health` returns **404**, and the
-host still serves the pre-hardening router order. This blocks the platform,
-Paystack webhooks and the new auth/CORS behavior.
+The production API host is `https://marketspasev2api-p3jkxlvy.back4.app`.
+The previous host is retired and must not be used.
 
 **Action order (deployment, not code):**
 
 1. `npm run migrate:upline` (dry run) against production.
 2. `APPLY=1 npm run migrate:upline`, then `npm run audit:upline`.
-3. Redeploy the current `api` code to the b4a.run service.
+3. Redeploy the current `api` code to the Back4App service.
 4. Set `EXTRA_CORS_ORIGINS=https://marketspase.com,https://www.marketspase.com`
    in the API host environment and restart.
 5. Verify `/health` returns `200` and the CORS preflight returns the origin.
@@ -38,7 +37,7 @@ Paystack webhooks and the new auth/CORS behavior.
 Verify after deploy:
 
 ```bash
-curl -i -X OPTIONS https://c21fg-f054fmrs.b4a.run/v1/auth/signin \
+curl -i -X OPTIONS https://marketspasev2api-p3jkxlvy.back4.app/v1/auth/signin \
   -H "Origin: https://marketspase.com" \
   -H "Access-Control-Request-Method: POST" \
   -H "Access-Control-Request-Headers: content-type"
@@ -129,7 +128,7 @@ Set these in the API host dashboard before switching traffic:
 
 ## Notes
 
-- The API remains on `b4a.run` until the API domain migration.
+- The API runs on Back4App at `https://marketspasev2api-p3jkxlvy.back4.app`.
 - `push-sw.js` caches the app shell; its cache name is versioned (`ms-shell-v1`) and
   navigation is network-first, so a deploy refreshes the shell.
 - After changing `styles`/`assets` in `angular.json`, restart `ng serve` — HMR does
