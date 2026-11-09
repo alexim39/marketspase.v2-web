@@ -8,6 +8,7 @@ import { ProspectDetailComponent } from './prospect-detail/detail.component';
 import { EditContactsContainerComponent } from '../contacts/edit/edit-contacts-container.component';
 import { BookSessionContainerComponent } from '../contacts/book-session/book-session-container.component';
 import { KitsComponent } from './kits/kits.component';
+import { ProspectCreateComponent } from './prospect-create.component';
 
 export const ProspectsRoutes: Routes = [
   {
@@ -37,6 +38,11 @@ export const ProspectsRoutes: Routes = [
             path: 'pipeline',
             component: LeadPipelineComponent,
             title: "Lead Pipeline - Track prospects through to conversion",
+        },
+        {
+            path: 'new',
+            component: ProspectCreateComponent,
+            title: "Add prospect - New pipeline conversation",
         },
         {
             path: 'kits',

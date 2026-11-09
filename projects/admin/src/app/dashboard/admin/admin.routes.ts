@@ -2,10 +2,8 @@ import { Routes } from '@angular/router';
 import { ManageRolesComponent } from './roles/roles.component';
 import { AdminAutomationComponent } from './automation/job-health.component';
 import { AdminDepositsComponent } from './deposits/admin-deposits.component';
-import { AdminPageLeadsComponent } from './page-leads/admin-page-leads.component';
 import { AdminPartnerPipelineComponent } from './partner-pipeline/admin-partner-pipeline.component';
 import { AdminPagesComponent } from './pages/admin-pages.component';
-import { AdminPartnerSurveysComponent } from './partner-surveys/admin-partner-surveys.component';
 import { AdminOrdersComponent } from './orders/admin-orders.component';
 import { AdminTrainingQuizzesComponent } from './training-quizzes/admin-training-quizzes.component';
 import { AdminAuditComponent } from './audit/admin-audit.component';
@@ -16,7 +14,6 @@ import { AdminSubscriptionsComponent } from './subscriptions/admin-subscriptions
 import { AdminBonusesComponent } from './bonuses/admin-bonuses.component';
 import { AdminTutorialsComponent } from './tutorials/admin-tutorials.component';
 import { AdminKitsComponent } from './kits/admin-kits.component';
-import { AdminPlanComponent } from './plan/admin-plan.component';
 import { AdminProductsComponent } from './products/admin-products.component';
 import { AdminDashboardComponent } from './dashboard/admin-dashboard.component';
 import { AdminStoresComponent } from './stores/admin-stores.component';
@@ -43,8 +40,6 @@ export const AdminRoutes: Routes = [
     component: AdminMemberViewComponent,
     title: 'Member 360 - MarketSpase Admin',
   },
-  { path: 'payouts', redirectTo: 'compensation', pathMatch: 'full' },
-  { path: 'withdrawals', redirectTo: 'compensation', pathMatch: 'full' },
   { path: 'campaigns', redirectTo: 'growth', pathMatch: 'full' },
   { path: 'reported-leads', redirectTo: 'growth', pathMatch: 'full' },
   {
@@ -59,11 +54,6 @@ export const AdminRoutes: Routes = [
   },
   { path: 'leads', redirectTo: 'partner-pipeline', pathMatch: 'full' },
   {
-    path: 'page-leads',
-    component: AdminPageLeadsComponent,
-    title: 'Page leads - MarketSpase Admin',
-  },
-  {
     path: 'partner-pipeline',
     component: AdminPartnerPipelineComponent,
     title: 'Partner pipeline - MarketSpase Admin',
@@ -72,11 +62,6 @@ export const AdminRoutes: Routes = [
     path: 'pages',
     component: AdminPagesComponent,
     title: 'Public pages - MarketSpase Admin',
-  },
-  {
-    path: 'partner-surveys',
-    component: AdminPartnerSurveysComponent,
-    title: 'Partner surveys - MarketSpase Admin',
   },
   { path: 'prolific-woman-leads', redirectTo: 'growth', pathMatch: 'full' },
   { path: 'reservations', redirectTo: 'growth', pathMatch: 'full' },
@@ -174,11 +159,6 @@ export const AdminRoutes: Routes = [
     path: 'kits',
     component: AdminKitsComponent,
     title: 'Presentations - MarketSpase Admin',
-  },
-  {
-    path: 'plan',
-    component: AdminPlanComponent,
-    title: 'Shop commission plan - MarketSpase Admin',
   },
   {
     path: 'settings',

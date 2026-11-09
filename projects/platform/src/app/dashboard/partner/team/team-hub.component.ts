@@ -104,8 +104,8 @@ import { ApiError, userError } from '../../../core/http/api-error';
                     <strong>{{ item.member?.name || item.member?.username || 'Team member' }}</strong>
                     <span class="muted">{{ item.relation || 'Partner' }} · {{ item.nextAction }}</span>
                   </div>
-                  <span class="pill" [class.pill--bad]="item.overdue" [class.pill--warn]="!item.overdue && item.nextTone === 'warn'" [class.pill--ok]="item.nextTone === 'ok'">
-                    {{ item.overdue ? 'Overdue' : item.toneLabel }}
+                  <span class="pill" [class.pill--bad]="item.nextTone === 'bad'" [class.pill--warn]="item.nextTone === 'warn'" [class.pill--ok]="item.nextTone === 'ok'">
+                    {{ item.toneLabel }}
                   </span>
                   <a mat-button routerLink="/dashboard/mentorship/team/activation">Open</a>
                 </li>
@@ -147,15 +147,11 @@ import { ApiError, userError } from '../../../core/http/api-error';
             </div>
             <div class="quick-grid">
               <a routerLink="/dashboard/mentorship/team/activation"><mat-icon>assignment_ind</mat-icon><span>Activation board</span></a>
-              <a routerLink="/dashboard/mentorship/team/contact-lists"><mat-icon>list_alt</mat-icon><span>Warm lists</span></a>
               <a routerLink="/dashboard/mentorship/partners/my-partners"><mat-icon>groups</mat-icon><span>My partners</span></a>
               <a routerLink="/dashboard/network/tree"><mat-icon>account_tree</mat-icon><span>Team tree</span></a>
               <a routerLink="/dashboard/network/org"><mat-icon>layers</mat-icon><span>Levels view</span></a>
               <a routerLink="/dashboard/mentorship/team/members"><mat-icon>diversity_3</mat-icon><span>My teams</span></a>
               <a routerLink="/dashboard/mentorship/team/new"><mat-icon>group_add</mat-icon><span>Start a team</span></a>
-              <a routerLink="/dashboard/insights/team-reports"><mat-icon>summarize</mat-icon><span>Team updates</span></a>
-              <a routerLink="/dashboard/cell-meeting"><mat-icon>meeting_room</mat-icon><span>Cell meeting</span></a>
-              <a routerLink="/dashboard/training/coach"><mat-icon>school</mat-icon><span>My Coach</span></a>
             </div>
           </div>
         </aside>
@@ -231,10 +227,11 @@ export class TeamHubComponent implements OnInit {
 
   protected readonly priorityItems = computed<Array<ActivationBoardItem & { toneLabel: string }>>(() => {
     const items = this.activation()?.items ?? [];
+    const rank = (tone: ActivationBoardItem['nextTone']) => tone === 'bad' ? 0 : tone === 'warn' ? 1 : tone === 'info' ? 2 : 3;
     return [...items]
-      .sort((a, b) => Number(b.overdue) - Number(a.overdue))
+      .sort((a, b) => rank(a.nextTone) - rank(b.nextTone))
       .slice(0, 6)
-      .map((item) => ({ ...item, toneLabel: item.nextTone === 'bad' ? 'Action' : item.nextTone === 'warn' ? 'Follow up' : 'On track' }));
+      .map((item) => ({ ...item, toneLabel: item.nextTone === 'bad' ? 'Action' : item.nextTone === 'warn' ? 'Training' : 'On track' }));
   });
 
   ngOnInit(): void {

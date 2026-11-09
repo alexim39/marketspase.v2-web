@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, timeout } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { environment } from '../../../../../../environments/environment';
-import { PartnerInterface } from '../../../../../_common/services/partner.service';
 
 export interface ProspectContact {
   _id?: string;
@@ -207,27 +206,7 @@ export class ContactsService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  // single sms charge
-  signleSMSCharge(partnerId: string): Observable<ContactsInterface> {
-    return this.http
-      .get<ContactsInterface>(this.apiURL + `/billing/single-sms-charge/${partnerId}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
-  }
-
-  // send single email — session-owned v1 route (validated, recorded,
-  // honest per-recipient outcome). Replaces legacy emails/send-emails.
-  sendProspectEmail(emailObject: {partner: PartnerInterface | null, prospect: ProspectContact | ContactsInterface, emailBody: string, emailSubject?: string}): Observable<any> {
-    const to = [String((emailObject.prospect as any)?.prospectEmail ?? '').trim().toLowerCase()].filter(Boolean);
-    return this.http
-      .post<any>(this.apiURL + `/v1/outreach/email`, {
-        to,
-        subject: String((emailObject as any)?.emailSubject ?? 'Message from your MarketSpase partner'),
-        body: String(emailObject.emailBody ?? ''),
-      }, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
-  }
-
-   // submit booking — session-authenticated (server requires a partner session)
+  // submit booking — session-authenticated (server requires a partner session)
    bookSurvey(formData: any): Observable<any> {
      return this.http
        .post<any>(this.apiURL + '/booking/submit', formData, { withCredentials: true })

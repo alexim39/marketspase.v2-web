@@ -15,7 +15,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { environment } from '../../../../environments/environment';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ExportContactAndEmailService } from '../../../_common/services/exportContactAndEmail.service';
 import { forkJoin } from 'rxjs';
 import { EventService } from '../../../core/events/event.service';
 import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
@@ -258,10 +257,7 @@ const withDetail = (err: ApiError): string => {
                     <button mat-stroked-button (click)="copyEventLink()"><mat-icon>link</mat-icon>Copy my link</button>
                     <button mat-stroked-button (click)="whatsAppInvite(event)"><mat-icon>share</mat-icon>WhatsApp</button>
                     <button mat-stroked-button (click)="facebookInvite()"><mat-icon>share</mat-icon>Facebook</button>
-                    <button mat-stroked-button (click)="smsInvite(event)"><mat-icon>sms</mat-icon>SMS</button>
-                    <button mat-stroked-button (click)="emailInvite(event)"><mat-icon>mail</mat-icon>Email</button>
                   </div>
-                  <p class="muted">SMS and Email open the composer with your invite copied — pick recipients, paste, send.</p>
                 </div>
               }
               @if (canManageAttendees(event) && isPast(event)) {
@@ -287,8 +283,7 @@ const withDetail = (err: ApiError): string => {
                       <div class="recap-row">
                         <span class="muted">{{ recap(event.id).attended }} attended · {{ recap(event.id).noShow }} no-show</span>
                         <span class="spacer"></span>
-                        <button mat-stroked-button (click)="nudgeNoShows(event)"><mat-icon>sms</mat-icon>Nudge no-shows</button>
-                      </div>
+                                </div>
                     } @else {
                       <p class="muted">No RSVPs yet.</p>
                     }
@@ -419,7 +414,6 @@ export class CommunityEventsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snack = inject(MatSnackBar);
-  private readonly exporter = inject(ExportContactAndEmailService);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -845,16 +839,6 @@ export class CommunityEventsComponent implements OnInit {
     );
   }
 
-  protected smsInvite(event: CommunityEvent): void {
-    this.copyInvite(event);
-    this.router.navigate(['/dashboard/tools/sms/new']).catch(() => undefined);
-  }
-
-  protected emailInvite(event: CommunityEvent): void {
-    this.copyInvite(event);
-    this.router.navigate(['/dashboard/tools/email/new']).catch(() => undefined);
-  }
-
   protected toggleAttendees(event: CommunityEvent): void {
     const open = this.attendeesOpenId() === event.id ? null : event.id;
     this.attendeesOpenId.set(open);
@@ -909,19 +893,6 @@ export class CommunityEventsComponent implements OnInit {
           this.error.set(err.message);
         },
       });
-  }
-
-  protected nudgeNoShows(event: CommunityEvent): void {
-    const phones = this.attendeeList(event.id)
-      .filter((r) => r.status === 'going' && r.attended !== true && r.phone)
-      .map((r) => String(r.phone));
-    if (phones.length === 0) {
-      this.snack.open('No no-show phone numbers to message.', 'Close', { duration: 3500 });
-      return;
-    }
-    this.exporter.setData(phones);
-    this.snack.open(`Messaging ${phones.length} no-show${phones.length === 1 ? '' : 's'} — paste your follow-up.`, 'Close', { duration: 4000 });
-    this.router.navigate(['/dashboard/tools/sms/new']).catch(() => undefined);
   }
 
   protected confirmCancel(event: CommunityEvent): void {

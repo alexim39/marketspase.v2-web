@@ -17,7 +17,6 @@ import { ProgressionService } from '../../../../../core/progression/progression.
 import { Journey, TRAINING_TRACK } from '../../../../../core/progression/progression.models';
 import { GoalService } from '../../../../../core/goals/goal.service';
 import { Goal } from '../../../../../core/goals/goal.models';
-import { CoachingService, CoachingNote } from '../../../../../core/coaching/coaching.service';
 import { ViewAsService } from '../../../../../core/viewas/viewas.service';
 import { environment } from '../../../../../../environments/environment';
 import { PartnerBusinessKpiComponent } from './partner-business-kpi.component';
@@ -51,7 +50,6 @@ export class MyPartnerSupportComponent implements OnInit, OnChanges {
   private readonly leads = inject(LeadPipelineService);
   private readonly progress = inject(ProgressionService);
   private readonly goalsApi = inject(GoalService);
-  private readonly coaching = inject(CoachingService);
   protected readonly viewAs = inject(ViewAsService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -63,10 +61,6 @@ export class MyPartnerSupportComponent implements OnInit, OnChanges {
   protected readonly trainingTrack = TRAINING_TRACK;
   protected readonly goals = signal<Goal[]>([]);
   protected readonly stuck = signal<StuckEntry[]>([]);
-  protected readonly notes = signal<CoachingNote[]>([]);
-  protected readonly showNotesInfo = signal(false);
-  protected readonly noteDraft = signal('');
-  protected readonly savingNote = signal(false);
   protected readonly showKpi = signal(false);
 
   ngOnInit(): void {
@@ -147,35 +141,6 @@ export class MyPartnerSupportComponent implements OnInit, OnChanges {
     });
   }
 
-  /** A note is authored either by the member themselves or by an upline coach. */
-  protected isMemberNote(note: CoachingNote): boolean {
-    return String(note.authorId ?? note.coachId ?? '') === this.memberId();
-  }
-
-  protected authorName(note: CoachingNote): string {
-    return this.isMemberNote(note) ? this.displayName() : 'You (coach)';
-  }
-
-  protected saveNote(): void {    const body = this.noteDraft().trim();
-    const id = this.memberId();
-    if (!body || !id || this.savingNote()) return;
-    this.savingNote.set(true);
-    this.coaching
-      .addNote(id, body)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.notes.set(res.data ?? []);
-          this.noteDraft.set('');
-          this.savingNote.set(false);
-        },
-        error: (err: ApiError) => {
-          this.savingNote.set(false);
-          this.error.set(userError(err));
-        },
-      });
-  }
-
   private load(): void {
     const id = this.memberId();
     if (!id) {
@@ -191,7 +156,6 @@ export class MyPartnerSupportComponent implements OnInit, OnChanges {
       journey: this.progress.byMember(id).pipe(catchError(() => of(null))),
       goals: this.goalsApi.byPartner(id).pipe(catchError(() => of(null))),
       stuck: this.leads.stuck(id).pipe(catchError(() => of(null))),
-      notes: this.coaching.notes(id).pipe(catchError(() => of(null))),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -201,7 +165,6 @@ export class MyPartnerSupportComponent implements OnInit, OnChanges {
           this.journey.set(res.journey?.data ?? null);
           this.goals.set(res.goals?.data ?? []);
           this.stuck.set(res.stuck?.data ?? []);
-          this.notes.set(res.notes?.data ?? []);
           this.loading.set(false);
         },
         error: (err: ApiError) => {

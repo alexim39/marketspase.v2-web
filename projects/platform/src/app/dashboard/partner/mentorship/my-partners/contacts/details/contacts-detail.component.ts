@@ -17,7 +17,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PartnerInterface, PartnerService } from '../../../../../../_common/services/partner.service';
 import { AuthService } from '../../../../../../core/auth/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SMSService } from '../../../../sms/sms.service';
 import { userError } from '../../../../../../core/http/api-error';
 import { ProspectListInterface } from '../../../../prospects/prospects.service';
 import { ProspectResponseComponent } from './prospect-response.component';
@@ -42,7 +41,7 @@ const SURVEY_ANSWER_KEYS = [
     selector: 'async-my-partner-contacts-detail',
     templateUrl: 'contacts-detail.component.html',
     styleUrls: ['contacts-detail.component.scss'],
-    providers: [ContactsService, SMSService],
+    providers: [ContactsService],
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         FormsModule,
@@ -72,15 +71,9 @@ export class MyPartnerContactsDetailComponent implements OnInit {
   selectedStatus = '';
   followUpDate: Date | null = null;
   remark = '';
-  sms = '';
-  emailBody = '';
-  emailSubject = '';
-  outreachTab: 'email' | 'sms' = 'email';
   savingStage = false;
   savingNote = false;
-  sendingSms = false;
-  sendingEmail = false;
-  /** Touches logged this session (SMS/email just sent) — merged into the timeline. */
+  /** Touches logged this session (stage moves/notes) — merged into the timeline. */
   private readonly sessionTouches: TouchEntry[] = [];
 
   readonly dialog = inject(MatDialog);
@@ -95,7 +88,6 @@ export class MyPartnerContactsDetailComponent implements OnInit {
     private contactsService: ContactsService,
     private partnerService: PartnerService,
     private snackBar: MatSnackBar,
-    private smsService: SMSService,
   ) {}
 
   partner: PartnerInterface | null = null;
@@ -399,89 +391,6 @@ export class MyPartnerContactsDetailComponent implements OnInit {
         ...(owner ? { owner } : {}),
       },
     }).catch(() => undefined);
-  }
-
-  copyLink(): void {
-    const link = `https://marketspase.com/lead/${String(this.partner?.username ?? '').toLowerCase()}`;
-    navigator.clipboard.writeText(link).then(() => {
-      this.snackBar.open('Link copied to clipboard!', 'Close', {
-        duration: 2000,
-      });
-    }).catch(() => {
-      this.snackBar.open('Could not copy — long-press the link instead.', 'Close', {
-        duration: 4000,
-      });
-    });
-  }
-
-  // Session-owned single send (v1/outreach/sms): charge + gateway +
-  // record server-side. Retires the legacy charge-then-browser-gateway
-  // chain (leaked gateway secret, client-forged records).
-  sendSMS(): void {
-    const body = String(this.sms ?? '').trim();
-    if (!body) {
-      this.snackBar.open('Write a message first.', 'Close', { duration: 3500 });
-      return;
-    }
-    if (!this.prospectData?.prospectPhone) {
-      this.snackBar.open('No consented phone number for this contact.', 'Close', { duration: 4000 });
-      return;
-    }
-    this.sendingSms = true;
-    this.smsService.sendBulkSMS({ to: [this.prospectData.prospectPhone], body })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.sms = '';
-          this.sendingSms = false;
-          this.sessionTouches.unshift({
-            at: new Date().toISOString(), icon: 'sms',
-            title: `SMS sent (${body.length} chars)`, by: 'you',
-          });
-          this.snackBar.open(res?.message ?? 'SMS sent successfully', 'Close', { duration: 4000 });
-        },
-        error: (error: unknown) => {
-          this.sendingSms = false;
-          this.snackBar.open(userError(error) || 'SMS failed — try again.', 'Close', { duration: 4000 });
-        },
-      });
-  }
-
-  sendEmail(): void {
-    const emailObject = {
-      partner: this.partner,
-      prospect: this.prospectData,
-      emailBody: this.emailBody,
-      emailSubject: this.emailSubject
-    };
-    if (!String(this.emailSubject ?? '').trim() || !String(this.emailBody ?? '').trim()) {
-      this.snackBar.open('Subject and body are both required.', 'Close', { duration: 3500 });
-      return;
-    }
-    if (!this.prospectData?.prospectEmail) {
-      this.snackBar.open('No consented email address for this contact.', 'Close', { duration: 4000 });
-      return;
-    }
-    this.sendingEmail = true;
-    this.contactsService.sendProspectEmail(emailObject)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          const subject = String(this.emailSubject).trim();
-          this.emailBody = '';
-          this.emailSubject = '';
-          this.sendingEmail = false;
-          this.sessionTouches.unshift({
-            at: new Date().toISOString(), icon: 'mail',
-            title: `Email sent — ${subject.length > 60 ? `${subject.slice(0, 60)}…` : subject}`, by: 'you',
-          });
-          this.snackBar.open('Email sent successfully', 'Close', { duration: 4000 });
-        },
-        error: (error: unknown) => {
-          this.sendingEmail = false;
-          this.snackBar.open(userError(error) || 'Email failed — try again.', 'Close', { duration: 4000 });
-        },
-      });
   }
 
   editProspectDetail(): void {

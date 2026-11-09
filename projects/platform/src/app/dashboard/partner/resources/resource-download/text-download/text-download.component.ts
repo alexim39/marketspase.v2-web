@@ -4,14 +4,12 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {FormsModule} from '@angular/forms';
-import { Router } from '@angular/router';
 
 import { MatIconModule } from '@angular/material/icon';
 import templatesData from '../../../../../../../public/resource-templates/text/source.json';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import {MatButtonModule} from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TemplateHandoffService } from '../../../../../_common/services/template-handoff.service';
 
 interface TextTemplate {
   title: string;
@@ -20,7 +18,7 @@ interface TextTemplate {
 }
 
 /**
- * @title Text templates — copy or send straight into outreach.
+ * @title Text templates — copy a template and share it.
  */
 @Component({
 selector: 'async-text-download',
@@ -61,8 +59,7 @@ template: `
           <p>{{ template.description }}</p>
           <p class="muted">Posts with <strong>{{ partnerLink() }}</strong></p>
           <div class="template-actions">
-            <button mat-button (click)="useInSms(template)">Use in SMS</button>
-            <button mat-button (click)="useInEmail(template)">Use in Email</button>
+            <button mat-button (click)="copyContent(template)">Copy</button>
           </div>
         </div>
       }
@@ -145,9 +142,6 @@ export class TextDownloadComponent {
 
   @Input() partner!: PartnerInterface;
 
-  private readonly handoff = inject(TemplateHandoffService);
-  private readonly router = inject(Router);
-
   constructor(
     private snackBar: MatSnackBar
   ) {}
@@ -179,16 +173,6 @@ export class TextDownloadComponent {
       }).catch(() => {
         this.showSnackbar('Failed to copy content. Please try again.');
       });
-    }
-
-    protected useInSms(template: TextTemplate): void {
-      this.handoff.sendText(this.fullContent(template).slice(0, 960));
-      this.router.navigate(['/dashboard/tools/sms/new']);
-    }
-
-    protected useInEmail(template: TextTemplate): void {
-      this.handoff.sendText(this.fullContent(template));
-      this.router.navigate(['/dashboard/tools/email/new']);
     }
 
     private showSnackbar(message: string): void {

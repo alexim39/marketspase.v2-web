@@ -372,7 +372,7 @@ export class MyBusinessComponent implements OnInit {
       steps.push({ icon: 'person_add', title: 'No recruits in 7 days', detail: 'Share your public page and book one showcase.', link: '/dashboard/settings/landing-page', cta: 'Share page' });
     }
     if (this.pipelineLoaded() && this.pipeline().length === 0) {
-      steps.push({ icon: 'assignment', title: 'Empty pipeline', detail: 'Add your first contact to start building.', link: '/dashboard/tools/contacts/new', cta: 'Add someone' });
+      steps.push({ icon: 'assignment', title: 'Empty pipeline', detail: 'Add your first contact to start building.', link: '/dashboard/prospects/new', cta: 'Add someone' });
     }
     return steps.slice(0, 5);
   });

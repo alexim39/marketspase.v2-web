@@ -3,7 +3,7 @@
     <a routerLink="/dashboard" (click)="scrollToTop()">Dashboard</a> &gt;
     <a>Mentorship</a> &gt;
     <a routerLink="/dashboard/mentorship/partners/my-partners" (click)="scrollToTop()">My Partners</a> &gt;
-    <span>Contact list</span>
+    <span>Downline prospects</span>
   </div>
 </section>
 
@@ -15,7 +15,7 @@
     </button>
     <async-avatar [photo]="myPartner()?.profileImage" [name]="ownerName()" size="md" />
     <div class="who">
-      <h2>Contact list — {{ ownerName() }}</h2>
+      <h2>Downline prospects - {{ ownerName() }}</h2>
       <p class="dp-muted">{{ subtitle() }}</p>
     </div>
     <span class="spacer"></span>
@@ -115,8 +115,7 @@
         {{ busy() ? 'Moving…' : 'Apply' }}
       </button>
       <span class="bulk-sep"></span>
-      <button mat-stroked-button (click)="exportSms()" matTooltip="Send bulk SMS to selected"><mat-icon>sms</mat-icon>SMS</button>
-      <button mat-stroked-button (click)="exportEmail()" matTooltip="Send bulk email to selected"><mat-icon>mail</mat-icon>Email</button>
+      <button mat-stroked-button (click)="exportCsv()" matTooltip="Export selected contacts"><mat-icon>download</mat-icon>CSV</button>
       <button mat-stroked-button (click)="exportCsv()" matTooltip="Download selected as CSV"><mat-icon>download</mat-icon>CSV</button>
       <button mat-button (click)="clearSelection()">Clear</button>
     </div>

@@ -637,17 +637,7 @@ export class BookingStatusUpdateComponent implements OnInit {
     this.timelineState.set('syncing');
     this.timelineNote.set(null);
     this.timelineProspectId.set(null);
-    this.leads.resolveContactByPhone(String(phone)).subscribe({
-      next: (res) => {
-        const match = res?.data?.match;
-        if (match?.prospectId) {
-          this.pushTimeline(match.prospectId, composed, extra);
-          return;
-        }
-        this.lookupOwnPipeline(partnerId, phone, composed, extra);
-      },
-      error: () => this.lookupOwnPipeline(partnerId, phone, composed, extra),
-    });
+    this.lookupOwnPipeline(partnerId, phone, composed, extra);
   }
 
   private lookupOwnPipeline(

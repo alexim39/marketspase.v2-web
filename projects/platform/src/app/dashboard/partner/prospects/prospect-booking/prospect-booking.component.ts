@@ -269,7 +269,7 @@ export class ProspectBookingComponent implements OnInit {
   private loadDownlineOwners(): void {
     if (!this.leads) return;
     this.leads
-      .downlineContactLists()
+      .downlinePhones()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -279,10 +279,8 @@ export class ProspectBookingComponent implements OnInit {
               name: item.member?.name ?? 'Team member',
               username: item.member?.username ?? '',
             };
-            for (const c of item.contacts ?? []) {
-              for (const k of phoneKeys(c.prospectPhone)) {
-                if (!owners.has(k)) owners.set(k, label);
-              }
+            for (const k of phoneKeys(item.phone)) {
+              if (!owners.has(k)) owners.set(k, label);
             }
           }
           this.downlineOwners.set(owners);

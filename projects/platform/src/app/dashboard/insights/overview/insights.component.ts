@@ -392,8 +392,6 @@ export class InsightsOverviewComponent implements OnInit {
     { kind: 'team', label: 'Team roster' },
     { kind: 'pipeline', label: 'Pipeline' },
     { kind: 'commissions', label: 'Growth commissions' },
-    { kind: 'reports-mine', label: 'My reports' },
-    { kind: 'reports-team', label: 'Team reports' },
     { kind: 'community', label: 'Community stats' },
   ];
 

@@ -70,7 +70,6 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
       { label: 'Reminders', link: '/dashboard/prospects/reminders', title: 'Follow-up promises due' },
       { label: 'Deal board', link: '/dashboard/prospects/board', title: 'Move deals forward' },
       { label: 'Sessions', link: '/dashboard/prospects/bookings', title: 'Booked chats' },
-      { label: 'My contacts', link: '/dashboard/tools/contacts/new', title: 'Import contacts and submit your warm list' },
     ],
   },
   {
@@ -94,11 +93,7 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
       { label: 'Activation', link: '/dashboard/mentorship/team/activation', title: 'Who needs you next' },
       { label: 'Partner acquisition', link: '/dashboard/campaigns', title: 'Fund central acquisition and receive activated partners' },
       { label: 'My partners', link: '/dashboard/mentorship/partners/my-partners', title: 'Your partners' },
-      { label: 'Contact lists', link: '/dashboard/mentorship/team/contact-lists', title: 'Warm lists submitted by your team' },
-      { label: 'Team reports', link: '/dashboard/insights/team-reports', title: 'Report up, request down' },
-      { label: 'Cell meeting', link: '/dashboard/cell-meeting', title: 'Cell meeting room and attendance' },
       { label: 'Team tree', link: '/dashboard/network/tree', title: 'Tree view' },
-      { label: 'Coaching notes', link: '/dashboard/training/coach', title: 'Coaching notes' },
     ],
   },
   {
@@ -113,7 +108,6 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
       { label: 'My lead page', link: '/dashboard/settings/landing-page', title: 'Edit your personal lead page' },
       { label: 'Content library', link: '/dashboard/resources/ads-contents', title: 'Texts and images to share' },
       { label: 'Prospecting guides', link: '/dashboard/resources/prospecting-contents', title: 'Scripts and frameworks' },
-      { label: 'Outreach', link: '/dashboard/promote/outreach', title: 'SMS and email tools' },
     ],
   },
   {

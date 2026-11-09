@@ -9,8 +9,6 @@ import { catchError, forkJoin, of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { WalletService } from '../../../core/wallet/wallet.service';
 import { WalletTransaction } from '../../../core/wallet/wallet.models';
-import { BillingService } from '../../../core/billing/billing.service';
-import { PerformanceData } from '../../../core/billing/billing.models';
 import { CompensationService } from '../../../core/compensation/compensation.service';
 import { MyCompensation } from '../../../core/compensation/compensation.models';
 import { CampaignsService } from '../../../core/campaigns/campaigns.service';
@@ -103,11 +101,6 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
           <span>Transactions</span>
           <strong>{{ txCount() | number }}</strong>
         </div>
-        <div class="flow-card">
-          <mat-icon>trending_up</mat-icon>
-          <span>Personal shop volume</span>
-          <strong>{{ money(personalVolume()) }}</strong>
-        </div>
       </div>
 
       <!-- Recent activity -->
@@ -187,7 +180,6 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
 export class WalletDashboardComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly wallet = inject(WalletService);
-  private readonly billing = inject(BillingService);
   private readonly compensationSvc = inject(CompensationService);
   private readonly campaignsSvc = inject(CampaignsService);
   private readonly destroyRef = inject(DestroyRef);
@@ -195,7 +187,6 @@ export class WalletDashboardComponent implements OnInit {
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly txs = signal<WalletTransaction[]>([]);
-  protected readonly perf = signal<PerformanceData | null>(null);
   protected readonly compensation = signal<MyCompensation | null>(null);
   protected readonly campaigns = signal<GrowthCampaign[]>([]);
 
@@ -205,7 +196,6 @@ export class WalletDashboardComponent implements OnInit {
   protected readonly txCount = computed(() => this.txs().length);
   protected readonly pendingCommissions = computed(() => Number(this.compensation()?.summary?.pending ?? 0));
   protected readonly releasedCommissions = computed(() => Number(this.compensation()?.summary?.released ?? 0));
-  protected readonly personalVolume = computed(() => Number(this.perf()?.personalVolume ?? 0));
   protected readonly campaignHeld = computed(() => this.campaigns()
     .filter((c) => c.status !== 'Ended' && c.status !== 'Cancelled')
     .reduce((sum, c) => sum + Number(c.budget?.remaining ?? 0), 0));
@@ -237,15 +227,13 @@ export class WalletDashboardComponent implements OnInit {
       catchError(() => of(null)),
       switchMap(() => forkJoin({
         txs: this.wallet.history().pipe(catchError(() => of([]))),
-        perf: this.billing.performance().pipe(catchError(() => of(null))),
         compensation: this.compensationSvc.me().pipe(catchError(() => of(null))),
         campaigns: this.campaignsSvc.mine().pipe(catchError(() => of(null))),
       })),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
-      next: ({ txs, perf, compensation, campaigns }) => {
+      next: ({ txs, compensation, campaigns }) => {
         this.txs.set(txs ?? []);
-        this.perf.set(perf?.data ?? null);
         this.compensation.set(compensation?.data ?? null);
         this.campaigns.set(campaigns?.data ?? []);
         this.loading.set(false);

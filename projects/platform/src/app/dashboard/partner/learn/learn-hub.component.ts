@@ -199,7 +199,6 @@ import { ApiError, userError } from '../../../core/http/api-error';
               <a routerLink="/dashboard/training/library"><mat-icon>local_library</mat-icon><span>Library</span></a>
               <a routerLink="/dashboard/training/tutorials"><mat-icon>smart_display</mat-icon><span>Tutorials</span></a>
               <a routerLink="/dashboard/prospects/kits"><mat-icon>present_to_all</mat-icon><span>Presentations</span></a>
-              <a routerLink="/dashboard/training/coach"><mat-icon>support_agent</mat-icon><span>My Coach</span></a>
               <a routerLink="/dashboard/training/analytics"><mat-icon>insights</mat-icon><span>Analytics</span></a>
             </div>
           </div>

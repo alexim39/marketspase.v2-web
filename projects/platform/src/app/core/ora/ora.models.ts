@@ -40,7 +40,7 @@ export type OraPlanEnvelope = ApiEnvelope<OraPlan>;
 
 export interface OraAction {
   id?: string | null;
-  type?: 'open_page' | 'send_sms' | 'send_email' | 'schedule_followup' | 'advance_stage' | 'save_daily_plan';
+  type?: 'open_page' | 'schedule_followup' | 'advance_stage' | 'save_daily_plan';
   label: string;
   link?: string;
   title?: string;

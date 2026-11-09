@@ -75,78 +75,6 @@ export interface CreateContactPayload {
   notes?: string;
 }
 
-export interface ContactListEntry {
-  id: string;
-  prospectName: string;
-  prospectSurname: string;
-  prospectPhone: string;
-  relationship: string;
-  priority: string;
-  createdAt: string | null;
-}
-
-export interface ContactListBatch {
-  batch: string;
-  submittedAt: string | null;
-  total: number;
-  stageCounts: Record<string, number>;
-  worked: number;
-  sla?: { ageHrs: number; unworked: boolean; overdue: boolean; hoursLeft: number } | null;
-}
-
-export interface ContactListMine {
-  unsubmitted: ContactListEntry[];
-  unsubmittedCount: number;
-  minRequired: number;
-  canSubmit: boolean;
-  batches: ContactListBatch[];
-}
-
-export type ContactListMineEnvelope = ApiEnvelope<ContactListMine>;
-
-export interface ContactListSubmitResult {
-  batch: string;
-  count: number;
-  submittedAt: string;
-}
-
-export interface DownlineContact {
-  id: string;
-  prospectName: string;
-  prospectSurname: string;
-  /** Null unless the viewer is the direct referral upline and consent is true. */
-  prospectPhone: string | null;
-  phoneHiddenReason?: 'no-phone' | 'not-direct' | 'no-consent' | null;
-  relationship: string;
-  priority: string;
-  bestTimeToCall: string;
-  consentToContact: boolean;
-  stage: string;
-}
-
-export interface DownlineContactListItem extends ContactListBatch {
-  partnerId: string;
-  member: { username: string; name: string } | null;
-  directUpline: boolean;
-  contacts: DownlineContact[];
-}
-
-export interface ContactPhoneMatch {
-  prospectId: string;
-  partnerId: string;
-}
-
-export interface ContactPhoneMatchEnvelope extends ApiEnvelope<{ match: ContactPhoneMatch | null }> {
-  data: { match: ContactPhoneMatch | null };
-}
-
-export interface DownlineContactLists {
-  items: DownlineContactListItem[];
-  total: number;
-}
-
-export type DownlineContactListsEnvelope = ApiEnvelope<DownlineContactLists>;
-
 export interface ActivationBoardItem {
   partnerId: string;
   member: { username: string; name: string } | null;
@@ -157,13 +85,6 @@ export interface ActivationBoardItem {
   ipoDone: boolean;
   qsgDone: boolean;
   smoDone: boolean;
-  lists: number;
-  total: number;
-  worked: number;
-  unworked: number;
-  oldestPendingAt: string | null;
-  newestSubmittedAt: string | null;
-  overdue: boolean;
   nextAction: string;
   nextTone: 'warn' | 'bad' | 'info' | 'ok';
 }
@@ -174,6 +95,16 @@ export interface ActivationBoard {
 }
 
 export type ActivationBoardEnvelope = ApiEnvelope<ActivationBoard>;
+
+export interface DownlinePhoneOwner {
+  partnerId: string;
+  phone: string;
+  member: { username: string; name: string } | null;
+}
+
+export interface DownlinePhonesEnvelope extends ApiEnvelope<{ items: DownlinePhoneOwner[]; total: number }> {
+  data: { items: DownlinePhoneOwner[]; total: number };
+}
 
 export interface ConvertEnvelope extends ApiEnvelope<{ code: string; prospect: ProspectLead }> {
   data: { code: string; prospect: ProspectLead };
@@ -264,21 +195,9 @@ export interface RemindersEnvelope extends ApiEnvelope<RemindersData> {
   data: RemindersData;
 }
 
-export interface ImportSkippedRow {
-  index: number;
-  name: string;
-  reason: string;
-}
 
-export interface ImportReport {
-  inserted: number;
-  skipped: ImportSkippedRow[];
-  total: number;
-}
 
-export interface ImportReportEnvelope extends ApiEnvelope<ImportReport> {
-  data: ImportReport;
-}
+
 
 /** Next forward step in the pipeline, or null at terminal stages. */
 export function nextStage(stage: ProspectStage | undefined): ProspectStage | null {  const current = stage ?? 'New';

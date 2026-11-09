@@ -142,52 +142,7 @@
     </div>
   }
 
-  <!-- Outreach -->
-  <div class="dp-card card" aria-label="Outreach">
-    <div class="outreach-head">
-      <h3>Reach out as support</h3>
-      <div class="channel-toggle" role="tablist" aria-label="Channel">
-        <button type="button" role="tab" [attr.aria-selected]="outreachTab === 'email'" [class.active]="outreachTab === 'email'" (click)="outreachTab = 'email'"><mat-icon>mail</mat-icon>Email</button>
-        <button type="button" role="tab" [attr.aria-selected]="outreachTab === 'sms'" [class.active]="outreachTab === 'sms'" (click)="outreachTab = 'sms'"><mat-icon>sms</mat-icon>SMS</button>
-      </div>
-    </div>
-    @if (partner?.username) {
-      <div class="copy-link">
-        <span class="muted">https://marketspase.com/{{partner?.username?.toLowerCase()}}</span>
-        <button mat-icon-button (click)="copyLink()" matTooltip="Copy your public link" aria-label="Copy your public link"><mat-icon aria-hidden="true">content_copy</mat-icon></button>
-      </div>
-    }
-    <p class="muted">Logged as Support — owner sees it on the timeline.</p>
-    @if (!prospectData?.prospectPhone && !prospectData?.prospectEmail) {
-      <p class="muted">Outreach disabled — phone and email are hidden or have not consented.</p>
-    }
 
-    @if (outreachTab === 'email') {
-      <mat-form-field appearance="outline">
-        <mat-label>Subject</mat-label>
-        <input matInput [(ngModel)]="emailSubject" placeholder="Join us for a 30-min insight session" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Email body</mat-label>
-        <textarea matInput class="custom-textarea" [(ngModel)]="emailBody" rows="5" placeholder="Hi {{prospectData.prospectName}}, ... Don't forget https://marketspase.com/{{partner?.username?.toLowerCase()}}"></textarea>
-      </mat-form-field>
-      <button mat-flat-button color="primary" (click)="sendEmail()" [disabled]="!emailSubject.trim() || !emailBody.trim() || sendingEmail || !prospectData?.prospectEmail">
-        {{ sendingEmail ? 'Sending…' : 'Send email' }}
-      </button>
-    } @else {
-      <mat-form-field appearance="outline">
-        <mat-label>Write SMS</mat-label>
-        <textarea matInput #smsField maxlength="160" [(ngModel)]="sms" rows="3" placeholder="Hi, this is {{partner?.name}} supporting {{myPartner?.name}} — ..."></textarea>
-        <mat-hint align="end">{{smsField.value.length}} / 160</mat-hint>
-      </mat-form-field>
-      <button mat-flat-button color="primary" (click)="sendSMS()" [disabled]="!sms.trim() || sendingSms || !prospectData?.prospectPhone">
-        {{ sendingSms ? 'Sending…' : 'Send SMS' }}
-      </button>
-      <p class="muted">Up to 160 chars, link auto-tracked.</p>
-    }
-  </div>
-
-  <!-- Danger zone -->
   @if (canManage()) {
     <div class="dp-card card danger" aria-label="Danger zone">
       <h3>Danger zone</h3>

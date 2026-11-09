@@ -1,7 +1,7 @@
 # MarketSpase — Legacy & Redundancy Audit
 
 **Date:** 2026-11-04 (post-audit update 2026-11-09)  
-**Status:** Batch 1–4 executed — see `CHANGES-batch1.md` … `CHANGES-batch4.md`. The Buy Prospect pool and legacy campaign pool-lead allocation were subsequently removed end to end (2026-11-08). Remaining items are compatibility-only (eShop cart commissions, legacy `/auth` clients).  
+**Status:** Batch 1–4 executed — see `CHANGES-batch1.md` … `CHANGES-batch4.md`. The Buy Prospect pool and legacy campaign pool-lead allocation were subsequently removed end to end (2026-11-08). The legacy cart commission engine, partner bulk outreach, contact lists, coaching/cell meetings, reports, partner surveys and page-lead desk were removed on 2026-11-09. Remaining items are compatibility-only (legacy `/auth` clients).  
 **Scope:** `platform/src`, `api/src`, mounts in `api/server.js`, public assets, dependencies.  
 **Mode:** read-only audit at the time; batches 1–4 and the later Buy Prospect removal were executed afterwards.  
 **Rollback snapshot:** `C:\Users\Hp\AppData\Local\Temp\opencode\marketspase-backup-20261104-064913.zip` (11.14 MB; source, docs, public assets, configs — excludes `node_modules`, `dist`, `.angular`, `.env`).
@@ -33,7 +33,7 @@
 | Unused frontend dependencies | 2 (+1 CDN) | Safe after build |
 | Assets to review | ~20 | Low |
 
-**Headline (post-audit):** the ad-brief campaign UI, Buy Prospect pool, legacy Paystack deposit and DTC commissions have been removed. The remaining legacy is compatibility-only: eShop cart commissions, legacy `/auth` clients, earnings redirects and the temporary `/emailSubscription/*` shim.
+**Headline (post-audit):** the ad-brief campaign UI, Buy Prospect pool, legacy Paystack deposit, DTC commissions, legacy cart commission engine, partner bulk outreach, contact lists, coaching/cell meetings, team reports, partner surveys and page-lead desk have been removed. The remaining legacy is compatibility-only: legacy `/auth` clients and the temporary `/emailSubscription/*` shim.
 
 ---
 

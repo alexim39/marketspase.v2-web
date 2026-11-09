@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { AcademyDashboardComponent } from './dashboard/academy-dashboard.component';
 import { TrainingLibraryComponent } from './library/training-library.component';
 import { TrainingAnalyticsComponent } from './analytics/training-analytics.component';
-import { MyCoachComponent } from './coach/my-coach.component';
 import { TrainingListComponent } from './list/training-list.component';
 import { TrainingDetailComponent } from './detail/training-detail.component';
 import { TutorialsComponent } from './tutorials/tutorials.component';
@@ -27,11 +26,6 @@ export const TrainingRoutes: Routes = [
     path: 'analytics',
     component: TrainingAnalyticsComponent,
     title: 'Training Analytics - Completion and pipeline',
-  },
-  {
-    path: 'coach',
-    component: MyCoachComponent,
-    title: 'My Coach - Mentorship and notes',
   },
   {
     path: 'tutorials',

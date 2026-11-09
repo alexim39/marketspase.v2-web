@@ -2,7 +2,6 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,13 +11,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
-import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { environment } from '../../../../../environments/environment';
 import { ApiError, userError } from '../../../../core/http/api-error';
 import { LeadPipelineService } from './lead-pipeline.service';
 import {
-  ImportReport, nextStage, ProspectLead, ProspectListEnvelope, ProspectStage,
+  nextStage, ProspectLead, ProspectListEnvelope, ProspectStage,
   ReferralMember,
   STAGE_META, STAGE_ORDER, STAGE_TONE, StuckEntry, StuckEnvelope,
 } from './lead.models';
@@ -32,73 +30,6 @@ import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page
 import { forkJoin, map, of, switchMap } from 'rxjs';
 
 /**
- * Minimal CSV parse (quoted commas + escaped quotes). Header row maps to
- * importer keys case-insensitively; unknown columns are ignored.
- */
-function parseImportCsv(text: string): Array<Record<string, string>> {
-  const rows: string[][] = [];
-  let cur = '';
-  let row: string[] = [];
-  let quoted = false;
-  const push = () => {
-    row.push(cur);
-    cur = '';
-  };
-  for (let i = 0; i < text.length; i += 1) {
-    const ch = text[i];
-    if (quoted) {
-      if (ch === '"') {
-        if (text[i + 1] === '"') {
-          cur += '"';
-          i += 1;
-        } else {
-          quoted = false;
-        }
-      } else {
-        cur += ch;
-      }
-    } else if (ch === '"') {
-      quoted = true;
-    } else if (ch === ',') {
-      push();
-    } else if (ch === '\n' || ch === '\r') {
-      if (ch === '\r' && text[i + 1] === '\n') i += 1;
-      push();
-      if (row.some((c) => c.trim() !== '')) rows.push(row);
-      row = [];
-    } else {
-      cur += ch;
-    }
-  }
-  push();
-  if (row.some((c) => c.trim() !== '')) rows.push(row);
-  if (rows.length < 2) return [];
-  const heads = rows[0].map((h) => h.trim().toLowerCase());
-  const pick = (...names: string[]): number => heads.findIndex((h) => names.includes(h));
-  const ci = {
-    name: pick('name', 'firstname', 'first name'),
-    surname: pick('surname', 'lastname', 'last name'),
-    phone: pick('phone', 'phonenumber', 'phone number', 'mobile', 'tel'),
-    email: pick('email', 'e-mail'),
-    source: pick('source', 'channel'),
-    relationship: pick('relationship'),
-  };
-  return rows.slice(1, 501).map((cells) => {
-    const out: Record<string, string> = {};
-    const put = (key: string, idx: number) => {
-      if (idx >= 0 && (cells[idx] ?? '').trim() !== '') out[key] = cells[idx].trim();
-    };
-    put('name', ci.name);
-    put('surname', ci.surname);
-    put('phone', ci.phone);
-    put('email', ci.email);
-    put('source', ci.source);
-    put('relationship', ci.relationship);
-    return out;
-  }).filter((r) => Object.keys(r).length > 0);
-}
-
-/**
  * @title Lead pipeline — modern lead management.
  *
  * OnPush + signals + `@for`/`@if`. Stage chips color-code the canonical
@@ -109,7 +40,7 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
   selector: 'async-lead-pipeline',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTableModule, MatChipsModule, MatButtonModule, MatCheckboxModule, MatIconModule,
+    MatTableModule, MatChipsModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatPaginatorModule, MatTooltipModule,
     MatSnackBarModule, EmptyStateComponent, ErrorStateComponent, PageSkeletonComponent, RouterModule, DatePipe,
   ],
@@ -141,7 +72,7 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
             <button mat-stroked-button type="button" (click)="copyLeadPageLink()" title="Share your personal lead page">
               <mat-icon>person_add</mat-icon> Copy lead page
             </button>
-            <a mat-stroked-button routerLink="/dashboard/tools/contacts/new" title="Add someone to your pipeline">
+            <a mat-stroked-button routerLink="/dashboard/prospects/new" title="Add someone to your pipeline">
               <mat-icon>person_add</mat-icon> Add prospect
             </a>
           </div>
@@ -245,50 +176,7 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
         >
           <mat-icon>warning</mat-icon> Stuck ({{ stuckCount() }})
         </button>
-        <button mat-button (click)="showImport.set(!showImport())" title="Bulk-add contacts from a CSV file">
-          <mat-icon>upload</mat-icon> Import
-        </button>
       </div>
-
-      @if (showImport()) {
-        <div class="dp-card import-card">
-          <div class="import-head">
-            <div>
-              <h3>Import contacts</h3>
-              <p class="muted">CSV with name, phone + optional surname, email, source, relationship. Duplicates are reported, never imported twice.</p>
-            </div>
-            <button mat-button (click)="downloadTemplate()">Template</button>
-          </div>
-          <div class="import-row">
-            <label class="file-pick">
-              <input type="file" accept=".csv,text/csv" (change)="onImportFile($event)" [attr.aria-label]="'Choose CSV file'" />
-              <span>{{ importFileName() || 'Choose CSV file…' }}</span>
-            </label>
-            <button mat-flat-button color="primary" (click)="doImport()" [disabled]="importRows().length === 0 || importing()">
-              {{ importing() ? 'Importing…' : importRows().length > 0 ? 'Import ' + importRows().length : 'Import' }}
-            </button>
-          </div>
-          @if (importError(); as err) {
-            <p class="error" role="alert">{{ err }}</p>
-          }
-          @if (importRows().length > 0) {
-            <p class="muted">First {{ importRows().slice(0, 5).length }} of {{ importRows().length }} rows: {{ importRows().slice(0, 5).map((r) => r['name'] || 'Unnamed').join(', ') }}</p>
-          }
-          @if (importReport(); as report) {
-            <p class="notice" role="status">Imported {{ report.inserted }} of {{ report.total }}@if (report.skipped.length > 0) { — {{ report.skipped.length }} skipped }.</p>
-            @if (report.skipped.length > 0) {
-              <ul class="skip-list">
-                @for (s of report.skipped.slice(0, 10); track s.index) {
-                  <li><strong>{{ s.name }}</strong> <span class="muted">— {{ s.reason }}</span></li>
-                }
-                @if (report.skipped.length > 10) {
-                  <li class="muted">…and {{ report.skipped.length - 10 }} more.</li>
-                }
-              </ul>
-            }
-          }
-        </div>
-      }
 
       @if (error(); as err) {
         <async-error-state [message]="err" context="your lead pipeline">
@@ -305,43 +193,13 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
           reason="No prospect has been added, or the current filter hides them."
           next="Add a prospect or import a CSV to start building the pipeline."
         >
-          <a mat-flat-button color="primary" routerLink="/dashboard/tools/contacts/new">Add prospect</a>
+          <a mat-flat-button color="primary" routerLink="/dashboard/prospects/new">Add prospect</a>
         </async-empty-state>
-      }
-
-      @if (selectionCount() > 0) {
-        <div class="bulk-bar" role="group" aria-label="Bulk outreach">
-          <span class="muted">{{ selectionCount() }} selected</span>
-          <button mat-button (click)="sendSms()">
-            <mat-icon>smartphone</mat-icon> Send SMS
-          </button>
-          <button mat-button (click)="sendEmail()">
-            <mat-icon>mail</mat-icon> Send email
-          </button>
-          <button mat-button (click)="clearSelection()">Clear</button>
-        </div>
       }
 
       @if (filtered().length > 0) {
         <div class="table-wrap">
           <table mat-table [dataSource]="filtered()" class="mat-elevation-z2">
-            <ng-container matColumnDef="select">
-              <th mat-header-cell *matHeaderCellDef>
-                <mat-checkbox
-                  [checked]="allVisibleSelected()"
-                  [indeterminate]="someVisibleSelected()"
-                  (change)="toggleAllVisible()"
-                  aria-label="Select all visible"
-                />
-              </th>
-              <td mat-cell *matCellDef="let lead">
-                <mat-checkbox
-                  [checked]="isSelected(lead.id)"
-                  (change)="toggleSelect(lead.id)"
-                  [aria-label]="'Select ' + names(lead)"
-                />
-              </td>
-            </ng-container>
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Name</th>
               <td mat-cell *matCellDef="let lead" class="name-cell" data-label="Prospect"><a [routerLink]="['../detail', lead.id]" class="name-link">{{ names(lead) }}</a>
@@ -396,7 +254,7 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
                 @if (!isConverted(lead)) {
                   <a mat-button [routerLink]="['../booking', lead.id]" title="Book a chat with {{ names(lead) }}">Book</a>
                 }
-                <a mat-button [routerLink]="['/dashboard/insights/contact-analytics']" [queryParams]="{ id: lead.id }" title="Work {{ names(lead) }} — status, outreach and history in one place">Work contact</a>
+                <a mat-button [routerLink]="['/dashboard/prospects/detail', lead.id]" title="Work {{ names(lead) }} - status, outreach and history in one place">Work contact</a>
                 @if (canConvert(lead)) {
                   @if (confirmId() === lead.id) {
                     <button mat-flat-button color="primary" (click)="convert(lead)" [disabled]="actingId() === lead.id">
@@ -580,7 +438,6 @@ export class LeadPipelineComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
-  private readonly exportContacts = inject(ExportContactAndEmailService);
   private readonly snack = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -599,18 +456,9 @@ export class LeadPipelineComponent implements OnInit {
   protected readonly confirmId = signal<string | null>(null);
   protected readonly convertedNotice = signal<{ name: string; leadId: string } | null>(null);
   protected readonly serverStageCounts = signal<Record<string, number>>({});
-  protected readonly showImport = signal(false);
-  protected readonly importRows = signal<Array<Record<string, string>>>([]);
-  protected readonly importFileName = signal('');
-  protected readonly importing = signal(false);
-  protected readonly importError = signal<string | null>(null);
-  protected readonly importReport = signal<ImportReport | null>(null);
 
-  protected readonly displayedColumns = ['select', 'name', 'contact', 'stage', 'interest', 'action'];
-  protected readonly selected = signal<Set<string>>(new Set());
+  protected readonly displayedColumns = ['name', 'contact', 'stage', 'interest', 'action'];
   protected readonly deleteConfirmId = signal<string | null>(null);
-
-  protected readonly selectionCount = computed(() => this.selected().size);
 
   protected readonly stageCounts = computed(() => {
     const server = this.serverStageCounts();
@@ -632,78 +480,6 @@ export class LeadPipelineComponent implements OnInit {
   protected readonly filtered = computed(() => this.rows());
 
   protected readonly stuckCount = computed(() => Object.keys(this.stuckDays()).length);
-
-  protected isSelected(id: string): boolean {
-    return this.selected().has(id);
-  }
-
-  protected allVisibleSelected(): boolean {
-    const visible = this.filtered();
-    return visible.length > 0 && visible.every((lead) => this.selected().has(lead.id));
-  }
-
-  protected someVisibleSelected(): boolean {
-    const visible = this.filtered();
-    const count = visible.filter((lead) => this.selected().has(lead.id)).length;
-    return count > 0 && count < visible.length;
-  }
-
-  protected toggleSelect(id: string): void {
-    this.selected.update((set) => {
-      const next = new Set(set);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
-
-  protected toggleAllVisible(): void {
-    const visible = this.filtered();
-    this.selected.update((set) => {
-      const next = new Set(set);
-      if (visible.every((lead) => next.has(lead.id))) {
-        for (const lead of visible) next.delete(lead.id);
-      } else {
-        for (const lead of visible) next.add(lead.id);
-      }
-      return next;
-    });
-  }
-
-  protected clearSelection(): void {
-    this.selected.set(new Set());
-  }
-
-  /** Bulk outreach handoff — only consenting contacts reach the compose pages. */
-  protected sendSms(): void {
-    const selected = this.rows().filter((lead) => this.selected().has(lead.id));
-    const allowed = selected.filter((lead) => lead.consentToContact === true && lead.prospectPhone?.trim());
-    const skipped = selected.length - allowed.length;
-    if (allowed.length === 0) {
-      this.snack.open('No consented phone numbers in the selected contacts.', 'Close', { duration: 4000 });
-      return;
-    }
-    this.exportContacts.setData(allowed.map((lead) => lead.prospectPhone!.trim()));
-    if (skipped > 0) {
-      this.snack.open(`Skipped ${skipped} contact${skipped === 1 ? '' : 's'} without consent.`, 'Close', { duration: 4000 });
-    }
-    this.router.navigate(['/dashboard/tools/sms/new']);
-  }
-
-  protected sendEmail(): void {
-    const selected = this.rows().filter((lead) => this.selected().has(lead.id));
-    const allowed = selected.filter((lead) => lead.consentToContact === true && lead.prospectEmail?.trim());
-    const skipped = selected.length - allowed.length;
-    if (allowed.length === 0) {
-      this.snack.open('No consented email addresses in the selected contacts.', 'Close', { duration: 4000 });
-      return;
-    }
-    this.exportContacts.setData(allowed.map((lead) => lead.prospectEmail!.trim()));
-    if (skipped > 0) {
-      this.snack.open(`Skipped ${skipped} contact${skipped === 1 ? '' : 's'} without consent.`, 'Close', { duration: 4000 });
-    }
-    this.router.navigate(['/dashboard/tools/email/new']);
-  }
 
   protected remove(lead: ProspectLead): void {
     this.actingId.set(lead.id);
@@ -789,7 +565,6 @@ export class LeadPipelineComponent implements OnInit {
     this.rows.set(leads?.data ?? []);
     this.total.set(leads?.meta?.total ?? (leads?.data?.length ?? 0));
     this.serverStageCounts.set(leads?.meta?.stageCounts ?? {});
-    this.selected.set(new Set());
     this.loading.set(false);
   }
 
@@ -804,66 +579,6 @@ export class LeadPipelineComponent implements OnInit {
     this.search.set(value);
     this.pageIndex.set(0);
     this.reload();
-  }
-
-  /** Downloadable CSV template — exact headers the importer accepts. */
-  protected downloadTemplate(): void {
-    const csv = 'name,surname,phone,email,source,relationship\nAdaobi,Temitope,08031234567,ada@example.com,Contact Import,Friend\n';
-    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'marketspase-contact-import-template.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  protected onImportFile(event: Event): void {
-    const input = event.target as HTMLInputElement | null;
-    const file = input?.files?.[0] ?? null;
-    this.importError.set(null);
-    this.importReport.set(null);
-    if (!file) return;
-    this.importFileName.set(file.name);
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        this.importRows.set(parseImportCsv(String(reader.result ?? '')));
-      } catch {
-        this.importError.set('Could not read that file — export it as CSV and try again.');
-        this.importRows.set([]);
-      }
-    };
-    reader.onerror = () => {
-      this.importError.set('Could not read that file — try again.');
-      this.importRows.set([]);
-    };
-    reader.readAsText(file);
-    if (input) input.value = '';
-  }
-
-  protected doImport(): void {
-    const rows = this.importRows();
-    if (rows.length === 0 || this.importing()) return;
-    this.importing.set(true);
-    this.importError.set(null);
-    this.importReport.set(null);
-    this.leads
-      .importContacts(rows.slice(0, 500))
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.importing.set(false);
-          this.importReport.set(res.data);
-          this.importRows.set([]);
-          this.importFileName.set('');
-          this.pageIndex.set(0);
-          this.reload();
-        },
-        error: (err: ApiError) => {
-          this.importing.set(false);
-          this.importError.set(userError(err));
-        },
-      });
   }
 
   protected onPage(event: PageEvent): void {

@@ -19,8 +19,8 @@ Target IA: **Home**, **Pipeline**, **Team**, **Campaigns**, **Wallet**, **Learn*
 | --- | --- | --- |
 | **Home** | `/dashboard`, `activate` nudge, alerts/notifications summary | Command Center with next-best-action, activation status, wallet snapshot, team pulse, activity. Keep `activate` as a prominent CTA when `accountState === 'member'`. |
 | **Pipeline** | `prospects/*` (reminders, pipeline, board, customer-leads, bookings, kits) | Consolidate follow-ups, deal board, leads, sessions, presentations. Buy prospect retired; page leads replaced by Customer Leads and pipeline referral signups. |
-| **Campaigns** | `tools/campaigns/*`, `campaigns` (fund growth), `marketing/roi`, `resources/ads-contents`, `resources/prospecting-contents`, `tools/sms/*`, `tools/email/*` | Merge into Campaign Studio. Central funding + attribution + ROI + share hub + outreach. |
-| **Team** | `mentorship/*`, `network/*`, `cell-meeting` | Activation board, partners, tree/org, teams, coaching. |
+| **Campaigns** | `campaigns` (fund growth), attribution, `resources/ads-contents`, `resources/prospecting-contents` | Central funding + attribution + share hub. Partner bulk SMS/email outreach was retired. |
+| **Team** | `mentorship/*`, `network/*` | Activation board (training-only), partners, tree/org, teams. Contact lists, cell meetings and coaching notes were retired. |
 | **Wallet** | `wallet/*`, `products/*`, `compensation`, `earnings/*` | Balance, deposits/withdrawals, transactions, commissions, shop, orders. Fold compensation/earnings here. |
 | **Learn** | `training/*`, `progress/*`, `goals/*` | Academy, courses, paths, tutorials, library, level/targets, coach analytics. |
 | **Community** | `community/*`, `messages/*` | Feed, events, DMs. |

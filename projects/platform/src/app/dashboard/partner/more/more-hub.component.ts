@@ -165,9 +165,6 @@ export class MoreHubComponent {
         { label: "How I'm doing", detail: 'Personal and team health summary.', icon: 'monitoring', link: '/dashboard/insights' },
         { label: 'My Business', detail: 'Your numbers and next moves in one screen.', icon: 'business_center', link: '/dashboard/insights/my-business' },
         { label: 'Reports & downloads', detail: 'Export your business data.', icon: 'download', link: '/dashboard/insights/downloads' },
-        { label: 'Team reports', detail: 'Report up and request updates from your team.', icon: 'summarize', link: '/dashboard/insights/team-reports' },
-        { label: 'Cell meeting', detail: 'Open the meeting room and track attendance.', icon: 'meeting_room', link: '/dashboard/cell-meeting' },
-        { label: 'Contact analytics', detail: 'Source, conversion and activity.', icon: 'analytics', link: '/dashboard/insights/contact-analytics' },
       ],
     },
     {
@@ -178,7 +175,6 @@ export class MoreHubComponent {
         { label: 'Ask Ora', detail: 'Context-aware growth coach.', icon: 'smart_toy', link: '/dashboard/ora' },
         { label: 'Get help', detail: 'Submit a support ticket and track it.', icon: 'help', link: '/dashboard/support/ticket' },
         { label: 'About', detail: 'About this app and the platform.', icon: 'info', link: '/dashboard/support/about/app' },
-        { label: 'Partner survey', detail: 'Share product feedback (external).', icon: 'assignment', external: 'https://survey.c21fg.online/' },
       ],
     },
   ];

@@ -24,14 +24,6 @@ export const dashboardRoutes: Routes = [
                 title: "Partner acquisition - Fund central acquisition",
             },
             {
-                path: 'promote/outreach',
-                loadComponent: () => import('../promote/outreach/outreach-hub.component').then(r => r.OutreachHubComponent),
-                title: "Outreach - SMS and email tools",
-            },
-            { path: 'promote/page', redirectTo: '/dashboard/settings/landing-page', pathMatch: 'full' },
-            { path: 'promote/content', redirectTo: '/dashboard/resources/ads-contents', pathMatch: 'full' },
-            { path: 'promote/guides', redirectTo: '/dashboard/resources/prospecting-contents', pathMatch: 'full' },
-            {
                 path: 'promote',
                 pathMatch: 'full',
                 loadComponent: () => import('../promote/promote-hub.component').then(r => r.PromoteHubComponent),
@@ -51,7 +43,6 @@ export const dashboardRoutes: Routes = [
             { path: 'mentorship', loadChildren: () => import('./mentorship/mentorship.routes').then(r => r.MentorshipRoutes) }, 
             { path: 'products', loadChildren: () => import('./products/products.routes').then(r => r.ProductsRoutes) }, 
             { path: 'prospects', loadChildren: () => import('./prospects/prospects.routes').then(r => r.ProspectsRoutes) }, 
-            { path: 'tools', loadChildren: () => import('./tools/tools.routes').then(r => r.ToolsRoutes) }, 
             { path: 'support', loadChildren: () => import('./support/support.routes').then(r => r.SupportRoutes) }, 
             { path: 'admin', loadComponent: () => import('./admin-moved/admin-moved.component').then(r => r.AdminMovedComponent), title: "Admin console moved - MarketSpase" },
             { path: 'network', loadChildren: () => import('../network/network.routes').then(r => r.NetworkRoutes) }, 
@@ -73,13 +64,6 @@ export const dashboardRoutes: Routes = [
             { path: 'more', loadComponent: () => import('./more/more-hub.component').then(m => m.MoreHubComponent), title: "More - Account and utilities" }, 
                 
                  
-            {
-                path: 'cell-meeting',
-                loadComponent: () => import('./mentorship/cell-meeting/cell-meeting-container.component').then(r => r.CellMettingContainerComponent),
-                title: "Cell Meetings Mentorship",
-            },
-
-
             { path: 'checkout',
                 loadComponent: () => import('./products/checkout/checkout.component').then(r => r.CheckoutComponent),
                 title: "Checkout - Pay from your wallet",

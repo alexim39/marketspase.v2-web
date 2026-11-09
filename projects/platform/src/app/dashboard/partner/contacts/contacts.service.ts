@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PartnerInterface } from '../../../_common/services/partner.service';
 import { ApiService } from '../../../_common/services/api.service';
 
 export interface ContactsInterface {
@@ -61,16 +60,6 @@ export class ContactsService {
     return this.apiService.put<any>(`prospect/update`, formData, undefined, true);
   }
 
-  // get contacts createdby
-  getContactsCreatedBy(createdBy: string): Observable<any> {
-    return this.apiService.get<ContactsInterface>(`prospect/all-createdBy/${createdBy}`, undefined, undefined, true);
-  }
-
-  // get contacts createdby
-  import(partnerId: string): Observable<any> {
-    return this.apiService.get<ContactsInterface>(`prospect/import/${partnerId}`, undefined, undefined, true);
-  }
-
   // get prospect byId
   getProspectById(prospectId: string): Observable<any> {
     return this.apiService.get<ContactsInterface>(`prospect/getById/${prospectId}`, undefined, undefined, true);
@@ -97,31 +86,9 @@ export class ContactsService {
     return this.apiService.delete<any>(`v1/prospects/${id}`, undefined, undefined, true);
   }
 
-  // single sms charge
-  signleSMSCharge(partnerId: string): Observable<any> {
-    return this.apiService.get<ContactsInterface>(`billing/single-sms-charge/${partnerId}`, undefined, undefined, true);
-  }
-
-  // single email to one prospect — session-owned v1 route (validated,
-  // recorded, honest per-recipient outcome). Replaces legacy
-  // emails/send-emails (no auth, fragile nested body, receipt ignored).
-  sendProspectEmail(formData: {partner: PartnerInterface, prospect: ContactsInterface, emailBody: string, emailSubject?: string}): Observable<any> {
-    const to = [String((formData.prospect as any)?.prospectEmail ?? '').trim().toLowerCase()].filter(Boolean);
-    return this.apiService.post<any>(`v1/outreach/email`, {
-      to,
-      subject: String((formData as any)?.emailSubject ?? 'Message from your MarketSpase partner'),
-      body: String(formData.emailBody ?? ''),
-    }, undefined, true);
-  }
-   
   // submit booking session
   bookSession(formData: any): Observable<any> {
       return this.apiService.post<any>(`booking/submit`, formData, undefined, true);
-  }
-
-  // move prospect back to survey
-  moveProspectBackToSurveyList(prospectId: string): Observable<any> {
-    return this.apiService.get<string>(`prospect/move-back-to-survey/${prospectId}`, undefined, undefined, true);
   }
 
   /**

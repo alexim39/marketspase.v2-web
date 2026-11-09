@@ -409,7 +409,7 @@ export class OraChatComponent implements OnInit {
   protected actionNote(a: OraAction): string {
     if (a.status === 'proposed' || !a.status) {
       const base = a.summary || 'Waiting for your approval.';
-      return a.type === 'send_sms' ? `${base} SMS charge applies.` : base;
+      return base;
     }
     if (a.status === 'executing') return 'Working…';
     if (a.status === 'skipped') return 'Skipped.';

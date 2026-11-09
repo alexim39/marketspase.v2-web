@@ -5,7 +5,7 @@ import {
   AnnounceEnvelope, Contact, ContactsEnvelope, GroupAttachment, GroupBan, GroupBansEnvelope, GroupEnvelope, GroupMessageEnvelope,
   GroupMessagesEnvelope, GroupPhotoEnvelope, GroupReportsEnvelope, GroupRequestsEnvelope, GroupsEnvelope,
   MessageEnvelope, MessagesEnvelope, PeopleEnvelope, GroupInviteEnvelope,
-  RouteEnvelope, SmsFallbackEnvelope, TeamAnnounceEnvelope, TeamGroupEnvelope, UnreadEnvelope,
+  TeamAnnounceEnvelope, TeamGroupEnvelope, UnreadEnvelope,
 } from './message.models';
 
 /** Group chat payloads for create/update. */
@@ -58,16 +58,6 @@ export class MessageService {
 
   contacts(): Observable<ContactsEnvelope> {
     return this.api.get<ContactsEnvelope>('v1/messages/contacts');
-  }
-
-  /** Live-chat routing intel: presence, masked number, per-page SMS rate. */
-  routeInfo(counterpartId: string): Observable<RouteEnvelope> {
-    return this.api.get<RouteEnvelope>(`v1/messages/route/${encodeURIComponent(counterpartId)}`);
-  }
-
-  /** Approved SMS fallback to an offline counterpart (wallet-charged server-side). */
-  sendSmsFallback(to: string, body: string): Observable<SmsFallbackEnvelope> {
-    return this.api.post<SmsFallbackEnvelope>('v1/messages/sms-fallback', { to, body });
   }
 
   /** Global people search for starting chats (safe fields only). */

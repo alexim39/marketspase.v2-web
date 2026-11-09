@@ -11,8 +11,6 @@ const EXPORTS: Array<{ kind: ExportKind; title: string; body: string }> = [
   { kind: 'team', title: 'Team list', body: 'Everyone in your downline with levels and activity.' },
   { kind: 'pipeline', title: 'Prospect pipeline', body: 'Every prospect, stage and follow-up state.' },
   { kind: 'commissions', title: 'Growth commissions', body: 'Your growth commission entries, rank at accrual and mentor bonuses.' },
-  { kind: 'reports-mine', title: 'My reports', body: 'Reports you submitted to your upline.' },
-  { kind: 'reports-team', title: 'Team reports', body: 'What your downline submitted to you.' },
   { kind: 'community', title: 'Community activity', body: 'Posts, engagement and participation.' },
 ];
 

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../../../../core/http/api-client.service';
-import { ContactListMineEnvelope, ContactPhoneMatchEnvelope, ConvertEnvelope, CreateContactPayload, ActivationBoardEnvelope, DownlineContactListsEnvelope, ImportReportEnvelope, LogCommunicationPayload, ProspectDetailEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, ReferralMembersEnvelope, RemindersEnvelope, StuckEnvelope } from './lead.models';
+import { ConvertEnvelope, CreateContactPayload, ActivationBoardEnvelope, DownlinePhonesEnvelope, LogCommunicationPayload, ProspectDetailEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, ReferralMembersEnvelope, RemindersEnvelope, StuckEnvelope } from './lead.models';
 
 /**
  * Lead pipeline data access — talks to backend `/v1/prospects` (crm slice).
@@ -24,11 +24,6 @@ export class LeadPipelineService {
     if (o.ids?.length) params.set('ids', o.ids.join(','));
     const qs = params.toString();
     return this.api.get<ProspectListEnvelope>(`v1/prospects/by-partner/${partnerId}${qs ? `?${qs}` : ''}`);
-  }
-
-  /** Bulk-import parsed contact rows (server validates + dedupes per row). */
-  importContacts(rows: Array<Record<string, unknown>>): Observable<ImportReportEnvelope> {
-    return this.api.post<ImportReportEnvelope>('v1/prospects/import', { rows });
   }
 
   /** Referral signups who are still members (not activated). */
@@ -81,25 +76,12 @@ export class LeadPipelineService {
     return this.api.post(`v1/prospects/${prospectId}/rate`, { score, note });
   }
 
-  contactListMine(): Observable<ContactListMineEnvelope> {
-    return this.api.get<ContactListMineEnvelope>('v1/prospects/contact-list/mine');
-  }
-
-  submitContactList(): Observable<{ message: string; success: boolean; data: { batch: string; count: number } }> {
-    return this.api.post<{ message: string; success: boolean; data: { batch: string; count: number } }>('v1/prospects/contact-list/submit', {});
-  }
-
-  downlineContactLists(): Observable<DownlineContactListsEnvelope> {
-    return this.api.get<DownlineContactListsEnvelope>('v1/prospects/contact-list/downline');
-  }
-
   activationBoard(): Observable<ActivationBoardEnvelope> {
-    return this.api.get<ActivationBoardEnvelope>('v1/prospects/contact-list/activation');
+    return this.api.get<ActivationBoardEnvelope>('v1/prospects/activation-board');
   }
 
-  /** Resolve a booking phone to one prospect id without returning the phone. */
-  resolveContactByPhone(phone: string): Observable<ContactPhoneMatchEnvelope> {
-    return this.api.post<ContactPhoneMatchEnvelope>('v1/prospects/contact-list/resolve-phone', { phone });
+  downlinePhones(): Observable<DownlinePhonesEnvelope> {
+    return this.api.get<DownlinePhonesEnvelope>('v1/prospects/downline-phones');
   }
 
   prospectName(lead: ProspectLead): string {

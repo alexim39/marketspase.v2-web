@@ -31,11 +31,6 @@ export const MentorshipRoutes: Routes = [
                       title: "My Teams - Purpose teams you created",
                   },
                   {
-                      path: 'contact-lists',
-                      loadComponent: () => import('./team/contact-lists/contact-lists.component').then(r => r.DownlineContactListsComponent),
-                      title: "Downline Warm Lists - Mentor submitted warm-market contacts",
-                  },
-                  {
                       path: 'activation',
                       loadComponent: () => import('./team/activation-board/activation-board.component').then(r => r.ActivationBoardComponent),
                       title: "Activation Board - Who needs you next",

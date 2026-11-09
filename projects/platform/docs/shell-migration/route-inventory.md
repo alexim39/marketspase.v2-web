@@ -1,5 +1,7 @@
 # Route Inventory (Current -> Target)
 
+> Historical baseline from the shell migration. Features retired on 2026-11-09 (bulk outreach, contact lists, cell meetings, coaching notes, team reports, contact analytics, partner surveys, page-lead desk) are no longer present; the app routes are listed in `nav.config.ts` and `dashboard.routes.ts`.
+
 This is the baseline to use for redirects when swapping to the new shell. Generated from `platform/src/app/dashboard/partner/dashboard.routes.ts` and known child routes.
 
 > Status: `keep` = migrate to new IA with minimal changes, `consolidate` = merge under new primary destination, `relocate` = move to different section, `retire/redirect` = likely superseded by new model

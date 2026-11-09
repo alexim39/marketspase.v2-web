@@ -31,8 +31,8 @@ const RECOMMENDATIONS: Array<{ title: string; body: string; link: string; linkLa
   {
     title: 'Read team updates',
     body: 'Leaders who read the team outperform those who guess.',
-    link: '/dashboard/insights/team-reports',
-    linkLabel: 'Team Reports',
+    link: '/dashboard/team',
+    linkLabel: 'Team',
   },
 ];
 
@@ -130,7 +130,7 @@ const RECOMMENDATIONS: Array<{ title: string; body: string; link: string; linkLa
                         }
                       </ul>
                     }
-                    <p class="muted">{{ a.summary }}{{ a.type === 'send_sms' ? ' · SMS charge applies.' : '' }}</p>
+                    <p class="muted">{{ a.summary }}</p>
                   </div>
                   <div class="approval-actions">
                     <button mat-flat-button color="primary" type="button" (click)="approve(a)" [disabled]="actingId() === a.id">

@@ -19,7 +19,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
-import { ExportContactAndEmailService } from '../../../../../_common/services/exportContactAndEmail.service';
 import { AvatarComponent } from '../../../../../_common/avatar.component';
 import { userError } from '../../../../../core/http/api-error';
 import {
@@ -67,7 +66,6 @@ export class MyPartnersContactsComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly contactsApi = inject(ContactsService);
-  private readonly exportApi = inject(ExportContactAndEmailService);
   private readonly snack = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -418,30 +416,6 @@ export class MyPartnersContactsComponent {
           this.snack.open(userError(err) || 'Could not load contacts — try again.', 'Close', { duration: 4000 });
         },
       });
-  }
-
-  exportSms(): void {
-    this.resolveSelected('message', (list) => {
-      const phones = list.map((c) => String(c.prospectPhone ?? '').trim()).filter(Boolean);
-      if (!phones.length) {
-        this.snack.open('Selected contacts have no consented phone numbers.', 'Close', { duration: 3500 });
-        return;
-      }
-      this.exportApi.setData(phones);
-      this.router.navigate(['/dashboard/tools/sms/new']).catch(() => undefined);
-    });
-  }
-
-  exportEmail(): void {
-    this.resolveSelected('email', (list) => {
-      const emails = list.map((c) => String(c.prospectEmail ?? '').trim().toLowerCase()).filter(Boolean);
-      if (!emails.length) {
-        this.snack.open('Selected contacts have no consented email addresses.', 'Close', { duration: 3500 });
-        return;
-      }
-      this.exportApi.setData(emails);
-      this.router.navigate(['/dashboard/tools/email/new']).catch(() => undefined);
-    });
   }
 
   exportCsv(): void {

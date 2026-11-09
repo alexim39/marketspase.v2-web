@@ -40,13 +40,13 @@ import { ApiError, userError } from '../../../../../core/http/api-error';
         <div class="breadcrumb">
           <a routerLink="/dashboard">Dashboard</a> &gt;
           <a routerLink="/dashboard/mentorship/partners/my-partners">My Partners</a> &gt;
-          <span>Contact list</span>
+          <span>Downline prospects</span>
         </div>
       </section>
       <section class="dp-card container-error" role="alert">
         <mat-icon>error_outline</mat-icon>
         <div>
-          <strong>Couldn’t load this contact list.</strong>
+          <strong>Couldn't load these prospects.</strong>
           <p class="dp-muted">{{ err }}</p>
         </div>
         <span class="spacer"></span>

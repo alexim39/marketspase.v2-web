@@ -41,6 +41,7 @@
 | Single upline (2026-11-08) | `partnerOf` is the only upline; `placementParentId` removed; referral `/join?ref=` attribution, system-owned fallback and campaign allocation history | `api/src/modules/{identity-access,campaigns,compensation}/**`, migration scripts |
 | Compensation and ranks (2026-11-08) | Immediate mentor bonus; product commissions on every growth-plan order; journey rank auto-promotes while commission rank stays manual | `api/src/modules/{compensation,progression}/**`, platform progress/compensation pages |
 | Theme and appearance | Theme control moved to **More → Settings → Appearance** (Light/Dark/System) | `dashboard/settings/appearance/**`, `more-hub` |
+| Feature retirement (2026-11-09) | Removed partner bulk SMS/email outreach, contact analytics, team reports, contact lists/warm-list import, cell meetings, coaching notes, partner surveys, admin Page Leads desk, legacy shop commission plan and legacy ad-brief campaign system. Activation board is training-only; manual prospect add is `/dashboard/prospects/new`. | `platform/...`, `admin/...`, `api/src/modules/{outreach,reports,coaching,mentorship,partner-surveys,crm,billing}/**` |
 
 ## How to use
 1. Sign in to the platform.

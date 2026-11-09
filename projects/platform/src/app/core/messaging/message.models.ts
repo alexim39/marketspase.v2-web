@@ -63,21 +63,9 @@ export interface TeamAnnounceEnvelope extends ApiEnvelope<TeamAnnounceResult> {
   data: TeamAnnounceResult;
 }
 
-export interface ChatRouteInfo {
-  online: boolean;
-  presence: 'online' | 'recent' | null;
-  lastSeenAt: string | null;
-  maskedPhone: string | null;
-  smsUnitCost: number;
-}
 
-export interface RouteEnvelope extends ApiEnvelope<ChatRouteInfo> {
-  data: ChatRouteInfo;
-}
 
-export interface SmsFallbackEnvelope extends ApiEnvelope<{ sent: number; total: number; cost: number }> {
-  data: { sent: number; total: number; cost: number };
-}
+
 
 export interface PersonHit {
   id: string;

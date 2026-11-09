@@ -116,7 +116,7 @@ import { formatStuckDuration } from '../stuck-duration';
                 <div class="card" cdkDrag [cdkDragData]="lead" [cdkDragDisabled]="actingId() !== null">
                   <a class="card-name" [routerLink]="['../detail', lead.id]">{{ names(lead) }}</a>
                   <span class="muted">{{ lead.prospectPhone }}</span>
-                  <a class="card-work" [routerLink]="['/dashboard/insights/contact-analytics']" [queryParams]="{ id: lead.id }" title="Work {{ names(lead) }}">Work contact →</a>
+                  <a class="card-work" [routerLink]="['/dashboard/prospects/detail', lead.id]" title="Work {{ names(lead) }}">Work contact →</a>
                   @if (isConverted(lead)) {
                     @if (lead.convertedPartnerId) {
                       <span class="joined-badge"><mat-icon>verified</mat-icon> Joined your team</span>

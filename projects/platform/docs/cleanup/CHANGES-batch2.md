@@ -49,8 +49,8 @@
 | Item | Why |
 |---|---|
 | Withdrawals + bank resolution | `resolveAccount()` still used by the withdrawal dialog; backend proxy keeps the secret server-side |
-| Legacy eShop checkout | Still sells products and accrues legacy cart commissions |
-| Admin Payouts | Still operational for pending legacy cart commissions from eShop orders |
+| Legacy eShop checkout | **Removed** in the 2026-11-09 cleanup with the legacy cart commission engine |
+| Admin Payouts | **Removed** with the legacy commission engine; current withdrawals run through Compensation/Paystack |
 | Admin Commission Plan | Still controls legacy cart accrual rates |
 | Buy Prospect | Retired in batch 4 (`prospects/general-list`, pool UI and later the backend pool) |
 | Legacy `/auth`, `/emails`, `/sms` send endpoints | Possible external clients; deferred until confirmed |

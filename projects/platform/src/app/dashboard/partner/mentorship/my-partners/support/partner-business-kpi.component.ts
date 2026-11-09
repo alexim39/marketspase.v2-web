@@ -83,8 +83,8 @@ import { ApiError, userError } from '../../../../../core/http/api-error';
         </mat-card-content></mat-card>
         <mat-card><mat-card-content>
           <mat-icon>checklist</mat-icon>
-          <span class="kpi-value">{{ activationWorkedLabel() }}</span>
-          <span class="kpi-label">List worked</span>
+          <span class="kpi-value">{{ activationTrainingLabel() }}</span>
+          <span class="kpi-label">Training gates</span>
         </mat-card-content></mat-card>
         <mat-card><mat-card-content>
           <mat-icon>speed</mat-icon>
@@ -163,9 +163,7 @@ import { ApiError, userError } from '../../../../../core/http/api-error';
             <div class="chips">
               <mat-chip highlighted>IPO: {{ a.ipoDone ? 'done' : 'pending' }}</mat-chip>
               <mat-chip highlighted>QSG: {{ a.qsgDone ? 'done' : 'pending' }}</mat-chip>
-              @if (a.overdue) {
-                <mat-chip color="warn" highlighted>Overdue 48h</mat-chip>
-              }
+              <mat-chip highlighted>SMO: {{ a.smoDone ? 'done' : 'pending' }}</mat-chip>
             </div>
             <p class="next"><strong>Next:</strong> {{ a.nextAction }}</p>
           } @else {
@@ -272,9 +270,10 @@ export class PartnerBusinessKpiComponent implements OnInit {
 
   protected readonly directCount = computed(() => this.myPartnerPartners?.length ?? 0);
   protected readonly activation = computed(() => this.supportInfo);
-  protected readonly activationWorkedLabel = computed(() => {
+  protected readonly activationTrainingLabel = computed(() => {
     const a = this.supportInfo;
-    return a ? `${a.worked ?? 0}/${a.total ?? 0}` : '—';
+    if (!a) return '—';
+    return [a.ipoDone, a.qsgDone, a.smoDone].filter(Boolean).length + '/3';
   });
   protected readonly pipelineOpen = computed(() => {
     if (!this.pipelineLoaded()) return null;
@@ -360,12 +359,7 @@ export class PartnerBusinessKpiComponent implements OnInit {
     const stuck = this.stuckCount() ?? 0;
     const open = this.pipelineOpen() ?? 0;
     if (direct === 0) {
-      steps.push({ icon: 'person_add', title: 'Help them land their first partner', detail: 'No direct recruits yet — work their contact list together and book the first showcase.', link: '/dashboard/mentorship/team/activation', cta: 'Open activation' });
-    }
-    const behind = this.goalsBehind();
-    if (this.goalsLoaded() && behind.length > 0) {
-      const first = behind[0];
-      steps.push({ icon: 'flag', title: `${behind.length} goal${behind.length === 1 ? '' : 's'} behind pace`, detail: `"${first.title}" — ${first.progress.current} of ${first.target} with ${first.progress.daysLeft}d left.`, link: '/dashboard/insights/team-reports', cta: 'Request update' });
+      steps.push({ icon: 'person_add', title: 'Help them land their first partner', detail: 'No direct recruits yet — review the activation board and plan the first conversations together.', link: '/dashboard/mentorship/team/activation', cta: 'Open activation' });
     }
     const active = this.teamStats()?.downline ?? null;
     if (this.teamLoaded() && active && active.total > 0 && (active.activationRate ?? 1) < 0.5) {
@@ -377,10 +371,6 @@ export class PartnerBusinessKpiComponent implements OnInit {
     } else if (open > 0) {
       steps.push({ icon: 'trending_up', title: `Work ${open} open pipeline lead${open === 1 ? '' : 's'}`, detail: 'Review stages together and agree the next touch for each.', link: `/dashboard/mentorship/partners/my-partners/contacts/${id}`, cta: 'View contacts' });
     }
-    if (!a && direct > 0) {
-      steps.push({ icon: 'assignment', title: 'Get their contact list submitted', detail: 'Active downline but no onboarding record — ask for their list submission.', link: '/dashboard/mentorship/team/contact-lists', cta: 'Warm lists' });
-    }
-    steps.push({ icon: 'forum', title: 'Ask for a team update', detail: 'Request a short written report to keep momentum and spot blockers early.', link: '/dashboard/insights/team-reports', cta: 'Team reports' });
     return steps.slice(0, 4);
   });
 

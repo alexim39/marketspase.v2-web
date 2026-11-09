@@ -59,7 +59,7 @@ interface StageRow {
         <div class="head-actions">
           <a mat-flat-button color="primary" routerLink="/dashboard/prospects/pipeline">Open pipeline</a>
           <a mat-stroked-button routerLink="/dashboard/prospects/customer-leads">Customer leads</a>
-          <a mat-stroked-button routerLink="/dashboard/tools/contacts/new">Add prospect</a>
+          <a mat-stroked-button routerLink="/dashboard/prospects/new">Add prospect</a>
         </div>
       </header>
 
@@ -170,7 +170,7 @@ interface StageRow {
               <a routerLink="/dashboard/prospects/customer-leads"><mat-icon>groups</mat-icon><span>Customer leads</span></a>
               <a routerLink="/dashboard/prospects/bookings"><mat-icon>event</mat-icon><span>Sessions</span></a>
               <a routerLink="/dashboard/prospects/kits"><mat-icon>present_to_all</mat-icon><span>Presentations</span></a>
-              <a routerLink="/dashboard/tools/contacts/new"><mat-icon>person_add</mat-icon><span>Add someone</span></a>
+              <a routerLink="/dashboard/prospects/new"><mat-icon>person_add</mat-icon><span>Add someone</span></a>
             </div>
           </div>
         </aside>

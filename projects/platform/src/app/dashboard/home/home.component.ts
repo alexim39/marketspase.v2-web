@@ -159,7 +159,7 @@ interface ActivityItem {
       }
 
       <div class="cc-quick" aria-label="Quick actions">
-        <a mat-stroked-button routerLink="tools/contacts/new"><mat-icon>person_add</mat-icon> Add prospect</a>
+        <a mat-stroked-button routerLink="/dashboard/prospects/new"><mat-icon>person_add</mat-icon> Add prospect</a>
         @if (storeActionCount() > 0) {
           <a mat-stroked-button routerLink="products/store-orders">
             <mat-icon>local_shipping</mat-icon> Fulfil {{ storeActionCount() }} store order{{ storeActionCount() === 1 ? '' : 's' }}
@@ -834,7 +834,7 @@ export class HomeComponent implements OnInit {
   protected starterItems(): Array<{ key: string; label: string; link: string; done: boolean }> {
     return [
       { key: 'profile', label: 'Complete your profile', link: 'settings/profiles', done: !this.profileIncomplete() },
-      { key: 'prospect', label: 'Submit at least one contact/prospect', link: 'tools/contacts/new', done: this.hasProspect() },
+      { key: 'prospect', label: 'Submit at least one contact/prospect', link: '/dashboard/prospects/new', done: this.hasProspect() },
       { key: 'goal', label: 'Set your first goal', link: 'goals', done: (this.overview()?.goals.total ?? 1) > 0 },
       { key: 'ipo', label: 'Take the IPO course', link: 'training', done: this.ipoDone() },
     ];

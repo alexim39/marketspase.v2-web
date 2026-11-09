@@ -8,14 +8,13 @@
 
 <section class="async-background">
   <h2>My Partners</h2>
-  <p class="page-sub">Your direct partners — referrals and campaign placements — supported toward IPO, QSG, SMO, contact list and first recruit. Contact details are masked for privacy; use Chat to reach them.</p>
+  <p class="page-sub">Your direct partners — referrals and campaign placements — supported toward IPO, QSG, SMO and their first recruit. Contact details are masked for privacy; use Chat to reach them.</p>
 
   <section class="async-container">
     <div class="title">
       <h3>Direct team</h3>
       <div class="fund-area">
         <a mat-button routerLink="/dashboard/mentorship/team/activation" title="Who needs you next"><mat-icon>priority_high</mat-icon>Activation</a>
-        <a mat-button routerLink="/dashboard/mentorship/team/contact-lists" title="Work submitted warm-market lists"><mat-icon>contact_phone</mat-icon>Warm lists</a>
       </div>
     </div>
 
@@ -51,10 +50,6 @@
                   <mat-chip highlighted>IPO: {{ s.ipoDone ? 'done' : 'pending' }}</mat-chip>
                   <mat-chip highlighted>QSG: {{ s.qsgDone ? 'done' : 'pending' }}</mat-chip>
                   <mat-chip highlighted>SMO: {{ s.smoDone ? 'done' : 'pending' }}</mat-chip>
-                  <mat-chip highlighted>{{ s.worked ?? 0 }}/{{ s.total ?? 0 }}</mat-chip>
-                  @if (s.overdue) {
-                    <mat-chip color="warn" highlighted>Overdue</mat-chip>
-                  }
                 </span>
               } @else {
                 <span class="muted">—</span>

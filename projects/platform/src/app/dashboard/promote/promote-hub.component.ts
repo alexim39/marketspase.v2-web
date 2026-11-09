@@ -26,7 +26,7 @@ interface PromotionCard {
  *
  * Promotion starts with the partner's personal lead page: complete it, share the
  * link, use the content library and guides, then work the pipeline.
- * SMS/email remain under Outreach; partner acquisition is separate.
+ * Partner acquisition is separate.
  */
 @Component({
   selector: 'async-promote-hub',
@@ -253,13 +253,6 @@ export class PromoteHubComponent {
       body: 'Conversation frameworks and scripts for sharing your page with confidence.',
       cta: 'Open guides',
       link: '/dashboard/resources/prospecting-contents',
-    },
-    {
-      icon: 'forum',
-      title: 'Outreach',
-      body: 'Send SMS or email and review your message history.',
-      cta: 'Open outreach',
-      link: '/dashboard/promote/outreach',
     },
   ];
 

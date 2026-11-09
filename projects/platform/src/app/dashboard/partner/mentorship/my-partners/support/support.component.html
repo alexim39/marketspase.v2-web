@@ -43,10 +43,6 @@
       <div class="entry-tags">
         <mat-chip highlighted>IPO: {{ info.ipoDone ? 'done' : 'pending' }}</mat-chip>
         <mat-chip highlighted>QSG: {{ info.qsgDone ? 'done' : 'pending' }}</mat-chip>
-        <mat-chip highlighted>{{ info.worked }}/{{ info.total }} worked</mat-chip>
-        @if (info.overdue) {
-          <mat-chip color="warn" highlighted>Overdue 48h</mat-chip>
-        }
       </div>
       <span class="spacer"></span>
       <span class="next-action">{{ info.nextAction }}</span>
@@ -100,56 +96,6 @@
     </section>
   }
 
-  <section class="dp-card" aria-label="Coaching notes">
-    <div class="card-head">
-      <h3>Coaching notes ({{ notes().length }})</h3>
-      <button
-        mat-icon-button
-        type="button"
-        class="info-btn"
-        (click)="showNotesInfo.set(!showNotesInfo())"
-        [attr.aria-expanded]="showNotesInfo()"
-        aria-label="How coaching notes work"
-        title="How coaching notes work">
-        <mat-icon>info_outline</mat-icon>
-      </button>
-    </div>
-    <div class="shared-label"><mat-icon>group</mat-icon> Shared with this member</div>
-    @if (showNotesInfo()) {
-      <div class="notes-info" role="note">
-        <mat-icon>info</mat-icon>
-        <p>
-          <strong>This is a shared coaching journal, not a private note.</strong>
-          Everything you write here is visible to {{ displayName() }} on their My Coach page,
-          and anything they write appears here too. Use Chat for a real-time conversation.
-        </p>
-      </div>
-    }
-    @if (notes().length > 0) {
-      <ul class="plain-list">
-        @for (note of notes(); track note.id) {
-          <li class="note">
-            <div class="note-top">
-              <p>{{ note.body }}</p>
-              <span class="role" [class.role--coach]="!isMemberNote(note)">{{ isMemberNote(note) ? 'Member note' : 'Coach note' }}</span>
-            </div>
-            <span class="muted">{{ authorName(note) }} · {{ note.createdAt | date:'mediumDate' }}</span>
-          </li>
-        }
-      </ul>
-    } @else if (!loading()) {
-      <p class="empty">No notes yet — log the first coaching moment below.</p>
-    }
-    <div class="note-form">
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>Log a shared coaching note</mat-label>
-        <textarea matInput rows="2" maxlength="2000" [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)" placeholder="What did you coach, and what is next?"></textarea>
-      </mat-form-field>
-      <button mat-flat-button color="primary" (click)="saveNote()" [disabled]="!noteDraft().trim() || savingNote()">
-        {{ savingNote() ? 'Saving…' : 'Save note' }}
-      </button>
-    </div>
-  </section>
 
   <section class="dp-card actions-card" aria-label="Actions">
     <h3>Actions</h3>
@@ -157,7 +103,7 @@
       <button mat-button (click)="viewAs.open(memberId())">View as member</button>
       <button mat-button (click)="chat()"><mat-icon>chat</mat-icon>Chat</button>
       @if (canViewContact()) {
-        <button mat-button (click)="viewContactList()">Contact list</button>
+        <button mat-button (click)="viewContactList()">Prospects</button>
       }
       <button mat-button (click)="showKpi.set(!showKpi())">{{ showKpi() ? 'Hide business health' : 'Business health' }}</button>
     </div>

@@ -9,7 +9,7 @@ Angular 22 partner back office for MarketSpase. Local dev server:
 - Home, Pipeline, Campaigns, Team, Wallet, Learn, Community and More hubs
 - Prospect pipeline, referral-signup visibility, personal-page leads and Customer Leads
 - Growth campaigns, compensation (manual commission rank + automatic journey rank)
-- Training ladder (Partner → Builder → Leader → Ambassador), mentorship and cell meetings
+- Training ladder (Partner → Builder → Leader → Ambassador), mentorship and team activation
 - Ora, notifications, settings and the admin-mode rail
 
 The admin app is a separate project at `../admin` (port 4202); the store is

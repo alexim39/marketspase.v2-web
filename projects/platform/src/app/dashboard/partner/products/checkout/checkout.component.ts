@@ -10,7 +10,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterModule } from '@angular/router';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
-import { BillingService } from '../../../../core/billing/billing.service';
 import { userError } from '../../../../core/http/api-error';
 import { UiFeedbackService } from '../../../../core/ui/ui-feedback.service';
 import { GetProductService } from '../get-product.service';
@@ -68,7 +67,6 @@ export class CheckoutComponent {
   private readonly cartApi = inject(GetProductService);
   private readonly productsApi = inject(ProductService);
   private readonly partnerService = inject(PartnerService);
-  private readonly billing = inject(BillingService);
   private readonly ui = inject(UiFeedbackService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -226,7 +224,6 @@ export class CheckoutComponent {
         };
         const orderNumber = payload?.data?.orderNumber
           || (payload?.data?.cartId ? `PRD-${String(payload.data.cartId).slice(-6).toUpperCase()}` : '');
-        const commissionPlan = payload?.data?.commissionPlan;
 
         this.cartApi.clearCart();
         this.success.set({ orderNumber, total: paidTotal });
@@ -236,13 +233,6 @@ export class CheckoutComponent {
           const updated = { ...current, balance: Math.max(this.balance() - paidTotal, 0) };
           this.partner.set(updated);
           this.partnerService.updatePartnerService(updated);
-        }
-
-        // Older API builds do not run growth commissions themselves.
-        if (payload?.data?.cartId && commissionPlan !== 'growth') {
-          this.billing.accrue(payload.data.cartId)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({ error: () => { /* fulfilment can still accrue later */ } });
         }
       },
       error: (err: HttpErrorResponse) => {

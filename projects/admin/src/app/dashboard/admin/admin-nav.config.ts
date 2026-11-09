@@ -37,7 +37,6 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { label: 'Product orders', link: '/orders', icon: 'shopping_bag' },
       { label: 'Products', link: '/products', icon: 'inventory_2' },
       { label: 'Bonuses', link: '/bonuses', icon: 'card_giftcard' },
-      { label: 'Shop plan (legacy)', link: '/plan', icon: 'percent' },
     ],
   },
   {
@@ -57,8 +56,6 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     children: [
       { label: 'Manage roles', link: '/roles', icon: 'badge' },
       { label: 'Partner pipeline', link: '/partner-pipeline', icon: 'person_search' },
-      { label: 'Page leads', link: '/page-leads', icon: 'inbox' },
-      { label: 'Partner surveys', link: '/partner-surveys', icon: 'assignment' },
     ],
   },
   {

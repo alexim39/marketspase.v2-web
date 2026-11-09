@@ -19,9 +19,8 @@ import { ChatSocketService, RankGroupChangedEvent } from '../../../core/messagin
 import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
-import { AnnounceEnvelope, ChatRouteInfo, Contact, GroupAttachment, GroupBan, GroupDetail, GroupHit, GroupInvite, GroupJoinRequest, GroupMember, GroupMessage, GroupReport, GroupSummary, Message, MessageEnvelope, PersonHit, TeamAnnounceEnvelope } from '../../../core/messaging/message.models';
+import { AnnounceEnvelope, Contact, GroupAttachment, GroupBan, GroupDetail, GroupHit, GroupInvite, GroupJoinRequest, GroupMember, GroupMessage, GroupReport, GroupSummary, Message, MessageEnvelope, PersonHit, TeamAnnounceEnvelope } from '../../../core/messaging/message.models';
 import { ApiError, userError } from '../../../core/http/api-error';
-import { SmsApprovalDialogComponent } from './sms-approval-dialog.component';
 
 type ComposeKind = 'direct' | 'announcement' | 'team';
 type ChatMsg = Message & { clientId?: string; pending?: boolean; failed?: boolean };
@@ -193,11 +192,6 @@ const TYPING_CLEAR_MS = 3500;
                     <button mat-icon-button (click)="toggleFind()" [title]="findOpen() ? 'Close find' : 'Find in conversation'" aria-label="Find in conversation">
                       <mat-icon>search</mat-icon>
                     </button>
-                    @if (isOffline(peer.id) && isNetwork(peer.id)) {
-                      <button mat-stroked-button (click)="openSmsDialog()" [disabled]="smsSending()">
-                        <mat-icon>sms</mat-icon> SMS
-                      </button>
-                    }
               </header>
 
               @if (findOpen()) {
@@ -215,24 +209,6 @@ const TYPING_CLEAR_MS = 3500;
                     <mat-icon>close</mat-icon>
                   </button>
                 </div>
-              }
-
-              @if (routeInfo()[peer.id]; as route) {
-                @if (!route.online && isNetwork(peer.id)) {
-                  <div class="sms-banner" role="note">
-                    <mat-icon>cloud_off</mat-icon>
-                    <span>{{ peer.name }} is offline — messages wait until they're back, or reach their phone now.</span>
-                    <button mat-flat-button color="primary" (click)="openSmsDialog()" [disabled]="smsSending()">
-                      {{ smsSending() ? 'Sending…' : 'Send as SMS' }}
-                    </button>
-                  </div>
-                }
-              }
-              @if (smsNotice(); as note) {
-                <p class="notice" role="status">{{ note }}</p>
-              }
-              @if (smsError(); as err) {
-                <p class="error" role="alert">{{ err }}</p>
               }
 
               <div class="thread-scroll" #threadScroll>
@@ -1018,8 +994,6 @@ export class MessagesComponent implements OnInit {
   protected readonly livePresence = signal<Record<string, boolean>>({});
   /** counterparts currently typing. */
   protected readonly typingFrom = signal<Record<string, number>>({});
-  /** Per-open-thread routing intel for the SMS fallback banner. */
-  protected readonly routeInfo = signal<Record<string, ChatRouteInfo>>({});
 
   protected readonly loading = signal(true);
   protected readonly sending = signal(false);
@@ -1052,9 +1026,6 @@ export class MessagesComponent implements OnInit {
   protected readonly threadSending = signal(false);
   protected readonly threadSendError = signal<string | null>(null);
   protected readonly replyDraft = signal('');
-  protected readonly smsSending = signal(false);
-  protected readonly smsNotice = signal<string | null>(null);
-  protected readonly smsError = signal<string | null>(null);
   protected readonly peopleQuery = signal('');
   protected readonly people = signal<Array<{ id: string; username: string; name: string; photo: string | null }>>([]);
   protected readonly peopleLoading = signal(false);
@@ -1249,7 +1220,6 @@ export class MessagesComponent implements OnInit {
     this.chat.presence$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ userId, online }) => {
       const id = String(userId);
       this.livePresence.set({ ...this.livePresence(), [id]: !!online });
-      if (online) this.refreshRoute(id);
     });
     this.chat.reconnected$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.refreshListsSilent();
@@ -1286,7 +1256,6 @@ export class MessagesComponent implements OnInit {
         if (pinned) this.scrollSoon();
       }
       if (String(m.senderId) !== me && !m.readAt) this.markReadBoth(m);
-      this.refreshRoute(counterpart);
     } else {
       if (String(m.senderId) !== me) this.unread.set(this.unread() + 1);
       this.refreshListsSilent();
@@ -1458,23 +1427,11 @@ export class MessagesComponent implements OnInit {
     }, 300);
   }
 
-  /** Whether the counterpart is in-network (SMS fallback stays network-only). */
-  protected isNetwork(id: string | null | undefined): boolean {
-    if (!id) return false;
-    return this.contacts().some((c) => String(c.id) === String(id));
-  }
-
-  /** Header status line: socket first, route intel next, bulk presence last. */
+  /** Header status line: socket first, bulk presence last. */
   protected peerStatus(id: string): string {
     const live = this.livePresence()[id];
     if (live === true) return 'Online now';
     if (live === false) return 'Offline';
-    const route = this.routeInfo()[id];
-    if (route) {
-      if (route.online) return 'Online now';
-      if (route.presence === 'recent') return 'Active recently';
-      return 'Offline';
-    }
     const s = this.presenceOf(id);
     if (s === 'online') return 'Online now';
     if (s === 'recent') return 'Active recently';
@@ -1484,8 +1441,6 @@ export class MessagesComponent implements OnInit {
   protected isOffline(id: string): boolean {
     const live = this.livePresence()[id];
     if (live !== undefined) return !live;
-    const route = this.routeInfo()[id];
-    if (route) return !route.online;
     return this.presenceOf(id) === null;
   }
 
@@ -1621,10 +1576,7 @@ export class MessagesComponent implements OnInit {
     this.threadLoadingMore.set(false);
     this.closeFind();
     this.replyDraft.set('');
-    this.smsNotice.set(null);
-    this.smsError.set(null);
     this.threadLoading.set(true);
-    this.refreshRoute(counterpartId);
     this.messages
       .thread(counterpartId)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -1857,56 +1809,6 @@ export class MessagesComponent implements OnInit {
     } else {
       this.messages.markRead(m.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ error: () => {} });
     }
-  }
-
-  /** Routing intel for the SMS fallback banner (cached per counterpart). */
-  private refreshRoute(counterpartId: string): void {
-    if (this.routeInfo()[counterpartId]) return;
-    this.messages
-      .routeInfo(counterpartId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          if (res.data) this.routeInfo.set({ ...this.routeInfo(), [counterpartId]: res.data });
-        },
-        error: () => {},
-      });
-  }
-
-  /** Approved SMS fallback: explicit dialog, exact wallet charge, no surprises. */
-  protected openSmsDialog(): void {
-    const peer = this.openThreadName();
-    const route = peer ? this.routeInfo()[peer.id] : undefined;
-    if (!peer || !route) return;
-    const dialog = this.dialog.open(SmsApprovalDialogComponent, {
-      data: {
-        name: peer.name,
-        maskedPhone: route.maskedPhone,
-        unitCost: route.smsUnitCost,
-        offlineNote: route.online ? 'is around' : 'is offline',
-        initialBody: this.replyDraft().trim(),
-      },
-    });
-    dialog.afterClosed().subscribe((body: string | null) => {
-      if (!body) return;
-    this.smsSending.set(true);
-    this.smsError.set(null);
-    this.smsNotice.set(null);
-    this.messages
-      .sendSmsFallback(peer.id, body)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (res) => {
-            this.smsSending.set(false);
-            this.replyDraft.set('');
-            this.smsNotice.set(res?.message ?? 'SMS sent.');
-          },
-          error: (err: ApiError) => {
-            this.smsSending.set(false);
-            this.smsError.set(userError(err));
-          },
-        });
-    });
   }
 
   protected open(msg: Message): void {
