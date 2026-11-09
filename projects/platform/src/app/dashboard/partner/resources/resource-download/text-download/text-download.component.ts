@@ -47,9 +47,6 @@ template: `
   </div>
 
   @if (filteredTemplates.length > 0) {
-    <p class="compliance" role="note">
-      Income depends on activation, product sales, team activity and qualification. No income is guaranteed.
-    </p>
     <section class="template-list">
       @for (template of filteredTemplates; track template.title) {
         <div class="template-item dp-card">
@@ -106,7 +103,6 @@ styles: [`
 
 .template-item p { margin: 0; font-size: 0.9rem; }
 .template-copy { white-space: pre-line; line-height: 1.55; }
-.compliance { color: var(--ms-text-muted); font-size: 0.8rem; margin: 0 0 0.9em; max-width: 60em; }
 .muted { color: var(--ms-text-muted); font-size: 0.85em; }
 .muted strong { color: var(--ms-primary-strong); }
 
@@ -172,7 +168,7 @@ export class TextDownloadComponent {
     }
 
     private fullContent(template: TextTemplate): string {
-      return `${template.description}\n\nStart here: ${this.partnerLink()}\n\nResults depend on your activity and sales. No income is guaranteed.`;
+      return `${template.description}\n\nStart here: ${this.partnerLink()}`;
     }
 
     copyContent(template: TextTemplate): void {

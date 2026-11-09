@@ -76,7 +76,7 @@ export class ResourceDownloadComponent {
 
   showDescription () {
     this.dialog.open(HelpDialogComponent, {
-      data: {help: 'Pick a message or image, then copy it or share it directly on WhatsApp. Your personal lead link is attached automatically. Income depends on activation, product sales, team activity and qualification; no income is guaranteed.'},
+      data: {help: 'Pick a message or image, then copy it or share it directly on WhatsApp. Your personal lead link is attached automatically, so every share points people to your page.'},
     });
   }
 
