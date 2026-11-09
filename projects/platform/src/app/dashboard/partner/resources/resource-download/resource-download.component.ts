@@ -32,7 +32,7 @@ template: `
   <div class="page-head">
     <div>
       <h2>Content library</h2>
-      <p class="subtitle">Copy, download or send straight into outreach — every text carries your personal link.</p>
+      <p class="subtitle">Ready-to-post messages that present MarketSpase as an online business. Copy or share directly on WhatsApp — every message carries your personal link.</p>
     </div>
     <button mat-button (click)="showDescription()">What is this?</button>
   </div>
@@ -76,7 +76,7 @@ export class ResourceDownloadComponent {
 
   showDescription () {
     this.dialog.open(HelpDialogComponent, {
-      data: {help: 'Pick a text or image, copy it or send it straight into SMS or Email outreach — your personal link is attached automatically.'},
+      data: {help: 'Pick a message or image, then copy it or share it directly on WhatsApp. Your personal lead link is attached automatically. Income depends on activation, product sales, team activity and qualification; no income is guaranteed.'},
     });
   }
 

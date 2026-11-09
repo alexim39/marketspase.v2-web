@@ -1,1189 +1,152 @@
 [
-    {
-        "title": "Join the MarketSpase Community",
-        "description": "Ready to take control of your financial future? Join MarketSpase today and start building your business from the comfort of your home. With our proven system, success is just a few clicks away!",
-        "downloadUrl": "/assets/templates/template1.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Empower Your Future with MarketSpase",
-        "description": "Join thousands of entrepreneurs who are leveraging MarketSpase to create multiple income streams. No experience needed—just a passion for growth!",
-        "downloadUrl": "/assets/templates/template2.txt",
-        "platforms": ["Twitter"]
-    },
-    {
-        "title": "Why Wait? Start Your Online Business Today!",
-        "description": "The MarketSpase provides you with all the tools you need to succeed. Sign up now and get instant access to our resources and community. Don’t miss this opportunity!",
-        "downloadUrl": "/assets/templates/template3.txt",
-        "platforms": ["Facebook", "Twitter", "Instagram"]
-    },
-    {
-        "title": "Template Title 1",
-        "platform": "Facebook",
-        "description": "Grow your business with us! Join a community of like-minded individuals committed to success. Sign up today and start your journey with MarketSpase.",
-        "downloadUrl": "/assets/templates/template1.txt"
-    },
-    {
-        "title": "Template Title 2",
-        "platform": "Twitter",
-        "description": "Looking for a way to boost your income? Discover the potential with MarketSpase. It's simple, flexible, and designed for your success.",
-        "downloadUrl": "/assets/templates/template2.txt"
-    },
-    {
-        "title": "Template Title 3",
-        "platform": "Instagram",
-        "description": "Empower your future with MarketSpase. Join us and take the first step towards financial freedom. Our platform is here to support your growth.",
-        "downloadUrl": "/assets/templates/template3.txt"
-    },
-    {
-        "title": "Template Title 4",
-        "platform": "All Platforms",
-        "description": "Ready to take control of your career? MarketSpase offers the tools and support you need to succeed. Don't wait – start today!.",
-        "downloadUrl": "/assets/templates/template4.txt"
-    },
-    {
-        "title": "Join the MarketSpase Community",
-        "description": "Ready to take control of your financial future? Join MarketSpase today and start building your business from the comfort of your home. With our proven system, success is just a few clicks away!",
-        "downloadUrl": "/assets/templates/template1.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Empower Your Future with MarketSpase",
-        "description": "Join thousands of entrepreneurs who are leveraging MarketSpase to create multiple income streams. No experience needed—just a passion for growth!",
-        "downloadUrl": "/assets/templates/template2.txt",
-        "platforms": ["Twitter"]
-    },
-    {
-        "title": "Why Wait? Start Your Online Business Today!",
-        "description": "The MarketSpase provides you with all the tools you need to succeed. Sign up now and get instant access to our resources and community. Don’t miss this opportunity!",
-        "downloadUrl": "/assets/templates/template3.txt",
-        "platforms": ["Facebook", "Twitter", "Instagram"]
-    },
-    {
-        "title": "Your Path to Financial Freedom Starts Here",
-        "description": "MarketSpase offers you the chance to build your own business with the support of a thriving community. Start today and take the first step towards financial independence!",
-        "downloadUrl": "/assets/templates/template4.txt",
-        "platforms": ["LinkedIn"]
-    },
-    {
-        "title": "Transform Your Life with MarketSpase",
-        "description": "Tired of the 9-to-5 grind? MarketSpase gives you the freedom to work on your terms. Join our platform today and unlock your potential.",
-        "downloadUrl": "/assets/templates/template5.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Make Money Online with MarketSpase",
-        "description": "Want to earn extra income? MarketSpase makes it easy to start your own online business. No experience required—just a willingness to learn!",
-        "downloadUrl": "/assets/templates/template6.txt",
-        "platforms": ["WhatsApp", "Twitter"]
-    },
-    {
-        "title": "Build Your Dream Business",
-        "description": "MarketSpase is the ultimate platform for aspiring entrepreneurs. Start today and turn your dreams into reality with our step-by-step guidance.",
-        "downloadUrl": "/assets/templates/template7.txt",
-        "platforms": ["Facebook", "Instagram", "Pinterest"]
-    },
-    {
-        "title": "Unlock Your Potential with MarketSpase",
-        "description": "Discover how MarketSpase can help you create a successful online business. Join now and take advantage of our comprehensive resources and support.",
-        "downloadUrl": "/assets/templates/template8.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Start Your Journey to Success",
-        "description": "With MarketSpase, success is within your reach. Our platform provides you with the tools and support you need to thrive. Sign up today!",
-        "downloadUrl": "/assets/templates/template9.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Become Your Own Boss",
-        "description": "Tired of working for someone else? MarketSpase gives you the opportunity to be your own boss and build a business on your terms.",
-        "downloadUrl": "/assets/templates/template10.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Achieve Financial Independence",
-        "description": "MarketSpase empowers you to achieve financial independence through online entrepreneurship. Start your journey today!",
-        "downloadUrl": "/assets/templates/template11.txt",
-        "platforms": ["Facebook", "Instagram", "Pinterest"]
-    },
-    {
-        "title": "Join the Revolution",
-        "description": "Online business is the future. Join MarketSpase and be part of the revolution. Start building your business today!",
-        "downloadUrl": "/assets/templates/template12.txt",
-        "platforms": ["WhatsApp", "Twitter"]
-    },
-    {
-        "title": "Success Awaits You",
-        "description": "At MarketSpase, your success is our priority. Join our platform and access the resources you need to thrive as an online entrepreneur.",
-        "downloadUrl": "/assets/templates/template13.txt",
-        "platforms": ["LinkedIn", "Facebook"]
-    },
-    {
-        "title": "Take the Leap with MarketSpase",
-        "description": "Ready to take the leap into online business? MarketSpase provides everything you need to succeed. Join now and start your journey!",
-        "downloadUrl": "/assets/templates/template14.txt",
-        "platforms": ["Instagram", "Pinterest"]
-    },
-    {
-        "title": "Your Success Story Begins Here",
-        "description": "MarketSpase is your gateway to success. Join our community today and start building your own success story.",
-        "downloadUrl": "/assets/templates/template15.txt",
-        "platforms": ["Twitter", "LinkedIn"]
-    },
-    {
-        "title": "Start Your Own Online Business",
-        "description": "MarketSpase offers you the chance to start your own online business with minimal risk and maximum support. Sign up now!",
-        "downloadUrl": "/assets/templates/template16.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Join the MarketSpase Movement",
-        "description": "Become part of a growing community of online entrepreneurs with MarketSpase. Start today and take control of your financial future.",
-        "downloadUrl": "/assets/templates/template17.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Success Starts with MarketSpase",
-        "description": "MarketSpase is designed to help you succeed. Join our platform today and access the resources you need to thrive.",
-        "downloadUrl": "/assets/templates/template18.txt",
-        "platforms": ["Instagram", "Pinterest"]
-    },
-    {
-        "title": "Turn Your Dreams into Reality",
-        "description": "MarketSpase provides the tools and support you need to turn your entrepreneurial dreams into reality. Join now!",
-        "downloadUrl": "/assets/templates/template19.txt",
-        "platforms": ["Facebook", "Twitter"]
-    },
-    {
-        "title": "Join the MarketSpase Family",
-        "description": "Our community of online entrepreneurs is growing fast. Join MarketSpase today and start building your own business.",
-        "downloadUrl": "/assets/templates/template20.txt",
-        "platforms": ["WhatsApp", "LinkedIn"]
-    },
-    {
-        "title": "Build Your Online Empire",
-        "description": "With MarketSpase, you can build your own online empire. Start today and take advantage of our powerful platform.",
-        "downloadUrl": "/assets/templates/template21.txt",
-        "platforms": ["Facebook", "Instagram", "Pinterest"]
-    },
-    {
-        "title": "Your Future Starts with MarketSpase",
-        "description": "The future is online, and MarketSpase is here to help you succeed. Join our platform today and start building your future.",
-        "downloadUrl": "/assets/templates/template22.txt",
-        "platforms": ["Twitter", "LinkedIn"]
-    },
-    {
-        "title": "Join the Online Business Revolution",
-        "description": "MarketSpase is leading the online business revolution. Join us today and start building your own business.",
-        "downloadUrl": "/assets/templates/template23.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Start Earning with MarketSpase",
-        "description": "MarketSpase makes it easy to start earning money online. Join now and start building your income stream.",
-        "downloadUrl": "/assets/templates/template24.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Become a Successful Entrepreneur",
-        "description": "MarketSpase is your partner in success. Join our platform today and start your journey to becoming a successful entrepreneur.",
-        "downloadUrl": "/assets/templates/template25.txt",
-        "platforms": ["LinkedIn", "Pinterest"]
-    },
-    {
-        "title": "Unlock the Power of Online Business",
-        "description": "MarketSpase gives you the tools and support you need to unlock the power of online business. Start today!",
-        "downloadUrl": "/assets/templates/template26.txt",
-        "platforms": ["WhatsApp", "Twitter"]
-    },
-    {
-        "title": "Your Success is Our Mission",
-        "description": "At MarketSpase, we’re committed to helping you succeed. Join our platform today and start building your online business.",
-        "downloadUrl": "/assets/templates/template27.txt",
-        "platforms": ["Facebook", "Instagram", "Pinterest"]
-    },
-    {
-        "title": "Build a Better Future with MarketSpase",
-        "description": "MarketSpase is your key to a better future. Join our platform today and start building your own success story.",
-        "downloadUrl": "/assets/templates/template28.txt",
-        "platforms": ["Twitter", "LinkedIn"]
-    },
-    {
-        "title": "Start Your Online Business Journey",
-        "description": "The journey to success starts with MarketSpase. Join now and take the first step towards building your own online business.",
-        "downloadUrl": "/assets/templates/template29.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Take Control of Your Future",
-        "description": "MarketSpase gives you the tools you need to take control of your future. Join today and start building your business.",
-        "downloadUrl": "/assets/templates/template30.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Join a Thriving Community",
-        "description": "MarketSpase is more than just a platform—it’s a community of like-minded entrepreneurs. Join us today and start building your network.",
-        "downloadUrl": "/assets/templates/template31.txt",
-        "platforms": ["LinkedIn", "Pinterest"]
-    },
-    {
-        "title": "Create Your Own Success",
-        "description": "MarketSpase provides the resources you need to create your own success. Join now and start building your business.",
-        "downloadUrl": "/assets/templates/template32.txt",
-        "platforms": ["WhatsApp", "Twitter"]
-    },
-    {
-        "title": "Build a Profitable Online Business",
-        "description": "MarketSpase makes it easy to build a profitable online business. Join our platform today and start earning.",
-        "downloadUrl": "/assets/templates/template33.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Transform Your Life with MarketSpase",
-        "description": "MarketSpase is here to help you transform your life through online entrepreneurship. Join now and start your journey.",
-        "downloadUrl": "/assets/templates/template34.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Success is Just a Click Away",
-        "description": "With MarketSpase, success is just a click away. Join our platform today and start building your business.",
-        "downloadUrl": "/assets/templates/template35.txt",
-        "platforms": ["Twitter", "LinkedIn"]
-    },
-    {
-        "title": "Join the MarketSpase Success Story",
-        "description": "Thousands of entrepreneurs have found success with MarketSpase. Join today and start building your own success story.",
-        "downloadUrl": "/assets/templates/template36.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Build Wealth with MarketSpase",
-        "description": "MarketSpase gives you the tools and support you need to build wealth through online business. Start today!",
-        "downloadUrl": "/assets/templates/template37.txt",
-        "platforms": ["WhatsApp", "Twitter"]
-    },
-    {
-        "title": "Your Journey to Success Begins Here",
-        "description": "MarketSpase is your partner in success. Join our platform today and start your journey to financial independence.",
-        "downloadUrl": "/assets/templates/template38.txt",
-        "platforms": ["LinkedIn", "Pinterest"]
-    },
-    {
-        "title": "Start Your Online Business Today",
-        "description": "There’s never been a better time to start your own online business. Join MarketSpase and take the first step towards success.",
-        "downloadUrl": "/assets/templates/template39.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Achieve Financial Freedom",
-        "description": "MarketSpase empowers you to achieve financial freedom through online entrepreneurship. Join today and start building your future.",
-        "downloadUrl": "/assets/templates/template40.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Join the MarketSpase Revolution",
-        "description": "The future of business is online, and MarketSpase is leading the way. Join our platform today and start building your business.",
-        "downloadUrl": "/assets/templates/template41.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Start Your Online Business Journey",
-        "description": "MarketSpase is the ultimate platform for aspiring entrepreneurs. Join today and start your journey to success.",
-        "downloadUrl": "/assets/templates/template42.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Build a Brighter Future",
-        "description": "With MarketSpase, you can build a brighter future for yourself and your family. Start today and take control of your financial destiny.",
-        "downloadUrl": "/assets/templates/template43.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Success Starts with MarketSpase",
-        "description": "MarketSpase is your gateway to success. Join our platform today and start building your online business.",
-        "downloadUrl": "/assets/templates/template44.txt",
-        "platforms": ["WhatsApp", "LinkedIn"]
-    },
-    {
-        "title": "Start Building Your Online Empire",
-        "description": "MarketSpase gives you the tools and support you need to build your own online empire. Join now and start your journey to success.",
-        "downloadUrl": "/assets/templates/template45.txt",
-        "platforms": ["Twitter", "Pinterest"]
-    },
-    {
-        "title": "Your Success Story Begins Here",
-        "description": "MarketSpase is your partner in success. Join our platform today and start building your own success story.",
-        "downloadUrl": "/assets/templates/template46.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Join a Community of Entrepreneurs",
-        "description": "MarketSpase is more than just a platform—it’s a community of like-minded entrepreneurs. Join us today and start building your network.",
-        "downloadUrl": "/assets/templates/template47.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Take Control of Your Financial Future",
-        "description": "MarketSpase gives you the tools you need to take control of your financial future. Join today and start building your business.",
-        "downloadUrl": "/assets/templates/template48.txt",
-        "platforms": ["WhatsApp", "LinkedIn"]
-    },
-    {
-        "title": "Create Multiple Income Streams",
-        "description": "With MarketSpase, you can create multiple income streams from the comfort of your home. Join now and start building your business.",
-        "downloadUrl": "/assets/templates/template49.txt",
-        "platforms": ["Twitter", "Pinterest"]
-    },
-    {
-        "title": "Your Path to Success Starts Here",
-        "description": "MarketSpase is your partner in success. Join our platform today and start your journey to financial independence.",
-        "downloadUrl": "/assets/templates/template50.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "description": "Take the first step towards financial freedom with MarketSpase. Join our platform today and start your journey to success.",
-        "downloadUrl": "/assets/templates/template51.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Looking for a side hustle? MarketSpase has got you covered. Join today and start earning from home!",
-        "downloadUrl": "/assets/templates/template52.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Ready to build your online business? MarketSpase provides the tools and support you need to succeed.",
-        "downloadUrl": "/assets/templates/template53.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Join a community of entrepreneurs who are transforming their lives with MarketSpase. Start today!",
-        "downloadUrl": "/assets/templates/template54.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Success is within your reach with MarketSpase. Join now and take control of your financial future.",
-        "downloadUrl": "/assets/templates/template55.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Start your journey to financial independence with MarketSpase. Join today and start building your business from home.",
-        "downloadUrl": "/assets/templates/template56.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Want to work from home? MarketSpase makes it possible. Join our platform today and start earning.",
-        "downloadUrl": "/assets/templates/template57.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "MarketSpase is your partner in success. Join today and start your journey to financial freedom.",
-        "downloadUrl": "/assets/templates/template58.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Join MarketSpase and start your own online business from the comfort of your home. Success is just a click away!",
-        "downloadUrl": "/assets/templates/template59.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Build a successful online business with MarketSpase. Join now and start your journey to success.",
-        "downloadUrl": "/assets/templates/template60.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Transform your smartphone into a business tool with MarketSpase. Start earning today with just a few taps!",
-        "downloadUrl": "/assets/templates/template61.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Your success story starts here. Join MarketSpase and turn your dreams into reality. Start now!",
-        "downloadUrl": "/assets/templates/template62.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "No more excuses! MarketSpase gives you everything you need to succeed in the digital world. Join today.",
-        "downloadUrl": "/assets/templates/template63.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "The future of work is online. Join MarketSpase and become part of a thriving digital community.",
-        "downloadUrl": "/assets/templates/template64.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Looking for a reliable way to earn from home? MarketSpase is your answer. Sign up today and start earning!",
-        "downloadUrl": "/assets/templates/template65.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Empower yourself with the tools for success. MarketSpase is here to help you achieve your goals. Join now!",
-        "downloadUrl": "/assets/templates/template66.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Ready to take charge of your life? Join MarketSpase and start building your online business today!",
-        "downloadUrl": "/assets/templates/template67.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Your path to financial independence begins with MarketSpase. Join us today and start your journey.",
-        "downloadUrl": "/assets/templates/template68.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Join MarketSpase and discover the freedom of working from anywhere. Start your business today!",
-        "downloadUrl": "/assets/templates/template69.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "description": "Don't wait any longer to achieve your dreams. Join MarketSpase and take the first step towards success.",
-        "downloadUrl": "/assets/templates/template70.txt",
-        "platforms": ["WhatsApp"]
-    },
-    {
-        "title": "Unlock Your Potential with MarketSpase",
-        "description": "Ready to achieve financial freedom? Join MarketSpase and start building your future today. Our platform offers everything you need to succeed!",
-        "downloadUrl": "/assets/templates/template71.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Start Your Journey with MarketSpase",
-        "description": "Dreaming of a successful online business? MarketSpase makes it possible. Sign up now and access our powerful tools and community.",
-        "downloadUrl": "/assets/templates/template72.txt",
-        "platforms": ["Twitter", "LinkedIn"]
-    },
-    {
-        "title": "The Future of Business is Here!",
-        "description": "Join MarketSpase and discover how easy it is to start your own online business. Don’t wait—your future is just a click away!",
-        "downloadUrl": "/assets/templates/template73.txt",
-        "platforms": ["Facebook", "Pinterest"]
-    },
-    {
-        "description": "Success is within reach! Join MarketSpase and take the first step towards your dreams. Get started today.",
-        "downloadUrl": "/assets/templates/template74.txt",
-        "platforms": ["Instagram", "TikTok"]
-    },
-    {
-        "title": "Grow Your Business with MarketSpase",
-        "description": "Looking for a way to expand your reach? MarketSpase is your solution. Join us today and start seeing results!",
-        "downloadUrl": "/assets/templates/template75.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Transform Your Life with MarketSpase",
-        "description": "Join a community of like-minded individuals who are changing their lives with MarketSpase. Your success story begins here!",
-        "downloadUrl": "/assets/templates/template76.txt",
-        "platforms": ["Facebook", "Instagram", "Pinterest"]
-    },
-    {
-        "description": "Turn your passion into profit with MarketSpase. Start your journey today and unlock your potential!",
-        "downloadUrl": "/assets/templates/template77.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Empower Your Business with MarketSpase",
-        "description": "MarketSpase gives you the tools and support you need to grow your business. Join us now and watch your success unfold!",
-        "downloadUrl": "/assets/templates/template78.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Your Success Starts Here",
-        "description": "With MarketSpase, you have everything you need to start and grow a successful online business. Join today and take control of your future!",
-        "downloadUrl": "/assets/templates/template79.txt",
-        "platforms": ["Facebook", "Instagram", "Pinterest"]
-    },
-    {
-        "description": "Why wait? Join MarketSpase today and start building the life you’ve always dreamed of. Your success is just a click away!",
-        "downloadUrl": "/assets/templates/template80.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Start Your Business Journey with MarketSpase",
-        "description": "Take the first step towards financial freedom by joining MarketSpase. Our platform empowers you to build a successful business from anywhere.",
-        "downloadUrl": "/assets/templates/template81.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Join a Thriving Community of Entrepreneurs",
-        "description": "MarketSpase connects you with like-minded individuals who are passionate about success. Start your journey with us today!",
-        "downloadUrl": "/assets/templates/template82.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Build Your Future with MarketSpase",
-        "description": "Why wait? MarketSpase gives you all the tools you need to start building your online business today. Success is just a click away!",
-        "downloadUrl": "/assets/templates/template83.txt",
-        "platforms": ["Facebook", "Pinterest"]
-    },
-    {
-        "description": "Transform your dreams into reality with MarketSpase. Join today and start your journey to success.",
-        "downloadUrl": "/assets/templates/template84.txt",
-        "platforms": ["Instagram", "TikTok"]
-    },
-    {
-        "title": "Unlock Unlimited Potential with MarketSpase",
-        "description": "MarketSpase empowers you to take control of your financial future. Join us and start your business journey today!",
-        "downloadUrl": "/assets/templates/template85.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Your Path to Success Starts Here",
-        "description": "Ready to make your mark? MarketSpase provides the tools, support, and community you need to succeed. Join now!",
-        "downloadUrl": "/assets/templates/template86.txt",
-        "platforms": ["Facebook", "Instagram", "Pinterest"]
-    },
-    {
-        "description": "Start your own business with MarketSpase. Join us today and unlock your potential!",
-        "downloadUrl": "/assets/templates/template87.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Grow Your Online Business with MarketSpase",
-        "description": "MarketSpase is the key to your business success. Join our community today and watch your business thrive!",
-        "downloadUrl": "/assets/templates/template88.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Take Charge of Your Financial Future",
-        "description": "With MarketSpase, you can build a successful business from the comfort of your home. Start today and take control of your destiny!",
-        "downloadUrl": "/assets/templates/template89.txt",
-        "platforms": ["Facebook", "Instagram", "Pinterest"]
-    },
-    {
-        "description": "Don’t wait—start your journey to success with MarketSpase. Join today and make your dreams a reality!",
-        "downloadUrl": "/assets/templates/template90.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Join the MarketSpase Success Story",
-        "description": "MarketSpase has helped countless entrepreneurs achieve their dreams. Join us today and start your own success story!",
-        "downloadUrl": "/assets/templates/template91.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Empower Your Business with MarketSpase",
-        "description": "MarketSpase provides the tools and community you need to grow your business. Join us now and see the difference!",
-        "downloadUrl": "/assets/templates/template92.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Start Your Online Business Today",
-        "description": "MarketSpase makes it easy to start and grow your online business. Join us today and take the first step towards success!",
-        "downloadUrl": "/assets/templates/template93.txt",
-        "platforms": ["Facebook", "Pinterest"]
-    },
-    {
-        "description": "Ready to succeed? MarketSpase is here to help. Join us today and start building your future.",
-        "downloadUrl": "/assets/templates/template94.txt",
-        "platforms": ["Instagram", "TikTok"]
-    },
-    {
-        "title": "Achieve Financial Freedom with MarketSpase",
-        "description": "Join MarketSpase and discover the freedom of building your own business. Start your journey today!",
-        "downloadUrl": "/assets/templates/template95.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Unlock Your Business Potential",
-        "description": "MarketSpase gives you the resources and support you need to succeed. Join our community today and start your business journey!",
-        "downloadUrl": "/assets/templates/template96.txt",
-        "platforms": ["Facebook", "Instagram", "Pinterest"]
-    },
-    {
-        "description": "Start your own business with MarketSpase and achieve your dreams. Join us today!",
-        "downloadUrl": "/assets/templates/template97.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Grow Your Business with MarketSpase",
-        "description": "MarketSpase provides the tools and community you need to thrive in your business. Join us today and see the difference!",
-        "downloadUrl": "/assets/templates/template98.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Build Your Future with MarketSpase",
-        "description": "MarketSpase empowers you to take control of your financial future. Join us today and start building your business!",
-        "downloadUrl": "/assets/templates/template99.txt",
-        "platforms": ["Facebook", "Instagram", "Pinterest"]
-    },
-    {
-        "description": "Success is just a click away with MarketSpase. Join us today and start your journey to financial freedom.",
-        "downloadUrl": "/assets/templates/template100.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Transform Your Life with MarketSpase",
-        "description": "MarketSpase gives you the tools you need to succeed. Join us today and start your journey to financial independence!",
-        "downloadUrl": "/assets/templates/template101.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Your Path to Success Starts Here",
-        "description": "MarketSpase is the key to your business success. Join our community today and start your journey!",
-        "downloadUrl": "/assets/templates/template102.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Start Your Business with MarketSpase",
-        "description": "With MarketSpase, you can build a successful business from anywhere. Join us today and take the first step!",
-        "downloadUrl": "/assets/templates/template103.txt",
-        "platforms": ["Facebook", "Pinterest"]
-    },
-    {
-        "description": "Join MarketSpase today and start your journey to success. Your future is just a click away!",
-        "downloadUrl": "/assets/templates/template104.txt",
-        "platforms": ["Instagram", "TikTok"]
-    },
-    {
-        "title": "Empower Your Business with MarketSpase",
-        "description": "MarketSpase provides the resources and community you need to succeed. Join us today and start building your business!",
-        "downloadUrl": "/assets/templates/template105.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Your Future Starts with MarketSpase",
-        "description": "MarketSpase is the perfect platform for entrepreneurs. Join us today and start building your future!",
-        "downloadUrl": "/assets/templates/template106.txt",
-        "platforms": ["Facebook", "Instagram", "Pinterest"]
-    },
-    {
-        "description": "Join MarketSpase today and start your journey to financial freedom. Your success is just a click away!",
-        "downloadUrl": "/assets/templates/template107.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Unlock Your Potential with MarketSpase",
-        "description": "MarketSpase gives you the tools you need to succeed. Join our community today and start your journey!",
-        "downloadUrl": "/assets/templates/template108.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Grow Your Business with MarketSpase",
-        "description": "MarketSpase provides the support and resources you need to grow your business. Join us today and see the difference!",
-        "downloadUrl": "/assets/templates/template109.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Start Your Online Business Today",
-        "description": "MarketSpase makes it easy to start and grow your online business. Join us today and take control of your future!",
-        "downloadUrl": "/assets/templates/template110.txt",
-        "platforms": ["Facebook", "Pinterest"]
-    },
-    {
-        "description": "Ready to succeed? Join MarketSpase today and start your journey to financial freedom.",
-        "downloadUrl": "/assets/templates/template111.txt",
-        "platforms": ["Instagram", "TikTok"]
-    },
-    {
-        "title": "Empower Your Future with MarketSpase",
-        "description": "MarketSpase provides the tools and support you need to succeed. Join us today and start building your future!",
-        "downloadUrl": "/assets/templates/template112.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Build Your Success with MarketSpase",
-        "description": "MarketSpase gives you everything you need to succeed in your online business. Join us today and start your journey!",
-        "downloadUrl": "/assets/templates/template113.txt",
-        "platforms": ["Facebook", "Instagram", "Pinterest"]
-    },
-    {
-        "description": "Don’t wait—start your journey to success with MarketSpase. Join us today and build your future!",
-        "downloadUrl": "/assets/templates/template114.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Join a Thriving Community of Entrepreneurs",
-        "description": "MarketSpase connects you with like-minded individuals who are passionate about success. Join us today and start your journey!",
-        "downloadUrl": "/assets/templates/template115.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Start Your Journey with MarketSpase",
-        "description": "MarketSpase makes it easy to start and grow your online business. Join us today and take the first step towards success!",
-        "downloadUrl": "/assets/templates/template116.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Build Your Business with MarketSpase",
-        "description": "MarketSpase gives you the tools and community you need to succeed. Join us today and start building your future!",
-        "downloadUrl": "/assets/templates/template117.txt",
-        "platforms": ["Facebook", "Pinterest"]
-    },
-    {
-        "description": "Start your own business with MarketSpase. Join us today and unlock your potential!",
-        "downloadUrl": "/assets/templates/template118.txt",
-        "platforms": ["Instagram", "TikTok"]
-    },
-    {
-        "title": "Empower Your Business with MarketSpase",
-        "description": "MarketSpase provides the resources and community you need to thrive. Join us today and start building your business!",
-        "downloadUrl": "/assets/templates/template119.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Your Success Starts with MarketSpase",
-        "description": "With MarketSpase, you can build a successful online business from anywhere. Join us today and start your journey!",
-        "downloadUrl": "/assets/templates/template120.txt",
-        "platforms": ["Facebook", "Instagram", "Pinterest"]
-    },
-    {
-        "title": "Your Future in Your Hands",
-        "description": "Why wait for opportunities when you can create them? Join MarketSpase today and start building your path to success!",
-        "downloadUrl": "/assets/templates/template121.txt",
-        "platforms": ["Twitter", "Facebook"]
-    },
-    {
-        "title": "Empower Your Journey with MarketSpase",
-        "description": "Success starts with a single step. Join MarketSpase and take that step today. The journey to financial freedom begins here.",
-        "downloadUrl": "/assets/templates/template122.txt",
-        "platforms": ["LinkedIn", "Instagram"]
-    },
-    {
-        "title": "Start Strong with MarketSpase",
-        "description": "A strong start leads to a strong future. MarketSpase provides you with the tools and support to succeed. Join us today!",
-        "downloadUrl": "/assets/templates/template123.txt",
-        "platforms": ["Facebook", "Twitter"]
-    },
-    {
-        "title": "Why Wait? Success Awaits!",
-        "description": "MarketSpase is where your business dreams come true. Join our community today and start your journey to success!",
-        "downloadUrl": "/assets/templates/template124.txt",
-        "platforms": ["Instagram", "LinkedIn"]
-    },
-    {
-        "title": "Unlock Your Potential Today",
-        "description": "With MarketSpase, success is just a click away. Join us and start building your business with the best resources available!",
-        "downloadUrl": "/assets/templates/template125.txt",
-        "platforms": ["Twitter", "Facebook"]
-    },
-    {
-        "title": "Your Success, Our Mission",
-        "description": "At MarketSpase, your success is our mission. Join our platform today and take the first step towards achieving your business goals.",
-        "downloadUrl": "/assets/templates/template126.txt",
-        "platforms": ["LinkedIn", "Instagram"]
-    },
-    {
-        "title": "Start Your Business with Confidence",
-        "description": "MarketSpase gives you the confidence and tools to start your business journey. Join us today and take control of your future!",
-        "downloadUrl": "/assets/templates/template127.txt",
-        "platforms": ["Facebook", "Twitter"]
-    },
-    {
-        "title": "Empower Your Financial Future",
-        "description": "The power to change your financial future is in your hands. Join MarketSpase today and start building your success!",
-        "downloadUrl": "/assets/templates/template128.txt",
-        "platforms": ["Instagram", "LinkedIn"]
-    },
-    {
-        "title": "Join the MarketSpase Movement",
-        "description": "Become part of a growing community of entrepreneurs with MarketSpase. Your journey to success starts with us!",
-        "downloadUrl": "/assets/templates/template129.txt",
-        "platforms": ["Twitter", "Facebook"]
-    },
-    {
-        "title": "Build Your Dream Business Today",
-        "description": "MarketSpase is the platform that turns dreams into reality. Join us today and start building your dream business!",
-        "downloadUrl": "/assets/templates/template130.txt",
-        "platforms": ["LinkedIn", "Instagram"]
-    },
-    {
-        "title": "Create Your Own Success Story",
-        "description": "With MarketSpase, your success story begins now. Join our platform today and take the first step towards greatness!",
-        "downloadUrl": "/assets/templates/template131.txt",
-        "platforms": ["Facebook", "Twitter"]
-    },
-    {
-        "title": "Success Starts Here",
-        "description": "MarketSpase is your gateway to business success. Join us today and begin your journey with the best tools and support available.",
-        "downloadUrl": "/assets/templates/template132.txt",
-        "platforms": ["Instagram", "LinkedIn"]
-    },
-    {
-        "title": "Take Control of Your Destiny",
-        "description": "Your future is in your hands. Join MarketSpase today and start building the life you've always dreamed of!",
-        "downloadUrl": "/assets/templates/template133.txt",
-        "platforms": ["Twitter", "Facebook"]
-    },
-    {
-        "title": "Empower Your Success with MarketSpase",
-        "description": "MarketSpase is dedicated to helping you succeed. Join us today and discover the tools and support you need to thrive.",
-        "downloadUrl": "/assets/templates/template134.txt",
-        "platforms": ["LinkedIn", "Instagram"]
-    },
-    {
-        "title": "Start Building Your Legacy",
-        "description": "With MarketSpase, you can start building a legacy that lasts. Join our community today and take the first step towards lasting success.",
-        "downloadUrl": "/assets/templates/template135.txt",
-        "platforms": ["Facebook", "Twitter"]
-    },
-    {
-        "title": "Your Journey to Success Starts Here",
-        "description": "MarketSpase is your partner in success. Join us today and begin your journey with the right tools and community support.",
-        "downloadUrl": "/assets/templates/template136.txt",
-        "platforms": ["Instagram", "LinkedIn"]
-    },
-    {
-        "title": "Join a Community of Achievers",
-        "description": "At MarketSpase, we believe in the power of community. Join us today and connect with others who are on the same journey to success.",
-        "downloadUrl": "/assets/templates/template137.txt",
-        "platforms": ["Twitter", "Facebook"]
-    },
-    {
-        "title": "Take the First Step to Financial Freedom",
-        "description": "Your financial freedom is just a step away. Join MarketSpase today and start building a successful business from anywhere!",
-        "downloadUrl": "/assets/templates/template138.txt",
-        "platforms": ["LinkedIn", "Instagram"]
-    },
-    {
-        "title": "Start Your Business Journey Today",
-        "description": "MarketSpase provides everything you need to start and grow a successful business. Join us today and take the first step towards success!",
-        "downloadUrl": "/assets/templates/template139.txt",
-        "platforms": ["Facebook", "Twitter"]
-    },
-    {
-        "title": "Your Success, Our Passion",
-        "description": "At MarketSpase, we're passionate about your success. Join us today and start building a brighter future!",
-        "downloadUrl": "/assets/templates/template140.txt",
-        "platforms": ["Instagram", "LinkedIn"]
-    },
-    {
-        "title": "Why Wait? Start Your Success Story Today",
-        "description": "The time to start your success story is now. Join MarketSpase today and take the first step towards achieving your dreams!",
-        "downloadUrl": "/assets/templates/template141.txt",
-        "platforms": ["Twitter", "Facebook"]
-    },
-    {
-        "title": "Unlock Your Business Potential",
-        "description": "MarketSpase is the key to unlocking your business potential. Join us today and start your journey to success!",
-        "downloadUrl": "/assets/templates/template142.txt",
-        "platforms": ["LinkedIn", "Instagram"]
-    },
-
-    {
-        "title": "Start Building a Brighter Future",
-        "description": "With MarketSpase, a brighter future is within reach. Join us today and start building a successful business from the comfort of your home!",
-        "downloadUrl": "/assets/templates/template144.txt",
-        "platforms": ["Instagram", "LinkedIn"]
-    },
-    {
-        "title": "Take Charge of Your Success",
-        "description": "Your success is in your hands. Join MarketSpase today and start building the life you deserve!",
-        "downloadUrl": "/assets/templates/template145.txt",
-        "platforms": ["Twitter", "Facebook"]
-    },
-    {
-        "title": "Empower Your Business Dreams",
-        "description": "MarketSpase gives you the tools and support you need to turn your business dreams into reality. Join us today and start building your success!",
-        "downloadUrl": "/assets/templates/template146.txt",
-        "platforms": ["LinkedIn", "Instagram"]
-    },
-    {
-        "title": "Join a Thriving Community of Entrepreneurs",
-        "description": "MarketSpase is where entrepreneurs thrive. Join us today and start your journey to success with the support of our community!",
-        "downloadUrl": "/assets/templates/template147.txt",
-        "platforms": ["Facebook", "Twitter"]
-    },
-    {
-        "title": "Build Your Business, Build Your Future",
-        "description": "With MarketSpase, building your business means building your future. Join us today and take control of your destiny!",
-        "downloadUrl": "/assets/templates/template148.txt",
-        "platforms": ["Instagram", "LinkedIn"]
-    },
-    {
-        "title": "Your Path to Success Starts Here",
-        "description": "MarketSpase is your partner in success. Join us today and start your journey with the right tools and community support!",
-        "downloadUrl": "/assets/templates/template149.txt",
-        "platforms": ["Twitter", "Facebook"]
-    },
-    {
-        "title": "Join the Movement for Business Success",
-        "description": "At MarketSpase, we're leading a movement for business success. Join us today and start building your future with the support of our community!",
-        "downloadUrl": "/assets/templates/template150.txt",
-        "platforms": ["LinkedIn", "Instagram"]
-    },
-    {
-        "title": "Join the MarketSpase Community",
-        "description": "Ready to take control of your financial future? Join MarketSpase today and start building your business from the comfort of your home. With our proven system, success is just a few clicks away!",
-        "downloadUrl": "/assets/templates/template1.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Empower Your Future with MarketSpase",
-        "description": "Join thousands of entrepreneurs who are leveraging MarketSpase to create multiple income streams. No experience needed—just a passion for growth!",
-        "downloadUrl": "/assets/templates/template2.txt",
-        "platforms": ["Twitter", "LinkedIn"]
-    },
-    {
-        "title": "Why Wait? Start Your Online Business Today!",
-        "description": "The MarketSpase provides you with all the tools you need to succeed. Sign up now and get instant access to our resources and community. Don't miss this opportunity!",
-        "downloadUrl": "/assets/templates/template3.txt",
-        "platforms": ["Facebook", "Twitter", "Instagram"]
-    },
-    {
-        "title": "Transform Your Life with MarketSpase",
-        "description": "Discover the power of entrepreneurship and financial freedom. Our proven system has helped thousands achieve their dreams. Will you be next?",
-        "downloadUrl": "/assets/templates/template4.txt",
-        "platforms": ["YouTube", "TikTok"]
-    },
-    {
-        "title": "Your Path to Financial Freedom Starts Here",
-        "description": "MarketSpase offers a revolutionary approach to building your own business. Join us and unlock your potential today!",
-        "downloadUrl": "/assets/templates/template5.txt",
-        "platforms": ["LinkedIn", "Facebook"]
-    },
-    {
-        "title": "Be Your Own Boss with MarketSpase",
-        "description": "Tired of the 9-to-5 grind? Take charge of your future with MarketSpase. We provide the tools, you bring the determination!",
-        "downloadUrl": "/assets/templates/template6.txt",
-        "platforms": ["Instagram", "Pinterest"]
-    },
-    {
-        "title": "Success is Just a Click Away",
-        "description": "Join MarketSpase and gain access to our exclusive community of entrepreneurs. Learn, grow, and succeed together!",
-        "downloadUrl": "/assets/templates/template7.txt",
-        "platforms": ["WhatsApp", "Facebook"]
-    },
-    {
-        "title": "Turn Your Dreams into Reality",
-        "description": "MarketSpase helps you build a thriving online business. Our step-by-step system makes it easy to get started. Begin your journey today!",
-        "downloadUrl": "/assets/templates/template8.txt",
-        "platforms": ["YouTube", "Instagram"]
-    },
-    {
-        "title": "Unlock Your Entrepreneurial Potential",
-        "description": "Discover the secrets of successful online entrepreneurs with MarketSpase. Our comprehensive training and support will guide you every step of the way.",
-        "downloadUrl": "/assets/templates/template9.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Your Future Starts Now",
-        "description": "Don't wait for opportunity – create it! Join MarketSpase and start building your dream business today. Success is within reach!",
-        "downloadUrl": "/assets/templates/template10.txt",
-        "platforms": ["TikTok", "Instagram"]
-    },
-    {
-        "title": "Achieve Financial Freedom on Your Terms",
-        "description": "With MarketSpase, you can create a flexible business that fits your lifestyle. Work from anywhere, anytime. Join us and make it happen!",
-        "downloadUrl": "/assets/templates/template11.txt",
-        "platforms": ["Facebook", "LinkedIn"]
-    },
-    {
-        "title": "Join a Community of Successful Entrepreneurs",
-        "description": "At MarketSpase, you're never alone. Connect with like-minded individuals and learn from experienced mentors. Your success is our priority!",
-        "downloadUrl": "/assets/templates/template12.txt",
-        "platforms": ["WhatsApp", "Facebook"]
-    },
-    {
-        "title": "Create Your Own Success Story",
-        "description": "Thousands have already changed their lives with MarketSpase. It's your turn to write your success story. Start your journey now!",
-        "downloadUrl": "/assets/templates/template13.txt",
-        "platforms": ["YouTube", "Twitter"]
-    },
-    {
-        "title": "Build a Business That Works for You",
-        "description": "MarketSpase empowers you to create a business that aligns with your passions and goals. Design the life you've always wanted!",
-        "downloadUrl": "/assets/templates/template14.txt",
-        "platforms": ["Instagram", "Pinterest"]
-    },
-    {
-        "title": "From Novice to Pro: Your Online Business Journey",
-        "description": "No experience? No problem! MarketSpase provides all the training and resources you need to become a successful online entrepreneur.",
-        "downloadUrl": "/assets/templates/template15.txt",
-        "platforms": ["LinkedIn", "Facebook"]
-    },
-    {
-        "title": "Invest in Yourself with MarketSpase",
-        "description": "The best investment you can make is in yourself. Join MarketSpase and gain the skills, knowledge, and support to build a thriving business.",
-        "downloadUrl": "/assets/templates/template16.txt",
-        "platforms": ["Twitter", "Instagram"]
-    },
-    {
-        "title": "Your Gateway to Online Business Success",
-        "description": "MarketSpase opens doors to endless possibilities. Our proven system and expert guidance will help you achieve your entrepreneurial dreams.",
-        "downloadUrl": "/assets/templates/template17.txt",
-        "platforms": ["TikTok", "YouTube"]
-    },
-    {
-        "title": "Break Free from the Ordinary",
-        "description": "Tired of living paycheck to paycheck? Join MarketSpase and discover a world of financial opportunities. Your extraordinary life awaits!",
-        "downloadUrl": "/assets/templates/template18.txt",
-        "platforms": ["Facebook", "WhatsApp"]
-    },
-    {
-        "title": "Learn, Earn, and Grow with MarketSpase",
-        "description": "Our comprehensive platform offers ongoing education, lucrative earning potential, and personal growth. Join MarketSpase and thrive!",
-        "downloadUrl": "/assets/templates/template19.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Your Business, Your Rules",
-        "description": "With MarketSpase, you're in control. Build a business that fits your schedule, passions, and goals. Start your entrepreneurial journey today!",
-        "downloadUrl": "/assets/templates/template20.txt",
-        "platforms": ["Instagram", "Facebook"]
-    },
-    {
-        "title": "Unlock the Secrets of Online Success",
-        "description": "MarketSpase provides you with insider knowledge and proven strategies. Join now and fast-track your way to online business success!",
-        "downloadUrl": "/assets/templates/template21.txt",
-        "platforms": ["YouTube", "TikTok"]
-    },
-    {
-        "title": "Turn Your Passion into Profit",
-        "description": "Love what you do and make money doing it! MarketSpase shows you how to monetize your passions and build a sustainable online business.",
-        "downloadUrl": "/assets/templates/template22.txt",
-        "platforms": ["Pinterest", "Instagram"]
-    },
-    {
-        "title": "Start Small, Dream Big with MarketSpase",
-        "description": "Begin your entrepreneurial journey today with MarketSpase. Our step-by-step system helps you start small and scale your business to new heights!",
-        "platforms": ["Facebook", "LinkedIn"]
-    },
-    {
-        "title": "Your Success is Our Mission",
-        "description": "At MarketSpase, we're committed to your success. Join our community and get the support, resources, and guidance you need to thrive.",
-        "downloadUrl": "/assets/templates/template24.txt",
-        "platforms": ["WhatsApp", "Twitter"]
-    },
-    {
-        "title": "Embrace the Future of Entrepreneurship",
-        "description": "The digital economy is booming. Don't get left behind! Join MarketSpase and position yourself for success in the online business world.",
-        "downloadUrl": "/assets/templates/template25.txt",
-        "platforms": ["LinkedIn", "YouTube"]
-    },
-    {
-        "title": "Your Journey to Success Begins Here",
-        "description": "Take the first step towards financial independence. MarketSpase provides the roadmap – all you need is the determination to succeed!",
-        "downloadUrl": "/assets/templates/template26.txt",
-        "platforms": ["Instagram", "Facebook"]
-    },
-    {
-        "title": "Build, Grow, Succeed with MarketSpase",
-        "description": "From startup to scale-up, MarketSpase is your partner in success. Join us and access the tools and knowledge to build a thriving online business.",
-        "downloadUrl": "/assets/templates/template27.txt",
-        "platforms": ["TikTok", "Twitter"]
-    },
-    {
-        "title": "Rewrite Your Financial Story",
-        "description": "It's time to take control of your financial future. With MarketSpase, you have the power to create the life you've always dreamed of. Start now!",
-        "downloadUrl": "/assets/templates/template28.txt",
-        "platforms": ["Facebook", "LinkedIn"]
-    },
-    {
-        "title": "Discover Your Entrepreneurial Superpower",
-        "description": "Everyone has untapped potential. MarketSpase helps you discover and leverage your unique strengths to build a successful online business.",
-        "downloadUrl": "/assets/templates/template29.txt",
-        "platforms": ["YouTube", "Instagram"]
-    },
-
-    {
-        "title": "Elevate Your Entrepreneurial Game",
-        "description": "Take your business skills to the next level with MarketSpase. Our advanced training and cutting-edge strategies will give you the competitive edge you need.",
-        "downloadUrl": "/assets/templates/template31.txt",
-        "platforms": ["LinkedIn", "YouTube"]
-    },
-    {
-        "title": "Your Blueprint for Online Success",
-        "description": "Stop guessing and start succeeding! MarketSpase provides you with a proven blueprint for building a thriving online business. Join us and fast-track your success!",
-        "downloadUrl": "/assets/templates/template32.txt",
-        "platforms": ["Facebook", "Instagram"]
-    },
-    {
-        "title": "Unleash Your Inner Entrepreneur",
-        "description": "There's an entrepreneur inside you waiting to break free. MarketSpase gives you the tools, knowledge, and support to unleash your full potential. Start your journey today!",
-        "downloadUrl": "/assets/templates/template33.txt",
-        "platforms": ["TikTok", "Instagram"]
-    },
-    {
-        "title": "Transform Challenges into Opportunities",
-        "description": "In every challenge lies an opportunity. Learn how to spot and seize these opportunities with MarketSpase. Turn obstacles into stepping stones for success!",
-        "downloadUrl": "/assets/templates/template34.txt",
-        "platforms": ["LinkedIn", "Twitter"]
-    },
-    {
-        "title": "Your Passport to Global Business",
-        "description": "The online world knows no borders. With MarketSpase, learn how to build a business that can reach customers worldwide. Your global adventure starts here!",
-        "downloadUrl": "/assets/templates/template35.txt",
-        "platforms": ["Facebook", "YouTube"]
-    },
-    {
-        "title": "Dive into the Digital Gold Rush",
-        "description": "The digital economy is booming, and there's never been a better time to stake your claim. Join MarketSpase and learn how to mine the digital gold rush!",
-        "downloadUrl": "/assets/templates/template36.txt",
-        "platforms": ["Instagram", "TikTok"]
-    },
-    {
-        "title": "Master the Art of Online Business",
-        "description": "Building a successful online business is an art and a science. Let MarketSpase be your guide to mastering both. Join us and create your masterpiece!",
-        "downloadUrl": "/assets/templates/template37.txt",
-        "platforms": ["LinkedIn", "Facebook"]
-    },
-    {
-        "title": "Your Success Story Starts Here",
-        "description": "Every successful entrepreneur has a starting point. Make MarketSpase yours. Join today and begin writing your own success story!",
-        "downloadUrl": "/assets/templates/template38.txt",
-        "platforms": ["Twitter", "Instagram"]
-    },
-    {
-        "title": "Unlock the Secrets of E-commerce Success",
-        "description": "The world of e-commerce is full of untapped potential. MarketSpase gives you the key to unlock these secrets. Join now and open the door to endless possibilities!",
-        "downloadUrl": "/assets/templates/template39.txt",
-        "platforms": ["Facebook", "Pinterest"]
-    },
-    {
-        "title": "Build Your Empire, One Click at a Time",
-        "description": "Rome wasn't built in a day, but your online empire can start with a single click. Join MarketSpase and lay the foundation for your business empire today!",
-        "downloadUrl": "/assets/templates/template40.txt",
-        "platforms": ["LinkedIn", "YouTube"]
-    },
-    {
-        "title": "From Side Hustle to Full-Time Success",
-        "description": "Ready to turn your side gig into your main act? MarketSpase shows you how to scale your business and achieve full-time success. Take the leap with us!",
-        "platforms": ["Instagram", "Facebook"]
-    },
-    {
-        "title": "Innovate, Adapt, Succeed with MarketSpase",
-        "description": "In the fast-paced world of online business, innovation is key. Learn how to stay ahead of the curve with MarketSpase. Join us and become a trendsetter!",
-        "platforms": ["Twitter", "LinkedIn"]
-    },
-    {
-        "title": "Your Virtual Business Mentor Awaits",
-        "description": "Imagine having a seasoned business mentor available 24/7. That's what you get with MarketSpase. Join now and access a wealth of knowledge and support!",
-        "platforms": ["Facebook", "WhatsApp"]
-    },
-    {
-        "title": "Craft Your Unique Brand Story",
-        "description": "Every great brand has a compelling story. With MarketSpase, learn how to craft and share your unique brand story. Stand out in the crowded online marketplace!",
-        "platforms": ["Instagram", "Pinterest"]
-    },
-    {
-        "title": "Navigate the Digital Landscape with Confidence",
-        "description": "The online business world can be complex, but you don't have to navigate it alone. Let MarketSpase be your guide to digital success. Join us and chart your course!",
-        "platforms": ["LinkedIn", "Facebook"]
-    },
-    {
-        "title": "Embrace the Future of Work",
-        "description": "The future of work is here, and it's digital. Prepare yourself for this new era with MarketSpase. Build a business that's ready for tomorrow, today!",
-        "platforms": ["YouTube", "TikTok"]
-    },
-    {
-        "title": "Unlock Your Entrepreneurial DNA",
-        "description": "The spirit of entrepreneurship is within you. MarketSpase helps you unlock your entrepreneurial DNA and express your business genius. Discover your true potential!",
-        "platforms": ["Instagram", "Twitter"]
-    },
-    {
-        "title": "Your Launchpad to Online Business Success",
-        "description": "Ready for liftoff? MarketSpase is your launchpad to online business success. Join us and prepare for a journey that's out of this world!",
-        "platforms": ["Facebook", "LinkedIn"]
-    },
-    {
-        "title": "The Future is Yours to Shape",
-        "description": "Don't just predict the future - create it! With MarketSpase, you have the power to shape your destiny. Join us and become the architect of your future!",
-        "platforms": ["TikTok", "Instagram"]
-    },
-    {
-        "title": "Ignite Your Entrepreneurial Spark",
-        "description": "There's a spark of entrepreneurship within you. Let MarketSpase fan that spark into a roaring flame of success. Join now and ignite your business journey!",
-        "platforms": ["YouTube", "Facebook", "Twitter"]
-    }
+  {
+    "title": "Your online business, without the cold hunt",
+    "description": "Most online businesses fail because you have to find every customer yourself.\n\nMarketSpase runs the ads, captures the leads and allocates activated partners to eligible campaigns - so you can focus on products, customers and your team.\n\nStart from your phone. No office required.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "LinkedIn"]
+  },
+  {
+    "title": "A product business, not a pitch contest",
+    "description": "MarketSpase is built around real products.\n\nYou activate, use or retail what you sell, and earn from product movement. The platform adds the storefront, wallet, training and team tools behind you.\n\nThis is a business you can explain with a straight face.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "Twitter"]
+  },
+  {
+    "title": "Build a second income stream",
+    "description": "Still relying on one salary?\n\nMarketSpase gives you a digital business you can build part-time: products to sell, campaigns that bring leads, and commissions tracked in your wallet.\n\nResults depend on your activity and sales. No income is guaranteed.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "LinkedIn"]
+  },
+  {
+    "title": "Passive-income potential, with real work behind it",
+    "description": "There is no magic button.\n\nBut MarketSpase is designed to help your effort compound: platform-run acquisition, a ready storefront, team leverage and recurring product activity.\n\nBuild it steadily. No income is guaranteed.",
+    "platforms": ["WhatsApp", "Facebook", "LinkedIn", "Twitter"]
+  },
+  {
+    "title": "Your shop is already built",
+    "description": "No website to design. No inventory to store.\n\nMarketSpase gives you a ready storefront, product catalogue, checkout and order tools. Share your link and start selling.\n\nYour job is to show up and serve customers.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "TikTok"]
+  },
+  {
+    "title": "The leads come to you",
+    "description": "MarketSpase runs paid acquisition and allocates activated partners to eligible campaigns.\n\nYou are not starting from an empty WhatsApp contact list. You still activate, sell and support - but you are not doing it alone.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "LinkedIn"]
+  },
+  {
+    "title": "Turn your phone into a business tool",
+    "description": "Your storefront, leads, messages, training, wallet and team dashboard in one place.\n\nMarketSpase is built for people who want to build online without an office, staff or stockroom.",
+    "platforms": ["WhatsApp", "Instagram", "TikTok", "Facebook"]
+  },
+  {
+    "title": "For network marketers tired of chasing",
+    "description": "If you are tired of cold DMs and one-off pitches, MarketSpase changes the model.\n\nThe platform handles acquisition, and you build through products, campaigns and team support.\n\nLess hunting. More structure.",
+    "platforms": ["WhatsApp", "Facebook", "LinkedIn", "Twitter"]
+  },
+  {
+    "title": "A business you can duplicate",
+    "description": "MarketSpase gives every partner the same storefront, training path, campaign system and dashboard.\n\nThat means your team can follow a process instead of guessing.\n\nDuplication beats motivation.",
+    "platforms": ["WhatsApp", "Facebook", "LinkedIn", "Instagram"]
+  },
+  {
+    "title": "Earn from products, not hype",
+    "description": "Commissions follow product orders and the compensation plan.\n\nYour wallet shows what is pending, released and paid. No mystery numbers and no pretend screenshots.\n\nBuild on real product movement.",
+    "platforms": ["WhatsApp", "Facebook", "Twitter", "LinkedIn"]
+  },
+  {
+    "title": "Start part-time. Build deliberately.",
+    "description": "You do not have to quit your job to start.\n\nActivate, learn the products, share your storefront and build around your current schedule. MarketSpase gives you the system; you bring consistency.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "LinkedIn"]
+  },
+  {
+    "title": "Low overhead. Real learning.",
+    "description": "No rent. No staff. No stockroom.\n\nYour main investment is activation and consistent work. MarketSpase supplies the digital infrastructure, products and training.\n\nThat is a business model you can start small and grow carefully.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "Twitter"]
+  },
+  {
+    "title": "Your team, visible",
+    "description": "MarketSpase shows your downline, activation progress and who needs support.\n\nStop managing your team from memory and WhatsApp screenshots. See the gaps, then coach the person who needs you next.",
+    "platforms": ["WhatsApp", "Facebook", "LinkedIn", "Instagram"]
+  },
+  {
+    "title": "From first sale to team growth",
+    "description": "MarketSpase supports the full path: activate, complete training, sell products, build a team, track commissions and maintain qualification.\n\nOne system instead of five scattered tools.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "LinkedIn"]
+  },
+  {
+    "title": "An online business with a back office",
+    "description": "Storefront, orders, wallet, commissions, CRM, training, community and support in one login.\n\nThis is not another chat group. It is a business system you can operate from your phone.",
+    "platforms": ["WhatsApp", "Facebook", "LinkedIn", "Twitter"]
+  },
+  {
+    "title": "Build income that can outlast the post",
+    "description": "A single social post disappears.\n\nA storefront, customer list and team can keep producing. MarketSpase helps you build assets, not just content.\n\nStart with one product and one conversation today.",
+    "platforms": ["WhatsApp", "Instagram", "Facebook", "TikTok"]
+  },
+  {
+    "title": "For students, parents and 9-5 workers",
+    "description": "MarketSpase is designed for real life.\n\nWork from your phone, learn at your pace and build around your schedule. No office and no fixed opening hours.\n\nYou still have to do the work - but the system fits around you.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "TikTok"]
+  },
+  {
+    "title": "Your own online store in minutes",
+    "description": "Pick your products, share your link and let customers check out.\n\nMarketSpase handles the storefront and order flow while you focus on relationships and repeat customers.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "TikTok"]
+  },
+  {
+    "title": "The platform runs the ads. You run the business.",
+    "description": "MarketSpase funds and manages acquisition, then allocates activated partners to campaigns.\n\nYour job is activation, selling, support and consistency.\n\nThat is a clearer division of labour than most online opportunities.",
+    "platforms": ["WhatsApp", "Facebook", "LinkedIn", "Twitter"]
+  },
+  {
+    "title": "A clearer path to extra income",
+    "description": "No vague 'make money online' promises.\n\nMarketSpase gives you products, a storefront, campaigns, training and a wallet. You can see what you earn and what drives it.\n\nResults depend on your activity and sales. No income is guaranteed.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "LinkedIn"]
+  },
+  {
+    "title": "For the WhatsApp seller ready to level up",
+    "description": "You already know how to sell in chats.\n\nMarketSpase gives you a storefront, product catalogue, order tracking and a team system behind those conversations.\n\nTurn chats into a structured business.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "TikTok"]
+  },
+  {
+    "title": "For the leader who wants leverage",
+    "description": "MarketSpase helps you support more people without losing track.\n\nActivation board, downline visibility, training progress and team tools let you coach the people who need you next - not just the loudest ones.",
+    "platforms": ["WhatsApp", "Facebook", "LinkedIn", "Twitter"]
+  },
+  {
+    "title": "What if your effort compounded?",
+    "description": "Most online income stops when you stop posting.\n\nMarketSpase is built to help your effort compound through products, team activity and platform-run acquisition.\n\nBuild the base first. The compounding comes from consistency.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "LinkedIn"]
+  },
+  {
+    "title": "No office. No inventory. No guesswork.",
+    "description": "MarketSpase gives you the digital infrastructure: storefront, products, leads, wallet and training.\n\nYou bring the consistency and the customer care.\n\nSimple inputs. Visible progress.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "TikTok"]
+  },
+  {
+    "title": "Your next customer is already in the system",
+    "description": "MarketSpase captures registrations and routes activated partners through campaigns.\n\nYou are not guessing where the next lead comes from. You are working the leads and customers the system gives you.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "LinkedIn"]
+  },
+  {
+    "title": "A business model you can explain",
+    "description": "MarketSpase is simple: activate, sell products, build a team, support your downline and earn according to the compensation plan.\n\nThe dashboard shows the numbers. No guesswork and no hidden layers.",
+    "platforms": ["WhatsApp", "Facebook", "LinkedIn", "Twitter"]
+  },
+  {
+    "title": "Start with a product you believe in",
+    "description": "MarketSpase is product-led.\n\nUse what you sell, share what you use and build a customer base. The business follows real value - not pressure or fake urgency.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "LinkedIn"]
+  },
+  {
+    "title": "From side hustle to structured business",
+    "description": "MarketSpase gives your side hustle a system: products, storefront, campaigns, CRM, training and earnings visibility.\n\nStop running a business from scattered notes. Give it a proper home.",
+    "platforms": ["WhatsApp", "Facebook", "Instagram", "LinkedIn"]
+  },
+  {
+    "title": "Your future team needs a system",
+    "description": "Recruiting is easy. Duplication is hard.\n\nMarketSpase gives your team a shared activation path, training, storefront and support structure.\n\nBuild a team that can follow a process, not just a personality.",
+    "platforms": ["WhatsApp", "Facebook", "LinkedIn", "Twitter"]
+  },
+  {
+    "title": "See the business before you build it",
+    "description": "Open MarketSpase, review the products, training and compensation plan, then decide.\n\nNo pressure. No fake income claims. Just a clear look at the business you would be building.",
+    "platforms": ["WhatsApp", "Facebook", "LinkedIn", "Twitter"]
+  }
 ]
