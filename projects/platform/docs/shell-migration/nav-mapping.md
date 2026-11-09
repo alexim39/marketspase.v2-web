@@ -18,7 +18,7 @@ Target IA: **Home**, **Pipeline**, **Team**, **Campaigns**, **Wallet**, **Learn*
 | New Primary | Old Sources | Notes |
 | --- | --- | --- |
 | **Home** | `/dashboard`, `activate` nudge, alerts/notifications summary | Command Center with next-best-action, activation status, wallet snapshot, team pulse, activity. Keep `activate` as a prominent CTA when `accountState === 'member'`. |
-| **Pipeline** | `prospects/*` (reminders, pipeline, board, personal-list, bookings, kits) | Consolidate follow-ups, deal board, leads, sessions, presentations. "Buy prospect" under review. |
+| **Pipeline** | `prospects/*` (reminders, pipeline, board, customer-leads, bookings, kits) | Consolidate follow-ups, deal board, leads, sessions, presentations. Buy prospect retired; page leads replaced by Customer Leads and pipeline referral signups. |
 | **Campaigns** | `tools/campaigns/*`, `campaigns` (fund growth), `marketing/roi`, `resources/ads-contents`, `resources/prospecting-contents`, `tools/sms/*`, `tools/email/*` | Merge into Campaign Studio. Central funding + attribution + ROI + share hub + outreach. |
 | **Team** | `mentorship/*`, `network/*`, `cell-meeting` | Activation board, partners, tree/org, teams, coaching. |
 | **Wallet** | `wallet/*`, `products/*`, `compensation`, `earnings/*` | Balance, deposits/withdrawals, transactions, commissions, shop, orders. Fold compensation/earnings here. |

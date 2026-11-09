@@ -2,6 +2,7 @@
 
 **Date:** 2026-11-04  
 **Scope:** single shell, public site, hub pages, cleanup regressions.  
+**Status (2026-11-09):** historical QA snapshot from 2026-11-04. Route names have since changed: partner “page leads”/`personal-list` → **Customer Leads**; Buy Prospect is retired; the personal lead page is `/lead/<username>`. The current web CI is green and the API suite has 788 tests. Treat counts and route lists below as of the QA date.
 **Method:** production build, public browser probes, axe-core, static reference scans, orphan-component scan.
 
 ---
@@ -60,7 +61,7 @@ Added a same-origin dev proxy so browser API calls avoid CORS:
 
 ### Partner route sweep â€” 52 routes
 
-`/dashboard`, Pipeline, Campaigns, Team, Wallet, Learn, Community, More; pipeline list/reminders/board; page leads; bookings; kits; SMS/email compose; Training, Courses, Paths, Library, Tutorials, Coach, Analytics; Goals; Progress; Insights (overview, My Business, downloads); Wallet history/deposit; eShop/orders; Messages; Notifications center/preferences; Settings profile/landing/billing; Support ticket/about; Ora; Compensation; Activate; Checkout; My Partners; Activation board/confirmations/contact lists/team members; Network tree/org; Cell meeting.
+`/dashboard`, Pipeline, Campaigns, Team, Wallet, Learn, Community, More; pipeline list/reminders/board; Customer Leads (then called page leads); bookings; kits; SMS/email compose; Training, Courses, Paths, Library, Tutorials, Coach, Analytics; Goals; Progress; Insights (overview, My Business, downloads); Wallet history/deposit; eShop/orders; Messages; Notifications center/preferences; Settings profile/landing/appearance/billing; Support ticket/about; Ora; Compensation; Activate; Checkout; My Partners; Activation board/confirmations/contact lists/team members; Network tree/org; Cell meeting.
 
 Result:
 - **0 issues** â€” every route rendered the shell + `<main>`, no horizontal overflow, no console errors.
@@ -189,7 +190,7 @@ The embedded browser cannot reach the dev server reliably (502s), so this pass u
   `.material-icons` class rule was missing, so icon ligatures rendered as words
   ("menu", "add"). Added the class rule; icons now load from the self-hosted
   `@fontsource/material-icons` asset at first paint.
-- **Removed external first-paint dependencies**: Material Icons + Inter are
+- **Removed external first-paint dependencies**: Material Icons + the then-brand font are
   self-hosted; the landing YouTube iframe is click-to-play; the 404 page no longer
   hotlinks Dribbble.
 - **Production audit**: see `PRODUCTION_READINESS.md`. Key blocker: the deployed
@@ -397,7 +398,7 @@ The embedded browser cannot reach the dev server reliably (502s), so this pass u
 | Manual deposits | Removed from nav | Historical route retained; new claims were already disabled |
 
 Kept admin surfaces: Activation desk, Compensation, Commission plan,
-Product orders, Products, Bonuses, Growth campaigns, Automation, Page leads,
+Product orders, Products, Bonuses, Growth campaigns, Automation, historical Page leads,
 Partner pipeline, Public pages, Broadcast, Email list, Manage roles, Support tickets,
 Moderation, Audit log, Partner surveys, Training quizzes, Tutorials, Presentations.
 

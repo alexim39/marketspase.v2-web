@@ -1,5 +1,7 @@
 # Cleanup — Batch 3 change log
 
+> Historical change log. Buy Prospect was retired in batch 4 and removed from the API on 2026-11-08.
+
 **Executed:** 2026-11-04  
 **Rollback:** `C:\Users\Hp\AppData\Local\Temp\opencode\marketspase-backup-20261104-064913.zip`
 
@@ -40,11 +42,11 @@ Frontend dead methods removed:
 
 | Item | Why |
 |---|---|
-| Buy Prospect / lead pool | Product decision still open; removing it changes a revenue feature |
+| Buy Prospect / lead pool | Retired in batch 4; the remaining backend pool, routes and job were removed on 2026-11-08 |
 | Legacy eShop + cart commissions | Still sells products and accrues legacy commissions |
 | Admin Payouts + Commission Plan | Required while eShop cart commissions exist |
 | Legacy `/auth` backend router | Possible external clients |
-| Reservations admin desk | Legacy codes still need review |
+| Reservations admin desk | Retired; the server-side reservations module is gone and the historical collection is kept for audit only |
 
 ## Verification
 

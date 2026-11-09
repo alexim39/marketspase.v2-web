@@ -1,5 +1,7 @@
 # Resale hub
 
+Last verified: 2026-11-09.
+
 Status: **live for verified partners**. Resale pricing is managed from
 **Admin → Products**.
 

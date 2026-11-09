@@ -1,6 +1,6 @@
 # Shell Migration — Status
 
-**Last updated:** 2026-11-04
+**Last updated:** 2026-11-09
 
 ## Completed
 
@@ -11,7 +11,7 @@
 | Design tokens | `--ms-*` semantic tokens (light + dark) with `--dp-*` aliases; refreshed palette, type, elevation and Material overrides | `src/styles.scss`, `src/index.html` |
 | Single shell | One modern shell for the whole app: collapsible rail, sticky topbar, global create menu, command palette, notifications, theme, view-as, mobile bottom nav | `src/app/dashboard/shell/app-shell.component.*` |
 | Legacy UI removed | Old `DashboardComponent`, `ShellVersionService`, shell switcher and 3-level nav deleted | routes + shell cleanup |
-| Design system | Inter 300–800, rounded Material components, soft cards, uppercase table headers, custom scrollbars, reduced-motion support | `src/styles.scss` |
+| Design system | Bricolage Grotesque + Manrope + JetBrains Mono, rounded Material components, soft cards, uppercase table headers, custom scrollbars, reduced-motion support | `projects/shared/styles/_tokens.scss`, `src/styles.scss` |
 | Admin mode | Dedicated admin rail (Money/Growth/Members/Catalog & Learning/System) + `/dashboard/admin` default | `src/app/dashboard/admin/admin-shell.component.ts`, `admin-nav.config.ts`, `admin.routes.ts` |
 | Home Command Center | Gradient hero with status chips + next-best-action, growth engine card, quick actions, 6 momentum widgets, two-column plan/community layout | `src/app/dashboard/home/home.component.ts` |
 | Campaigns hub | Allocation explainability (score reasons), portfolio summary (funded/spent/remaining/active/placed), tabs for Campaign Studio / My campaigns / Placement, Studio side panel with "what happens next", wallet shortfall guard | `src/app/dashboard/campaigns/campaigns.component.ts`, `shell/nav.config.ts` |
@@ -34,9 +34,13 @@
 | Batch 3 cleanup | Consolidated auth into `AuthService` (v1 sign-out/reset), removed duplicate `PartnerAuthService`, legacy email/SMS send + bulk-charge + Paystack confirmation endpoints, and the npm `path` dependency | `platform/docs/cleanup/CHANGES-batch3.md` |
 | Batch 4 cleanup | Retired Buy Prospect/lead-pool UI + admin desk; removed `--dp-*` token layer; deleted obsolete Diamond assets; fixed resource-template manifest | `platform/docs/cleanup/CHANGES-batch4.md` |
 | UI QA pass 1 | Fixed landing overflow + landmarks; public axe 0; 52-route authenticated sweep; dev proxy; badge/form-label a11y; contrast token fix; eShop token pass; wallet negative-money formatting; inline form errors; dead legacy status card removed; long-table wrapping; 126 progress-bar labels; real-browser 88-run device matrix + 68-scan axe 0; mobile root/topbar overflow fixes | `platform/docs/qa/UI_QA.md`, `proxy.conf.json`, `angular.json`, `environment.ts`, `core/format/money.ts` |
-| Cross-browser + production pass | Edge + WebKit 92-run matrix (0 overflow); self-hosted Inter + Material Icons (fixed ligature bug); click-to-play landing video; self-contained 404; Paystack bank-list proxy + resolve envelope fix; legacy reset/SMTP/token fix; `.env.example` + CORS cleanup | `platform/docs/qa/UI_QA.md`, `platform/docs/qa/PRODUCTION_READINESS.md`, `package.json`, `src/index.html`, `src/styles.scss`, `index/banner`, `page-not-found`, `api` billing/auth |
+| Cross-browser + production pass | Edge + WebKit 92-run matrix (0 overflow); self-hosted fonts + Material Icons (fixed ligature bug; later moved to Bricolage/Manrope); click-to-play landing video; self-contained 404; Paystack bank-list proxy + resolve envelope fix; legacy reset/SMTP/token fix; `.env.example` + CORS cleanup | `platform/docs/qa/UI_QA.md`, `platform/docs/qa/PRODUCTION_READINESS.md`, `package.json`, `src/index.html`, `src/styles.scss`, `index/banner`, `page-not-found`, `api` billing/auth |
 | Feedback cleanup | Removed `sweetalert2` (dependency, CSS, 57 calls/18 files); added shared Material `UiDialogComponent` + `UiFeedbackService`; verified confirms, alerts, snackbars, withdrawal banks, light/dark; build now warning-free | `core/ui/*`, `platform/package.json`, `angular.json`, all affected auth/billing/CRM/messaging pages |
 | IA pass 1 | Group headers now link to hubs; submenu links 58→32; Workspace/Connect/Account sections; primary descriptors; single-open accordion; mobile bottom nav Home/Pipeline/Team/Wallet/More; hub shortcut links fixed to absolute routes | `shell/nav.config.ts`, `shell/app-shell.component.*`, `pipeline-hub`, `team-hub`, `learn-hub`, `more-hub`, `docs/shell-migration/nav-mapping.md` |
+| Lead surfaces (2026-11-08) | Retired partner page leads and Buy Prospect; added Customer Leads for store checkout buyers; personal-page leads and referral signups in the pipeline; personal lead page `/lead/:username` in the store | `platform/.../prospects/**`, `store/.../lead-page/**`, `api/src/modules/{crm,stores,partner-pages}/**` |
+| Single upline (2026-11-08) | `partnerOf` is the only upline; `placementParentId` removed; referral `/join?ref=` attribution, system-owned fallback and campaign allocation history | `api/src/modules/{identity-access,campaigns,compensation}/**`, migration scripts |
+| Compensation and ranks (2026-11-08) | Immediate mentor bonus; product commissions on every growth-plan order; journey rank auto-promotes while commission rank stays manual | `api/src/modules/{compensation,progression}/**`, platform progress/compensation pages |
+| Theme and appearance | Theme control moved to **More → Settings → Appearance** (Light/Dark/System) | `dashboard/settings/appearance/**`, `more-hub` |
 
 ## How to use
 1. Sign in to the platform.
@@ -50,10 +54,11 @@
 - `npm run verify:attribution` confirmed the CLI reads the DB correctly (no leftover attributed signups after cleanup).
 
 ## Next up
-1. Redeploy the API with the current CORS list (or set `EXTRA_CORS_ORIGINS=https://marketspase.com,https://www.marketspase.com`) and verify the preflight.
+1. Run the single-upline migration against production, then redeploy the API and verify `/health` + CORS.
 2. Run the money-path smoke test on staging with `--keep` to retain evidence, then repeat the attribution check.
-3. Deploy `platform/dist/partners/browser` to `marketspase.com` and verify SPA fallback, auth cookies, fonts and PWA install.
-4. Legal/compliance review and production COGS/CAC lock.
+3. Deploy platform, store and admin builds and verify SPA fallback, auth cookies, fonts and PWA install.
+4. Complete legal/compliance review and production COGS/CAC lock.
+5. Add the consolidated in-app compensation/income disclosure before public launch.
 
 ## Notes / guardrails
 - There is exactly one shell; no preview flag or old UI remains.

@@ -1,7 +1,19 @@
 # MarketSpase Store
 
 This project uses Angular CLI **22** with the `@angular/build` application
-builder. The storefront is the public site for Diamond Project and MarketSpase.
+builder. It is the public MarketSpase commerce and partner-page site.
+
+Two partner-facing public routes share the same app:
+
+- `/{username}` — the partner's store (catalogue, cart, checkout, order tracking).
+- `/lead/{username}` — the partner's shareable personal lead page (story, offer,
+  contact links, WhatsApp, social links, lead form and “Join my team” CTA).
+- `/join?ref={username}` links hand off to the platform signup, which sets the
+  partner as the new member's `partnerOf` when the referrer is eligible.
+
+Checkout also captures the shopper in the partner's **Customer Leads** list
+(`store_customer_leads`), separate from the prospect pipeline. The store does
+not own partner operations; those live in the platform app.
 
 ## Development server
 

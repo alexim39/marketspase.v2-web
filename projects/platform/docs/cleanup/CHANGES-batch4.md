@@ -1,5 +1,7 @@
 # Cleanup — Batch 4 change log
 
+> Historical change log. The backend Buy Prospect pool was subsequently removed end to end on 2026-11-08; this batch covered the UI.
+
 **Executed:** 2026-11-04  
 **Rollback:** `C:\Users\Hp\AppData\Local\Temp\opencode\marketspase-backup-20261104-064913.zip`
 
@@ -19,7 +21,9 @@
 | Return-to-pool | Button, confirmation state and methods removed |
 | Admin desk | `/dashboard/admin/leads` removed; redirects to Partner Pipeline; nav entry removed; `admin/leads/**` deleted |
 
-Backend pool endpoints and data models are retained for compatibility/history; no pool data existed in the current database.
+Backend pool endpoints, routes, pricing and the allocation job were removed end
+to end on 2026-11-08 (`chore(api): remove the retired Buy Prospect lead pool`).
+Historical rows, if any, remain read-only.
 
 ## Design token unification
 

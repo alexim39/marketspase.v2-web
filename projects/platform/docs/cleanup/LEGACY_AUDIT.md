@@ -1,9 +1,9 @@
 # MarketSpase — Legacy & Redundancy Audit
 
-**Date:** 2026-11-04  
-**Status:** Batch 1–4 executed — see `CHANGES-batch1.md` … `CHANGES-batch4.md`. Cleanup complete except decisions that affect live revenue/compatibility (eShop cart commissions, legacy `/auth` clients).  
+**Date:** 2026-11-04 (post-audit update 2026-11-09)  
+**Status:** Batch 1–4 executed — see `CHANGES-batch1.md` … `CHANGES-batch4.md`. The Buy Prospect pool and legacy campaign pool-lead allocation were subsequently removed end to end (2026-11-08). Remaining items are compatibility-only (eShop cart commissions, legacy `/auth` clients).  
 **Scope:** `platform/src`, `api/src`, mounts in `api/server.js`, public assets, dependencies.  
-**Mode:** read-only audit. Nothing removed yet.  
+**Mode:** read-only audit at the time; batches 1–4 and the later Buy Prospect removal were executed afterwards.  
 **Rollback snapshot:** `C:\Users\Hp\AppData\Local\Temp\opencode\marketspase-backup-20261104-064913.zip` (11.14 MB; source, docs, public assets, configs — excludes `node_modules`, `dist`, `.angular`, `.env`).
 
 ---
@@ -33,7 +33,7 @@
 | Unused frontend dependencies | 2 (+1 CDN) | Safe after build |
 | Assets to review | ~20 | Low |
 
-**Headline:** the remaining legacy is concentrated in six product clusters — ad-brief campaigns, Buy Prospect, earnings/payouts, Paystack deposit, DTC commissions, and legacy auth/email/SMS send surfaces. The rest is genuinely unreferenced code that can go in one safe batch.
+**Headline (post-audit):** the ad-brief campaign UI, Buy Prospect pool, legacy Paystack deposit and DTC commissions have been removed. The remaining legacy is compatibility-only: eShop cart commissions, legacy `/auth` clients, earnings redirects and the temporary `/emailSubscription/*` shim.
 
 ---
 
@@ -129,12 +129,10 @@ Keep `details/collect-code.component.ts` (live).
 
 **Recommendation:** Batch 2. Retire the partner ad-brief wizard and admin ad-campaign desk; keep `campaign/names` until pipeline attribution is migrated; move ROI metrics into the new Campaigns hub.
 
-### 4.2 Buy Prospect / lead pool
+### 4.2 Buy Prospect / lead pool — retired
 **Paths:** partner `prospects/general-list`, admin `admin/leads`, nav entries, backend lead-pool endpoints.
 
-**Evidence:** the new model is central acquisition; the progress doc says the individual “Buy Prospect” pool conflicts with it and should be retired or repurposed. `prospects` root still redirects to `general-list`.
-
-**Recommendation:** product decision. If retired, change `prospects` root to `pipeline`, remove nav/admin entry, and retire the pool endpoints after data retention review.
+**Status:** retired in batch 4 and removed end to end on 2026-11-08. The partner flow is now Customer Leads (store checkout buyers) plus personal-page/referral leads in the pipeline. No pool screen, claim workflow, pricing or allocation job remains.
 
 ### 4.3 Earnings / payouts (legacy commission slice)
 **Paths:** partner `/earnings`, admin `/admin/payouts`, legacy `billing` commission endpoints.
@@ -225,7 +223,7 @@ Keep `details/collect-code.component.ts` (live).
 
 ### Batch 2 — product-approved feature retirement
 - Legacy ad-brief campaigns + admin ad campaigns/reported leads/plan.
-- Buy Prospect pool (if approved).
+- Buy Prospect pool (retired — executed in batch 4 and removed from the API).
 - Legacy earnings/payouts.
 - Paystack deposit + DTC commissions.
 - Legacy auth/email/SMS send endpoints.
@@ -247,11 +245,11 @@ Keep `details/collect-code.component.ts` (live).
 
 ---
 
-## 9. Decisions needed before Batch 1
+## 9. Decisions at audit time (resolved)
 
-1. Approve Batch 1 deletions (zero-reference code + unmounted `/image` + unguarded `/settings`).
-2. Confirm no external client (store site, mobile app, partner tools) still calls legacy `/auth`, `/emails`, `/sms`, `/settings`.
-3. Buy Prospect: retire or repurpose?
-4. Legacy ad-brief campaigns: retire now or after the pilot?
-5. Paystack deposit: confirm removal (wallet Opay/manual is canonical).
-6. DTC external commissions: confirm removal.
+1. Batch 1 deletions approved and executed.
+2. Legacy `/auth`, `/emails`, `/sms`, `/settings`: no first-party client remains; compatibility decisions are documented in the runbook.
+3. Buy Prospect: **retired** (batch 4 + API removal on 2026-11-08).
+4. Legacy ad-brief campaigns: **retired**.
+5. Paystack deposit: **removed**; the current deposit flow is the v1 Paystack hosted checkout (plus Opay where configured).
+6. DTC external commissions: **removed**.

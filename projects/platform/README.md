@@ -1,27 +1,27 @@
-# Partners
+# Partners platform
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.3.
+Angular 22 partner back office for MarketSpase. Local dev server:
+`http://localhost:4200`.
+
+## What lives here
+
+- Authentication, activation, KYC and the allocation queue
+- Home, Pipeline, Campaigns, Team, Wallet, Learn, Community and More hubs
+- Prospect pipeline, referral-signup visibility, personal-page leads and Customer Leads
+- Growth campaigns, compensation (manual commission rank + automatic journey rank)
+- Training ladder (Partner → Builder → Leader → Ambassador), mentorship and cell meetings
+- Ora, notifications, settings and the admin-mode rail
+
+The admin app is a separate project at `../admin` (port 4202); the store is
+`../store` (port 4201). Shared code comes from `../shared` via
+`@marketspase/shared/*`.
 
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Run `npm start` from the web workspace root, or `ng serve platform` here.
+Navigate to `http://localhost:4200/`. The application reloads on source changes.
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Run `npm run build:platform` from the workspace root. Output goes to
+`dist/platform/browser`.

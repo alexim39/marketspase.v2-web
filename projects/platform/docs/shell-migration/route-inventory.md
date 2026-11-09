@@ -43,6 +43,6 @@ This is the baseline to use for redirects when swapping to the new shell. Genera
 
 ## Notes
 - Many entries under `tools/*` and `marketing/*` overlap. The redesign wants to collapse these into the "Campaigns" studio.
-- "Buy prospect" (`prospects/general-list`) needs to be re-evaluated against the new central acquisition model.
+- "Buy prospect" (`prospects/general-list`) was retired in batch 4. The partner lead surface is Customer Leads (`prospects/customer-leads`); the old `personal-list` route redirects there.
 - Admin must not live inside the partner rail. Move to a dedicated Admin mode with its own nav. 
 - `notifications/center` and `notifications/preferences` should be accessible from the new shell topbar regardless of primary nav.

@@ -1,5 +1,7 @@
 # Cleanup — Batch 1 change log
 
+> Historical change log: counts and route names are as of the execution date. The current app state is in `MARKETSPASE_PROGRESS.md` and the project READMEs.
+
 **Executed:** 2026-11-04  
 **Rollback:** `C:\Users\Hp\AppData\Local\Temp\opencode\marketspase-backup-20261104-064913.zip`
 

@@ -1,9 +1,11 @@
 # Paystack payments — setup and runbook
 
+Last verified: 2026-11-09.
+
 **Scope:** wallet deposits, automatic withdrawals, bank directory and account-name resolution.
 **Status:** live-ready. Deposits credit automatically; withdrawals are paid automatically by
-Paystack Transfer. The admin queue remains as an override/reconciliation surface, not a required
-step.
+Paystack Transfer. There is no separate admin withdrawal queue; failures refund the wallet
+and reconcile through the webhook/Paystack dashboard.
 
 ---
 

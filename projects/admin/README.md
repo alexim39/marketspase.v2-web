@@ -35,6 +35,7 @@ The admin app owns platform-wide operations:
 - Partner stores, store orders, escrow and settlements
 - Product orders, catalog, bonuses and the legacy shop plan
 - Compensation, commissions, ranks and mentor bonuses
-- Growth campaigns, page leads, public pages and automation
+- Growth campaigns, attribution, public pages and automation
+- Historical page-leads desk for old survey rows (the partner “My Page Leads” inbox and Buy Prospect pool are retired)
 - Broadcast, email list, support tickets, moderation and audit
 - Training quizzes, tutorials, presentations and platform settings

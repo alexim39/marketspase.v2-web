@@ -1,5 +1,7 @@
 # Cleanup — Batch 2 change log
 
+> Historical change log. Buy Prospect was retired in batch 4, not left open.
+
 **Executed:** 2026-11-04  
 **Rollback:** `C:\Users\Hp\AppData\Local\Temp\opencode\marketspase-backup-20261104-064913.zip`
 
@@ -50,7 +52,7 @@
 | Legacy eShop checkout | Still sells products and accrues legacy cart commissions |
 | Admin Payouts | Still operational for pending legacy cart commissions from eShop orders |
 | Admin Commission Plan | Still controls legacy cart accrual rates |
-| Buy Prospect | Revenue feature; product decision still open |
+| Buy Prospect | Retired in batch 4 (`prospects/general-list`, pool UI and later the backend pool) |
 | Legacy `/auth`, `/emails`, `/sms` send endpoints | Possible external clients; deferred until confirmed |
 
 ## Verification

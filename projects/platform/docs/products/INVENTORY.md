@@ -1,5 +1,7 @@
 # Inventory and stock
 
+Last verified: 2026-11-09.
+
 Status: **enforced at checkout**.
 
 ## Rules

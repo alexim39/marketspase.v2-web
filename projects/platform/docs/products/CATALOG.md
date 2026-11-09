@@ -1,5 +1,7 @@
 # Catalog content fields
 
+Last verified: 2026-11-09.
+
 The product editor in **Admin → Products** controls what shoppers see.
 
 ## Identity and placement

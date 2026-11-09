@@ -33,6 +33,8 @@ The store is a public storefront. Partner operations live in the platform, not i
 | Store fee | 2% of merchandise at launch, configurable, not charged on delivery fees |
 | Escrow release | After delivery plus a configurable 7-day return window |
 | Store discovery | MarketSpase Store directory at `/`; each product links to a partner store |
+| Personal lead page | Separate shareable page at `/lead/{username}` with a lead form into the partner's pipeline |
+| Signup attribution | Page-specific “Join my team” buttons use `/join?ref={username}`; global header/footer links are still unattributed |
 | Multi-store cart | No. One store per checkout |
 | Unilevel commission | No additional unilevel payout on the store retail sale; partner keeps the retail margin |
 | Brand | Remove all Diamond Project content; MarketSpase Store only |
@@ -193,12 +195,13 @@ customer merchandise total
 /{username}/cart           Cart
 /{username}/checkout       Checkout
 /{username}/order/:no      Confirmation and tracking
+/lead/{username}           Shareable personal lead page (story, contact, form, join CTA)
 /track                     Guest order lookup
 /legal/*                   Terms, privacy, cookies, returns
 /support                   Help
 ```
 
-The existing `/:partnerUsername` route becomes the store slug so old shared links keep working.
+The existing `/:partnerUsername` route becomes the store slug so old shared links keep working. The personal page is a separate route and must never replace the store link.
 
 ## 8. Page-by-page wireframe plan
 
@@ -230,7 +233,23 @@ The existing `/:partnerUsername` route becomes the store slug so old shared link
 - Reviews / social proof.
 - Delivery and returns summary.
 - WhatsApp/contact.
+- “Join {name}'s team” CTA to `{platformUrl}/join?ref={store-slug}`.
 - Store footer: policies, MarketSpase badge.
+
+### 8.3.1 `/lead/{username}` — Personal lead page
+
+- Partner identity: photo, name, handle, job title, short bio, hero badge.
+- Headline, business tagline, sub-headline.
+- CTAs: “Start the conversation” (scrolls to the form without leaving the page),
+  WhatsApp chat, WhatsApp group and “Join my team” (`/join?ref={username}`).
+- Story, achievements, opportunity points, testimonial, video testimonial link,
+  invite note.
+- Lead form: name, surname, phone, email, state, message and required consent.
+  Submissions create a `Prospect` with source `Personal Page` in the partner's
+  pipeline; they do not create a Partner account.
+- Direct contact strip: phone, email, store link and join CTA.
+- Social links: Facebook, Instagram, TikTok, X, LinkedIn, YouTube.
+- The page must render every field saved in the platform landing-page editor.
 
 ### 8.4 `/{username}/shop`
 
@@ -267,8 +286,13 @@ The existing `/:partnerUsername` route becomes the store slug so old shared link
 - Delivery method/fee.
 - Payment: Paystack (card, transfer, USSD).
 - Order summary with fees.
+- Optional consent to be contacted about the order/offers.
 - Place order.
 - Guest checkout; optional account creation after purchase.
+- A checkout upserts the shopper into the partner's **Customer Leads** list
+  (`store_customer_leads`) by partner + normalized phone, including orders that
+  are still pending payment. Payment and refund stats update as the order
+  progresses. This is separate from the prospect pipeline.
 
 ### 8.8 Order confirmation and tracking
 
@@ -320,6 +344,7 @@ New domains:
 - `store_products`
 - `store_inventory_ledger`
 - `store_orders`
+- `store_customer_leads`
 - `store_payments`
 - `store_payouts`
 - `store_returns`
@@ -331,7 +356,8 @@ Critical events:
 - `wholesale.order.paid` → reserve platform stock, create wholesale order
 - `wholesale.order.shipped` → tracking available to partner
 - `wholesale.order.received` → credit partner store inventory, create draft listings
-- `store.order.paid` → reserve partner store stock, create order, notify partner
+- `store.order.paid` → reserve partner store stock, create order, notify partner, upsert Customer Lead
+- `store.order.refunded` → refund/chargeback, update Customer Lead payment totals, reverse earnings
 - `store.order.fulfilled` → notify customer, start payout clock
 - `store.order.delivered` → start return window
 - `store.order.cancelled` → refund, restore stock, reverse earnings
@@ -343,15 +369,15 @@ Public endpoints must be read-only and rate-limited. Partner/admin endpoints req
 
 - Brand: MarketSpase Store. Remove all Diamond Project names, logos, imagery, legal copy, metadata and old partner-page content.
 - Audience: 18–35; mobile-first, image-led, minimal copy, fast checkout.
-- Visual system: MarketSpase indigo/purple, ink and white, Inter, 12–16px radii, subtle motion.
+- Visual system: MarketSpase indigo/purple, ink and white, Bricolage Grotesque + Manrope + JetBrains Mono, 12–16px radii, subtle motion.
 - Commerce patterns: quick add, slide cart, sticky mobile buy bar, one-page checkout, order timeline.
 - Trust: verified partner badge, secure Paystack, delivery estimates, returns, verified reviews, WhatsApp support.
 - Accessibility: 44px targets, contrast, keyboard, reduced motion.
 - SEO: SSR or prerender for store and product pages, OG images, structured data, sitemap. Do not ship the store as a pure SPA.
 
-## 13. Rebrand scope
+## 13. Rebrand scope (completed)
 
-At least 29 source files reference Diamond Project. The rebrand includes:
+At least 29 source files referenced Diamond Project at the start. The rebrand was completed across:
 
 - `src/index.html`, titles and metadata
 - Header, footer, home, about, FAQ, contact, events, partner pages
@@ -361,7 +387,7 @@ At least 29 source files reference Diamond Project. The rebrand includes:
 - Dialogs and email/WhatsApp copy
 - Redirects for retired Diamond routes
 
-The Diamond `get-started` survey should be retired or redirected to MarketSpase partner signup. The store app should not carry Diamond Project lead-generation pages.
+The Diamond `get-started` survey has been retired/redirected to MarketSpase partner signup. The store app does not carry Diamond Project lead-generation pages.
 
 ## 14. Delivery phases
 

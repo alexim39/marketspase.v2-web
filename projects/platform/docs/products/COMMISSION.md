@@ -1,8 +1,12 @@
 # Product-sale commission rule
 
+Last verified: 2026-11-09.
+
 Status: **implemented for new product orders**. `PRODUCT_COMMISSION_PLAN`
 defaults to `growth`; set it to `legacy` only to roll back new orders. Existing
-legacy carts keep the old accrual path until they are released or voided.
+legacy carts keep the old accrual path until they are released or voided. The
+same rule now covers every growth-plan product order, including repeat orders;
+activation orders accrue activation commissions separately.
 
 Phase 1 ships the product catalog and product page. This rule is wired into
 product checkout and order fulfilment; it does not touch Paystack transfers.
@@ -84,7 +88,9 @@ at least 81.5% of margin before overheads.
 - Members can buy products but do not earn unilevel commission until they
   activate.
 - Rank is read at accrual time and stored on the entry, as the growth ledger
-  already does.
+  already does. Commission depth currently comes from the admin-assigned
+  `commissionRank`; the journey rank shown on Progress is a separate
+  training/team ladder and does not change payout depth by itself.
 
 ### 4. When it accrues and releases
 
@@ -193,8 +199,8 @@ existing growth plan.
 1. A partner's own product purchase (personal use) is commissionable to their
    upline, because the platform still earns margin.
 2. Resale orders do not count toward rank progression until resale volume and
-   returns are measurable; rank follows activation and verified team
-   performance.
+   returns are measurable; rank follows activation, personal recruits and
+   verified team performance.
 3. Shipping charged to the buyer is passed through at cost and never treated
    as margin.
 

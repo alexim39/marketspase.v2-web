@@ -1,5 +1,7 @@
 # MarketSpase Design System
 
+Last verified: 2026-11-09.
+
 One visual language for the platform, store and admin apps. Feature apps should
 consume the shared tokens, Material theme and UI primitives instead of defining
 their own colours, type scales or loading states.
@@ -43,6 +45,10 @@ Colour and surface tokens live in `projects/shared/styles/_tokens.scss` for both
 `html[data-theme="light"]` and `html[data-theme="dark"]`. Never hardcode surface
 colours in feature components; use semantic tokens (`--ms-surface`,
 `--ms-text-muted`, `--ms-primary-strong`, `--ms-success`, etc.).
+
+The user-facing theme choice (Light / Dark / System) lives in **More → Settings →
+Appearance** (`/dashboard/settings/appearance`) in the platform app. The store
+and admin expose their own switchers; all use the shared `ThemeService`.
 
 ## Material forms
 

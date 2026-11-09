@@ -1,5 +1,7 @@
 # Product commission reporting and reconciliation
 
+Last verified: 2026-11-09.
+
 Admin location: **Admin desk → Compensation → Product economics**.
 
 ## What the report covers
