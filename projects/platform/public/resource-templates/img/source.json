@@ -1,42 +1,42 @@
 [
     {
-        "title": "Join the MarketSpase Community",
+        "title": "Your own online product business",
         "imageUrl": "./resource-templates/img/1.jpg",
-        "platforms": ["Facebook", "Instagram"]
+        "platforms": ["Facebook", "Instagram", "WhatsApp"]
     },
     {
-        "title": "Empower Your Future with MarketSpase",
+        "title": "A second income stream",
         "imageUrl": "./resource-templates/img/2.jpg",
-        "platforms": ["Twitter"]
+        "platforms": ["Twitter", "WhatsApp", "Facebook"]
     },
     {
-        "title": "Unlock Your Potential with MarketSpase",
+        "title": "Passive income starts with an asset",
         "imageUrl": "./resource-templates/img/3.jpg",
-        "platforms": ["LinkedIn", "Facebook"]
+        "platforms": ["LinkedIn", "Facebook", "Instagram"]
     },
     {
-        "title": "Transform Your Life: MarketSpase Awaits",
+        "title": "The platform runs the ads. You run the business.",
         "imageUrl": "./resource-templates/img/4.jpg",
-        "platforms": ["Instagram", "Pinterest"]
+        "platforms": ["Instagram", "Pinterest", "WhatsApp"]
     },
     {
-        "title": "Financial Freedom Starts Here: Join MarketSpase",
+        "title": "Real products. Real opportunity.",
         "imageUrl": "./resource-templates/img/5.jpg",
-        "platforms": ["Twitter", "LinkedIn"]
+        "platforms": ["Twitter", "LinkedIn", "Facebook"]
     },
     {
-        "title": "Build Your Empire with MarketSpase",
+        "title": "Build income that can outlast the post",
         "imageUrl": "./resource-templates/img/6.jpg",
-        "platforms": ["Facebook", "Instagram"]
+        "platforms": ["Facebook", "Instagram", "WhatsApp"]
     },
     {
-        "title": "Discover New Horizons: MarketSpase Journey",
+        "title": "Products + leads + team",
         "imageUrl": "./resource-templates/img/7.jpg",
-        "platforms": ["Twitter", "LinkedIn"]
+        "platforms": ["Twitter", "LinkedIn", "Instagram"]
     },
     {
-        "title": "Your Success Story Begins with MarketSpase",
+        "title": "Build a business that can keep earning",
         "imageUrl": "./resource-templates/img/8.jpg",
-        "platforms": ["Instagram", "Facebook"]
+        "platforms": ["Instagram", "Facebook", "WhatsApp"]
     }
 ]
