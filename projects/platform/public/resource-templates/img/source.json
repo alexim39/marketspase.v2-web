@@ -1,42 +1,272 @@
 [
-    {
-        "title": "Your own online product business",
-        "imageUrl": "./resource-templates/img/1.jpg",
-        "platforms": ["Facebook", "Instagram", "WhatsApp"]
-    },
-    {
-        "title": "A second income stream",
-        "imageUrl": "./resource-templates/img/2.jpg",
-        "platforms": ["Twitter", "WhatsApp", "Facebook"]
-    },
-    {
-        "title": "Passive income starts with an asset",
-        "imageUrl": "./resource-templates/img/3.jpg",
-        "platforms": ["LinkedIn", "Facebook", "Instagram"]
-    },
-    {
-        "title": "The platform runs the ads. You run the business.",
-        "imageUrl": "./resource-templates/img/4.jpg",
-        "platforms": ["Instagram", "Pinterest", "WhatsApp"]
-    },
-    {
-        "title": "Real products. Real opportunity.",
-        "imageUrl": "./resource-templates/img/5.jpg",
-        "platforms": ["Twitter", "LinkedIn", "Facebook"]
-    },
-    {
-        "title": "Build income that can outlast the post",
-        "imageUrl": "./resource-templates/img/6.jpg",
-        "platforms": ["Facebook", "Instagram", "WhatsApp"]
-    },
-    {
-        "title": "Products + leads + team",
-        "imageUrl": "./resource-templates/img/7.jpg",
-        "platforms": ["Twitter", "LinkedIn", "Instagram"]
-    },
-    {
-        "title": "Build a business that can keep earning",
-        "imageUrl": "./resource-templates/img/8.jpg",
-        "platforms": ["Instagram", "Facebook", "WhatsApp"]
-    }
+  {
+    "title": "Your own online product business",
+    "imageUrl": "./resource-templates/img/1.jpg",
+    "platforms": [
+      "Facebook",
+      "Instagram",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "A second income stream",
+    "imageUrl": "./resource-templates/img/2.jpg",
+    "platforms": [
+      "WhatsApp",
+      "Twitter",
+      "Facebook"
+    ]
+  },
+  {
+    "title": "Passive income starts with an asset",
+    "imageUrl": "./resource-templates/img/3.jpg",
+    "platforms": [
+      "LinkedIn",
+      "Facebook",
+      "Instagram"
+    ]
+  },
+  {
+    "title": "The platform runs the ads. You run the business.",
+    "imageUrl": "./resource-templates/img/4.jpg",
+    "platforms": [
+      "Instagram",
+      "Pinterest",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "Real products. Real opportunity.",
+    "imageUrl": "./resource-templates/img/5.jpg",
+    "platforms": [
+      "Twitter",
+      "LinkedIn",
+      "Facebook"
+    ]
+  },
+  {
+    "title": "Build income that can outlast the post",
+    "imageUrl": "./resource-templates/img/6.jpg",
+    "platforms": [
+      "Facebook",
+      "Instagram",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "Products + leads + team",
+    "imageUrl": "./resource-templates/img/7.jpg",
+    "platforms": [
+      "Twitter",
+      "LinkedIn",
+      "Instagram"
+    ]
+  },
+  {
+    "title": "Build a business that can keep earning",
+    "imageUrl": "./resource-templates/img/8.jpg",
+    "platforms": [
+      "Instagram",
+      "Facebook",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "Your storefront is ready",
+    "imageUrl": "./resource-templates/img/9.jpg",
+    "platforms": [
+      "Facebook",
+      "Instagram",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "Build extra income part-time",
+    "imageUrl": "./resource-templates/img/10.jpg",
+    "platforms": [
+      "WhatsApp",
+      "Twitter",
+      "Facebook"
+    ]
+  },
+  {
+    "title": "A business you can explain",
+    "imageUrl": "./resource-templates/img/11.jpg",
+    "platforms": [
+      "LinkedIn",
+      "Facebook",
+      "Instagram"
+    ]
+  },
+  {
+    "title": "Sell products, not promises",
+    "imageUrl": "./resource-templates/img/12.jpg",
+    "platforms": [
+      "Instagram",
+      "Pinterest",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "Your phone is the office",
+    "imageUrl": "./resource-templates/img/13.jpg",
+    "platforms": [
+      "Twitter",
+      "LinkedIn",
+      "Facebook"
+    ]
+  },
+  {
+    "title": "Passive income needs an engine",
+    "imageUrl": "./resource-templates/img/14.jpg",
+    "platforms": [
+      "Facebook",
+      "Instagram",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "Turn effort into an asset",
+    "imageUrl": "./resource-templates/img/15.jpg",
+    "platforms": [
+      "Twitter",
+      "LinkedIn",
+      "Instagram"
+    ]
+  },
+  {
+    "title": "A second income, built properly",
+    "imageUrl": "./resource-templates/img/16.jpg",
+    "platforms": [
+      "Instagram",
+      "Facebook",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "Leads without the cold hunt",
+    "imageUrl": "./resource-templates/img/17.jpg",
+    "platforms": [
+      "Facebook",
+      "Instagram",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "Build a customer base that repeats",
+    "imageUrl": "./resource-templates/img/18.jpg",
+    "platforms": [
+      "WhatsApp",
+      "Twitter",
+      "Facebook"
+    ]
+  },
+  {
+    "title": "Your own online shop",
+    "imageUrl": "./resource-templates/img/19.jpg",
+    "platforms": [
+      "LinkedIn",
+      "Facebook",
+      "Instagram"
+    ]
+  },
+  {
+    "title": "Build income beyond your hours",
+    "imageUrl": "./resource-templates/img/20.jpg",
+    "platforms": [
+      "Instagram",
+      "Pinterest",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "A product business that compounds",
+    "imageUrl": "./resource-templates/img/21.jpg",
+    "platforms": [
+      "Twitter",
+      "LinkedIn",
+      "Facebook"
+    ]
+  },
+  {
+    "title": "Start small. Build long-term.",
+    "imageUrl": "./resource-templates/img/22.jpg",
+    "platforms": [
+      "Facebook",
+      "Instagram",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "The long-term solution to extra income",
+    "imageUrl": "./resource-templates/img/23.jpg",
+    "platforms": [
+      "Twitter",
+      "LinkedIn",
+      "Instagram"
+    ]
+  },
+  {
+    "title": "A real business opportunity",
+    "imageUrl": "./resource-templates/img/24.jpg",
+    "platforms": [
+      "Instagram",
+      "Facebook",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "Build a storefront that keeps selling",
+    "imageUrl": "./resource-templates/img/25.jpg",
+    "platforms": [
+      "Facebook",
+      "Instagram",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "Your future income asset",
+    "imageUrl": "./resource-templates/img/26.jpg",
+    "platforms": [
+      "WhatsApp",
+      "Twitter",
+      "Facebook"
+    ]
+  },
+  {
+    "title": "A clearer path to passive income",
+    "imageUrl": "./resource-templates/img/27.jpg",
+    "platforms": [
+      "LinkedIn",
+      "Facebook",
+      "Instagram"
+    ]
+  },
+  {
+    "title": "Build a business that duplicates",
+    "imageUrl": "./resource-templates/img/28.jpg",
+    "platforms": [
+      "Instagram",
+      "Pinterest",
+      "WhatsApp"
+    ]
+  },
+  {
+    "title": "From side hustle to asset",
+    "imageUrl": "./resource-templates/img/29.jpg",
+    "platforms": [
+      "Twitter",
+      "LinkedIn",
+      "Facebook"
+    ]
+  },
+  {
+    "title": "Create income that can compound",
+    "imageUrl": "./resource-templates/img/30.jpg",
+    "platforms": [
+      "Facebook",
+      "Instagram",
+      "WhatsApp"
+    ]
+  }
 ]

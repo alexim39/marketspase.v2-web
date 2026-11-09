@@ -48,7 +48,7 @@ template: `
 
   @if (filteredTemplates.length > 0) {
     <section class="template-list">
-      @for (template of filteredTemplates; track template.title) {
+      @for (template of visibleTemplates; track template.title) {
         <div class="template-item dp-card">
           <div class="template-top">
             <h3>{{ template.title }}</h3>
@@ -67,6 +67,12 @@ template: `
         </div>
       }
     </section>
+    <div class="list-footer">
+      <span class="muted">Showing {{ visibleTemplates.length }} of {{ filteredTemplates.length }} messages</span>
+      @if (visibleTemplates.length < filteredTemplates.length) {
+        <button mat-stroked-button (click)="loadMore()">Load more</button>
+      }
+    </div>
   } @else {
     <p class="empty">No templates match — try another search or platform.</p>
   }
@@ -110,6 +116,8 @@ styles: [`
 .template-top button { min-height: 44px; }
 .template-actions { display: flex; gap: 0.4em; flex-wrap: wrap; margin-top: 0.3em; }
 .template-actions button { min-height: 44px; }
+.list-footer { display: flex; justify-content: space-between; align-items: center; gap: 0.75em; flex-wrap: wrap; margin-top: 1.25em; }
+.list-footer button { min-height: 44px; }
 
 .empty { color: var(--ms-text-muted); text-align: center; padding: 2em 1em; }
 
@@ -141,8 +149,11 @@ imports: [MatTabsModule, MatFormFieldModule, MatButtonModule, MatIconModule, For
 export class TextDownloadComponent {
   templates: TextTemplate[] = [...(templatesData as TextTemplate[])];
   filteredTemplates: TextTemplate[] = [...this.templates];
+  visibleTemplates: TextTemplate[] = [];
   selectedPlatform: string = 'All Platforms';
   query = '';
+  private readonly pageSize = 24;
+  private visibleCount = this.pageSize;
 
   @Input() partner!: PartnerInterface;
 
@@ -152,7 +163,7 @@ export class TextDownloadComponent {
 
     ngOnInit(): void {
         this.templates = this.shuffleArray([...(templatesData as TextTemplate[])]);
-        this.filteredTemplates = [...this.templates];
+        this.filterTemplates();
     }
 
     private shuffleArray(array: TextTemplate[]): TextTemplate[] {
@@ -202,6 +213,17 @@ export class TextDownloadComponent {
       if (!q) return true;
       return `${template.title ?? ''} ${template.description ?? ''}`.toLowerCase().includes(q);
     });
+    this.visibleCount = this.pageSize;
+    this.applyPage();
+  }
+
+  loadMore(): void {
+    this.visibleCount += this.pageSize;
+    this.applyPage();
+  }
+
+  private applyPage(): void {
+    this.visibleTemplates = this.filteredTemplates.slice(0, this.visibleCount);
   }
 
   scrollToTop() {

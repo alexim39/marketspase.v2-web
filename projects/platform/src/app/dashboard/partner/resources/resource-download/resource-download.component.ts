@@ -32,7 +32,7 @@ template: `
   <div class="page-head">
     <div>
       <h2>Content library</h2>
-      <p class="subtitle">Ready-to-post messages that present MarketSpase as an online business. Copy or share directly on WhatsApp — every message carries your personal link.</p>
+      <p class="subtitle">400 ready-to-post messages and 30 branded images that present MarketSpase as an online business and passive-income opportunity. Copy or share directly on WhatsApp — every message carries your personal link.</p>
     </div>
     <button mat-button (click)="showDescription()">What is this?</button>
   </div>
