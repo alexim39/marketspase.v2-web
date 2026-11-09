@@ -44,10 +44,6 @@ export const RULES = [
     re: /(?:post|put|patch)\s*\([^\n]*['"`]\/?campaign['"`]|\/campaign\/(?:facebook|youtube|linkedin)\b/,
   },
   {
-    name: 'legacy booking email export',
-    re: /\/?booking\/email-list\b/,
-  },
-  {
     name: 'legacy partner lookup/social write',
     re: /\/?partners\/(?:public-search|check-username|whatsappgrouplink|whatsappchatlink|facebookPage|instagramPage|tiktokPage|twitterPage|youtubePage|linkedinPage)\b/,
   },

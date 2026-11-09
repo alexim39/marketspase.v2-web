@@ -108,12 +108,9 @@
       </button>
 
       <div class="actions">
-        <button mat-stroked-button (click)="previewPresent()" matTooltip="Walk them through an opportunity deck"><mat-icon>present_to_all</mat-icon>Present a deck</button>
         @if (canManage()) {
           <button mat-flat-button color="primary" (click)="editProspectDetail()"><mat-icon>edit</mat-icon>Edit contact</button>
-          <button mat-stroked-button (click)="bookProspectSession()"><mat-icon>bookmark_added</mat-icon>Book session</button>
         } @else {
-          <button mat-stroked-button (click)="bookProspectSession()" matTooltip="Book on behalf — logged as Support"><mat-icon>bookmark_added</mat-icon>Book session</button>
           <p class="muted">Editing contact details is owner-only — ask your downline to update PII.</p>
         }
       </div>

@@ -10,7 +10,7 @@ redeploy, the single-upline migration and the production PII keyring.
 | Area | Status |
 |---|---|
 | Platform production build | **Passes, warning-free** |
-| API test suite | **748 / 748 pass** (last verified 2026-11-09) |
+| API test suite | **721 / 721 pass** (last verified 2026-11-09) |
 | Web CI | **Green** on the latest web commit |
 | Cross-browser layout (Edge + WebKit) | **92 / 92 runs, 0 overflow** (2026-11-04 audit) |
 | Axe (authenticated, light/dark/mobile/desktop) | **68 scans, 0 violations** (2026-11-04 audit) |
@@ -67,8 +67,8 @@ allocation were removed end to end; Customer Leads and personal-page leads were
 added; referral signups now appear in the pipeline; the mentor bonus is immediate;
 single-upline `partnerOf` replaced `placementParentId`; partner bulk SMS/email
 outreach, contact analytics, team reports, contact lists, cell meetings, coaching
-notes, partner surveys, the admin Page Leads desk and the legacy cart commission
-engine were retired.
+notes, partner surveys, the admin Page Leads desk, session bookings,
+presentation kits and the legacy cart commission engine were retired.
 
 ## Required production environment
 

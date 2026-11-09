@@ -96,7 +96,6 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     children: [
       { label: 'Training quizzes', link: '/training-quizzes', icon: 'quiz' },
       { label: 'Tutorials', link: '/tutorials', icon: 'smart_display' },
-      { label: 'Presentations', link: '/kits', icon: 'present_to_all' },
       { label: 'Platform settings', link: '/settings', icon: 'tune' },
     ],
   },

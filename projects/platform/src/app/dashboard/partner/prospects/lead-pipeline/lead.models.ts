@@ -96,16 +96,6 @@ export interface ActivationBoard {
 
 export type ActivationBoardEnvelope = ApiEnvelope<ActivationBoard>;
 
-export interface DownlinePhoneOwner {
-  partnerId: string;
-  phone: string;
-  member: { username: string; name: string } | null;
-}
-
-export interface DownlinePhonesEnvelope extends ApiEnvelope<{ items: DownlinePhoneOwner[]; total: number }> {
-  data: { items: DownlinePhoneOwner[]; total: number };
-}
-
 export interface ConvertEnvelope extends ApiEnvelope<{ code: string; prospect: ProspectLead }> {
   data: { code: string; prospect: ProspectLead };
 }

@@ -1,13 +1,10 @@
 import { Routes } from '@angular/router';
 import { CustomerLeadsComponent } from './customer-leads/customer-leads.component';
-import { ProspectBookingContainerComponent } from './prospect-booking/prospect-booking-container.component';
 import { LeadPipelineComponent } from './lead-pipeline/lead-pipeline.component';
 import { PipelineBoardComponent } from './pipeline-board/board.component';
 import { RemindersComponent } from './reminders/reminders.component';
 import { ProspectDetailComponent } from './prospect-detail/detail.component';
 import { EditContactsContainerComponent } from '../contacts/edit/edit-contacts-container.component';
-import { BookSessionContainerComponent } from '../contacts/book-session/book-session-container.component';
-import { KitsComponent } from './kits/kits.component';
 import { ProspectCreateComponent } from './prospect-create.component';
 
 export const ProspectsRoutes: Routes = [
@@ -19,11 +16,9 @@ export const ProspectsRoutes: Routes = [
   {
     path: '',
     children: [
-        {
-            path: 'bookings',
-            component: ProspectBookingContainerComponent,
-            title: "General Prospects Bookings - View all bookings",
-        },
+        { path: 'bookings', redirectTo: 'pipeline', pathMatch: 'full' },
+        { path: 'kits', redirectTo: 'pipeline', pathMatch: 'full' },
+        { path: 'booking/:id', redirectTo: 'pipeline', pathMatch: 'full' },
         {
             path: 'customer-leads',
             component: CustomerLeadsComponent,
@@ -45,16 +40,6 @@ export const ProspectsRoutes: Routes = [
             title: "Add prospect - New pipeline conversation",
         },
         {
-            path: 'kits',
-            component: KitsComponent,
-            title: "Presentations - One canonical deck per selling moment",
-        },
-        {
-            path: 'kits/:kitId/present',
-            loadComponent: () => import('./kits/present/present.component').then((m) => m.PresentComponent),
-            title: "Present - Walk a prospect through the deck",
-        },
-        {
             path: 'reminders',
             component: RemindersComponent,
             title: "Reminders - Follow-up commitments due",
@@ -69,17 +54,11 @@ export const ProspectsRoutes: Routes = [
             component: ProspectDetailComponent,
             title: "Prospect Details - Timeline, activities and conversion",
         },
-         {
+        {
             path: 'edit/:id',
             component: EditContactsContainerComponent,
             title: "Edit Contacts Details",
-        },  
-         {
-            path: 'booking/:id',
-            component: BookSessionContainerComponent,
-            title: "Book a Prospect Session - Prosepct session booking",
-        },  
-              
+        },
     ],
   },
 ];

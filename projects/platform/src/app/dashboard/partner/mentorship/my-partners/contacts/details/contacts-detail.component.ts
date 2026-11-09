@@ -18,8 +18,17 @@ import { PartnerInterface, PartnerService } from '../../../../../../_common/serv
 import { AuthService } from '../../../../../../core/auth/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { userError } from '../../../../../../core/http/api-error';
-import { ProspectListInterface } from '../../../../prospects/prospects.service';
 import { ProspectResponseComponent } from './prospect-response.component';
+
+interface ProspectListInterface {
+  message: string;
+  surname: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  createdAt: Date;
+  _id: string;
+}
 
 interface TouchEntry {
   at: string;
@@ -376,33 +385,12 @@ export class MyPartnerContactsDetailComponent implements OnInit {
     });
   }
 
-  /** Open the deck library primed for this prospect (outcome logs with support attribution). */
-  previewPresent(): void {
-    const prospectId = String(this.prospectData?._id ?? '').trim();
-    if (!prospectId) return;
-    const owner = String(
-      (this.prospectData as { partnerId?: unknown })?.partnerId
-        ?? this.myPartner?._id ?? '',
-    ).trim();
-    this.router.navigate(['/dashboard/prospects/kits'], {
-      queryParams: {
-        for: prospectId,
-        forName: this.fullName(),
-        ...(owner ? { owner } : {}),
-      },
-    }).catch(() => undefined);
-  }
-
   editProspectDetail(): void {
     if (!this.canManage()) {
       this.snackBar.open('Only the prospect owner can edit contact details. Ask your downline to update it.', 'Close', { duration: 4000 });
       return;
     }
     this.router.navigate(['/dashboard/prospects/edit', this.prospectData._id]);
-  }
-
-  bookProspectSession(): void {
-    this.router.navigate(['/dashboard/prospects/booking', this.prospectData._id]);
   }
 
   ViewResponse(prospect: ProspectListInterface): void {

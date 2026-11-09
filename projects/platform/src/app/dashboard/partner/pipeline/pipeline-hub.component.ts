@@ -168,8 +168,6 @@ interface StageRow {
             <div class="quick-grid">
               <a routerLink="/dashboard/prospects/board"><mat-icon>view_kanban</mat-icon><span>Deal board</span></a>
               <a routerLink="/dashboard/prospects/customer-leads"><mat-icon>groups</mat-icon><span>Customer leads</span></a>
-              <a routerLink="/dashboard/prospects/bookings"><mat-icon>event</mat-icon><span>Sessions</span></a>
-              <a routerLink="/dashboard/prospects/kits"><mat-icon>present_to_all</mat-icon><span>Presentations</span></a>
               <a routerLink="/dashboard/prospects/new"><mat-icon>person_add</mat-icon><span>Add someone</span></a>
             </div>
           </div>

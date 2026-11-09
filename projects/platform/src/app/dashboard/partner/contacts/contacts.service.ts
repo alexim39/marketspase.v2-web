@@ -86,11 +86,6 @@ export class ContactsService {
     return this.apiService.delete<any>(`v1/prospects/${id}`, undefined, undefined, true);
   }
 
-  // submit booking session
-  bookSession(formData: any): Observable<any> {
-      return this.apiService.post<any>(`booking/submit`, formData, undefined, true);
-  }
-
   /**
    * Update prospect communications
    * @param formData - Object containing communication and prospectId

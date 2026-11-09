@@ -2,14 +2,9 @@
   "/v1": { "target": "http://127.0.0.1:3000", "secure": false, "changeOrigin": true },
   "/partners": { "target": "http://127.0.0.1:3000", "secure": false, "changeOrigin": true },
   "/billing": { "target": "http://127.0.0.1:3000", "secure": false, "changeOrigin": true },
-  "/campaign": { "target": "http://127.0.0.1:3000", "secure": false, "changeOrigin": true },
   "/prospect": { "target": "http://127.0.0.1:3000", "secure": false, "changeOrigin": true },
   "/products": { "target": "http://127.0.0.1:3000", "secure": false, "changeOrigin": true },
-  "/booking": { "target": "http://127.0.0.1:3000", "secure": false, "changeOrigin": true },
   "/team": { "target": "http://127.0.0.1:3000", "secure": false, "changeOrigin": true },
-  "/settings": { "target": "http://127.0.0.1:3000", "secure": false, "changeOrigin": true },
-  "/emails": { "target": "http://127.0.0.1:3000", "secure": false, "changeOrigin": true },
-  "/sms": { "target": "http://127.0.0.1:3000", "secure": false, "changeOrigin": true },
   "/uploads": { "target": "http://127.0.0.1:3000", "secure": false, "changeOrigin": true },
   "/socket.io": { "target": "http://127.0.0.1:3000", "secure": false, "changeOrigin": true, "ws": true }
 }

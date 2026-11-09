@@ -251,9 +251,6 @@ import { forkJoin, map, of, switchMap } from 'rxjs';
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
-                @if (!isConverted(lead)) {
-                  <a mat-button [routerLink]="['../booking', lead.id]" title="Book a chat with {{ names(lead) }}">Book</a>
-                }
                 <a mat-button [routerLink]="['/dashboard/prospects/detail', lead.id]" title="Work {{ names(lead) }} - status, outreach and history in one place">Work contact</a>
                 @if (canConvert(lead)) {
                   @if (confirmId() === lead.id) {

@@ -167,7 +167,6 @@ interface ActivityItem {
         }
         <a mat-stroked-button routerLink="campaigns"><mat-icon>campaign</mat-icon> Fund acquisition</a>
         <a mat-stroked-button routerLink="messages"><mat-icon>forum</mat-icon> Send message</a>
-        <a mat-stroked-button routerLink="prospects/bookings"><mat-icon>event</mat-icon> Book session</a>
         <a mat-stroked-button routerLink="wallet"><mat-icon>add_card</mat-icon> Deposit</a>
         <a mat-stroked-button routerLink="ora"><mat-icon>smart_toy</mat-icon> Ask Ora</a>
       </div>

@@ -7,13 +7,11 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
-import { ProspectService } from '../prospects.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { CollectCodeComponent } from '../../contacts/manage/details/collect-code.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -36,37 +34,6 @@ const combineDateAndTime = (day: Date | null, clock: Date | null): string => {
   return d.toISOString();
 };
 
-interface LinkedSession {
-  id: string;
-  status: string;
-  consultDate?: string;
-  consultTime?: string;
-  reason?: string;
-  contactMethod?: string;
-  description?: string;
-  username?: string;
-  reminded24hAt?: string | null;
-  reminded1hAt?: string | null;
-}
-
-const normalizeSessionPhone = (value: unknown): string => {
-  const raw = String(value ?? '').trim().replace(/[\s\-().]/g, '');
-  if (raw.startsWith('+234')) return '0' + raw.slice(4);
-  if (raw.startsWith('234') && raw.length > 10) return '0' + raw.slice(3);
-  return raw;
-};
-
-const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
-  const x = normalizeSessionPhone(a);
-  const y = normalizeSessionPhone(b);
-  if (!x || !y) return false;
-  if (x === y) return true;
-  const tail = (s: string): string => s.replace(/\D/g, '').slice(-9);
-  const tx = tail(x);
-  const ty = tail(y);
-  return tx.length >= 7 && tx === ty;
-};
-
 /**
  * @title Prospect detail — bio, conversion journey, activity timeline.
  *
@@ -76,10 +43,9 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
 @Component({
   selector: 'async-prospect-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [ProspectService],
   imports: [
     DatePipe, MatButtonModule, MatChipsModule, MatDatepickerModule, MatIconModule, MatInputModule,
-    MatProgressBarModule, MatSelectModule, MatTimepickerModule, PageSkeletonComponent, ReactiveFormsModule, RouterModule,
+    MatSelectModule, MatTimepickerModule, PageSkeletonComponent, ReactiveFormsModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -132,7 +98,7 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
             <mat-icon>support_agent</mat-icon>
             <div>
               <strong>Downline prospect — you're supporting this contact.</strong>
-              <span class="muted"> Log activity, book sessions and advance the stage on their behalf. Enrolment credit stays with the owner.</span>
+              <span class="muted"> Log activity and advance the stage on their behalf. Enrolment credit stays with the owner.</span>
             </div>
           </div>
         }
@@ -185,10 +151,6 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
           <a mat-icon-button [routerLink]="['/dashboard/prospects/edit', prospectId()]" title="Edit prospect" aria-label="Edit prospect">
             <mat-icon>edit</mat-icon>
           </a>
-          @if (!isConverted()) {
-            <a mat-button [routerLink]="['/dashboard/prospects/booking', prospectId()]" title="Book a chat">Book session</a>
-          }
-          <a mat-button [routerLink]="['/dashboard/prospects/kits']" [queryParams]="{ for: prospectId(), forName: names() }" title="Present a deck to this prospect">Present a deck</a>
           <button mat-button (click)="toggleLogForm()">{{ showLogForm() ? 'Cancel' : 'Log activity' }}</button>
         </div>
 
@@ -273,50 +235,11 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
               <button mat-raised-button color="primary" type="submit" [disabled]="logForm.invalid || logging()">
                 {{ logging() ? 'Saving…' : 'Save activity' }}
               </button>
-              @if (showHotNudge()) {
-                <a mat-button [routerLink]="['/dashboard/prospects/booking', prospectId()]">Next best move: Book session →</a>
-              }
               @if (logError(); as err) {
                 <span class="error" role="alert">{{ err }}</span>
               }
             </div>
           </form>
-        }
-
-        <h3>Sessions ({{ sessions().length }})</h3>
-        @if (sessionsLoading()) {
-          <mat-progress-bar mode="indeterminate" aria-label="Loading" />
-        } @else if (sessions().length > 0) {
-          <ol class="session-list">
-            @for (s of sessions(); track s.id || $index) {
-              <li class="dp-card session-item">
-                <div class="session-top">
-                  <strong>{{ s.consultDate | date: 'mediumDate' }}@if (s.consultTime) { · {{ s.consultTime }}}</strong>
-                  <span class="dp-status {{ sessionStatusClass(s.status) }}">{{ s.status }}</span>
-                  @if (s.reminded1hAt || s.reminded24hAt) {
-                    <span class="dp-status dp-status--ok" title="Reminder sent for this session">Reminded</span>
-                  }
-                </div>
-                @if (s.reason) {
-                  <p class="muted">{{ s.reason }}@if (s.contactMethod) { · via {{ s.contactMethod }}}</p>
-                }
-                @if (s.description) {
-                  <p>{{ s.description }}</p>
-                }
-                @if (s.username) {
-                  <p class="muted">Booked by @{{ s.username }}
-                    @if (myUsername() && s.username === myUsername()) {
-                      <span class="dp-status dp-status--info">You</span>
-                    } @else {
-                      <span class="dp-status dp-status--warn">Support</span>
-                    }
-                  </p>
-                }
-              </li>
-            }
-          </ol>
-        } @else {
-          <p class="empty">No booked sessions for this prospect yet.</p>
         }
 
         <h3>Activity timeline ({{ timeline().length }})</h3>
@@ -414,10 +337,6 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
     .timeline-item { display: flex; gap: 0.8em; padding: 0.8em 1em; }
     .timeline-item mat-icon { color: var(--ms-primary-strong); }
     .timeline-item--stage { border-left: 4px solid var(--ms-info); }
-    .session-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
-    .session-item { padding: 0.8em 1em; display: flex; flex-direction: column; gap: 0.25em; }
-    .session-item p { margin: 0; }
-    .session-top { display: flex; align-items: center; justify-content: space-between; gap: 0.6em; flex-wrap: wrap; }
     .timeline-body { flex: 1; display: flex; flex-direction: column; gap: 0.25em; }
     .timeline-body p { margin: 0; }
     .timeline-top { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; text-transform: capitalize; }
@@ -431,7 +350,6 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
 })
 export class ProspectDetailComponent implements OnInit {
   private readonly leads = inject(LeadPipelineService);
-  private readonly bookings = inject(ProspectService, { optional: true });
   private readonly auth = inject(AuthService);
   private readonly routes = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
@@ -447,8 +365,6 @@ export class ProspectDetailComponent implements OnInit {
   protected readonly confirming = signal(false);
   protected readonly convertedNotice = signal<{ name: string } | null>(null);
   protected readonly showLogForm = signal(false);
-  protected readonly sessions = signal<LinkedSession[]>([]);
-  protected readonly sessionsLoading = signal(false);
 
   protected readonly commTypes = [...COMM_TYPES];
   protected readonly interestLevels = [...INTEREST_LEVELS];
@@ -567,70 +483,12 @@ export class ProspectDetailComponent implements OnInit {
           const prospect = res.data ?? null;
           this.lead.set(prospect);
           this.loading.set(false);
-          if (prospect) this.loadSessions(prospect);
         },
         error: (err: ApiError) => {
           this.error.set(err.message);
           this.loading.set(false);
         },
       });
-  }
-
-  /**
-   * Linked sessions: bookings carry no prospectId, so match by normalized
-   * phone within this prospect's partner bookings. Fail-soft — a sessions
-   * failure never breaks the detail page.
-   */
-  private loadSessions(prospect: ProspectDetail): void {
-    const partnerId = (prospect as { partnerId?: unknown }).partnerId;
-    const phone = prospect.prospectPhone;
-    if (!partnerId || !phone || !this.bookings) {
-      this.sessions.set([]);
-      return;
-    }
-    this.sessionsLoading.set(true);
-    this.bookings.getSessionBookingsFor(String(partnerId)).subscribe({
-      next: (res: { data?: unknown[] }) => {
-        const rows = Array.isArray(res?.data) ? res.data : [];
-        const matched: LinkedSession[] = (rows as Array<Record<string, unknown>>)
-          .filter((r) => sessionPhonesMatch(r['phone'], phone))
-          .map((r) => ({
-            id: String(r['_id'] ?? r['id'] ?? ''),
-            status: typeof r['status'] === 'string' ? (r['status'] as string) : 'Scheduled',
-            consultDate: r['consultDate'] != null ? String(r['consultDate']) : undefined,
-            consultTime: typeof r['consultTime'] === 'string' ? (r['consultTime'] as string) : undefined,
-            reason: typeof r['reason'] === 'string' ? (r['reason'] as string) : undefined,
-            contactMethod: typeof r['contactMethod'] === 'string' ? (r['contactMethod'] as string) : undefined,
-            description: typeof r['description'] === 'string' ? (r['description'] as string) : undefined,
-            username: typeof r['username'] === 'string' ? (r['username'] as string) : undefined,
-            reminded24hAt: typeof r['reminded24hAt'] === 'string' ? (r['reminded24hAt'] as string) : undefined,
-            reminded1hAt: typeof r['reminded1hAt'] === 'string' ? (r['reminded1hAt'] as string) : undefined,
-          }))
-          .sort((a, b) => new Date(b.consultDate ?? 0).getTime() - new Date(a.consultDate ?? 0).getTime());
-        this.sessions.set(matched);
-        this.sessionsLoading.set(false);
-      },
-      error: () => {
-        this.sessions.set([]);
-        this.sessionsLoading.set(false);
-      },
-    });
-  }
-
-  protected sessionStatusClass(status: string): string {
-    switch (status) {
-      case 'Completed':
-        return 'dp-status--ok';
-      case 'Scheduled':
-      case 'In Progress':
-      case 'Rebooked':
-        return 'dp-status--info';
-      case 'Cancelled':
-      case 'Incomplete':
-        return 'dp-status--bad';
-      default:
-        return 'dp-status--warn';
-    }
   }
 
   protected reload(): void {
@@ -656,13 +514,6 @@ export class ProspectDetailComponent implements OnInit {
     if (this.logForm.get('outcome')?.value === 'Closed-lost') fud?.setValidators([]);
     else fud?.setValidators([Validators.required]);
     fud?.updateValueAndValidity({ emitEvent: false });
-  }
-
-  /** Hot + still open → point at the booking action inline. */
-  protected showHotNudge(): boolean {
-    return this.logForm.get('interestLevel')?.value === 'hot'
-      && this.logForm.get('outcome')?.value !== 'Closed-lost'
-      && !this.isConverted();
   }
 
   protected outcomeClass(outcome: string | undefined): string {
@@ -712,11 +563,6 @@ export class ProspectDetailComponent implements OnInit {
     if (me && author === me) return 'dp-status--info';
     if (ownerId && author === String(ownerId)) return 'dp-status--ok';
     return 'dp-status--warn';
-  }
-
-  protected myUsername(): string {
-    const u = this.auth.currentUser()?.username;
-    return u ? String(u) : '';
   }
 
   /** Current actor for signed writes (stage moves, conversions). */

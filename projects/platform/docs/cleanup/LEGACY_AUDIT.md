@@ -1,7 +1,7 @@
 # MarketSpase — Legacy & Redundancy Audit
 
 **Date:** 2026-11-04 (post-audit update 2026-11-09)  
-**Status:** Batch 1–4 executed — see `CHANGES-batch1.md` … `CHANGES-batch4.md`. The Buy Prospect pool and legacy campaign pool-lead allocation were subsequently removed end to end (2026-11-08). The legacy cart commission engine, partner bulk outreach, contact lists, coaching/cell meetings, reports, partner surveys and page-lead desk were removed on 2026-11-09. Remaining items are compatibility-only (legacy `/auth` clients).  
+**Status:** Batch 1–4 executed — see `CHANGES-batch1.md` … `CHANGES-batch4.md`. The Buy Prospect pool and legacy campaign pool-lead allocation were subsequently removed end to end (2026-11-08). The legacy cart commission engine, partner bulk outreach, contact lists, coaching/cell meetings, reports, partner surveys, page-lead desk, session bookings and presentation kits were removed on 2026-11-09. Remaining items are compatibility-only (legacy `/auth` clients).
 **Scope:** `platform/src`, `api/src`, mounts in `api/server.js`, public assets, dependencies.  
 **Mode:** read-only audit at the time; batches 1–4 and the later Buy Prospect removal were executed afterwards.  
 **Rollback snapshot:** `C:\Users\Hp\AppData\Local\Temp\opencode\marketspase-backup-20261104-064913.zip` (11.14 MB; source, docs, public assets, configs — excludes `node_modules`, `dist`, `.angular`, `.env`).
@@ -163,7 +163,6 @@ Keep `details/collect-code.component.ts` (live).
 **Recommendation:** delete the entire `apps/settings` app and `/settings` mount now — high-confidence dead and closes an unguarded write surface.
 
 ### 4.7 Other legacy-but-active (do not delete yet)
-- Booking (`/booking`) — still used by sessions.
 - Contact / email subscription / survey — public sites may use them.
 - Partner profile updates (`/partners/*`) — profile page still uses them.
 - Products/eshop (`/products/*`) — checkout and order history still use the legacy cart API; the catalog UI was replaced in the product Phase 1 work.
@@ -172,6 +171,7 @@ Keep `details/collect-code.component.ts` (live).
 - Transaction/billing (`/billing/*`) — wallet history still uses it; withdrawal creation moved to `/v1/billing/withdrawals`; legacy `POST /billing/withdraw-request` returns 410.
 - Legacy `apps/image` — already unmounted; delete folder safely.
 - Reservations — retired server-side (`/v1/reservations` removed); historical collection kept for audit only.
+- Bookings — retired end to end on 2026-11-09 (`/booking`, models, routes and reminders removed).
 
 ---
 
@@ -181,16 +181,15 @@ Keep `details/collect-code.component.ts` (live).
 |---|---|---|
 | `/auth` | only `signout` used by SPA | retire after `AuthService` migration |
 | `/partners` | active | profile updates |
-| `/booking` | active | sessions |
-| `/campaign` | active legacy | ad-brief + pipeline reports |
+| `/campaign` | retired 2026-11-09 | ad-brief and pipeline reports removed |
 | `/contact` | external/public | keep |
-| `/billing` (legacy) | active | wallet history, deprecated withdraw-request (410), unused bulk-SMS charge |
+| `/billing` (legacy) | active | wallet history; deprecated withdraw-request (410) |
 | `/prospect` (legacy) | active | contacts/team screens |
 | `/products` (legacy) | active | eShop/admin catalog |
 | `/survey` | external site | keep |
 | `/emailSubscription` | external site | keep |
-| `/emails` | read/delete active, send dead | trim send routes |
-| `/sms` | delete/read active, save dead | trim save route |
+| `/emails` | retired 2026-11-09 | legacy send/read/delete removed |
+| `/sms` | retired 2026-11-09 | legacy send/read/delete removed |
 | `/ticket` | active legacy submit | migrate to v1 |
 | `/team` | active legacy teams | keep until teams migration |
 | `/settings` | **dead, unguarded** | remove |
@@ -229,7 +228,7 @@ Keep `details/collect-code.component.ts` (live).
 - Legacy auth/email/SMS send endpoints.
 
 ### Batch 3 — API/screen consolidation
-- Migrate remaining legacy screens (profile, teams, products, booking, tickets) to v1.
+- Migrate remaining legacy screens (profile, teams, products, tickets) to v1.
 - Remove legacy routers/repositories/models no longer referenced.
 - Remove `--dp-*` aliases once no references remain.
 - Purge reviewed assets and trim resource-template JSON.

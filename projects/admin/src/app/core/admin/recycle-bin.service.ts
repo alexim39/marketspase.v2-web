@@ -5,9 +5,7 @@ import { ApiEnvelope } from '../auth/auth.models';
 
 export type RecycleEntity =
   | 'prospects'
-  | 'bookings'
   | 'goals'
-  | 'kits'
   | 'tutorials'
   | 'events'
   | 'community-posts'

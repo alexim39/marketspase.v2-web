@@ -205,13 +205,6 @@ export class ContactsService {
       .delete<ContactsInterface>(this.apiURL + `/v1/prospects/${id}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
-
-  // submit booking — session-authenticated (server requires a partner session)
-   bookSurvey(formData: any): Observable<any> {
-     return this.http
-       .post<any>(this.apiURL + '/booking/submit', formData, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
-  }
 }
 
 /* ------------------------------------------------------------------ */

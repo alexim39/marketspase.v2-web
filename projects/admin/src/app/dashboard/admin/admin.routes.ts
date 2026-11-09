@@ -13,7 +13,6 @@ import { AdminBroadcastComponent } from './broadcast/admin-broadcast.component';
 import { AdminSubscriptionsComponent } from './subscriptions/admin-subscriptions.component';
 import { AdminBonusesComponent } from './bonuses/admin-bonuses.component';
 import { AdminTutorialsComponent } from './tutorials/admin-tutorials.component';
-import { AdminKitsComponent } from './kits/admin-kits.component';
 import { AdminProductsComponent } from './products/admin-products.component';
 import { AdminDashboardComponent } from './dashboard/admin-dashboard.component';
 import { AdminStoresComponent } from './stores/admin-stores.component';
@@ -150,15 +149,11 @@ export const AdminRoutes: Routes = [
     component: AdminBonusesComponent,
     title: 'Bonuses - MarketSpase Admin',
   },
+  { path: 'kits', redirectTo: 'tutorials', pathMatch: 'full' },
   {
     path: 'tutorials',
     component: AdminTutorialsComponent,
     title: 'Tutorials - MarketSpase Admin',
-  },
-  {
-    path: 'kits',
-    component: AdminKitsComponent,
-    title: 'Presentations - MarketSpase Admin',
   },
   {
     path: 'settings',

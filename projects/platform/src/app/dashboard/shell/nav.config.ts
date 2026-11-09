@@ -69,7 +69,6 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
       { label: 'Follow-ups', link: '/dashboard/prospects/pipeline', title: 'Pipeline list' },
       { label: 'Reminders', link: '/dashboard/prospects/reminders', title: 'Follow-up promises due' },
       { label: 'Deal board', link: '/dashboard/prospects/board', title: 'Move deals forward' },
-      { label: 'Sessions', link: '/dashboard/prospects/bookings', title: 'Booked chats' },
     ],
   },
   {

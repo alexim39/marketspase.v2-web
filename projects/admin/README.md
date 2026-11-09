@@ -37,4 +37,4 @@ The admin app owns platform-wide operations:
 - Compensation, commissions, ranks and mentor bonuses
 - Growth campaigns, attribution, public pages and automation
 - Broadcast, email list, support tickets, moderation and audit
-- Training quizzes, tutorials, presentations and platform settings
+- Training quizzes, tutorials and platform settings

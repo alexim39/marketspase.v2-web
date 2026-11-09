@@ -19,9 +19,7 @@ import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page
 
 const ENTITIES: Array<{ value: RecycleEntity; label: string }> = [
   { value: 'prospects', label: 'Prospects' },
-  { value: 'bookings', label: 'Bookings' },
   { value: 'goals', label: 'Goals' },
-  { value: 'kits', label: 'Presentations' },
   { value: 'tutorials', label: 'Tutorials' },
   { value: 'events', label: 'Events' },
   { value: 'community-posts', label: 'Community posts' },

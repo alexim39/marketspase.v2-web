@@ -26,8 +26,8 @@ This is the baseline to use for redirects when swapping to the new shell. Genera
 | `/dashboard/resources` | `resources.routes` | Ads contents, prospecting guides. Belongs to "Campaigns/Share". | `consolidate` |
 | `/dashboard/mentorship` | `mentorship.routes` | Team coaching, partners, teams. Core to "Team". | `consolidate` |
 | `/dashboard/products` | `products.routes` | Eshop, orders, checkout. "Wallet & Marketplace". | `consolidate` |
-| `/dashboard/prospects` | `prospects.routes` | Pipeline, board, reminders, bookings, kits, lists. "Pipeline". | `consolidate` |
-| `/dashboard/tools` | `tools.routes` | Campaign creation, SMS/Email, contacts. Largely "Campaigns" + "Pipeline". | `consolidate` |
+| `/dashboard/prospects` | `prospects.routes` | Pipeline, board, reminders, customer leads. "Pipeline". | `consolidate` |
+| `/dashboard/tools` | `tools.routes` | Largely "Campaigns" + "Pipeline"; SMS/email/contacts retired. | `consolidate` |
 | `/dashboard/support` | `support.routes` | Tickets, about. "More/Support". | `consolidate` |
 | `/dashboard/admin` | `admin.routes` | Large admin surface. Needs separate rail/mode. | `keep-separate` |
 | `/dashboard/network` | `network.routes` | Tree/org. "Team". | `consolidate` |
