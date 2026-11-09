@@ -45,11 +45,8 @@ interface PromotionCard {
         <div>
           <span class="eyebrow">Promote · Your personal page</span>
           <h1>Your page is the asset. Put it to work.</h1>
-          <p class="subtitle">Complete your personal page, share it, and turn conversations into pipeline leads.</p>
+          <p class="subtitle">Share your personal page and turn conversations into pipeline leads. Page setup lives in Settings.</p>
         </div>
-        <a mat-flat-button color="primary" routerLink="/dashboard/settings/landing-page">
-          <mat-icon>edit</mat-icon> Edit my page
-        </a>
       </header>
 
       <section class="hero dp-card">
@@ -104,7 +101,7 @@ interface PromotionCard {
               </li>
             }
           </ul>
-          <a mat-button routerLink="/dashboard/settings/landing-page">Finish my page →</a>
+          <span class="muted readiness-note">Page setup and edits are in Settings → Personal page.</span>
         </div>
       </section>
 
@@ -125,7 +122,7 @@ interface PromotionCard {
           <h2>Complete → share → capture → follow up</h2>
         </div>
         <ol class="flow-list">
-          <li><span>1</span><div><strong>Complete your page</strong><p class="muted">Story, offer, proof, WhatsApp and social links.</p></div></li>
+          <li><span>1</span><div><strong>Set up your page</strong><p class="muted">Story, offer, proof, WhatsApp and social links.</p></div></li>
           <li><span>2</span><div><strong>Share your link</strong><p class="muted">Post it on social, in WhatsApp groups and in your status.</p></div></li>
           <li><span>3</span><div><strong>Capture leads</strong><p class="muted">Visitors who submit Get Started land in your pipeline.</p></div></li>
           <li><span>4</span><div><strong>Follow up</strong><p class="muted">Work the lead in your pipeline or reach out by SMS/email.</p></div></li>
@@ -233,13 +230,6 @@ export class PromoteHubComponent {
   });
 
   protected readonly cards: PromotionCard[] = [
-    {
-      icon: 'edit_note',
-      title: 'My page',
-      body: 'Edit the story, offer, proof, WhatsApp CTA and social links prospects see.',
-      cta: 'Edit page',
-      link: '/dashboard/settings/landing-page',
-    },
     {
       icon: 'perm_media',
       title: 'Content library',

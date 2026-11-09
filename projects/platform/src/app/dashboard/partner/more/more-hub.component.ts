@@ -152,7 +152,7 @@ export class MoreHubComponent {
         { label: 'Appearance', detail: 'Light, dark or system theme for this device.', icon: 'palette', link: '/dashboard/settings/appearance' },
         { label: 'Verification & KYC', detail: 'Identity status, age check and review notes.', icon: 'verified_user', link: '/dashboard/settings/verification' },
         { label: 'Billing & withdrawals', detail: 'Bank account, deposits and withdrawals.', icon: 'account_balance', link: '/dashboard/settings/billing' },
-        { label: 'My lead page', detail: 'Edit and preview your personal lead page.', icon: 'public', link: '/dashboard/settings/landing-page' },
+        { label: 'Personal page', detail: 'Set up the public lead page prospects see.', icon: 'public', link: '/dashboard/settings/landing-page' },
         { label: 'Notification settings', detail: 'Channels and categories.', icon: 'notifications', link: '/dashboard/notifications/preferences' },
         { label: 'Notifications center', detail: 'Everything that needs your attention.', icon: 'inbox', link: '/dashboard/notifications/center' },
       ],

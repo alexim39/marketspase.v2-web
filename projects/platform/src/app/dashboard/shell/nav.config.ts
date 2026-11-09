@@ -104,7 +104,6 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
     title: 'Promote your page, content and outreach',
     link: '/dashboard/promote',
     children: [
-      { label: 'My lead page', link: '/dashboard/settings/landing-page', title: 'Edit your personal lead page' },
       { label: 'Content library', link: '/dashboard/resources/ads-contents', title: 'Texts and images to share' },
       { label: 'Prospecting guides', link: '/dashboard/resources/prospecting-contents', title: 'Scripts and frameworks' },
     ],
@@ -165,7 +164,7 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
       { label: 'Appearance', link: '/dashboard/settings/appearance', title: 'Light, dark or system theme' },
       { label: 'Verification & KYC', link: '/dashboard/settings/verification', title: 'Identity status and verification' },
       { label: 'Billing & withdrawals', link: '/dashboard/settings/billing', title: 'Bank account and withdrawals' },
-      { label: 'Personal page', link: '/dashboard/settings/landing-page', title: 'Personal lead page content' },
+      { label: 'Personal page', link: '/dashboard/settings/landing-page', title: 'Set up your public lead page' },
       { label: 'Notifications', link: '/dashboard/notifications/center', title: 'Alerts and notification settings' },
       { label: 'Insights', link: '/dashboard/insights', title: 'Your business insights' },
       { label: 'Help & about', link: '/dashboard/support/ticket', title: 'Support and about' },
