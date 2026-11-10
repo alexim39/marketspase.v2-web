@@ -18,7 +18,8 @@ template: `
       </p>
       <div class="mkt-actions">
         <a mat-flat-button color="primary" routerLink="/partner/signup" (click)="scrollToTop()">Start your online business</a>
-        <a mat-stroked-button routerLink="/how-it-works" (click)="scrollToTop()">See how it works</a>
+        <a class="mkt-desktop-action" mat-stroked-button routerLink="/how-it-works" (click)="scrollToTop()">See how it works</a>
+        <a class="mkt-mobile-action" mat-stroked-button routerLink="/partner/signin" (click)="scrollToTop()">Sign in</a>
       </div>
       <p class="mkt-fine">Create your account free. Activate for ₦38,000 with a real product. No cold calls. No scripts.</p>
       <div class="mkt-hero-proof" aria-label="What you get with MarketSpase">
@@ -82,6 +83,14 @@ template: `
 </div>
 
 `,
+styles: [`
+  .mkt-mobile-action { display: none; }
+
+  @media (max-width: 720px) {
+    .mkt-desktop-action { display: none; }
+    .mkt-mobile-action { display: inline-flex; }
+  }
+`],
 changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class BannerComponent {
