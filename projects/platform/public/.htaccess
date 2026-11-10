@@ -1,4 +1,5 @@
 # MarketSpase platform (marketspase.com) — SPA fallback for /dashboard/* reloads.
+AddDefaultCharset UTF-8
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
