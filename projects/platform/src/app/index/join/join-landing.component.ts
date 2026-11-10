@@ -24,9 +24,7 @@ const LEAD_KEY = 'ms_lead';
           <p class="mkt-eyebrow">Your online business opportunity · Without the chase</p>
           <h1>Start a real online business <span class="mkt-accent">without chasing anyone.</span></h1>
           <p class="mkt-lede">
-            MarketSpase gives you a product-backed online business, brings the interest and puts
-            <strong>Ora</strong>, your AI business partner, in your corner. Ora plans and prepares;
-            you approve the next move.
+            Start for <strong>₦38,000</strong> — no chasing. Ora plans your day; you approve the next move.
           </p>
           <div class="mkt-actions">
             <a mat-flat-button color="primary" [routerLink]="['/partner/signup']" [queryParams]="signupParams()">

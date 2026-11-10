@@ -14,16 +14,13 @@ template: `
       <p class="mkt-eyebrow">Online business opportunity · Make money online without the chase</p>
       <h1>Build a real online business <span class="mkt-accent">without chasing anyone.</span></h1>
       <p class="mkt-lede">
-        MarketSpase gives you a product-backed online business and a real path to make money
-        online — without chasing anyone. It brings the interest and puts <strong>Ora</strong>,
-        your AI business partner, in your corner. Ora plans the day and prepares the work.
-        You approve the next move.
+        Start for <strong>₦38,000</strong> — no chasing. Ora plans your day; you approve the next move.
       </p>
       <div class="mkt-actions">
         <a mat-flat-button color="primary" routerLink="/partner/signup" (click)="scrollToTop()">Start your online business</a>
         <a mat-stroked-button routerLink="/how-it-works" (click)="scrollToTop()">See how it works</a>
       </div>
-      <p class="mkt-fine">Free to create an account. No cold calls. No chasing. No scripts.</p>
+      <p class="mkt-fine">Create your account free. Activate for ₦38,000 with a real product. No cold calls. No scripts.</p>
       <div class="mkt-hero-proof" aria-label="What you get with MarketSpase">
         <span><mat-icon aria-hidden="true">do_not_disturb_on</mat-icon> No chasing or cold calls</span>
         <span><mat-icon aria-hidden="true">auto_awesome</mat-icon> Ora prepares, you approve</span>
