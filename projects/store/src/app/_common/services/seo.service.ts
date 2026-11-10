@@ -19,9 +19,9 @@ export interface SeoPage {
   providedIn: 'root'
 })
 export class SeoService {
-  private readonly defaultImage = `${environment.publicSiteUrl}/logo/social-profile-1024.png`;
-  private readonly defaultImageWidth = 1024;
-  private readonly defaultImageHeight = 1024;
+  private readonly defaultImage = `${environment.publicSiteUrl}/logo/og-store.jpg`;
+  private readonly defaultImageWidth = 1200;
+  private readonly defaultImageHeight = 630;
 
   constructor(
     private title: Title,
@@ -42,6 +42,7 @@ export class SeoService {
     this.setTag('property', 'og:url', url);
     this.setTag('property', 'og:type', page.type ?? 'website');
     this.setTag('property', 'og:image', image);
+    this.setTag('property', 'og:image:secure_url', image);
     this.setTag('property', 'og:image:alt', page.title);
     if (imageWidth && imageHeight) {
       this.setTag('property', 'og:image:width', String(imageWidth));
@@ -55,6 +56,7 @@ export class SeoService {
     this.setTag('name', 'twitter:description', page.description);
     this.setTag('name', 'twitter:image', image);
     this.setTag('name', 'twitter:image:alt', page.title);
+    this.setTag('name', 'twitter:url', url);
     this.setTag('name', 'robots', page.noindex ? 'noindex, nofollow' : 'index, follow');
     this.setCanonical(url);
   }

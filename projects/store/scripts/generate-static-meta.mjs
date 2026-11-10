@@ -1,10 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const origin = 'https://marketspase.com';
-const defaultImage = '/logo/social-profile-1024.png';
-const defaultWidth = '1024';
-const defaultHeight = '1024';
+const origin = 'https://store.marketspase.com';
+const defaultImage = '/logo/og-store.jpg';
+const defaultWidth = '1200';
+const defaultHeight = '630';
 
 const pages = [
   {
@@ -78,16 +78,20 @@ for (const page of pages) {
   html = setMeta(html, 'property', 'og:title', page.title);
   html = setMeta(html, 'property', 'og:description', page.description);
   html = setMeta(html, 'property', 'og:image', image);
+  html = setMeta(html, 'property', 'og:image:secure_url', image);
+  html = setMeta(html, 'property', 'og:image:type', 'image/jpeg');
   html = setMeta(html, 'property', 'og:image:alt', page.title);
   html = setMeta(html, 'property', 'og:image:width', width);
   html = setMeta(html, 'property', 'og:image:height', height);
   html = setMeta(html, 'property', 'og:url', canonical);
   html = setMeta(html, 'property', 'og:type', 'website');
+  html = setMeta(html, 'property', 'og:locale', 'en_NG');
   html = setMeta(html, 'name', 'twitter:card', 'summary_large_image');
   html = setMeta(html, 'name', 'twitter:title', page.title);
   html = setMeta(html, 'name', 'twitter:description', page.description);
   html = setMeta(html, 'name', 'twitter:image', image);
   html = setMeta(html, 'name', 'twitter:image:alt', page.title);
+  html = setMeta(html, 'name', 'twitter:url', canonical);
 
   const targetDir = join(outputDir, ...page.path.split('/').filter(Boolean));
   mkdirSync(targetDir, { recursive: true });

@@ -1,6 +1,6 @@
-const DEFAULT_IMAGE = '/logo/social-profile-1024.png';
-const DEFAULT_IMAGE_WIDTH = '1024';
-const DEFAULT_IMAGE_HEIGHT = '1024';
+const DEFAULT_IMAGE = '/logo/og-store.jpg';
+const DEFAULT_IMAGE_WIDTH = '1200';
+const DEFAULT_IMAGE_HEIGHT = '630';
 
 const RESERVED = new Set([
   'stores', 'support', 'legal', 'assets', 'api', 'video', '_vercel',
@@ -98,14 +98,17 @@ const injectPageMeta = (html, meta, origin) => {
   output = setMeta(output, 'property', 'og:title', meta.title);
   output = setMeta(output, 'property', 'og:description', meta.description);
   output = setMeta(output, 'property', 'og:image', image);
+  output = setMeta(output, 'property', 'og:image:secure_url', image);
   output = setMeta(output, 'property', 'og:image:alt', meta.title);
   output = setMeta(output, 'property', 'og:url', canonical);
   output = setMeta(output, 'property', 'og:type', meta.type || 'website');
+  output = setMeta(output, 'property', 'og:locale', 'en_NG');
   output = setMeta(output, 'name', 'twitter:card', 'summary_large_image');
   output = setMeta(output, 'name', 'twitter:title', meta.title);
   output = setMeta(output, 'name', 'twitter:description', meta.description);
   output = setMeta(output, 'name', 'twitter:image', image);
   output = setMeta(output, 'name', 'twitter:image:alt', meta.title);
+  output = setMeta(output, 'name', 'twitter:url', canonical);
 
   if (meta.width && meta.height) {
     output = setMeta(output, 'property', 'og:image:width', meta.width);

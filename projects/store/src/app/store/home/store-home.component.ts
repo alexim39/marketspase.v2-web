@@ -37,7 +37,6 @@ export class StoreHomeComponent implements OnInit {
       title: 'MarketSpase Store | Shop independent partner stores',
       description: 'Discover trusted products from independent MarketSpase partners. Shop directly from real people.',
       path: '/',
-      image: '/logo/social-profile-1024.png',
     });
 
     this.storesApi.listStores()
