@@ -8,7 +8,7 @@ Angular 22 partner back office for MarketSpase. Local dev server:
 - Authentication, activation, KYC and the allocation queue
 - Home, Pipeline, Campaigns, Team, Wallet, Learn, Community and More hubs
 - Prospect pipeline, referral-signup visibility, personal-page leads and Customer Leads
-- Growth campaigns, compensation (manual commission rank + automatic journey rank)
+- Growth campaigns, compensation (automatic commission rank synced from journey rank, with audited admin overrides)
 - Training ladder (Partner → Builder → Leader → Ambassador), mentorship and team activation
 - Ora, notifications, settings and the admin-mode rail
 

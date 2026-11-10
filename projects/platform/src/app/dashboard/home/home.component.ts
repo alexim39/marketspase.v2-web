@@ -666,7 +666,9 @@ export class HomeComponent implements OnInit {
   }
 
   protected rankLabel(): string {
-    return this.auth.currentUser()?.commissionRank ?? 'Partner';
+    return this.compensation()?.partner?.commissionRank
+      ?? this.auth.currentUser()?.commissionRank
+      ?? 'Partner';
   }
 
   protected trainingSummary(): string {

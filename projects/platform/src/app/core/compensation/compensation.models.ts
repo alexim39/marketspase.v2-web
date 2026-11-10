@@ -51,6 +51,9 @@ export interface MyCompensation {
     username: string;
     balance: number;
     commissionRank: CommissionRank;
+    commissionRankSource?: 'auto' | 'admin';
+    commissionRankReason?: string;
+    commissionRankOverrideUntil?: string | null;
     depth: number;
     placed: boolean;
   };
@@ -104,6 +107,9 @@ export interface SetRankEnvelope extends ApiEnvelope<{
   username: string;
   email: string;
   commissionRank: CommissionRank;
+  commissionRankSource?: 'auto' | 'admin';
+  commissionRankReason?: string;
+  commissionRankOverrideUntil?: string | null;
 }> {
   data: {
     id: string;
@@ -111,6 +117,9 @@ export interface SetRankEnvelope extends ApiEnvelope<{
     username: string;
     email: string;
     commissionRank: CommissionRank;
+    commissionRankSource?: 'auto' | 'admin';
+    commissionRankReason?: string;
+    commissionRankOverrideUntil?: string | null;
   };
 }
 

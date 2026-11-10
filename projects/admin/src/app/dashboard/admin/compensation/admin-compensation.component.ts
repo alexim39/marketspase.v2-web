@@ -78,20 +78,22 @@ type Tab = 'entries' | 'bonuses' | 'product';
               }
             </div>
           </div>
-          <p class="muted small plan-foot">Mentor bonus ₦{{ p.mentorBonus.amount | number: '1.0-0' }} · paid immediately on activation. Commission depth is assigned manually; journey rank follows the training gates.</p>
+          <p class="muted small plan-foot">Mentor bonus ₦{{ p.mentorBonus.amount | number: '1.0-0' }} · paid immediately on activation. Commission rank now mirrors journey rank automatically; admin override is for exceptions only.</p>
         </div>
       }
 
       <div class="rank-card">
         <div>
           <p class="eyebrow">Commission rank control</p>
-          <h2>Set commission rank</h2>
-          <p class="muted small">Rank controls how deep the member earns (Partner L1, Builder L1–2, Leader L1–3, Ambassador L1–5). Rank is assigned manually after review.</p>
+          <h2>Override commission rank</h2>
+          <p class="muted small">Rank normally updates automatically when journey rank changes. Use this only to correct or grandfather a partner. Add a reason; an optional expiry returns the partner to automatic sync.</p>
         </div>
         <div class="rank-form">
-          <mat-form-field appearance="outline"><mat-label>Username, email or partner id</mat-label><input matInput [ngModel]="rankIdentifier()" (ngModelChange)="rankIdentifier.set($event)" /></mat-form-field>
+          <mat-form-field appearance="outline" class="rank-id"><mat-label>Username, email or partner id</mat-label><input matInput [ngModel]="rankIdentifier()" (ngModelChange)="rankIdentifier.set($event)" /></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>Rank</mat-label><mat-select [ngModel]="rankValue()" (ngModelChange)="rankValue.set($event)"><mat-option value="Partner">Partner</mat-option><mat-option value="Builder">Builder</mat-option><mat-option value="Leader">Leader</mat-option><mat-option value="Ambassador">Ambassador</mat-option></mat-select></mat-form-field>
-          <button mat-flat-button color="primary" type="button" (click)="setRank()" [disabled]="rankBusy() || rankIdentifier().trim().length < 3">{{ rankBusy() ? 'Saving…' : 'Set rank' }}</button>
+          <mat-form-field appearance="outline"><mat-label>Override until (optional)</mat-label><input matInput type="date" [ngModel]="rankOverrideUntil()" (ngModelChange)="rankOverrideUntil.set($event)" /></mat-form-field>
+          <mat-form-field appearance="outline" class="rank-reason"><mat-label>Reason for override</mat-label><input matInput maxlength="300" placeholder="e.g. Pilot review / leadership correction" [ngModel]="rankReason()" (ngModelChange)="rankReason.set($event)" /></mat-form-field>
+          <button mat-flat-button color="primary" type="button" (click)="setRank()" [disabled]="rankBusy() || rankIdentifier().trim().length < 3 || rankReason().trim().length < 3">{{ rankBusy() ? 'Saving…' : 'Set override' }}</button>
         </div>
       </div>
 
@@ -349,8 +351,10 @@ type Tab = 'entries' | 'bonuses' | 'product';
     .rank-card { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 16px; align-items: center; background: linear-gradient(120deg, var(--ms-primary-soft), var(--ms-surface)); border: 1px solid var(--ms-primary); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
     .rank-card h2 { margin: 3px 0 5px; }
     .rank-card p { margin: 0; line-height: 1.45; }
-    .rank-form { display: grid; grid-template-columns: minmax(0, 1fr) 160px auto; gap: 8px; align-items: center; }
+    .rank-form { display: grid; grid-template-columns: minmax(0, 1.3fr) 150px 180px; gap: 8px; align-items: center; }
     .rank-form mat-form-field { width: 100%; }
+    .rank-form .rank-reason { grid-column: 1 / 3; }
+    .rank-form button { grid-column: 3; justify-self: end; }
     .tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
     .tabs button { border: 1px solid var(--ms-line); background: var(--ms-surface); color: var(--ms-text); border-radius: 999px; padding: 8px 13px; display: inline-flex; gap: 6px; align-items: center; font: inherit; cursor: pointer; }
     .tabs button.active { border-color: var(--ms-primary); background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
@@ -405,7 +409,7 @@ type Tab = 'entries' | 'bonuses' | 'product';
     .report-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
     .report-grid .dp-card { margin-bottom: 0; }
     @media (max-width: 900px) { .report-grid { grid-template-columns: 1fr; } }
-    @media (max-width: 900px) { .admin-comp { padding: 16px; } .page-head { flex-direction: column; } .rank-card { grid-template-columns: minmax(0, 1fr); } .rank-form { grid-template-columns: minmax(0, 1fr); } .plan-grid { grid-template-columns: minmax(0, 1fr); } .rates { grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); } }
+    @media (max-width: 900px) { .admin-comp { padding: 16px; } .page-head { flex-direction: column; } .rank-card { grid-template-columns: minmax(0, 1fr); } .rank-form { grid-template-columns: minmax(0, 1fr); } .rank-form .rank-reason { grid-column: auto; } .rank-form button { grid-column: auto; justify-self: stretch; } .plan-grid { grid-template-columns: minmax(0, 1fr); } .rates { grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); } }
   `],
 })
 export class AdminCompensationComponent implements OnInit {
@@ -426,6 +430,8 @@ export class AdminCompensationComponent implements OnInit {
   protected readonly voidReason = signal('');
   protected readonly rankIdentifier = signal('');
   protected readonly rankValue = signal<CommissionRank>('Builder');
+  protected readonly rankReason = signal('');
+  protected readonly rankOverrideUntil = signal('');
   protected readonly rankBusy = signal(false);
   protected readonly running = signal(false);
 
@@ -525,13 +531,16 @@ export class AdminCompensationComponent implements OnInit {
 
   protected setRank(): void {
     const identifier = this.rankIdentifier().trim();
-    if (identifier.length < 3) return;
+    const reason = this.rankReason().trim();
+    if (identifier.length < 3 || reason.length < 3) return;
     this.rankBusy.set(true);
     this.error.set(null);
-    this.service.setRank(identifier, this.rankValue()).pipe(finalize(() => this.rankBusy.set(false))).subscribe({
+    this.service.setRank(identifier, this.rankValue(), reason, this.rankOverrideUntil() || null).pipe(finalize(() => this.rankBusy.set(false))).subscribe({
       next: (response) => {
-        this.snack.open(`${response.data.name} is now ${response.data.commissionRank}`, 'Close', { duration: 4000 });
+        this.snack.open(`${response.data.name} now earns as ${response.data.commissionRank}`, 'Close', { duration: 4000 });
         this.rankIdentifier.set('');
+        this.rankReason.set('');
+        this.rankOverrideUntil.set('');
       },
       error: (err: ApiError) => this.error.set(userError(err)),
     });

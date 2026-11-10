@@ -88,9 +88,14 @@ at least 81.5% of margin before overheads.
 - Members can buy products but do not earn unilevel commission until they
   activate.
 - Rank is read at accrual time and stored on the entry, as the growth ledger
-  already does. Commission depth currently comes from the admin-assigned
-  `commissionRank`; the journey rank shown on Progress is a separate
-  training/team ladder and does not change payout depth by itself.
+  already does. Commission depth reads `commissionRank`, which now auto-syncs
+  from the journey/training rank through progression events and an hourly
+  reconcile sweep. Admin override is an audited exception with a reason and
+  optional expiry; expired overrides return to automatic sync. The journey
+  rank shown on Progress and the earning rank therefore stay aligned by default.
+  Run `npm run migrate:rank-sync` once before enabling auto-sync; matching
+  legacy rows are tagged `auto`, while mismatches are preserved as `admin`
+  overrides for review. Every change is recorded in `partner_rank_history`.
 
 ### 4. When it accrues and releases
 

@@ -9,11 +9,13 @@ import {
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { finalize, catchError, forkJoin, of } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { CompensationService } from '../../core/compensation/compensation.service';
+import { ProgressionService } from '../../core/progression/progression.service';
+import { Journey } from '../../core/progression/progression.models';
 import {
   MentorBonus,
   MyCompensation,
@@ -49,6 +51,19 @@ import { formatMoney } from '../../core/format/money';
               <p class="eyebrow">Commission rank</p>
               <h2>{{ me.partner.commissionRank }}</h2>
               <p class="muted">Earns through Level {{ me.partner.depth }}. @if (!me.partner.placed) { Your placement is pending, so new commissions wait for a campaign owner. }</p>
+              @if (me.partner.commissionRankSource === 'admin') {
+                <p class="rank-source rank-source--admin">
+                  <mat-icon>lock_person</mat-icon>
+                  Manual override
+                  @if (me.partner.commissionRankOverrideUntil) { · until {{ me.partner.commissionRankOverrideUntil | date: 'mediumDate' }} }
+                  @if (me.partner.commissionRankReason) { · {{ me.partner.commissionRankReason }} }
+                </p>
+              } @else {
+                <p class="rank-source"><mat-icon>auto_awesome</mat-icon> Auto-synced from your journey rank</p>
+              }
+              @if (journey(); as j) {
+                <p class="rank-source"><mat-icon>route</mat-icon> Journey rank: <strong>{{ j.levelLabel }}</strong> · {{ j.percent }}% to {{ j.nextLabel || 'top rank' }}</p>
+              }
             </div>
             <div class="hero-stats">
               <span><small>Wallet</small><strong>₦{{ me.partner.balance | number: '1.0-0' }}</strong></span>
@@ -56,6 +71,15 @@ import { formatMoney } from '../../core/format/money';
               <span><small>Released</small><strong>₦{{ me.summary.released | number: '1.0-0' }}</strong></span>
             </div>
           </div>
+
+          @if (journey(); as j) {
+            @if (me.partner.commissionRankSource !== 'admin' && j.levelLabel !== me.partner.commissionRank) {
+              <div class="alert info" role="status">
+                <mat-icon>sync_problem</mat-icon>
+                <p>Your journey rank is <strong>{{ j.levelLabel }}</strong> but your commission rank is <strong>{{ me.partner.commissionRank }}</strong>. This should sync automatically; if it persists, contact support.</p>
+              </div>
+            }
+          }
 
           <div class="summary-grid">
             <div class="panel stat"><mat-icon>hourglass_top</mat-icon><div><small>Pending commission</small><strong>₦{{ me.summary.pending | number: '1.0-0' }}</strong><span>{{ me.summary.pendingCount }} entr{{ me.summary.pendingCount === 1 ? 'y' : 'ies' }}</span></div></div>
@@ -146,6 +170,9 @@ import { formatMoney } from '../../core/format/money';
     .rank-mark { width: 58px; height: 58px; flex: 0 0 58px; border-radius: 16px; display: grid; place-items: center; background: rgba(255,255,255,0.14); }
     .rank-mark mat-icon { font-size: 34px; width: 34px; height: 34px; }
     .hero-copy { flex: 1; min-width: 220px; }
+    .rank-source { display: flex; align-items: center; gap: 5px; margin: 4px 0 0; color: rgba(255,255,255,0.78); font-size: 0.78rem; line-height: 1.4; }
+    .rank-source mat-icon { font-size: 15px; width: 15px; height: 15px; }
+    .rank-source--admin { color: #fde68a; }
     .hero-stats { display: flex; gap: 22px; flex-wrap: wrap; }
     .hero-stats span { display: grid; gap: 2px; }
     .hero-stats small { color: rgba(255,255,255,0.65); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; }
@@ -192,24 +219,33 @@ import { formatMoney } from '../../core/format/money';
     .empty p { margin: 0; line-height: 1.5; }
     .alert { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: var(--ms-error-soft); color: var(--ms-error); margin-bottom: 14px; }
     .alert p { margin: 0; flex: 1; }
+    .alert.info { background: var(--ms-info-soft); color: var(--ms-info); }
     @media (max-width: 900px) { .comp-page { padding: 16px; } .page-head { flex-direction: column; } .content-grid, .summary-grid { grid-template-columns: minmax(0, 1fr); } }
     @media (max-width: 560px) { .rate-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   `],
 })
 export class CompensationComponent implements OnInit {
   private readonly service = inject(CompensationService);
+  private readonly progression = inject(ProgressionService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly data = signal<MyCompensation | null>(null);
+  protected readonly journey = signal<Journey | null>(null);
 
   ngOnInit(): void {
-    this.service.me().pipe(
+    forkJoin({
+      compensation: this.service.me(),
+      journey: this.progression.mine().pipe(catchError(() => of(null))),
+    }).pipe(
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.loading.set(false)),
     ).subscribe({
-      next: (response) => this.data.set(response.data),
+      next: ({ compensation, journey }) => {
+        this.data.set(compensation.data);
+        this.journey.set(journey?.data ?? null);
+      },
       error: (err: ApiError) => this.error.set(userError(err)),
     });
   }

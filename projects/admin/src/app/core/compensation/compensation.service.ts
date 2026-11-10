@@ -56,8 +56,18 @@ export class CompensationService {
     return this.api.post<MentorBonusRunEnvelope>('v1/admin/compensation/mentor-bonuses/run', {});
   }
 
-  setRank(identifier: string, rank: CommissionRank): Observable<SetRankEnvelope> {
-    return this.api.patch<SetRankEnvelope>('v1/admin/compensation/partners/rank', { identifier, rank });
+  setRank(
+    identifier: string,
+    rank: CommissionRank,
+    reason?: string,
+    overrideUntil?: string | null,
+  ): Observable<SetRankEnvelope> {
+    return this.api.patch<SetRankEnvelope>('v1/admin/compensation/partners/rank', {
+      identifier,
+      rank,
+      ...(reason?.trim() ? { reason: reason.trim() } : {}),
+      ...(overrideUntil ? { overrideUntil } : {}),
+    });
   }
 
   productReport(params: { from?: string; to?: string } = {}): Observable<ProductCommissionReportEnvelope> {
