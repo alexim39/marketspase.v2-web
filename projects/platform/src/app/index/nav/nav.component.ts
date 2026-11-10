@@ -61,12 +61,14 @@ import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
 
       @if (menuOpen()) {
         <nav id="platform-mobile-nav" class="mobile-nav" aria-label="Mobile navigation">
+          <a class="mobile-cta" routerLink="/partner/signin" routerLinkActive="active" (click)="closeAndScroll()" aria-label="Sign in to your MarketSpase account">
+            <mat-icon aria-hidden="true">login</mat-icon> Sign in
+          </a>
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeAndScroll()">Home</a>
           <a routerLink="/how-it-works" routerLinkActive="active" (click)="closeAndScroll()">How it works</a>
           <a routerLink="/ora" routerLinkActive="active" (click)="closeAndScroll()">Meet Ora</a>
           <a routerLink="/about" routerLinkActive="active" (click)="closeAndScroll()">About</a>
           <a routerLink="/faq" routerLinkActive="active" (click)="closeAndScroll()">FAQ</a>
-          <a class="mobile-cta" routerLink="/partner/signin" routerLinkActive="active" (click)="closeAndScroll()">Sign in</a>
           <a routerLink="/partner/signup" routerLinkActive="active" (click)="closeAndScroll()">Start your business</a>
         </nav>
       }
@@ -196,6 +198,8 @@ import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
 
       .mobile-nav .mobile-cta {
         justify-content: center;
+        gap: 0.45em;
+        margin-bottom: 0.35em;
         background: var(--ms-primary-strong);
         color: #fff;
       }
