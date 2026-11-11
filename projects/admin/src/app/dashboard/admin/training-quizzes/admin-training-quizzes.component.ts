@@ -93,6 +93,7 @@ export class AdminTrainingQuizzesComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('previewHost') private previewHost?: ElementRef<HTMLElement>;
+  @ViewChild('lessonWorkspace') private lessonWorkspace?: ElementRef<HTMLElement>;
 
   protected readonly loading = signal(true);
   protected readonly loadingCourse = signal(false);
@@ -148,6 +149,8 @@ export class AdminTrainingQuizzesComponent implements OnInit, OnDestroy {
     Math.round(this.lessons().filter((item) => item.status === 'published')
       .reduce((total, item) => total + (Number(item.durationSec) || 0), 0) / 60));
   protected readonly courseWarnings = computed(() => this.course()?.warnings ?? []);
+  protected readonly needsVideoHelp = computed(() =>
+    this.lessons().length === 0 || this.lessons().every((lesson) => !lesson.youtubeId));
   protected readonly canPublishCourse = computed(() => this.publishedLessons() > 0);
   protected readonly quizValid = computed(() => this.quiz().every((question) =>
     question.q.trim().length >= 3
@@ -393,8 +396,11 @@ export class AdminTrainingQuizzesComponent implements OnInit, OnDestroy {
           this.savingLesson.set(false);
           const lesson = response.data;
           if (!lesson) return;
-          this.notice.set('Lesson added. Add the YouTube link and lesson notes, then publish it.');
+          this.notice.set('Lesson added. Scroll to the Video tab, paste the YouTube link and detect the duration.');
           this.loadCourse(course.id, lesson.id);
+          window.setTimeout(() => {
+            this.lessonWorkspace?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 250);
         },
         error: (err: ApiError) => {
           this.savingLesson.set(false);

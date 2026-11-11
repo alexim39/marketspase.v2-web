@@ -139,6 +139,19 @@
               </div>
             }
 
+            @if (needsVideoHelp()) {
+              <div class="flow-callout">
+                <mat-icon>smart_display</mat-icon>
+                <div>
+                  <strong>Where do I add the YouTube link?</strong>
+                  <p>Each video belongs to a lesson. Add or select a lesson below, then open the <b>YouTube video</b> tab and paste the link there.</p>
+                </div>
+                <button mat-flat-button color="primary" type="button" (click)="addLesson()" [disabled]="savingLesson()">
+                  <mat-icon>add</mat-icon> Add YouTube lesson
+                </button>
+              </div>
+            }
+
             <div class="form-grid">
               <label class="field field--wide">
                 <span>Course title</span>
@@ -199,14 +212,14 @@
             </div>
           </section>
 
-          <div class="lesson-workspace">
+          <div #lessonWorkspace class="lesson-workspace">
             <aside class="lesson-nav">
               <div class="nav-head">
                 <p class="eyebrow">Lessons</p>
                 <span>{{ lessons().length }}</span>
               </div>
               <button mat-stroked-button type="button" class="add-lesson" (click)="addLesson()" [disabled]="savingLesson()">
-                <mat-icon>add</mat-icon> Add lesson
+                <mat-icon>add</mat-icon> Add YouTube lesson
               </button>
               @if (lessons().length === 0) {
                 <p class="muted small">No lessons yet. Add the first YouTube lesson.</p>
@@ -253,7 +266,7 @@
 
                 <div class="lesson-tabs" role="tablist" aria-label="Lesson editor sections">
                   <button type="button" role="tab" [class.active]="tab() === 'video'" [attr.aria-selected]="tab() === 'video'" (click)="setTab('video')">
-                    <mat-icon>smart_display</mat-icon> Video
+                    <mat-icon>smart_display</mat-icon> YouTube video
                     <small>{{ tabLabel('video') }}</small>
                   </button>
                   <button type="button" role="tab" [class.active]="tab() === 'content'" [attr.aria-selected]="tab() === 'content'" (click)="setTab('content')">
@@ -269,7 +282,7 @@
                   <div class="editor-grid">
                     <div class="editor-col">
                       <label class="field field--wide">
-                        <span>YouTube link</span>
+                        <span>YouTube video link — paste it here</span>
                         <input [value]="lessonYoutube()" (input)="setLessonYoutube($any($event.target).value)" maxlength="300" placeholder="https://www.youtube.com/watch?v=…" />
                       </label>
                       <div class="youtube-actions">
@@ -410,9 +423,9 @@
               } @else {
                 <div class="empty-editor">
                   <mat-icon>playlist_add</mat-icon>
-                  <h3>Select a lesson to edit</h3>
-                  <p>Or add a new lesson to start building this course.</p>
-                  <button mat-flat-button color="primary" type="button" (click)="addLesson()">Add lesson</button>
+                  <h3>Add a lesson to paste the YouTube link</h3>
+                  <p>Videos are attached to lessons. Create the lesson first, then the Video tab opens with the YouTube link field.</p>
+                  <button mat-flat-button color="primary" type="button" (click)="addLesson()">Add YouTube lesson</button>
                 </div>
               }
             </section>
