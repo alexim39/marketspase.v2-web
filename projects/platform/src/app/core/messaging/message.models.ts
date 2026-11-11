@@ -124,6 +124,7 @@ export interface GroupMessage {
   id: string;
   groupId: string;
   senderId: string;
+  senderLabel?: string | null;
   body: string;
   attachments?: GroupAttachment[];
   seenBy?: string[];

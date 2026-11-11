@@ -438,7 +438,7 @@ const TYPING_CLEAR_MS = 3500;
               @if (grp.pinnedMessage; as pinned) {
                 <div class="pinned-bar" role="note">
                   <mat-icon>push_pin</mat-icon>
-                  <span class="convo-snippet">{{ senderNameOf(pinned.senderId) }}: {{ snippet(pinned.body) }}</span>
+                  <span class="convo-snippet">{{ senderNameOf(pinned.senderId, pinned.senderLabel) }}: {{ snippet(pinned.body) }}</span>
                   @if (isGroupAdmin()) {
                     <button mat-icon-button (click)="unpinMessage()" title="Unpin" aria-label="Unpin message">
                       <mat-icon>close</mat-icon>
@@ -465,7 +465,7 @@ const TYPING_CLEAR_MS = 3500;
                     @for (m of day.msgs; track m.clientId ?? m.id) {
                       <li class="bubble" [class.bubble--mine]="m.senderId === myId()" [class.bubble--pending]="m.pending" [attr.data-mid]="m.clientId ?? m.id">
                         @if (m.senderId !== myId()) {
-                          <span class="bubble-sender">{{ senderNameOf(m.senderId) }}
+                          <span class="bubble-sender">{{ senderNameOf(m.senderId, m.senderLabel) }}
                             @if (memberRoleOf(m.senderId) === 'admin') {
                               <span class="admin-badge">admin</span>
                             }
@@ -2188,7 +2188,9 @@ export class MessagesComponent implements OnInit {
     return `${names[0]}, ${names[1]} and ${rest} other${rest === 1 ? '' : 's'} are typing`;
   });
 
-  protected senderNameOf(partnerId: string): string {
+  protected senderNameOf(partnerId: string, senderLabel?: string | null): string {
+    const label = String(senderLabel ?? '').trim();
+    if (label) return label;
     const id = String(partnerId ?? '');
     const member = this.openGroup()?.members.find((m) => String(m.id) === id);
     if (member) return member.name || member.username || 'Teammate';
