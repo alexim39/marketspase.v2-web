@@ -1,0 +1,430 @@
+<section class="breadcrumb-wrapper">
+  <div class="breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a> &gt;
+    <a>Admin</a> &gt;
+    <span>Training Studio</span>
+  </div>
+</section>
+
+<section class="studio-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Academy authoring</p>
+      <h1>Training Studio</h1>
+      <p>Create courses and lessons, add YouTube videos, write the learner notes and build the lesson quiz. Publishing is deliberate — drafts stay invisible to partners.</p>
+    </div>
+    <button mat-flat-button color="primary" type="button" (click)="startNewCourse()">
+      <mat-icon>add</mat-icon> New course
+    </button>
+  </header>
+
+  @if (notice(); as note) {
+    <p class="notice" role="status"><mat-icon>check_circle</mat-icon>{{ note }}</p>
+  }
+  @if (error(); as err) {
+    <p class="error" role="alert"><mat-icon>error_outline</mat-icon>{{ err }}<button mat-button type="button" (click)="reloadCourses()">Retry</button></p>
+  }
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading Training Studio" />
+  }
+
+  @if (creatingCourse()) {
+    <section class="new-course-card">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">New course</p>
+          <h2>Start with the course identity</h2>
+          <p>It will be saved as a draft. Add at least one published YouTube lesson before publishing the course.</p>
+        </div>
+        <button mat-icon-button type="button" (click)="cancelNewCourse()" aria-label="Close new course form"><mat-icon>close</mat-icon></button>
+      </div>
+      <div class="form-grid">
+        <label class="field field--wide">
+          <span>Course title</span>
+          <input [value]="newTitle()" (input)="newTitle.set($any($event.target).value)" maxlength="120" placeholder="e.g. IPO Foundations 2027" />
+        </label>
+        <label class="field field--wide">
+          <span>Short tagline</span>
+          <input [value]="newTagline()" (input)="newTagline.set($any($event.target).value)" maxlength="200" placeholder="One sentence that tells partners what they will gain" />
+        </label>
+        <label class="field">
+          <span>Rank credit</span>
+          <select [value]="newMilestone() ?? ''" (change)="newMilestone.set($any($event.target).value || null)">
+            <option value="">No rank credit — elective</option>
+            <option value="ipo">IPO</option>
+            <option value="qsg">QSG</option>
+            <option value="smo">SMO</option>
+            <option value="leadership">Leadership</option>
+          </select>
+        </label>
+      </div>
+      @if (newError()) { <p class="error" role="alert"><mat-icon>error_outline</mat-icon>{{ newError() }}</p> }
+      <div class="form-actions">
+        <button mat-button type="button" (click)="cancelNewCourse()">Cancel</button>
+        <button mat-flat-button color="primary" type="button" (click)="createCourse()" [disabled]="creating()">
+          {{ creating() ? 'Creating…' : 'Create course draft' }}
+        </button>
+      </div>
+    </section>
+  }
+
+  @if (!loading() && courses().length === 0 && !creatingCourse()) {
+    <section class="empty-card">
+      <mat-icon>school</mat-icon>
+      <h2>Build your first course</h2>
+      <p>The Academy is empty. Create a course, add YouTube lessons, and publish when the curriculum is ready.</p>
+      <button mat-flat-button color="primary" type="button" (click)="startNewCourse()">Create the first course</button>
+    </section>
+  } @else if (!loading()) {
+    <div class="studio-layout">
+      <aside class="studio-nav">
+        <div class="nav-head">
+          <p class="eyebrow">Courses</p>
+          <span>{{ courses().length }}</span>
+        </div>
+        <div class="course-list">
+          @for (item of courses(); track item.id) {
+            <button
+              type="button"
+              class="course-list-item"
+              [class.active]="item.id === selectedCourseId()"
+              (click)="selectCourse(item)"
+            >
+              <span [class]="'status-dot status-dot--' + item.status"></span>
+              <span class="course-list-copy">
+                <strong>{{ item.title }}</strong>
+                <span>{{ trackLabel(item.milestone) }} · {{ item.publishedLessonCount }}/{{ item.lessonCount }} lessons</span>
+              </span>
+              <span class="status-mini">{{ statusLabel(item.status) }}</span>
+            </button>
+          }
+        </div>
+        @if (course(); as c) {
+          <div class="nav-foot">
+            <button mat-stroked-button type="button" (click)="moveCourse(-1)" [disabled]="courseIndex(c.id) === 0">
+              <mat-icon>arrow_upward</mat-icon> Move up
+            </button>
+            <button mat-stroked-button type="button" (click)="moveCourse(1)" [disabled]="courseIndex(c.id) === courses().length - 1">
+              <mat-icon>arrow_downward</mat-icon> Move down
+            </button>
+          </div>
+        }
+      </aside>
+
+      <main class="studio-main">
+        @if (loadingCourse()) {
+          <mat-progress-bar mode="indeterminate" aria-label="Loading course" />
+        }
+
+        @if (course(); as c) {
+          <section class="course-editor">
+            <div class="section-head">
+              <div>
+                <div class="title-line">
+                  <p class="eyebrow">Course details</p>
+                  <span [class]="'status-pill status-pill--' + c.status">{{ statusLabel(c.status) }}</span>
+                </div>
+                <h2>{{ c.title }}</h2>
+                <p>{{ c.publishedLessonCount }} published lesson{{ c.publishedLessonCount === 1 ? '' : 's' }} · {{ totalMinutes() }} minutes of video · {{ trackLabel(c.milestone) }}</p>
+              </div>
+              <a mat-stroked-button [href]="previewUrl(c.id)" target="_blank" rel="noopener">
+                <mat-icon>open_in_new</mat-icon> Preview as learner
+              </a>
+            </div>
+
+            @for (warning of courseWarnings(); track warning.code) {
+              <div class="warning-banner">
+                <mat-icon>warning_amber</mat-icon>
+                <div><strong>Rank credit already exists</strong><p>{{ warning.message }}</p></div>
+              </div>
+            }
+
+            <div class="form-grid">
+              <label class="field field--wide">
+                <span>Course title</span>
+                <input [value]="courseTitle()" (input)="courseTitle.set($any($event.target).value)" maxlength="120" />
+              </label>
+              <label class="field field--wide">
+                <span>Short tagline</span>
+                <input [value]="courseTagline()" (input)="courseTagline.set($any($event.target).value)" maxlength="200" />
+              </label>
+              <label class="field field--wide">
+                <span>Description</span>
+                <textarea rows="3" [value]="courseDescription()" (input)="courseDescription.set($any($event.target).value)" maxlength="5000"></textarea>
+              </label>
+              <label class="field">
+                <span>Rank credit</span>
+                <select [value]="courseMilestone() ?? ''" (change)="courseMilestone.set($any($event.target).value || null)">
+                  <option value="">No rank credit — elective</option>
+                  <option value="ipo">IPO</option>
+                  <option value="qsg">QSG</option>
+                  <option value="smo">SMO</option>
+                  <option value="leadership">Leadership</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Cover image URL (optional)</span>
+                <input [value]="courseCover()" (input)="courseCover.set($any($event.target).value)" maxlength="700" placeholder="https://… — otherwise uses the first lesson thumbnail" />
+              </label>
+            </div>
+
+            @if (!canPublishCourse() && c.status !== 'published') {
+              <p class="hint"><mat-icon>info</mat-icon>Publish at least one video lesson before this course can go live.</p>
+            }
+            @if (courseError()) { <p class="error" role="alert"><mat-icon>error_outline</mat-icon>{{ courseError() }}</p> }
+
+            <div class="form-actions">
+              @if (c.status === 'draft') {
+                <button mat-stroked-button type="button" (click)="setCourseStatus('published')" [disabled]="savingCourse() || !canPublishCourse()">
+                  <mat-icon>publish</mat-icon> Publish course
+                </button>
+              } @else if (c.status === 'published') {
+                <button mat-stroked-button type="button" (click)="setCourseStatus('draft')" [disabled]="savingCourse()">
+                  <mat-icon>undo</mat-icon> Move to draft
+                </button>
+              } @else if (c.status === 'archived') {
+                <button mat-stroked-button type="button" (click)="setCourseStatus('draft')" [disabled]="savingCourse()">
+                  <mat-icon>restore</mat-icon> Restore to draft
+                </button>
+              }
+              @if (c.status !== 'archived') {
+                <button mat-button color="warn" type="button" (click)="setCourseStatus('archived')" [disabled]="savingCourse()">
+                  <mat-icon>archive</mat-icon> Archive
+                </button>
+              }
+              <span class="spacer"></span>
+              <button mat-flat-button color="primary" type="button" (click)="saveCourse()" [disabled]="savingCourse()">
+                {{ savingCourse() ? 'Saving…' : 'Save course details' }}
+              </button>
+            </div>
+          </section>
+
+          <div class="lesson-workspace">
+            <aside class="lesson-nav">
+              <div class="nav-head">
+                <p class="eyebrow">Lessons</p>
+                <span>{{ lessons().length }}</span>
+              </div>
+              <button mat-stroked-button type="button" class="add-lesson" (click)="addLesson()" [disabled]="savingLesson()">
+                <mat-icon>add</mat-icon> Add lesson
+              </button>
+              @if (lessons().length === 0) {
+                <p class="muted small">No lessons yet. Add the first YouTube lesson.</p>
+              }
+              <div class="lesson-list">
+                @for (item of lessons(); track item.id; let i = $index) {
+                  <button
+                    type="button"
+                    class="lesson-list-item"
+                    [class.active]="item.id === selectedLessonId()"
+                    (click)="selectLesson(item)"
+                  >
+                    <span class="lesson-index">{{ i + 1 }}</span>
+                    <span class="lesson-list-copy">
+                      <strong>{{ item.title }}</strong>
+                      <span>
+                        {{ item.youtubeId ? 'Video ready' : 'Video needed' }}
+                        · {{ item.quiz.length }} quiz
+                        · {{ statusLabel(item.status) }}
+                      </span>
+                    </span>
+                  </button>
+                }
+              </div>
+            </aside>
+
+            <section class="lesson-editor">
+              @if (lesson(); as l) {
+                <div class="section-head">
+                  <div>
+                    <div class="title-line">
+                      <p class="eyebrow">Lesson editor</p>
+                      <span [class]="'status-pill status-pill--' + l.status">{{ statusLabel(l.status) }}</span>
+                    </div>
+                    <h2>{{ lessonTitle() || 'Untitled lesson' }}</h2>
+                    <p>{{ l.youtubeId ? 'YouTube video connected' : 'No video yet' }} · {{ formatDuration(lessonDuration()) }} · {{ quiz().length }} quiz questions</p>
+                  </div>
+                  <div class="lesson-head-actions">
+                    <button mat-icon-button type="button" (click)="moveLesson(-1)" [disabled]="lessonIndex(l.id) === 0" aria-label="Move lesson up"><mat-icon>arrow_upward</mat-icon></button>
+                    <button mat-icon-button type="button" (click)="moveLesson(1)" [disabled]="lessonIndex(l.id) === lessons().length - 1" aria-label="Move lesson down"><mat-icon>arrow_downward</mat-icon></button>
+                    <button mat-icon-button color="warn" type="button" (click)="deleteLesson()" [disabled]="savingLesson()" aria-label="Delete lesson"><mat-icon>delete</mat-icon></button>
+                  </div>
+                </div>
+
+                <div class="lesson-tabs" role="tablist" aria-label="Lesson editor sections">
+                  <button type="button" role="tab" [class.active]="tab() === 'video'" [attr.aria-selected]="tab() === 'video'" (click)="setTab('video')">
+                    <mat-icon>smart_display</mat-icon> Video
+                    <small>{{ tabLabel('video') }}</small>
+                  </button>
+                  <button type="button" role="tab" [class.active]="tab() === 'content'" [attr.aria-selected]="tab() === 'content'" (click)="setTab('content')">
+                    <mat-icon>menu_book</mat-icon> Lesson notes
+                  </button>
+                  <button type="button" role="tab" [class.active]="tab() === 'quiz'" [attr.aria-selected]="tab() === 'quiz'" (click)="setTab('quiz')">
+                    <mat-icon>quiz</mat-icon> Quiz
+                    <small>{{ tabLabel('quiz') }}</small>
+                  </button>
+                </div>
+
+                @if (tab() === 'video') {
+                  <div class="editor-grid">
+                    <div class="editor-col">
+                      <label class="field field--wide">
+                        <span>YouTube link</span>
+                        <input [value]="lessonYoutube()" (input)="setLessonYoutube($any($event.target).value)" maxlength="300" placeholder="https://www.youtube.com/watch?v=…" />
+                      </label>
+                      <div class="youtube-actions">
+                        <button mat-stroked-button type="button" (click)="previewVideo()" [disabled]="detecting()">
+                          <mat-icon>play_circle</mat-icon> {{ detecting() ? 'Loading…' : 'Preview and detect duration' }}
+                        </button>
+                        <span class="muted small">The player loads the video and fills in the duration automatically.</span>
+                      </div>
+                      <div class="preview-frame">
+                        <div #previewHost class="preview-host"></div>
+                        @if (!previewReady()) {
+                          @if (youtubeThumb(); as thumb) {
+                            <button type="button" class="preview-facade" (click)="previewVideo()" [disabled]="detecting()">
+                              <img [src]="thumb" alt="YouTube video thumbnail">
+                              <span class="preview-shade"></span>
+                              <span class="preview-play"><mat-icon>play_arrow</mat-icon></span>
+                              <span class="preview-caption">{{ detecting() ? 'Loading preview…' : 'Preview video' }}</span>
+                            </button>
+                          } @else {
+                            <div class="preview-empty">
+                              <mat-icon>ondemand_video</mat-icon>
+                              <span>Paste a YouTube link to preview the lesson video.</span>
+                            </div>
+                          }
+                        }
+                      </div>
+                    </div>
+                    <div class="editor-col">
+                      <label class="field">
+                        <span>Lesson title</span>
+                        <input [value]="lessonTitle()" (input)="lessonTitle.set($any($event.target).value)" maxlength="140" />
+                      </label>
+                      <label class="field">
+                        <span>Short summary (optional)</span>
+                        <textarea rows="3" [value]="lessonSummary()" (input)="lessonSummary.set($any($event.target).value)" maxlength="500"></textarea>
+                      </label>
+                      <label class="field">
+                        <span>Duration (seconds)</span>
+                        <input type="number" [value]="lessonDuration()" (input)="setDuration($any($event.target).value)" min="0" max="43200" />
+                      </label>
+                      <label class="field">
+                        <span>Lesson status</span>
+                        <select [value]="lessonStatus()" (change)="lessonStatus.set($any($event.target).value)">
+                          <option value="draft">Draft</option>
+                          <option value="published">Published</option>
+                          <option value="archived">Archived</option>
+                        </select>
+                      </label>
+                      <p class="hint"><mat-icon>info</mat-icon>Learners must watch 90% of a published video before the quiz unlocks.</p>
+                    </div>
+                  </div>
+                } @else if (tab() === 'content') {
+                  <div class="editor-stack">
+                    <label class="field">
+                      <span>Lesson notes</span>
+                      <textarea rows="11" [value]="lessonBody()" (input)="lessonBody.set($any($event.target).value)" maxlength="50000" placeholder="Write the lesson in short, spaced paragraphs. Keep it practical and easy to scan."></textarea>
+                      <small>Shown under the video. Leave a blank line between paragraphs.</small>
+                    </label>
+                    <label class="field">
+                      <span>Key takeaways (one per line, max 12)</span>
+                      <textarea rows="4" [value]="lessonTakeaways()" (input)="lessonTakeaways.set($any($event.target).value)" placeholder="One practical idea per line"></textarea>
+                    </label>
+                    <label class="field">
+                      <span>Transcript (optional)</span>
+                      <textarea rows="5" [value]="lessonTranscript()" (input)="lessonTranscript.set($any($event.target).value)" maxlength="30000" placeholder="A transcript helps partners in quiet places or on low data."></textarea>
+                    </label>
+                  </div>
+                } @else {
+                  <div class="quiz-editor">
+                    <div class="quiz-head">
+                      <div>
+                        <p class="eyebrow">Knowledge check</p>
+                        <h3>{{ quiz().length }} question{{ quiz().length === 1 ? '' : 's' }}</h3>
+                        <p>Every answer must be correct to complete the lesson. Learners see the answer key only after passing.</p>
+                      </div>
+                      <button mat-stroked-button type="button" (click)="addQuestion()" [disabled]="quiz().length >= 15">
+                        <mat-icon>add</mat-icon> Add question
+                      </button>
+                    </div>
+
+                    @if (quiz().length === 0) {
+                      <div class="empty-quiz">
+                        <mat-icon>task_alt</mat-icon>
+                        <p>No quiz questions yet. Add at least one so learners can prove they understood the lesson.</p>
+                        <button mat-flat-button color="primary" type="button" (click)="addQuestion()">Add the first question</button>
+                      </div>
+                    }
+
+                    @for (question of quiz(); track $index; let qi = $index) {
+                      <article class="question-card">
+                        <div class="question-head">
+                          <span>Question {{ qi + 1 }}</span>
+                          <button mat-icon-button color="warn" type="button" (click)="removeQuestion(qi)" aria-label="Remove question"><mat-icon>delete</mat-icon></button>
+                        </div>
+                        <label class="field">
+                          <span>Question text</span>
+                          <input [value]="question.q" (input)="setQuestion(qi, $any($event.target).value)" maxlength="500" placeholder="What should the learner remember?" />
+                        </label>
+                        <div class="option-editor">
+                          @for (option of question.options; track $index; let oi = $index) {
+                            <label class="answer-row" [class.correct]="question.answer === oi">
+                              <input type="radio" [name]="'correct-' + qi" [checked]="question.answer === oi" (change)="setAnswer(qi, oi)" />
+                              <span class="option-number">{{ ['A', 'B', 'C', 'D', 'E', 'F'][oi] }}</span>
+                              <input class="option-input" [value]="option" (input)="setOption(qi, oi, $any($event.target).value)" maxlength="200" [placeholder]="'Option ' + (oi + 1)" />
+                              @if (question.answer === oi) { <span class="correct-label">Correct</span> }
+                            </label>
+                          }
+                        </div>
+                        <div class="question-actions">
+                          <button mat-button type="button" (click)="addOption(qi)" [disabled]="question.options.length >= 6">Add option</button>
+                          <button mat-button color="warn" type="button" (click)="removeOption(qi)" [disabled]="question.options.length <= 2">Remove last option</button>
+                          <span class="muted small">Choose the correct option with the radio button.</span>
+                        </div>
+                      </article>
+                      <mat-divider />
+                    }
+                  </div>
+                }
+
+                @if (lessonError()) { <p class="error" role="alert"><mat-icon>error_outline</mat-icon>{{ lessonError() }}</p> }
+
+                <div class="form-actions lesson-actions">
+                  <span class="muted small">{{ l.status === 'published' ? 'This lesson is live.' : 'Draft lessons are hidden from learners.' }}</span>
+                  <span class="spacer"></span>
+                  <button mat-stroked-button type="button" (click)="saveLesson()" [disabled]="savingLesson()">
+                    {{ savingLesson() ? 'Saving…' : 'Save changes' }}
+                  </button>
+                  @if (l.status !== 'published') {
+                    <button mat-flat-button color="primary" type="button" (click)="saveLesson('published')" [disabled]="savingLesson() || !lessonYoutube().trim() || lessonDuration() <= 0">
+                      <mat-icon>publish</mat-icon> Publish lesson
+                    </button>
+                  } @else {
+                    <button mat-stroked-button type="button" (click)="saveLesson('draft')" [disabled]="savingLesson()">
+                      <mat-icon>undo</mat-icon> Unpublish lesson
+                    </button>
+                  }
+                </div>
+              } @else {
+                <div class="empty-editor">
+                  <mat-icon>playlist_add</mat-icon>
+                  <h3>Select a lesson to edit</h3>
+                  <p>Or add a new lesson to start building this course.</p>
+                  <button mat-flat-button color="primary" type="button" (click)="addLesson()">Add lesson</button>
+                </div>
+              }
+            </section>
+          </div>
+        } @else if (!loadingCourse()) {
+          <div class="empty-editor">
+            <mat-icon>school</mat-icon>
+            <h3>Select a course</h3>
+            <p>Choose a course on the left or create a new draft to begin.</p>
+          </div>
+        }
+      </main>
+    </div>
+  }
+</section>

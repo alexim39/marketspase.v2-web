@@ -1,0 +1,99 @@
+<section class="catalogue-page">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <span>/</span>
+    <a routerLink="/dashboard/training">Academy</a>
+    <span>/</span>
+    <span>Courses</span>
+  </nav>
+
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Course catalogue</p>
+      <h1>Every course. One clear next step.</h1>
+      <p>Choose a course, watch each lesson and pass the quiz. Rank-linked courses record their milestone automatically when you finish.</p>
+    </div>
+    <div class="head-stats">
+      <span><strong>{{ courses().length }}</strong> courses</span>
+      <span><strong>{{ totalLessons() }}</strong> lessons</span>
+      <span><strong>{{ completedLessons() }}</strong> completed</span>
+      <span><strong>{{ certifiedCount() }}</strong> certificates</span>
+    </div>
+  </header>
+
+  <section class="toolbar" aria-label="Filter courses">
+    <div class="filter-row">
+      @for (item of filters; track item.key) {
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="filter() === item.key"
+          (click)="filter.set(item.key)"
+        >{{ item.label }}</button>
+      }
+    </div>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
+      <mat-label>Search courses</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [value]="query()" (input)="query.set($any($event.target).value)" maxlength="80" />
+    </mat-form-field>
+  </section>
+
+  @if (loading()) {
+    <async-page-skeleton layout="cards" [rows]="6" label="courses" [showHeader]="false" />
+  } @else if (error()) {
+    <div class="state-card">
+      <mat-icon>error_outline</mat-icon>
+      <h2>Courses could not load</h2>
+      <p>{{ error() }}</p>
+      <button mat-flat-button color="primary" type="button" (click)="reload()">Try again</button>
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="state-card">
+      <mat-icon>auto_stories</mat-icon>
+      <h2>No courses match this view</h2>
+      <p>Try another filter or clear your search. New courses appear here as soon as they are published.</p>
+      <button mat-stroked-button type="button" (click)="query.set(''); filter.set('all')">Show all courses</button>
+    </div>
+  } @else {
+    <div class="course-grid">
+      @for (course of filtered(); track course.id) {
+        <article class="course-card">
+          <div class="course-cover" [class.course-cover--fallback]="!course.coverUrl">
+            @if (course.coverUrl) {
+              <img [src]="course.coverUrl" [alt]="course.title" loading="lazy">
+            } @else {
+              <mat-icon>play_circle</mat-icon>
+            }
+            <span class="track-chip">{{ trackLabel(course) }}</span>
+            @if (course.certified) {
+              <span class="cert-chip"><mat-icon>verified</mat-icon> Certified</span>
+            }
+            @if (course.percent > 0 && !course.certified) {
+              <span class="progress-chip">{{ course.percent }}%</span>
+            }
+          </div>
+          <div class="course-body">
+            <h2>{{ course.title }}</h2>
+            <p>{{ course.tagline || 'A focused course for your next step.' }}</p>
+            <div class="meta-row">
+              <span><mat-icon>menu_book</mat-icon>{{ course.lessons }} lessons</span>
+              <span><mat-icon>schedule</mat-icon>{{ formatMinutes(course.estimatedMinutes) }}</span>
+            </div>
+            <div class="progress-row">
+              <mat-progress-bar mode="determinate" [value]="course.percent" />
+              <span>{{ course.done }}/{{ course.total }}</span>
+            </div>
+            <div class="card-foot">
+              <span class="status">{{ course.certified ? 'Completed' : course.percent > 0 ? 'In progress' : 'Not started' }}</span>
+              <a mat-flat-button color="primary" [routerLink]="courseLink(course)" [queryParams]="course.nextLessonId ? { lesson: course.nextLessonId } : {}">
+                {{ cta(course) }}
+                <mat-icon>arrow_forward</mat-icon>
+              </a>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

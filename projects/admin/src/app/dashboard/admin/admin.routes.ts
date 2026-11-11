@@ -102,7 +102,7 @@ export const AdminRoutes: Routes = [
   {
     path: 'training-quizzes',
     component: AdminTrainingQuizzesComponent,
-    title: 'Training quizzes - MarketSpase Admin',
+    title: 'Training Studio - MarketSpase Admin',
   },
   {
     path: 'audit',

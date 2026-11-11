@@ -7,6 +7,8 @@ import { RouterModule } from '@angular/router';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { ProgressionService } from '../../core/progression/progression.service';
 import { APP_RANKS, AppRank, Journey, TRAINING_TRACK, appRankIndex } from '../../core/progression/progression.models';
+import { TrainingService } from '../../core/training/training.service';
+import { LearningPath } from '../../core/training/training.models';
 import { AuthService } from '../../core/auth/auth.service';
 import { ApiError } from '../../core/http/api-error';
 
@@ -94,7 +96,7 @@ import { ApiError } from '../../core/http/api-error';
           <p class="muted">These four certificates are recorded and confirmed by the system. No upline approval is needed.</p>
           @if (journey()) {
             <ul class="training-list">
-              @for (t of training; track t.key) {
+              @for (t of training(); track t.key) {
                 <li>
                   <mat-icon [class.done]="trainingDone(t.key)">
                     {{ trainingDone(t.key) ? 'check_circle' : 'radio_button_unchecked' }}
@@ -109,13 +111,15 @@ import { ApiError } from '../../core/http/api-error';
                       }
                     </span>
                   </div>
-                  @if (!trainingDone(t.key)) {
+                  @if (!trainingDone(t.key) && t.courseId) {
                     <a mat-button [routerLink]="['/dashboard/training/courses', t.courseId]">Open</a>
+                  } @else if (!trainingDone(t.key)) {
+                    <span class="muted small">Coming soon</span>
                   }
                 </li>
               }
             </ul>
-            <p class="training-count">{{ trainingCount() }} of {{ training.length }} core trainings recorded</p>
+            <p class="training-count">{{ trainingCount() }} of {{ training().length }} core trainings recorded</p>
           } @else {
             <p class="muted">Loading your training record…</p>
           }
@@ -212,14 +216,26 @@ import { ApiError } from '../../core/http/api-error';
 })
 export class ProgressComponent implements OnInit {
   private readonly progress = inject(ProgressionService);
+  private readonly trainingApi = inject(TrainingService);
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly ranks = APP_RANKS;
-  protected readonly training = TRAINING_TRACK;
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly journey = signal<Journey | null>(null);
+  protected readonly paths = signal<LearningPath[]>([]);
+  protected readonly training = computed(() => {
+    const requirements = this.paths().flatMap((path) => path.requirements);
+    return TRAINING_TRACK.map((track) => {
+      const requirement = requirements.find((item) => item.key === track.key);
+      return {
+        ...track,
+        courseId: requirement?.courseId ?? null,
+        courseTitle: requirement?.courseTitle ?? track.label,
+      };
+    });
+  });
 
   protected readonly currentRank = computed<AppRank>(() =>
     ((this.journey()?.levelLabel ?? this.auth.currentUser()?.commissionRank) as AppRank | undefined) ?? 'Partner',
@@ -259,6 +275,12 @@ export class ProgressComponent implements OnInit {
           this.loading.set(false);
         },
       });
+    this.trainingApi.paths()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.paths.set(res.data ?? []),
+        error: () => this.paths.set([]),
+      });
   }
 
   protected trainingDone(key: string): boolean {
@@ -271,6 +293,6 @@ export class ProgressComponent implements OnInit {
   }
 
   protected trainingCount(): number {
-    return this.training.filter((t) => this.trainingDone(t.key)).length;
+    return this.training().filter((track) => this.trainingDone(track.key)).length;
   }
 }

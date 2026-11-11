@@ -1,0 +1,85 @@
+<section class="player-card" aria-label="Lesson video player">
+  <div class="player-frame" [class.player-frame--active]="playerState() !== 'idle'">
+    <div #playerHost class="player-host"></div>
+
+    @if (playerState() === 'idle') {
+      <button type="button" class="player-facade" (click)="startVideo()" [disabled]="starting()">
+        @if (lesson.thumbnailUrl) {
+          <img [src]="lesson.thumbnailUrl" [alt]="lesson.title">
+        }
+        <span class="facade-shade" aria-hidden="true"></span>
+        <span class="play-orb" aria-hidden="true"><mat-icon>play_arrow</mat-icon></span>
+        <span class="facade-copy">
+          <strong>{{ lesson.completed ? 'Review this lesson' : 'Watch this lesson' }}</strong>
+          <small>
+            {{ formatDuration(lesson.durationSec) }}
+            @if (!lesson.completed) { · watch {{ requiredPercent }}% to unlock the quiz }
+          </small>
+        </span>
+      </button>
+    }
+
+    @if (playerState() === 'starting') {
+      <div class="player-message">
+        <mat-icon>hourglass_top</mat-icon>
+        <strong>Preparing your player…</strong>
+        <span>Your verified watch session is starting.</span>
+      </div>
+    }
+
+    @if (playerState() === 'error') {
+      <div class="player-message player-message--error">
+        <mat-icon>error_outline</mat-icon>
+        <strong>This video could not play</strong>
+        <span>{{ playerError() }}</span>
+        <button mat-stroked-button type="button" (click)="startVideo()">Try again</button>
+      </div>
+    }
+
+    @if (ended()) {
+      <div class="player-message ended-overlay">
+        <mat-icon>{{ verifiedPercent >= requiredPercent ? 'verified' : 'replay' }}</mat-icon>
+        <strong>{{ verifiedPercent >= requiredPercent ? 'Lesson video complete' : 'Keep watching' }}</strong>
+        <span>
+          {{ verifiedPercent >= requiredPercent
+            ? 'Your quiz is unlocked below.'
+            : 'Replay the video to reach the verified watch requirement.' }}
+        </span>
+        <div class="ended-actions">
+          <button mat-flat-button type="button" (click)="replay()">Replay</button>
+          @if (verifiedPercent >= requiredPercent && lesson.quizCount > 0) {
+            <a mat-stroked-button href="#quiz">Take the quiz</a>
+          }
+        </div>
+      </div>
+    }
+
+    <span class="watch-chip" [class.watch-chip--done]="verifiedPercent >= requiredPercent">
+      <mat-icon>{{ verifiedPercent >= requiredPercent ? 'verified' : 'visibility' }}</mat-icon>
+      {{ verifiedPercent >= requiredPercent ? 'Unlocked' : verifiedPercent + '% verified' }}
+    </span>
+  </div>
+
+  <div class="player-controls">
+    <button mat-icon-button type="button" (click)="togglePlay()" [disabled]="playerState() === 'idle' || playerState() === 'error'" [attr.aria-label]="playing() ? 'Pause video' : 'Play video'">
+      <mat-icon>{{ playing() ? 'pause' : 'play_arrow' }}</mat-icon>
+    </button>
+    <button mat-icon-button type="button" (click)="toggleMute()" [disabled]="playerState() === 'idle' || playerState() === 'error'" [attr.aria-label]="muted() ? 'Unmute video' : 'Mute video'">
+      <mat-icon>{{ muted() ? 'volume_off' : 'volume_up' }}</mat-icon>
+    </button>
+    <button mat-icon-button type="button" (click)="toggleCaptions()" [disabled]="playerState() === 'idle' || playerState() === 'error'" aria-label="Toggle captions">
+      <span class="cc-label">CC</span>
+    </button>
+    <div class="control-progress">
+      <mat-progress-bar mode="determinate" [value]="verifiedPercent" [attr.aria-label]="'Verified watch progress: ' + verifiedPercent + '%'" />
+      <span>{{ verifiedPercent }}%</span>
+    </div>
+    <button mat-icon-button type="button" (click)="toggleFullscreen()" [disabled]="playerState() === 'idle' || playerState() === 'error'" aria-label="Fullscreen">
+      <mat-icon>fullscreen</mat-icon>
+    </button>
+  </div>
+  <p class="player-note">
+    The player has no seek bar. If you pause, leave the page or hide the tab, verified progress stops.
+    Your place is saved when you return.
+  </p>
+</section>

@@ -3,83 +3,140 @@ import { Observable } from 'rxjs';
 import { ApiClient } from '../../../core/http/api-client.service';
 import { ApiEnvelope } from '../../../core/auth/auth.models';
 
-export interface AdminQuizCatalog {
+export type AdminTrainingStatus = 'draft' | 'published' | 'archived';
+export type AdminTrainingMilestone = 'ipo' | 'qsg' | 'smo' | 'leadership' | null;
+
+export interface AdminTrainingWarning {
+  code: string;
+  message: string;
+  courseId?: string;
+  courseTitle?: string;
+}
+
+export interface AdminTrainingCourse {
   id: string;
   title: string;
-  lessons: Array<{
-    id: string;
-    title: string;
-    quizCount: number;
-    mediaOverridden?: boolean;
-    bodyOverridden?: boolean;
-    videoUrl?: string | null;
-    posterUrl?: string | null;
-    captionsUrl?: string | null;
-    hasTranscript?: boolean;
-    durationSec?: number | null;
-    body?: string;
-    takeaways?: string[];
-  }>;
+  tagline: string;
+  description: string;
+  milestone: AdminTrainingMilestone;
+  coverUrl: string | null;
+  status: AdminTrainingStatus;
+  sortOrder: number;
+  lessonCount: number;
+  publishedLessonCount: number;
+  estimatedMinutes: number;
+  publishedAt: string | null;
+  archivedAt: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+  warnings: AdminTrainingWarning[];
 }
 
-export interface AdminQuizRow {
+export interface AdminTrainingQuizQuestion {
+  q: string;
+  options: string[];
+  answer: number;
+}
+
+export interface AdminTrainingLesson {
+  id: string;
   courseId: string;
-  lessonId: string;
-  quiz: Array<{ q: string; options: string[]; answer: number }>;
+  title: string;
+  summary: string;
+  body: string;
+  takeaways: string[];
+  transcript: string;
+  youtubeId: string | null;
+  youtubeUrl: string | null;
+  thumbnailUrl: string | null;
+  durationSec: number;
+  quiz: AdminTrainingQuizQuestion[];
+  status: AdminTrainingStatus;
+  sortOrder: number;
+  createdAt: string | null;
+  updatedAt: string | null;
+  isReady: boolean;
 }
 
+export interface AdminTrainingCourseDetail extends AdminTrainingCourse {
+  lessons: AdminTrainingLesson[];
+}
+
+export interface AdminCoursePayload {
+  title?: string;
+  tagline?: string;
+  description?: string;
+  milestone?: AdminTrainingMilestone;
+  coverUrl?: string | null;
+  status?: AdminTrainingStatus;
+}
+
+export interface AdminLessonPayload {
+  title?: string;
+  summary?: string;
+  body?: string;
+  takeaways?: string[];
+  transcript?: string;
+  youtubeUrl?: string | null;
+  durationSec?: number;
+  quiz?: AdminTrainingQuizQuestion[];
+  status?: AdminTrainingStatus;
+}
+
+/** Admin Training Studio API. */
 @Injectable({ providedIn: 'root' })
 export class AdminTrainingService {
   private readonly api = inject(ApiClient);
 
-  catalog(): Observable<ApiEnvelope<AdminQuizCatalog[]>> {
-    return this.api.get<ApiEnvelope<AdminQuizCatalog[]>>('v1/admin/training/catalog');
+  courses(): Observable<ApiEnvelope<AdminTrainingCourse[]>> {
+    return this.api.get<ApiEnvelope<AdminTrainingCourse[]>>('v1/admin/training/courses');
   }
 
-  list(): Observable<ApiEnvelope<AdminQuizRow[]>> {
-    return this.api.get<ApiEnvelope<AdminQuizRow[]>>('v1/admin/training/quizzes');
+  course(courseId: string): Observable<ApiEnvelope<AdminTrainingCourseDetail>> {
+    return this.api.get<ApiEnvelope<AdminTrainingCourseDetail>>(`v1/admin/training/courses/${encodeURIComponent(courseId)}`);
   }
 
-  save(courseId: string, lessonId: string, quiz: AdminQuizRow['quiz']): Observable<ApiEnvelope<AdminQuizRow>> {
-    return this.api.put<ApiEnvelope<AdminQuizRow>>(`v1/admin/training/courses/${courseId}/lessons/${lessonId}/quiz`, quiz);
-  }
-}
-
-export interface AdminMedia {
-  videoUrl?: string | null;
-  posterUrl?: string | null;
-  captionsUrl?: string | null;
-  transcript?: string | null;
-  durationSec?: number | null;
-  body?: string | null;
-  takeaways?: string[] | null;
-}
-
-export interface AdminMediaRow {
-  courseId: string;
-  lessonId: string;
-  videoUrl: string | null;
-  posterUrl: string | null;
-  captionsUrl: string | null;
-  transcript: string | null;
-  durationSec: number | null;
-  body: string | null;
-  takeaways: string[];
-}
-
-@Injectable({ providedIn: 'root' })
-export class AdminTrainingMediaService {
-  private readonly api = inject(ApiClient);
-
-  list(): Observable<ApiEnvelope<AdminMediaRow[]>> {
-    return this.api.get<ApiEnvelope<AdminMediaRow[]>>('v1/admin/training/media');
+  createCourse(body: AdminCoursePayload): Observable<ApiEnvelope<AdminTrainingCourseDetail>> {
+    return this.api.post<ApiEnvelope<AdminTrainingCourseDetail>>('v1/admin/training/courses', body);
   }
 
-  save(courseId: string, lessonId: string, media: AdminMedia): Observable<ApiEnvelope<AdminMediaRow>> {
-    return this.api.put<ApiEnvelope<AdminMediaRow>>(`v1/admin/training/courses/${courseId}/lessons/${lessonId}/media`, media);
+  updateCourse(courseId: string, body: AdminCoursePayload): Observable<ApiEnvelope<AdminTrainingCourseDetail>> {
+    return this.api.patch<ApiEnvelope<AdminTrainingCourseDetail>>(`v1/admin/training/courses/${encodeURIComponent(courseId)}`, body);
   }
 
-  reset(courseId: string, lessonId: string): Observable<ApiEnvelope<{ reverted: boolean }>> {
-    return this.api.delete<ApiEnvelope<{ reverted: boolean }>>(`v1/admin/training/courses/${courseId}/lessons/${lessonId}/media`);
+  setCourseStatus(courseId: string, status: AdminTrainingStatus): Observable<ApiEnvelope<AdminTrainingCourseDetail>> {
+    return this.api.patch<ApiEnvelope<AdminTrainingCourseDetail>>(`v1/admin/training/courses/${encodeURIComponent(courseId)}/status`, { status });
+  }
+
+  archiveCourse(courseId: string): Observable<ApiEnvelope<AdminTrainingCourse>> {
+    return this.api.delete<ApiEnvelope<AdminTrainingCourse>>(`v1/admin/training/courses/${encodeURIComponent(courseId)}`);
+  }
+
+  reorderCourses(ids: string[]): Observable<ApiEnvelope<Array<{ id: string; title: string; status: AdminTrainingStatus; sortOrder: number }>>> {
+    return this.api.put<ApiEnvelope<Array<{ id: string; title: string; status: AdminTrainingStatus; sortOrder: number }>>>('v1/admin/training/courses/order', { ids });
+  }
+
+  createLesson(courseId: string, body: AdminLessonPayload): Observable<ApiEnvelope<AdminTrainingLesson>> {
+    return this.api.post<ApiEnvelope<AdminTrainingLesson>>(`v1/admin/training/courses/${encodeURIComponent(courseId)}/lessons`, body);
+  }
+
+  updateLesson(courseId: string, lessonId: string, body: AdminLessonPayload): Observable<ApiEnvelope<AdminTrainingLesson>> {
+    return this.api.patch<ApiEnvelope<AdminTrainingLesson>>(
+      `v1/admin/training/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}`,
+      body,
+    );
+  }
+
+  deleteLesson(courseId: string, lessonId: string): Observable<ApiEnvelope<{ deleted: boolean }>> {
+    return this.api.delete<ApiEnvelope<{ deleted: boolean }>>(
+      `v1/admin/training/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}`,
+    );
+  }
+
+  reorderLessons(courseId: string, ids: string[]): Observable<ApiEnvelope<AdminTrainingLesson[]>> {
+    return this.api.put<ApiEnvelope<AdminTrainingLesson[]>>(
+      `v1/admin/training/courses/${encodeURIComponent(courseId)}/lessons/order`,
+      { ids },
+    );
   }
 }

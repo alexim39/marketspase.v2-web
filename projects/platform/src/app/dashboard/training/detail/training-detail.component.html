@@ -1,0 +1,323 @@
+<section class="course-page">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <span>/</span>
+    <a routerLink="/dashboard/training">Academy</a>
+    <span>/</span>
+    <a routerLink="/dashboard/training/courses">Courses</a>
+    <span>/</span>
+    <span>{{ course()?.title ?? 'Course' }}</span>
+  </nav>
+
+  @if (loading()) {
+    <async-page-skeleton layout="dashboard" [rows]="4" label="course" [showHeader]="false" />
+  } @else if (error()) {
+    <div class="state-card">
+      <mat-icon>error_outline</mat-icon>
+      <h1>We could not open this course</h1>
+      <p>{{ error() }}</p>
+      <button mat-flat-button color="primary" type="button" (click)="retry()">Try again</button>
+      <a mat-button routerLink="/dashboard/training/courses">Back to courses</a>
+    </div>
+  } @else if (course(); as c) {
+    <header class="course-hero">
+      <div class="hero-copy">
+        <div class="hero-chips">
+          <span class="eyebrow">{{ milestoneLabel() }} track</span>
+          @if (c.certified) {
+            <span class="chip chip--done"><mat-icon>verified</mat-icon> Certified</span>
+          } @else {
+            <span class="chip">{{ c.lessons }} lessons · {{ formatDuration(c.estimatedMinutes * 60) }}</span>
+          }
+        </div>
+        <h1>{{ c.title }}</h1>
+        @if (c.tagline) { <p class="hero-tagline">{{ c.tagline }}</p> }
+        <div class="hero-meta">
+          <span><mat-icon>play_circle</mat-icon>{{ c.lessons }} video lessons</span>
+          <span><mat-icon>quiz</mat-icon>Quiz in every lesson</span>
+          <span><mat-icon>workspace_premium</mat-icon>{{ c.milestone ? c.milestone.toUpperCase() + ' rank credit' : 'Elective certificate' }}</span>
+        </div>
+      </div>
+      <div class="course-progress">
+        <div class="progress-orb" [style.background]="progressStyle(c.percent)" aria-hidden="true">
+          <span>{{ c.percent }}%</span>
+        </div>
+        <div class="progress-copy">
+          <strong>{{ c.done }} of {{ c.total }} lessons complete</strong>
+          @if (c.nextLessonId) {
+            <a mat-flat-button color="primary" [routerLink]="['/dashboard/training/courses', c.id]" [queryParams]="{ lesson: c.nextLessonId }">Continue learning</a>
+          } @else {
+            <span>All lessons complete</span>
+          }
+        </div>
+      </div>
+    </header>
+
+    <div class="learning-layout">
+      <main class="learning-main">
+        @if (activeLesson(); as lesson) {
+          <async-training-player
+            [lesson]="lesson"
+            [verifiedPercent]="verifiedPercent()"
+            [startSeconds]="lesson.completed ? 0 : lesson.watchSeconds"
+            [requiredPercent]="requiredPercent"
+            (verify)="verifyWatch($event)"
+          />
+
+          @if (heartbeatError()) {
+            <p class="inline-alert" role="status"><mat-icon>cloud_off</mat-icon>{{ heartbeatError() }}</p>
+          }
+
+          <section class="lesson-head">
+            <div>
+              <p class="eyebrow">Lesson {{ activeIndex() + 1 }} of {{ lessons().length }}</p>
+              <h2>{{ lesson.title }}</h2>
+              @if (lesson.summary) { <p class="lesson-summary">{{ lesson.summary }}</p> }
+              <div class="lesson-meta">
+                <span><mat-icon>schedule</mat-icon>{{ formatDuration(lesson.durationSec) }}</span>
+                <span><mat-icon>quiz</mat-icon>{{ lesson.quizCount }} questions</span>
+                <span [class.meta-done]="lesson.completed">
+                  <mat-icon>{{ lesson.completed ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                  {{ lesson.completed ? 'Completed' : 'In progress' }}
+                </span>
+              </div>
+            </div>
+            @if (lesson.completed) {
+              <span class="status-chip status-chip--done"><mat-icon>verified</mat-icon> Complete</span>
+            }
+          </section>
+
+          <section class="watch-card">
+            <div class="watch-head">
+              <div>
+                <p class="eyebrow">Verified watch</p>
+                <h3>{{ verifiedPercent() }}% watched</h3>
+              </div>
+              <span [class]="'unlock-chip ' + (quizUnlocked() ? 'unlock-chip--done' : '')">
+                <mat-icon>{{ quizUnlocked() ? 'lock_open' : 'lock' }}</mat-icon>
+                {{ quizUnlocked() ? 'Quiz unlocked' : remainingPercent() + '% more to unlock' }}
+              </span>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="verifiedPercent()" />
+            <p class="muted">
+              @if (!quizUnlocked()) {
+                Watch {{ requiredPercent }}% of the video to unlock the quiz. Seeking, switching tabs or leaving the page is not counted.
+              } @else if (!lesson.completed) {
+                The quiz is open. Answer every question and submit to complete this lesson.
+              } @else {
+                This lesson is complete. You can review the content or move to the next lesson.
+              }
+            </p>
+          </section>
+
+          <section class="content-card">
+            <div class="content-tabs" role="tablist" aria-label="Lesson content">
+              <button type="button" role="tab" [attr.aria-selected]="contentTab() === 'lesson'" [class.active]="contentTab() === 'lesson'" (click)="contentTab.set('lesson')">
+                <mat-icon>menu_book</mat-icon> Lesson notes
+              </button>
+              <button type="button" role="tab" [attr.aria-selected]="contentTab() === 'transcript'" [class.active]="contentTab() === 'transcript'" (click)="contentTab.set('transcript')" [disabled]="!lesson.transcript">
+                <mat-icon>subtitles</mat-icon> Transcript
+              </button>
+            </div>
+
+            @if (contentTab() === 'lesson') {
+              @if (lesson.takeaways.length > 0) {
+                <div class="takeaways">
+                  <p class="eyebrow">Key takeaways</p>
+                  <ul>
+                    @for (takeaway of lesson.takeaways; track takeaway) {
+                      <li><mat-icon>check</mat-icon><span>{{ takeaway }}</span></li>
+                    }
+                  </ul>
+                </div>
+              }
+              @if (lesson.body) {
+                <div class="lesson-body">
+                  @for (paragraph of paragraphs(lesson.body); track $index) {
+                    <p>{{ paragraph }}</p>
+                  }
+                </div>
+              } @else {
+                <p class="muted">The study notes for this lesson will appear here.</p>
+              }
+            } @else {
+              <div class="transcript-body">
+                @for (paragraph of paragraphs(lesson.transcript); track $index) {
+                  <p>{{ paragraph }}</p>
+                }
+              </div>
+            }
+          </section>
+
+          <section id="quiz" class="quiz-card">
+            <div class="quiz-head">
+              <div>
+                <p class="eyebrow">Knowledge check</p>
+                <h2>{{ lesson.completed ? 'Quiz review' : 'Lesson quiz' }}</h2>
+              </div>
+              <span [class]="'quiz-state ' + (lesson.completed ? 'quiz-state--done' : quizUnlocked() ? 'quiz-state--ready' : 'quiz-state--locked')">
+                <mat-icon>{{ lesson.completed ? 'verified' : quizUnlocked() ? 'lock_open' : 'lock' }}</mat-icon>
+                {{ lesson.completed ? 'Passed' : quizUnlocked() ? 'Ready' : 'Locked' }}
+              </span>
+            </div>
+
+            @if (quizNotice()) {
+              <p class="inline-success" role="status"><mat-icon>check_circle</mat-icon>{{ quizNotice() }}</p>
+            }
+
+            @if (!quizUnlocked() && !lesson.completed) {
+              <div class="locked-panel">
+                <mat-icon>lock</mat-icon>
+                <div>
+                  <strong>The quiz unlocks after {{ requiredPercent }}% watched</strong>
+                  <p>You are at {{ verifiedPercent() }}%. Keep the video playing in this tab; progress is saved automatically.</p>
+                </div>
+              </div>
+            } @else if (lesson.quiz.length === 0) {
+              <div class="quiz-empty">
+                <mat-icon>task_alt</mat-icon>
+                <p>This lesson has no quiz. Mark it complete when you have finished the video and notes.</p>
+                @if (!lesson.completed) {
+                  <button mat-flat-button color="primary" type="button" (click)="completeLesson()" [disabled]="submitting()">
+                    {{ submitting() ? 'Saving…' : 'Mark lesson complete' }}
+                  </button>
+                }
+              </div>
+            } @else {
+              <div class="quiz-list">
+                @for (question of lesson.quiz; track question.q; let qi = $index) {
+                  <article class="quiz-question">
+                    <div class="question-title">
+                      <span>{{ qi + 1 }}</span>
+                      <strong>{{ question.q }}</strong>
+                    </div>
+                    <div class="option-list">
+                      @for (option of question.options; track option; let oi = $index) {
+                        <label
+                          class="option"
+                          [class.option--correct]="isCorrect(qi, oi)"
+                          [class.option--wrong]="isWrongSelection(qi, oi)"
+                        >
+                          <input
+                            type="radio"
+                            [name]="'question-' + lesson.id + '-' + qi"
+                            [checked]="answers()[qi] === oi"
+                            [disabled]="lesson.completed || submitting()"
+                            (change)="selectAnswer(qi, oi)"
+                          />
+                          <span class="option-letter">{{ ['A', 'B', 'C', 'D', 'E', 'F'][oi] }}</span>
+                          <span>{{ option }}</span>
+                          @if (isCorrect(qi, oi)) { <mat-icon class="option-icon">check_circle</mat-icon> }
+                        </label>
+                      }
+                    </div>
+                  </article>
+                }
+              </div>
+
+              @if (quizError()) {
+                <p class="inline-error" role="alert"><mat-icon>error_outline</mat-icon>{{ quizError() }}</p>
+              }
+
+              @if (!lesson.completed) {
+                <div class="quiz-actions">
+                  <span class="muted">{{ answeredCount() }} of {{ lesson.quiz.length }} answered</span>
+                  <span class="spacer"></span>
+                  <button mat-flat-button color="primary" type="button" (click)="completeLesson()" [disabled]="submitting() || !answeredAll()">
+                    <mat-icon>check</mat-icon>
+                    {{ submitting() ? 'Checking…' : 'Submit quiz' }}
+                  </button>
+                </div>
+              } @else {
+                <p class="quiz-passed"><mat-icon>verified</mat-icon> You answered this quiz correctly.</p>
+              }
+            }
+          </section>
+
+          @if (certificateNotice()) {
+            <p class="certificate-notice" role="status"><mat-icon>workspace_premium</mat-icon>{{ certificateNotice() }}</p>
+          }
+
+          <section class="lesson-nav">
+            <button mat-stroked-button type="button" (click)="goPrevious()" [disabled]="!previousLesson()">
+              <mat-icon>arrow_back</mat-icon> Previous lesson
+            </button>
+            <a mat-button routerLink="/dashboard/training/courses">All courses</a>
+            <button mat-flat-button color="primary" type="button" (click)="goNext()" [disabled]="!nextLesson()">
+              Next lesson <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </section>
+        }
+      </main>
+
+      <aside class="learning-side">
+        <section class="curriculum-card">
+          <div class="curriculum-head">
+            <div>
+              <p class="eyebrow">Curriculum</p>
+              <h2>{{ c.done }} of {{ c.total }} complete</h2>
+            </div>
+            <span class="curriculum-percent">{{ c.percent }}%</span>
+          </div>
+          <mat-progress-bar mode="determinate" [value]="c.percent" />
+          <div class="curriculum-list">
+            @for (lesson of lessons(); track lesson.id; let i = $index) {
+              <button
+                type="button"
+                class="curriculum-item"
+                [class.active]="lesson.id === activeLesson()?.id"
+                [class.done]="lesson.completed"
+                (click)="selectLesson(lesson)"
+              >
+                <span class="lesson-state">
+                  <mat-icon>{{ lesson.completed ? 'check_circle' : 'play_circle' }}</mat-icon>
+                </span>
+                <span class="lesson-copy">
+                  <small>Lesson {{ i + 1 }}</small>
+                  <strong>{{ lesson.title }}</strong>
+                  <span>{{ formatDuration(lesson.durationSec) }} · {{ lesson.quizCount }} quiz questions</span>
+                </span>
+                @if (lesson.id === activeLesson()?.id) { <span class="current-dot" aria-label="Current lesson"></span> }
+              </button>
+            }
+          </div>
+        </section>
+
+        @if (c.certified) {
+          <section class="certificate-card">
+            <mat-icon class="cert-icon">workspace_premium</mat-icon>
+            <p class="eyebrow">Certificate earned</p>
+            <h2>{{ c.title }}</h2>
+            @if (c.certificateAt) { <p class="muted">Issued {{ c.certificateAt | date:'mediumDate' }}</p> }
+            <p class="muted small">Certificate no. {{ certNumber({ courseId: c.id, title: c.title, at: c.certificateAt ?? '' }) }}</p>
+            <button mat-stroked-button type="button" (click)="download()"><mat-icon>download</mat-icon> Download certificate</button>
+          </section>
+        } @else {
+          <section class="rank-card">
+            <p class="eyebrow">{{ c.milestone ? 'Rank credit' : 'Elective course' }}</p>
+            <h2>{{ c.milestone ? c.milestone.toUpperCase() + ' training' : 'Learn without changing rank' }}</h2>
+            <p>
+              @if (c.milestone) {
+                Completing every lesson records your {{ c.milestone.toUpperCase() }} training milestone automatically.
+              } @else {
+                This course awards a certificate and learning progress, but it does not change your rank roadmap.
+              }
+            </p>
+            <div class="check-row">
+              <mat-icon>{{ c.done === c.total ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              <span>{{ c.done === c.total ? 'Course complete' : (c.total - c.done) + ' lessons remaining' }}</span>
+            </div>
+          </section>
+        }
+
+        <section class="help-card">
+          <mat-icon>support_agent</mat-icon>
+          <div>
+            <strong>Need help?</strong>
+            <p>If a video will not play, contact your coach or support. Your progress is saved on this account.</p>
+          </div>
+        </section>
+      </aside>
+    </div>
+  }
+</section>

@@ -1,0 +1,231 @@
+<section class="academy-page">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <span>/</span>
+    <span>Academy</span>
+  </nav>
+
+  @if (loading()) {
+    <async-page-skeleton layout="dashboard" [rows]="4" label="Academy" [showHeader]="false" />
+  } @else {
+    <header class="academy-hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Leadership Academy</p>
+        <h1>Learn the business. Build the leader.</h1>
+        <p class="hero-subtitle">
+          Short video lessons, clear notes and a quiz after every lesson. Watch, understand and apply it in your next conversation.
+        </p>
+        <div class="hero-chips">
+          <span><mat-icon>military_tech</mat-icon>{{ currentRank() }} rank</span>
+          @if (nextRank(); as next) {
+            <span><mat-icon>flag</mat-icon>Next: {{ next.rank }}</span>
+          }
+          <span><mat-icon>play_circle</mat-icon>{{ courses().length }} courses available</span>
+        </div>
+        @if (continueCourse(); as next) {
+          <a mat-flat-button color="primary" [routerLink]="continueLink(next)" [queryParams]="next.nextLessonId ? { lesson: next.nextLessonId } : {}">
+            <mat-icon>play_arrow</mat-icon>
+            {{ next.percent > 0 ? 'Continue learning' : 'Start learning' }}
+          </a>
+        } @else {
+          <a mat-flat-button color="primary" routerLink="/dashboard/training/courses">Browse courses</a>
+        }
+      </div>
+      <div class="hero-progress">
+        <div class="progress-orb" [style.background]="progressStyle(overallPercent())" aria-hidden="true">
+          <span>{{ overallPercent() }}%</span>
+        </div>
+        <div>
+          <strong>Academy progress</strong>
+          <span>{{ completedCourses() }} of {{ courses().length }} courses complete</span>
+        </div>
+      </div>
+    </header>
+
+    @if (error()) {
+      <p class="inline-error" role="alert">
+        <mat-icon>error_outline</mat-icon>
+        {{ error() }}
+        <button mat-button type="button" (click)="reload()">Retry</button>
+      </p>
+    }
+
+    <section class="stat-row" aria-label="Learning summary">
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>school</mat-icon></span>
+        <div><strong>{{ courses().length }}</strong><span>Courses in the Academy</span></div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>task_alt</mat-icon></span>
+        <div><strong>{{ lessonsDone() }}</strong><span>Lessons completed</span></div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>workspace_premium</mat-icon></span>
+        <div><strong>{{ certificates().length }}</strong><span>Certificates earned</span></div>
+      </article>
+      <article class="stat-card stat-card--highlight">
+        <span class="stat-icon"><mat-icon>trending_up</mat-icon></span>
+        <div>
+          <strong>{{ nextMilestone()?.label ?? 'Top track' }}</strong>
+          <span>{{ nextMilestone() ? 'Next rank training' : 'All core training recorded' }}</span>
+        </div>
+      </article>
+    </section>
+
+    @if (continueCourse(); as next) {
+      <section class="continue-card">
+        <div class="continue-cover" [class.continue-cover--fallback]="!next.coverUrl">
+          @if (next.coverUrl) {
+            <img [src]="next.coverUrl" [alt]="next.title" loading="lazy">
+          } @else {
+            <mat-icon>play_circle</mat-icon>
+          }
+          <span class="cover-badge">{{ next.percent }}%</span>
+        </div>
+        <div class="continue-copy">
+          <p class="eyebrow">Pick up where you left off</p>
+          <h2>{{ next.title }}</h2>
+          <p>{{ next.tagline || 'Continue your next lesson at your own pace.' }}</p>
+          <div class="continue-meta">
+            <span><mat-icon>menu_book</mat-icon>{{ next.done }} of {{ next.total }} lessons</span>
+            <span><mat-icon>schedule</mat-icon>{{ formatMinutes(next.estimatedMinutes) }} total</span>
+            <span><mat-icon>workspace_premium</mat-icon>{{ trackLabel(next) }}</span>
+          </div>
+          <mat-progress-bar mode="determinate" [value]="next.percent" />
+          <a mat-flat-button color="primary" [routerLink]="continueLink(next)" [queryParams]="next.nextLessonId ? { lesson: next.nextLessonId } : {}">
+            {{ next.percent > 0 ? 'Continue course' : 'Start course' }}
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+      </section>
+    }
+
+    <section class="journey-card">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Your rank journey</p>
+          <h2>Training that moves you forward</h2>
+          <p>Each completed course with rank credit records its milestone automatically. Elective courses give certificates without changing rank.</p>
+        </div>
+        <a mat-button routerLink="/dashboard/training/courses">View all courses</a>
+      </div>
+      <div class="milestone-strip">
+        @for (milestone of milestones; track milestone.key; let i = $index) {
+          <article class="milestone" [class.milestone--done]="milestoneDone(milestone.key)">
+            <span class="milestone-number">{{ i + 1 }}</span>
+            <div class="milestone-copy">
+              <strong>{{ milestone.label }}</strong>
+              <span>{{ milestone.note }}</span>
+              @if (courseForMilestone(milestone.key); as course) {
+                <small>{{ course.title }}</small>
+              } @else {
+                <small>Course coming soon</small>
+              }
+            </div>
+            @if (milestoneDone(milestone.key)) {
+              <mat-icon class="milestone-state">verified</mat-icon>
+            } @else if (milestoneLink(milestone.key); as link) {
+              <a mat-button [routerLink]="link">Open</a>
+            } @else {
+              <span class="milestone-state muted">—</span>
+            }
+            @if (milestonePercent(milestone.key) > 0 && !milestoneDone(milestone.key)) {
+              <span class="milestone-progress">{{ milestonePercent(milestone.key) }}%</span>
+            }
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="catalogue-block">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Courses</p>
+          <h2>Your learning library</h2>
+        </div>
+        <a mat-button routerLink="/dashboard/training/courses">See all</a>
+      </div>
+
+      @if (featuredCourses().length === 0) {
+        <div class="empty-card">
+          <mat-icon>auto_stories</mat-icon>
+          <h3>The Academy is being prepared</h3>
+          <p>New courses and lessons will appear here as soon as they are published. Check back soon or explore the app tutorials.</p>
+          <a mat-flat-button color="primary" routerLink="/dashboard/training/tutorials">Explore tutorials</a>
+        </div>
+      } @else {
+        <div class="course-grid">
+          @for (course of featuredCourses(); track course.id) {
+            <article class="course-card">
+              <div class="course-cover" [class.course-cover--fallback]="!course.coverUrl">
+                @if (course.coverUrl) {
+                  <img [src]="course.coverUrl" [alt]="course.title" loading="lazy">
+                } @else {
+                  <mat-icon>play_circle</mat-icon>
+                }
+                <span class="course-track">{{ trackLabel(course) }}</span>
+                @if (course.certified) {
+                  <span class="course-cert"><mat-icon>verified</mat-icon> Certified</span>
+                }
+              </div>
+              <div class="course-copy">
+                <h3>{{ course.title }}</h3>
+                <p>{{ course.tagline || 'A focused course for your next step.' }}</p>
+                <div class="course-meta">
+                  <span>{{ course.lessons }} lessons</span>
+                  <span>{{ formatMinutes(course.estimatedMinutes) }}</span>
+                  <span>{{ course.percent }}%</span>
+                </div>
+                <mat-progress-bar mode="determinate" [value]="course.percent" />
+                <div class="course-actions">
+                  <span class="muted">{{ course.done }} of {{ course.total }} complete</span>
+                  <a mat-stroked-button [routerLink]="continueLink(course)" [queryParams]="course.nextLessonId ? { lesson: course.nextLessonId } : {}">{{ courseCta(course) }}</a>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <div class="lower-grid">
+      <section class="certificate-shelf">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Achievements</p>
+            <h2>Certificate shelf</h2>
+          </div>
+        </div>
+        @if (recentCertificates().length === 0) {
+          <div class="empty-mini">
+            <mat-icon>workspace_premium</mat-icon>
+            <p>Your certificates will appear here after you complete a course.</p>
+          </div>
+        } @else {
+          <div class="cert-list">
+            @for (cert of recentCertificates(); track cert.courseId) {
+              <article class="cert-item">
+                <span class="cert-icon"><mat-icon>workspace_premium</mat-icon></span>
+                <div>
+                  <strong>{{ cert.title }}</strong>
+                  <span>Issued {{ cert.at | date:'mediumDate' }} · No. {{ certNumber(cert) }}</span>
+                </div>
+                <button mat-icon-button type="button" (click)="download(cert)" aria-label="Download certificate"><mat-icon>download</mat-icon></button>
+              </article>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="weekly-card">
+        <p class="eyebrow">Weekly commitment</p>
+        <h2>Video of the week</h2>
+        <p>One shared briefing for the whole team. Watch it, write one reflection and keep your weekly streak moving.</p>
+        <div class="weekly-actions">
+          <a mat-flat-button color="primary" routerLink="/dashboard/learn/video-of-the-week">Watch this week</a>
+          <a mat-button routerLink="/dashboard/learn/video-of-the-week">Past weeks</a>
+        </div>
+      </section>
+    </div>
+  }
+</section>

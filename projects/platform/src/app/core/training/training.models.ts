@@ -1,29 +1,42 @@
 import { ApiEnvelope } from '../../core/auth/auth.models';
 
+export type TrainingMilestone = 'ipo' | 'qsg' | 'smo' | 'leadership';
+
 export interface CourseSummary {
   id: string;
   title: string;
   tagline: string;
-  milestone: string | null;
+  description: string;
+  milestone: TrainingMilestone | null;
+  coverUrl: string | null;
   lessons: number;
   done: number;
   total: number;
   percent: number;
   certified: boolean;
   certificateAt: string | null;
+  estimatedMinutes: number;
+  nextLessonId: string | null;
+  publishedAt: string | null;
 }
 
 export interface Lesson {
   id: string;
   title: string;
+  summary: string;
   body: string;
   takeaways: string[];
-  quiz?: Array<{ q: string; options: string[]; answer?: number }>;
-  videoUrl?: string | null;
-  posterUrl?: string | null;
-  captionsUrl?: string | null;
-  transcript?: string | null;
-  durationSec?: number | null;
+  transcript: string;
+  quiz: Array<{ q: string; options: string[]; answer?: number }>;
+  youtubeId: string | null;
+  youtubeUrl: string | null;
+  thumbnailUrl: string | null;
+  durationSec: number;
+  quizCount: number;
+  completed: boolean;
+  watchPercent: number;
+  watchSeconds: number;
+  sortOrder: number;
 }
 
 export interface WatchState {
@@ -37,7 +50,15 @@ export interface TeamComplianceRow {
   partnerId: string;
   depth: number;
   member: { username: string; name: string } | null;
-  courses: Array<{ courseId: string; title: string; done: number; total: number; percent: number; certified: boolean }>;
+  courses: Array<{
+    courseId: string;
+    title: string;
+    milestone?: TrainingMilestone | null;
+    done: number;
+    total: number;
+    percent: number;
+    certified: boolean;
+  }>;
   overallPercent: number;
   certifiedCount: number;
 }
@@ -102,6 +123,7 @@ export interface CourseDetail extends Omit<CourseSummary, 'lessons'> {
   lessons: Lesson[];
   completedIds: string[];
   watch?: Record<string, WatchState>;
+  resumeLessonId: string;
 }
 
 export interface CoursesEnvelope extends ApiEnvelope<CourseSummary[]> {
@@ -112,18 +134,25 @@ export interface CourseEnvelope extends ApiEnvelope<CourseDetail> {
   data: CourseDetail;
 }
 
-export interface CompleteEnvelope extends ApiEnvelope<{
-  progress: { done: number; total: number; percent: number; certified: boolean };
+export interface CompleteResult {
+  courseId: string;
+  progress: {
+    done: number;
+    total: number;
+    percent: number;
+    certified: boolean;
+    nextLessonId: string | null;
+    completedIds: string[];
+  };
   certificateAt: string | null;
   certified: boolean;
-  milestoneChecked: string | null;
-}> {
-  data: {
-    progress: { done: number; total: number; percent: number; certified: boolean };
-    certificateAt: string | null;
-    certified: boolean;
-    milestoneChecked: string | null;
-  };
+  milestoneChecked: TrainingMilestone | null;
+  milestoneAlreadyRecorded: boolean;
+  courseCompleted: boolean;
+}
+
+export interface CompleteEnvelope extends ApiEnvelope<CompleteResult> {
+  data: CompleteResult;
 }
 
 export interface Certificate {
@@ -133,23 +162,44 @@ export interface Certificate {
   number?: string;
 }
 
-export interface PathsEnvelope extends ApiEnvelope<Array<{
-  level: string; title: string; tagline: string; unlocked: boolean;
+export interface LearningPath {
+  level: string;
+  title: string;
+  tagline: string;
+  unlocked: boolean;
   progress: { done: number; total: number; percent: number };
-  requirements: Array<{ key: string; label: string; action: string; met: boolean; courseId: string | null }>;
-  courses: Array<{ courseId: string; done: number; certified: boolean }>;
-}>> {
-  data: Array<{
-    level: string; title: string; tagline: string; unlocked: boolean;
-    progress: { done: number; total: number; percent: number };
-    requirements: Array<{ key: string; label: string; action: string; met: boolean; courseId: string | null }>;
-    courses: Array<{ courseId: string; done: number; certified: boolean }>;
+  requirements: Array<{
+    key: string;
+    label: string;
+    action: string;
+    met: boolean;
+    courseId: string | null;
+    courseTitle?: string | null;
+  }>;
+  courses: Array<{
+    courseId: string;
+    title?: string | null;
+    done: number;
+    total?: number;
+    percent?: number;
+    certified: boolean;
   }>;
 }
 
+export interface PathsEnvelope extends ApiEnvelope<LearningPath[]> {
+  data: LearningPath[];
+}
+
 export interface Readiness {
-  level: string; levelLabel: string; next: string | null; nextLabel: string | null;
-  percent: number; score: number; label: string; done: number; total: number;
+  level: string;
+  levelLabel: string;
+  next: string | null;
+  nextLabel: string | null;
+  percent: number;
+  score: number;
+  label: string;
+  done: number;
+  total: number;
   missing: Array<{ key: string; label: string; action: string }>;
   remainingActions: string[];
 }
