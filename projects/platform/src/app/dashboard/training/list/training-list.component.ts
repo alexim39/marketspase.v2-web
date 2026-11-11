@@ -12,7 +12,7 @@ import { TrainingService } from '../../../core/training/training.service';
 import { CourseSummary, TrainingMilestone } from '../../../core/training/training.models';
 import { ApiError, userError } from '../../../core/http/api-error';
 
-type CourseFilter = 'all' | 'in-progress' | 'completed' | 'elective' | TrainingMilestone;
+type CourseFilter = 'all' | 'in-progress' | 'completed' | 'elective' | 'bookmarks' | 'recent' | TrainingMilestone;
 
 const FILTERS: Array<{ key: CourseFilter; label: string }> = [
   { key: 'all', label: 'All courses' },
@@ -23,7 +23,12 @@ const FILTERS: Array<{ key: CourseFilter; label: string }> = [
   { key: 'smo', label: 'SMO' },
   { key: 'leadership', label: 'Leadership' },
   { key: 'elective', label: 'Electives' },
+  { key: 'bookmarks', label: 'Bookmarks' },
+  { key: 'recent', label: 'Recently viewed' },
 ];
+
+const BOOKMARK_KEY = 'dp-library-bookmarks';
+const RECENT_KEY = 'dp-library-recent';
 
 /**
  * @title Academy catalogue — every published admin-created course.
@@ -53,12 +58,18 @@ export class TrainingListComponent implements OnInit {
   protected readonly courses = signal<CourseSummary[]>([]);
   protected readonly query = signal('');
   protected readonly filter = signal<CourseFilter>('all');
+  protected readonly bookmarks = signal<Set<string>>(new Set());
+  protected readonly recent = signal<string[]>([]);
   protected readonly filters = FILTERS;
 
   protected readonly filtered = computed(() => {
     const needle = this.query().trim().toLowerCase();
     const filter = this.filter();
-    return this.courses().filter((course) => {
+    const bookmarks = this.bookmarks();
+    const recent = this.recent();
+    const matches = this.courses().filter((course) => {
+      if (filter === 'bookmarks' && !bookmarks.has(course.id)) return false;
+      if (filter === 'recent' && !recent.includes(course.id)) return false;
       if (filter === 'in-progress' && !(course.percent > 0 && !course.certified)) return false;
       if (filter === 'completed' && !course.certified) return false;
       if (filter === 'elective' && course.milestone) return false;
@@ -66,12 +77,18 @@ export class TrainingListComponent implements OnInit {
       if (!needle) return true;
       return `${course.title} ${course.tagline} ${course.description}`.toLowerCase().includes(needle);
     });
+    if (filter === 'recent') {
+      return [...matches].sort((a, b) => recent.indexOf(a.id) - recent.indexOf(b.id));
+    }
+    return matches;
   });
   protected readonly totalLessons = computed(() => this.courses().reduce((total, course) => total + course.lessons, 0));
   protected readonly completedLessons = computed(() => this.courses().reduce((total, course) => total + course.done, 0));
   protected readonly certifiedCount = computed(() => this.courses().filter((course) => course.certified).length);
 
   ngOnInit(): void {
+    this.bookmarks.set(this.loadBookmarks());
+    this.recent.set(this.loadRecent());
     this.reload();
   }
 
@@ -96,6 +113,45 @@ export class TrainingListComponent implements OnInit {
     return ['/dashboard/training/courses', course.id];
   }
 
+  protected isBookmarked(id: string): boolean {
+    return this.bookmarks().has(id);
+  }
+
+  protected toggleBookmark(id: string): void {
+    this.bookmarks.update((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      this.saveBookmarks(next);
+      return next;
+    });
+  }
+
+  protected markRecent(id: string): void {
+    this.recent.update((list) => {
+      const next = [id, ...list.filter((item) => item !== id)].slice(0, 10);
+      try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)); } catch { /* storage may be disabled */ }
+      return next;
+    });
+  }
+
+  protected emptyTitle(): string {
+    if (this.filter() === 'bookmarks') return 'No bookmarked courses yet';
+    if (this.filter() === 'recent') return 'Nothing viewed recently';
+    return 'No courses match this view';
+  }
+
+  protected emptyMessage(): string {
+    if (this.filter() === 'bookmarks') return 'Use the bookmark button on a course cover to save it here for later.';
+    if (this.filter() === 'recent') return 'Courses you open will appear here so you can pick them up again quickly.';
+    return 'Try another filter or clear your search. New courses appear here as soon as they are published.';
+  }
+
+  protected clearFilters(): void {
+    this.query.set('');
+    this.filter.set('all');
+  }
+
   protected trackLabel(course: CourseSummary): string {
     return course.milestone ? `${course.milestone.toUpperCase()} track` : 'Elective';
   }
@@ -109,5 +165,25 @@ export class TrainingListComponent implements OnInit {
   protected formatMinutes(minutes: number): string {
     const value = Math.max(0, Math.round(Number(minutes) || 0));
     return value >= 60 ? `${Math.floor(value / 60)}h ${value % 60}m` : `${value} min`;
+  }
+
+  private loadBookmarks(): Set<string> {
+    try {
+      const raw = localStorage.getItem(BOOKMARK_KEY);
+      const ids = raw ? JSON.parse(raw) as unknown : [];
+      return new Set(Array.isArray(ids) ? ids.map(String) : []);
+    } catch { return new Set(); }
+  }
+
+  private saveBookmarks(set: Set<string>): void {
+    try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify([...set])); } catch { /* storage may be disabled */ }
+  }
+
+  private loadRecent(): string[] {
+    try {
+      const raw = localStorage.getItem(RECENT_KEY);
+      const ids = raw ? JSON.parse(raw) as unknown : [];
+      return Array.isArray(ids) ? ids.map(String).slice(0, 10) : [];
+    } catch { return []; }
   }
 }

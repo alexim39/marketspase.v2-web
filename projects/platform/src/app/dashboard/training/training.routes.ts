@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { AcademyDashboardComponent } from './dashboard/academy-dashboard.component';
-import { TrainingLibraryComponent } from './library/training-library.component';
 import { TrainingAnalyticsComponent } from './analytics/training-analytics.component';
 import { TrainingListComponent } from './list/training-list.component';
 import { TrainingDetailComponent } from './detail/training-detail.component';
@@ -19,8 +18,8 @@ export const TrainingRoutes: Routes = [
   },
   {
     path: 'library',
-    component: TrainingLibraryComponent,
-    title: 'Training Library - Search and bookmarks',
+    redirectTo: 'courses',
+    pathMatch: 'full',
   },
   {
     path: 'analytics',

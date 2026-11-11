@@ -132,6 +132,7 @@ export class TrainingDetailComponent implements OnInit {
         next: (response) => {
           const course = response.data ?? null;
           this.course.set(course);
+          if (course) this.markRecent(course.id);
           const requested = lessonId && course?.lessons.some((lesson) => lesson.id === lessonId)
             ? lessonId
             : null;
@@ -332,5 +333,14 @@ export class TrainingDetailComponent implements OnInit {
     this.quizNotice.set(null);
     this.contentTab.set('lesson');
     this.answers.set(Array.from({ length: lesson?.quiz?.length ?? 0 }, () => -1));
+  }
+
+  private markRecent(courseId: string): void {
+    try {
+      const raw = localStorage.getItem('dp-library-recent');
+      const ids = raw ? JSON.parse(raw) as unknown : [];
+      const list = Array.isArray(ids) ? ids.map(String).filter((id) => id !== courseId) : [];
+      localStorage.setItem('dp-library-recent', JSON.stringify([courseId, ...list].slice(0, 10)));
+    } catch { /* storage may be disabled */ }
   }
 }

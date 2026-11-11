@@ -215,7 +215,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
             </div>
             <div class="quick-grid">
               <a routerLink="/dashboard/training"><mat-icon>school</mat-icon><span>Academy dashboard</span></a>
-              <a routerLink="/dashboard/training/library"><mat-icon>local_library</mat-icon><span>Library</span></a>
+              <a routerLink="/dashboard/training/courses"><mat-icon>menu_book</mat-icon><span>Courses & bookmarks</span></a>
               <a routerLink="/dashboard/training/tutorials"><mat-icon>smart_display</mat-icon><span>Tutorials</span></a>
               <a routerLink="/dashboard/training/analytics"><mat-icon>insights</mat-icon><span>Analytics</span></a>
             </div>
