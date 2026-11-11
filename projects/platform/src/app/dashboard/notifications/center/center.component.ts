@@ -34,13 +34,14 @@ const KIND_META: Record<string, { label: string; color: string; text: string }> 
   team: { label: 'Team', color: '#ffccbc', text: '#7a2e00' },
   system: { label: 'System', color: '#e0e0e0', text: '#424242' },
   marketing: { label: 'Marketing', color: '#e0e0e0', text: '#424242' },
+  birthday: { label: 'Birthday', color: '#f8bbd0', text: '#880e4f' },
 };
 
 type GroupKey = 'prospects' | 'community' | 'training' | 'goals' | 'team' | 'commissions' | 'system';
 
 const GROUP_OF: Record<string, GroupKey> = {
   followup: 'prospects', inactive: 'prospects', conversion: 'prospects', prospect: 'prospects', daily: 'prospects',
-  mention: 'community', community: 'community', recognition: 'community',
+  mention: 'community', community: 'community', recognition: 'community', birthday: 'community',
   training: 'training', progression: 'training',
   goals: 'goals',
   team: 'team', promotion: 'team',
@@ -63,7 +64,7 @@ const KIND_CLASS: Record<string, 'info' | 'warn' | 'ok' | 'purple' | 'bad' | 'ne
   mention: 'warn', prospect: 'info', daily: 'info', goals: 'ok',
   progression: 'ok', promotion: 'purple', commission: 'purple',
   training: 'info', community: 'warn', recognition: 'warn', team: 'warn',
-  system: 'neutral', marketing: 'neutral',
+  system: 'neutral', marketing: 'neutral', birthday: 'warn',
 };
 
 interface DayBucket { label: string; items: StoredNotificationItem[]; }

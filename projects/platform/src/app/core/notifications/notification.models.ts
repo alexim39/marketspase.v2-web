@@ -104,4 +104,5 @@ export const CATEGORY_LABELS: Record<string, string> = {
   progression: 'Progression',
   daily: 'Daily',
   marketing: 'Marketing',
+  birthday: 'Birthday',
 };

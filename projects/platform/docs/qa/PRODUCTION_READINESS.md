@@ -10,7 +10,7 @@ redeploy, the single-upline migration and the production PII keyring.
 | Area | Status |
 |---|---|
 | Platform production build | **Passes, warning-free** |
-| API test suite | **742 / 742 pass** (last verified 2026-11-11) |
+| API test suite | **748 / 748 pass** (last verified 2026-11-11) |
 | Web CI | **Green** on the latest web commit |
 | Cross-browser layout (Edge + WebKit) | **92 / 92 runs, 0 overflow** (2026-11-04 audit) |
 | Axe (authenticated, light/dark/mobile/desktop) | **68 scans, 0 violations** (2026-11-04 audit) |
