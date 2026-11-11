@@ -153,7 +153,7 @@ const TYPING_CLEAR_MS = 3500;
                     <span class="convo-main">
                       <span class="convo-top">
                         <strong>{{ c.name }}</strong>
-                        <span class="muted">{{ lastAt(c.messages) | date:'shortTime' }}</span>
+                        <span class="muted">{{ listStamp(lastAt(c.messages)) }}</span>
                       </span>
                       <span class="convo-sub">
                         <span class="muted convo-snippet">
@@ -365,7 +365,7 @@ const TYPING_CLEAR_MS = 3500;
                         @if (g.rankGroup) {
                           <span class="rank-badge">Official</span>
                         }
-                        <span class="muted">{{ groupLastAt(g) }}</span>
+                        <span class="muted">{{ listStamp(groupLastAt(g)) }}</span>
                       </span>
                       <span class="convo-sub">
                         <span class="muted convo-snippet">{{ groupSnippet(g) }}</span>
@@ -1520,6 +1520,34 @@ export class MessagesComponent implements OnInit {
   protected lastAt(messages: Message[]): string {
     const last = messages[messages.length - 1];
     return String(last?.createdAt ?? '');
+  }
+
+  /**
+   * Compact timestamp for conversation and group lists:
+   * today → time, yesterday → "Yesterday", this week → weekday,
+   * older → "11 Nov" or "11 Nov 2026".
+   */
+  protected listStamp(value: string | null | undefined): string {
+    const raw = String(value ?? '').trim();
+    if (!raw) return '';
+    const date = new Date(raw);
+    if (Number.isNaN(date.getTime())) return '';
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    const dayDiff = Math.round((startOfToday - startOfDate) / 86400000);
+    if (dayDiff === 0) {
+      return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true })
+        .replace(/\b(am|pm)\b/i, (m) => m.toUpperCase());
+    }
+    if (dayDiff === 1) return 'Yesterday';
+    if (dayDiff > 1 && dayDiff < 7) {
+      return date.toLocaleDateString(undefined, { weekday: 'short' });
+    }
+    if (date.getFullYear() === now.getFullYear()) {
+      return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+    }
+    return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
   /** Group an open thread into day sections for dividers. */
