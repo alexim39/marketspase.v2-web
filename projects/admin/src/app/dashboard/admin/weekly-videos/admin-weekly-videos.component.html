@@ -1,0 +1,367 @@
+<section class="breadcrumb-wrapper">
+  <div class="breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a> &gt;
+    <span>Admin</span> &gt;
+    <span>Weekly video</span>
+  </div>
+</section>
+
+<section class="weekly-admin">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Content &amp; engagement</p>
+      <h2>Weekly video</h2>
+      <p class="subtitle">
+        Publish one YouTube briefing each week. Members watch to 90%, share one reflection,
+        and keep their weekly commitment streak. Video files stay on YouTube; MarketSpase stores
+        only the verified link and engagement data.
+      </p>
+    </div>
+    @if (!showForm()) {
+      <button mat-flat-button color="primary" type="button" (click)="startNew()">
+        <mat-icon>add</mat-icon> New weekly video
+      </button>
+    }
+  </header>
+
+  @if (notice(); as note) {
+    <div class="alert ok" role="status"><mat-icon>check_circle</mat-icon><p>{{ note }}</p></div>
+  }
+  @if (error(); as err) {
+    <div class="alert error" role="alert">
+      <mat-icon>error_outline</mat-icon><p>{{ err }}</p>
+      <button mat-button type="button" (click)="reload()">Retry</button>
+    </div>
+  }
+
+  @if (showForm()) {
+    <form class="dp-card editor" [formGroup]="form" (ngSubmit)="save(form.controls.publishMode.value)">
+      <div class="editor-head">
+        <div>
+          <p class="eyebrow">{{ editingId() ? 'Edit weekly video' : 'New weekly video' }}</p>
+          <h3>{{ editingId() ? (editing()?.title || 'Weekly video') : 'Set this week’s briefing' }}</h3>
+          <p class="muted">The title and description are shown on the platform page and in the notification.</p>
+        </div>
+        <button mat-button type="button" (click)="cancelForm()" [disabled]="saving()">Close</button>
+      </div>
+
+      <div class="editor-grid">
+        <div class="fields">
+          <mat-form-field appearance="outline" class="span-2">
+            <mat-label>YouTube link</mat-label>
+            <input matInput formControlName="youtubeUrl" placeholder="https://www.youtube.com/watch?v=6poBPhfB-WY" />
+            <mat-hint>Watch, youtu.be, shorts, live and embed links are accepted.</mat-hint>
+            @if (form.controls.youtubeUrl.touched && form.controls.youtubeUrl.invalid) {
+              <mat-error>Paste a valid YouTube link</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="span-2">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" maxlength="120" placeholder="e.g. Lead with clarity this week" />
+            @if (form.controls.title.touched && form.controls.title.invalid) {
+              <mat-error>Give the video a title (3–120 characters)</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="span-2">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="4" maxlength="2000" placeholder="What is this week’s video about, and why should members watch it?"></textarea>
+            @if (form.controls.description.touched && form.controls.description.invalid) {
+              <mat-error>Write a description of at least 10 characters</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Week starting</mat-label>
+            <input matInput type="date" formControlName="weekStart" />
+            <mat-hint>Any date in the week is normalised to Monday.</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Duration (seconds)</mat-label>
+            <input matInput type="number" formControlName="durationSeconds" min="15" max="14400" />
+            <mat-hint>Use “Load preview” to auto-detect, or enter manually.</mat-hint>
+            @if (form.controls.durationSeconds.touched && form.controls.durationSeconds.invalid) {
+              <mat-error>Duration must be between 15 seconds and 4 hours</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Publish</mat-label>
+            <mat-select formControlName="publishMode">
+              <mat-option value="now">Publish now</mat-option>
+              <mat-option value="schedule">Schedule for Monday</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          @if (form.controls.publishMode.value === 'schedule') {
+            <mat-form-field appearance="outline">
+              <mat-label>Publish date &amp; time</mat-label>
+              <input matInput type="datetime-local" formControlName="publishAt" />
+              <mat-hint>Default is Monday 08:00 local time.</mat-hint>
+            </mat-form-field>
+          }
+        </div>
+
+        <aside class="preview-panel">
+          <div class="preview-head">
+            <div>
+              <p class="eyebrow">Preview</p>
+              <strong>{{ previewTitle() }}</strong>
+            </div>
+            <button mat-stroked-button type="button" (click)="loadPreview()" [disabled]="detecting() || !previewId()">
+              <mat-icon>smart_display</mat-icon> {{ detecting() ? 'Loading…' : 'Load preview' }}
+            </button>
+          </div>
+          <div class="preview-shell">
+            @if (previewId(); as id) {
+              <img class="preview-thumb" [src]="thumb(id)" alt="" aria-hidden="true" />
+              <div #previewHost class="preview-player"></div>
+            } @else {
+              <div class="preview-empty">
+                <mat-icon>play_circle_outline</mat-icon>
+                <span>Paste a YouTube link to preview the video and detect its duration.</span>
+              </div>
+            }
+          </div>
+          <p class="muted small">
+            The platform player is customised: no seek bar, only play/pause, mute, fullscreen and captions.
+            Watch time is verified by the server before reflections unlock.
+          </p>
+        </aside>
+      </div>
+
+      @if (formError(); as err) {
+        <div class="alert error" role="alert"><mat-icon>error_outline</mat-icon><p>{{ err }}</p></div>
+      }
+
+      <div class="form-actions">
+        <button mat-button type="button" (click)="cancelForm()" [disabled]="saving()">Cancel</button>
+        <span class="spacer"></span>
+        @if (!isPublished()) {
+          <button mat-stroked-button type="button" (click)="save('draft')" [disabled]="saving() || form.invalid">
+            {{ saving() ? 'Saving…' : 'Save draft' }}
+          </button>
+          <button mat-flat-button color="primary" type="button" (click)="save(form.controls.publishMode.value)" [disabled]="saving() || form.invalid">
+            <mat-icon>{{ form.controls.publishMode.value === 'schedule' ? 'schedule' : 'publish' }}</mat-icon>
+            {{ saving() ? 'Working…' : form.controls.publishMode.value === 'schedule' ? 'Schedule video' : 'Publish now' }}
+          </button>
+        } @else {
+          <button mat-flat-button color="primary" type="button" (click)="save('draft')" [disabled]="saving() || form.invalid">
+            {{ saving() ? 'Saving…' : 'Save changes' }}
+          </button>
+        }
+      </div>
+    </form>
+  }
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading weekly videos" />
+  }
+
+  @if (rows().length > 0) {
+    <div class="table-wrap">
+      <table mat-table [dataSource]="rows()" class="mat-elevation-z2">
+        <ng-container matColumnDef="week">
+          <th mat-header-cell *matHeaderCellDef>Week</th>
+          <td mat-cell *matCellDef="let row">
+            <strong>{{ row.weekLabel }}</strong>
+            <div class="muted small">{{ row.weekStart }}</div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="video">
+          <th mat-header-cell *matHeaderCellDef>Video</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="video-cell">
+              <img [src]="thumb(row.youtubeId)" [alt]="row.title" loading="lazy" />
+              <span>
+                <strong>{{ row.title }}</strong>
+                <small>{{ durationLabel(row.durationSeconds) }} · {{ row.youtubeId }}</small>
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let row">
+            <span [class]="'dp-status dp-status--' + statusTone(row.status)">{{ row.status }}</span>
+            @if (row.publishAt && row.status === 'scheduled') {
+              <div class="muted small">{{ row.publishAt | date:'MMM d, HH:mm' }}</div>
+            }
+            @if (row.publishedAt) {
+              <div class="muted small">{{ row.publishedAt | date:'MMM d, HH:mm' }}</div>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="delivery">
+          <th mat-header-cell *matHeaderCellDef>Notifications</th>
+          <td mat-cell *matCellDef="let row">
+            @if (row.status === 'published') {
+              <span class="delivery">{{ row.notificationCount ?? 0 }} sent</span>
+              @if ((row.notificationFailed ?? 0) > 0) {
+                <span class="delivery bad">{{ row.notificationFailed }} failed</span>
+              }
+              @if (row.notificationCapped) {
+                <span class="delivery warn">Capped</span>
+              }
+            } @else {
+              <span class="muted">—</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="engagement">
+          <th mat-header-cell *matHeaderCellDef>Engagement</th>
+          <td mat-cell *matCellDef="let row">
+            @if (row.status === 'published') {
+              <button mat-button type="button" (click)="toggleStats(row)">
+                {{ row.notificationCount ?? 0 }} notified · view stats
+              </button>
+            } @else {
+              <span class="muted">—</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="row-actions">
+              @if (canEdit(row)) {
+                <button mat-button type="button" (click)="startEdit(row)" [disabled]="busyId() === row.id">Edit</button>
+              }
+              @if (canPublish(row)) {
+                <button mat-button color="primary" type="button" (click)="publishNow(row)" [disabled]="busyId() === row.id">
+                  Publish now
+                </button>
+              }
+              @if (row.status === 'published' && ((row.notificationFailed ?? 0) > 0 || !row.notifiedAt)) {
+                <button mat-button type="button" (click)="retryNotify(row)" [disabled]="busyId() === row.id">Retry notify</button>
+              }
+              @if (row.status === 'published' || row.status === 'scheduled') {
+                @if (archiveConfirm() === row.id) {
+                  <button mat-button color="warn" type="button" (click)="archive(row)" [disabled]="busyId() === row.id">Confirm archive</button>
+                  <button mat-button type="button" (click)="archiveConfirm.set(null)">Keep</button>
+                } @else {
+                  <button mat-button color="warn" type="button" (click)="archive(row)" [disabled]="busyId() === row.id">Archive</button>
+                }
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+  } @else if (!loading() && !error()) {
+    <div class="state-card">
+      <mat-icon>smart_display</mat-icon>
+      <h3>No weekly videos yet</h3>
+      <p>Create the first briefing, preview the YouTube link, and schedule it for Monday.</p>
+      <button mat-flat-button color="primary" type="button" (click)="startNew()">Create first video</button>
+    </div>
+  }
+
+  @if (statsLoading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading engagement stats" />
+  }
+
+  @if (stats(); as data) {
+    <section class="dp-card stats-panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Engagement detail</p>
+          <h3>{{ data.video.title }}</h3>
+          <p class="muted">{{ data.video.weekLabel }} · {{ data.video.youtubeId }}</p>
+        </div>
+        <button mat-button type="button" (click)="selectedId.set(null); stats.set(null)">Close</button>
+      </div>
+
+      <div class="stat-grid">
+        <div><span>Notified</span><strong>{{ data.video.notificationCount ?? 0 }}</strong></div>
+        <div><span>Started</span><strong>{{ data.stats.started }}</strong></div>
+        <div><span>Watched to 90%</span><strong>{{ data.stats.completed }}</strong></div>
+        <div><span>Completion rate</span><strong [class]="'tone-' + completionTone(data.stats.completionRate)">{{ data.stats.completionRate | number:'1.0-1' }}%</strong></div>
+        <div><span>Reflections</span><strong>{{ data.stats.visibleComments }}</strong></div>
+      </div>
+
+      <h4>Participants</h4>
+      @if (data.participants.length === 0) {
+        <p class="muted">No one has started this video yet.</p>
+      } @else {
+        <div class="table-wrap inner">
+          <table mat-table [dataSource]="data.participants" class="mat-elevation-z1">
+            <ng-container matColumnDef="member">
+              <th mat-header-cell *matHeaderCellDef>Member</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="member-cell">
+                  <span class="avatar">{{ initials(row.author) }}</span>
+                  <span><strong>{{ authorName(row.author) }}</strong><small>@{{ row.author?.username || 'member' }}</small></span>
+                </div>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="watch">
+              <th mat-header-cell *matHeaderCellDef>Watch</th>
+              <td mat-cell *matCellDef="let row">{{ row.percent | number:'1.0-1' }}%</td>
+            </ng-container>
+            <ng-container matColumnDef="completed">
+              <th mat-header-cell *matHeaderCellDef>Completed</th>
+              <td mat-cell *matCellDef="let row">
+                <span [class]="'dp-status ' + (row.completed ? 'dp-status--ok' : 'dp-status--neutral')">{{ row.completed ? 'Yes' : 'No' }}</span>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="reflection">
+              <th mat-header-cell *matHeaderCellDef>Reflection</th>
+              <td mat-cell *matCellDef="let row">{{ row.reflectionAt ? 'Submitted' : 'Pending' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="lastSeen">
+              <th mat-header-cell *matHeaderCellDef>Last heartbeat</th>
+              <td mat-cell *matCellDef="let row">{{ row.lastHeartbeatAt ? (row.lastHeartbeatAt | date:'MMM d, HH:mm') : '—' }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="participantColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: participantColumns"></tr>
+          </table>
+        </div>
+      }
+
+      <h4>Reflections</h4>
+      @if (data.comments.items.length === 0) {
+        <p class="muted">No reflections yet.</p>
+      } @else {
+        <div class="table-wrap inner">
+          <table mat-table [dataSource]="data.comments.items" class="mat-elevation-z1">
+            <ng-container matColumnDef="author">
+              <th mat-header-cell *matHeaderCellDef>Member</th>
+              <td mat-cell *matCellDef="let row">{{ authorName(row.author) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="reflection">
+              <th mat-header-cell *matHeaderCellDef>Reflection</th>
+              <td mat-cell *matCellDef="let row" class="reflection-cell">{{ row.body }}</td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let row">
+                <span [class]="'dp-status ' + (row.status === 'visible' ? 'dp-status--ok' : 'dp-status--neutral')">{{ row.status }}</span>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef>Action</th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-button type="button" (click)="toggleComment(row)" [disabled]="busyId() === row.id">
+                  {{ row.status === 'visible' ? 'Hide' : 'Restore' }}
+                </button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="commentColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: commentColumns"></tr>
+          </table>
+        </div>
+      }
+    </section>
+  }
+</section>

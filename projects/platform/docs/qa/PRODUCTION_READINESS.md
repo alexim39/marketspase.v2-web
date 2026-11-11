@@ -1,4 +1,4 @@
-# Production Readiness Audit — 2026-11-04 (updated 2026-11-11)
+# Production Readiness Audit ï¿½ 2026-11-04 (updated 2026-11-11)
 
 Scope: deployment configuration, production API connectivity, payment hooks, email
 links, font/PWA dependencies and cross-browser behavior. Code-side fixes are listed
@@ -10,17 +10,18 @@ redeploy, the single-upline migration and the production PII keyring.
 | Area | Status |
 |---|---|
 | Platform production build | **Passes, warning-free** |
-| API test suite | **738 / 738 pass** (last verified 2026-11-11) |
+| API test suite | **755 / 755 pass** (last verified 2026-11-11) |
 | Web CI | **Green** on the latest web commit |
 | Cross-browser layout (Edge + WebKit) | **92 / 92 runs, 0 overflow** (2026-11-04 audit) |
 | Axe (authenticated, light/dark/mobile/desktop) | **68 scans, 0 violations** (2026-11-04 audit) |
-| Live API reachable | **Verify after deploy** — `https://marketspasev2api-p3jkxlvy.back4.app/health` should return **200** |
+| Live API reachable | **Verify after deploy** ï¿½ `https://marketspasev2api-p3jkxlvy.back4.app/health` should return **200** |
 | Live API CORS for `marketspase.com` | **Verify after deploy** (see below) |
 | Single-upline migration | **Not yet run in production** |
 | Production PII keyring | **Not yet configured/verified** |
 | Production env checklist | Documented below; values live in the host dashboard |
+| Weekly video | YouTube embeds only (no video files stored); verify embed playback and `WEEKLY_VIDEO_*` env after deploy |
 
-## Critical — production API host
+## Critical ï¿½ production API host
 
 The production API host is `https://marketspasev2api-p3jkxlvy.back4.app`.
 The previous host is retired and must not be used.
@@ -82,20 +83,20 @@ Set these in the API host dashboard before switching traffic:
 - `PUBLIC_SITE_URL=https://marketspase.com`
 - `EXTRA_CORS_ORIGINS=https://marketspase.com,https://www.marketspase.com`
 - `EMAIL_HOST=marketspase.com`, `EMAIL_PORT=465`, `EMAIL_SECURE=true`,
-  `EMAIL_USER=noreply@marketspase.com`, `EMAIL_PASS=…`, `EMAIL_FROM_EMAIL=…`
-- `PAYSTACKTOKEN=…` (hosted deposits, verification, bank directory + account-name resolution)
-- `PAYSTACK_PUBLIC_KEY=…` (optional; hosted checkout does not expose it)
+  `EMAIL_USER=noreply@marketspase.com`, `EMAIL_PASS=ï¿½`, `EMAIL_FROM_EMAIL=ï¿½`
+- `PAYSTACKTOKEN=ï¿½` (hosted deposits, verification, bank directory + account-name resolution)
+- `PAYSTACK_PUBLIC_KEY=ï¿½` (optional; hosted checkout does not expose it)
 - `PAYSTACK_AUTO_PAYOUT=true` (automatic transfers; set `false` for the manual queue kill switch)
 - Paystack webhook URL: `https://<api-host>/v1/billing/paystack/webhook`,
   subscribed to `charge.success`, `transfer.success`, `transfer.failed` and
-  `transfer.reversed` — see `platform/docs/payments/PAYSTACK.md`
+  `transfer.reversed` ï¿½ see `platform/docs/payments/PAYSTACK.md`
 - Paystack account: **Transfers enabled**, **transfer OTP disabled**, **balance funded**
 - `OPAY_MODE=live`, `OPAY_LIVE_PUBLIC_KEY`, `OPAY_LIVE_PRIVATE_KEY`,
   `OPAY_MERCHANT_ID`, `OPAY_CALLBACK_URL`, `OPAY_RETURN_URL`
 - `CLOUDINARY_*`
 - `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`
 - `DEEPSEEK_API_KEY` if Ora is enabled; `ORA_DAILY_LIMIT=25`
-- `SMS_PROVIDER=http`, `BULKSMS_API_TOKEN=…`, `BULKSMS_SENDER_ID=marketspase`
+- `SMS_PROVIDER=http`, `BULKSMS_API_TOKEN=ï¿½`, `BULKSMS_SENDER_ID=marketspase`
 
 ## Deploy sequence
 
@@ -117,7 +118,7 @@ Set these in the API host dashboard before switching traffic:
 9. Verify the money path without charging:
    - deposit methods show Paystack enabled;
    - `GET /v1/billing/banks` returns the live bank list;
-   - an invalid account returns the friendly “could not verify” message;
+   - an invalid account returns the friendly ï¿½could not verifyï¿½ message;
    - a bad webhook signature returns **400**;
    - the deposit page hands off to `checkout.paystack.com` (abandon the checkout).
 10. Run one withdrawal with a real Nigerian bank account the business controls and
@@ -131,7 +132,7 @@ Set these in the API host dashboard before switching traffic:
 - The API runs on Back4App at `https://marketspasev2api-p3jkxlvy.back4.app`.
 - `push-sw.js` caches the app shell; its cache name is versioned (`ms-shell-v1`) and
   navigation is network-first, so a deploy refreshes the shell.
-- After changing `styles`/`assets` in `angular.json`, restart `ng serve` — HMR does
+- After changing `styles`/`assets` in `angular.json`, restart `ng serve` ï¿½ HMR does
   not reload builder configuration. A stale dev server will serve the old CSS while
   the updated `index.html` no longer has the Google Fonts link, which makes icons
   disappear until the server is restarted.

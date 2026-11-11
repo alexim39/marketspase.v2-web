@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-04  
 **Scope:** single shell, public site, hub pages, cleanup regressions.  
-**Status (2026-11-09):** historical QA snapshot from 2026-11-04. Route names have since changed: partner "page leads"/`personal-list` ? **Customer Leads**; Buy Prospect is retired; the personal lead page is `/lead/<username>`. Partner bulk SMS/email outreach, contact analytics, team reports, contact lists, cell meetings, coaching notes, partner surveys, the admin Page Leads desk, session bookings and presentation kits were retired on 2026-11-09. Current API suite: 738 tests. Treat counts and route lists below as of the QA date.
+**Status (2026-11-09):** historical QA snapshot from 2026-11-04. Route names have since changed: partner "page leads"/`personal-list` ? **Customer Leads**; Buy Prospect is retired; the personal lead page is `/lead/<username>`. Partner bulk SMS/email outreach, contact analytics, team reports, contact lists, cell meetings, coaching notes, partner surveys, the admin Page Leads desk, session bookings and presentation kits were retired on 2026-11-09. Current API suite: 755 tests. Treat counts and route lists below as of the QA date.
 **Method:** production build, public browser probes, axe-core, static reference scans, orphan-component scan.
 
 ---

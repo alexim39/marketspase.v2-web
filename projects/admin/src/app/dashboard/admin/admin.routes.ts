@@ -156,6 +156,11 @@ export const AdminRoutes: Routes = [
     title: 'Tutorials - MarketSpase Admin',
   },
   {
+    path: 'weekly-videos',
+    loadComponent: () => import('./weekly-videos/admin-weekly-videos.component').then((r) => r.AdminWeeklyVideosComponent),
+    title: 'Weekly video - MarketSpase Admin',
+  },
+  {
     path: 'settings',
     component: AdminSettingsComponent,
     title: 'Platform settings - MarketSpase Admin',

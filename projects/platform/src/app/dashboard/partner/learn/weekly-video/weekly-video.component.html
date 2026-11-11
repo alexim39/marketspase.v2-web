@@ -1,0 +1,306 @@
+<section class="weekly-page">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <span>/</span>
+    <a routerLink="/dashboard/learn">Learn</a>
+    <span>/</span>
+    <span>Video of the week</span>
+  </nav>
+
+  @if (loading()) {
+    <async-page-skeleton layout="dashboard" [rows]="3" label="weekly video" [showHeader]="false" />
+  } @else if (error()) {
+    <div class="state-card">
+      <mat-icon>error_outline</mat-icon>
+      <h1>We could not load the weekly video</h1>
+      <p>{{ error() }}</p>
+      <button mat-flat-button color="primary" type="button" (click)="retry()">Try again</button>
+      <a mat-button routerLink="/dashboard/learn">Back to Learn</a>
+    </div>
+  } @else if (video(); as v) {
+    <header class="hero">
+      <div class="hero-copy">
+        <div class="hero-topline">
+          <p class="eyebrow">{{ isCurrentWeek() ? 'This week’s briefing' : 'Weekly briefing' }}</p>
+          <span class="week-chip">{{ v.weekLabel }}</span>
+          <span [class]="'status-chip ' + (weekCommitted() ? 'status-chip--done' : progress()?.completed ? 'status-chip--warm' : 'status-chip--idle')">
+            {{ statusLabel() }}
+          </span>
+        </div>
+        <h1>{{ v.title }}</h1>
+        <p class="hero-description">{{ v.description }}</p>
+        <div class="hero-meta">
+          <span><mat-icon>calendar_today</mat-icon>{{ v.publishedAt ? (v.publishedAt | date:'mediumDate') : 'This week' }}</span>
+          <span><mat-icon>schedule</mat-icon>{{ formatDuration(v.durationSeconds) }}</span>
+          <span><mat-icon>verified</mat-icon>{{ engagement()?.completionPercent ?? 90 }}% watch to unlock</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="weekly-layout">
+      <main class="main">
+        <section class="player-card" aria-label="Weekly video player">
+          <div class="player-frame" [class.player-frame--active]="playerState() !== 'idle'">
+            <div #playerHost class="player-host"></div>
+
+            @if (playerState() === 'idle') {
+              <button type="button" class="player-facade" (click)="startVideo()" [disabled]="actionBusy()">
+                <img [src]="v.thumbnailUrl" [alt]="v.title">
+                <span class="facade-shade" aria-hidden="true"></span>
+                <span class="play-orb" aria-hidden="true"><mat-icon>play_arrow</mat-icon></span>
+                <span class="facade-copy">
+                  <strong>{{ actionBusy() ? 'Preparing your player…' : 'Watch this week’s briefing' }}</strong>
+                  <small>{{ formatDuration(v.durationSeconds) }} · watch {{ engagement()?.completionPercent ?? 90 }}% to unlock reflection</small>
+                </span>
+              </button>
+            }
+
+            @if (playerState() === 'starting') {
+              <div class="player-message">
+                <mat-icon>hourglass_top</mat-icon>
+                <strong>Preparing your player…</strong>
+                <span>Your verified watch session is being created.</span>
+              </div>
+            }
+
+            @if (playerState() === 'error') {
+              <div class="player-message player-message--error">
+                <mat-icon>error_outline</mat-icon>
+                <strong>This video could not play</strong>
+                <span>{{ playerError() }}</span>
+                <button mat-stroked-button type="button" (click)="startVideo()" style="color:#fff">Try again</button>
+              </div>
+            }
+
+            @if (ended()) {
+              <div class="player-message ended-overlay">
+                <mat-icon>{{ progress()?.completed ? 'verified' : 'replay' }}</mat-icon>
+                <strong>{{ progress()?.completed ? 'Briefing complete' : 'Keep going' }}</strong>
+                <span>{{ progress()?.completed ? 'Your reflection is unlocked below.' : 'Replay the video to reach the verified threshold.' }}</span>
+                <div class="ended-actions">
+                  <button mat-flat-button color="primary" type="button" (click)="replay()">Replay</button>
+                  @if (progress()?.completed) {
+                    <a mat-stroked-button routerLink="." fragment="reflection" style="color:#fff">Write reflection</a>
+                  }
+                </div>
+              </div>
+            }
+
+            <span class="watch-chip" [class.watch-chip--done]="progress()?.completed">
+              <mat-icon>{{ progress()?.completed ? 'verified' : 'visibility' }}</mat-icon>
+              {{ progress()?.completed ? 'Verified' : (verifiedPercent() | number:'1.0-0') + '% verified' }}
+            </span>
+          </div>
+
+          <div class="player-controls">
+            <button mat-icon-button type="button" (click)="togglePlay()" [disabled]="!playerActive()" [attr.aria-label]="playing() ? 'Pause video' : 'Play video'">
+              <mat-icon>{{ playing() ? 'pause' : 'play_arrow' }}</mat-icon>
+            </button>
+            <button mat-icon-button type="button" (click)="toggleMute()" [disabled]="!playerActive()" [attr.aria-label]="muted() ? 'Unmute video' : 'Mute video'">
+              <mat-icon>{{ muted() ? 'volume_off' : 'volume_up' }}</mat-icon>
+            </button>
+            <button mat-icon-button type="button" (click)="toggleCaptions()" [disabled]="!playerActive()" aria-label="Toggle captions">
+              <span class="cc-label">CC</span>
+            </button>
+            <div class="control-progress">
+              <mat-progress-bar mode="determinate" [value]="verifiedPercent()" [attr.aria-label]="'Verified watch progress: ' + (verifiedPercent() | number:'1.0-0') + '%'" />
+              <span>{{ verifiedPercent() | number:'1.0-0' }}%</span>
+            </div>
+            <button mat-icon-button type="button" (click)="toggleFullscreen()" [disabled]="!playerActive()" aria-label="Fullscreen">
+              <mat-icon>fullscreen</mat-icon>
+            </button>
+          </div>
+          @if (heartbeatError()) {
+            <p class="inline-error" role="status">{{ heartbeatError() }}</p>
+          }
+          <p class="player-note">
+            The player has no seek bar. If you pause, leave the page or hide the tab, verified progress stops.
+            Your place is saved when you return.
+          </p>
+        </section>
+
+        <section class="progress-card">
+          <div class="progress-head">
+            <div>
+              <p class="eyebrow">Verified watch</p>
+              <h2>{{ verifiedPercent() | number:'1.0-0' }}% complete</h2>
+            </div>
+            <span [class]="'unlock-chip ' + (progress()?.completed ? 'unlock-chip--done' : '')">
+              <mat-icon>{{ progress()?.completed ? 'lock_open' : 'lock' }}</mat-icon>
+              {{ progress()?.completed ? 'Reflection unlocked' : remainingPercent() + '% more to unlock' }}
+            </span>
+          </div>
+          <mat-progress-bar mode="determinate" [value]="verifiedPercent()" />
+          @if (!progress()?.completed) {
+            <p class="muted">Keep the video playing in this tab. Seeking or leaving the page does not count toward the {{ engagement()?.completionPercent ?? 90 }}% requirement.</p>
+          } @else {
+            <p class="muted">You have completed the watch requirement. Share one lesson below to complete the week.</p>
+          }
+        </section>
+
+        <section id="reflection" class="reflection-card">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Your reflection</p>
+              <h2>What did you learn?</h2>
+            </div>
+            <span [class]="'pill ' + (reflection() ? 'pill--ok' : progress()?.completed ? 'pill--warm' : 'pill--muted')">
+              {{ reflection() ? 'Submitted' : progress()?.completed ? 'Ready' : 'Locked' }}
+            </span>
+          </div>
+
+          @if (!progress()?.completed) {
+            <div class="locked-panel">
+              <mat-icon>lock</mat-icon>
+              <div>
+                <strong>Your reflection unlocks after {{ engagement()?.completionPercent ?? 90 }}% watched</strong>
+                <p>You are at {{ verifiedPercent() | number:'1.0-0' }}%. Keep watching — the form will open automatically.</p>
+              </div>
+            </div>
+          } @else if (reflection() && !editingReflection()) {
+            <article class="own-reflection">
+              <div class="reflection-author">
+                <span class="avatar">{{ (reflection()?.author?.name || 'Y').slice(0, 1).toUpperCase() }}</span>
+                <span><strong>You</strong><small>{{ reflection()?.createdAt | date:'mediumDate' }}</small></span>
+              </div>
+              <p>{{ reflection()?.body }}</p>
+              @if (reflectionNotice()) { <p class="inline-success" role="status">{{ reflectionNotice() }}</p> }
+              <button mat-stroked-button type="button" (click)="editReflection()">Edit reflection</button>
+            </article>
+          } @else {
+            <div class="reflection-form">
+              <label for="weekly-reflection">One lesson from this week’s video</label>
+              <textarea
+                id="weekly-reflection"
+                rows="5"
+                maxlength="1000"
+                placeholder="What did you learn? What will you do differently this week?"
+                [value]="reflectionText()"
+                (input)="reflectionText.set($any($event.target).value)"
+              ></textarea>
+              <div class="reflection-form-foot">
+                <span class="muted">{{ reflectionText().trim().length }}/1000 · at least 20 characters</span>
+                <span class="spacer"></span>
+                @if (editingReflection()) {
+                  <button mat-button type="button" (click)="cancelEditReflection()" [disabled]="reflectionSaving()">Cancel</button>
+                }
+                <button mat-flat-button color="primary" type="button" (click)="submitReflection()" [disabled]="reflectionSaving() || !reflectionReady()">
+                  {{ reflectionSaving() ? 'Saving…' : 'Save reflection' }}
+                </button>
+              </div>
+              @if (reflectionError()) { <p class="inline-error" role="alert">{{ reflectionError() }}</p> }
+              @if (reflectionNotice()) { <p class="inline-success" role="status">{{ reflectionNotice() }}</p> }
+            </div>
+          }
+        </section>
+
+        <section class="comments-card">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Community</p>
+              <h2>Reflections from the team</h2>
+            </div>
+            <span class="count-chip">{{ reflectionCountLabel() }}</span>
+          </div>
+
+          @if (!progress()?.completed) {
+            <div class="locked-panel">
+              <mat-icon>forum</mat-icon>
+              <div>
+                <strong>{{ reflectionCountLabel() }} waiting after you finish</strong>
+                <p>Reflections are hidden until you complete the watch, so everyone writes their own lesson first.</p>
+              </div>
+            </div>
+          } @else if (commentsLoading()) {
+            <mat-progress-bar mode="indeterminate" aria-label="Loading reflections" />
+          } @else if (comments().length === 0) {
+            <div class="empty-comments">
+              <mat-icon>edit_note</mat-icon>
+              <p>No reflections yet. Write the first one above.</p>
+            </div>
+          } @else {
+            <div class="reflection-list">
+              @for (item of comments(); track item.id) {
+                <article class="reflection-item">
+                  <span class="avatar">{{ initials(item) }}</span>
+                  <div class="reflection-body">
+                    <div class="reflection-meta">
+                      <strong>{{ authorName(item) }}</strong>
+                      @if (item.author?.commissionRank) { <span class="rank">{{ item.author?.commissionRank }}</span> }
+                      <time>{{ item.createdAt | date:'mediumDate' }}</time>
+                    </div>
+                    <p>{{ item.body }}</p>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+      </main>
+
+      <aside class="side">
+        <section class="commitment-card">
+          <p class="eyebrow">This week’s commitment</p>
+          <h2>{{ weekCommitted() ? 'Week complete' : statusLabel() }}</h2>
+          <ul class="checklist">
+            <li [class.done]="progress()?.completed"><mat-icon>{{ progress()?.completed ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon><span>Watch {{ engagement()?.completionPercent ?? 90 }}% of the briefing</span></li>
+            <li [class.done]="!!reflection()"><mat-icon>{{ reflection() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon><span>Share one lesson you learned</span></li>
+            <li [class.done]="weekCommitted()"><mat-icon>{{ weekCommitted() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon><span>Complete the week</span></li>
+          </ul>
+          <div class="streak-card">
+            <mat-icon>local_fire_department</mat-icon>
+            <div>
+              <strong>{{ engagement()?.currentStreak ?? 0 }}-week streak</strong>
+              <span>{{ engagement()?.totalCompleted ?? 0 }} completed · {{ engagement()?.completionRate ?? 0 }}% rate</span>
+            </div>
+          </div>
+          @if (isCurrentWeek() && engagement()?.currentWeekPending) {
+            <p class="hint">Complete this briefing before the next one lands to keep the streak alive.</p>
+          }
+          @if (!isCurrentWeek()) {
+            <p class="hint">You are viewing an earlier week. Watching it now is great learning, but it does not repair a missed weekly streak.</p>
+          }
+        </section>
+
+        <section class="why-card">
+          <p class="eyebrow">Why this matters</p>
+          <h3>One purpose. One lesson. One week.</h3>
+          <p>The weekly briefing gives every partner the same focus and the same language. Watch it, write down one lesson, and use it in your next conversation.</p>
+        </section>
+
+        <section class="archive-card">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Archive</p>
+              <h2>Past weeks</h2>
+            </div>
+            <button mat-button type="button" (click)="goCurrent()">Current</button>
+          </div>
+          @if (pastVideos().length === 0) {
+            <p class="muted">Past briefings will appear here.</p>
+          } @else {
+            <div class="archive-list">
+              @for (item of pastVideos(); track item.id) {
+                <button type="button" class="archive-item" (click)="selectHistory(item)">
+                  <img [src]="item.thumbnailUrl" [alt]="item.title" loading="lazy">
+                  <span class="archive-copy">
+                    <small>{{ item.weekLabel }}</small>
+                    <strong>{{ item.title }}</strong>
+                    <span [class]="'archive-status archive-status--' + historyTone(item)">{{ historyStatus(item) }}</span>
+                  </span>
+                </button>
+              }
+            </div>
+          }
+        </section>
+      </aside>
+    </div>
+  } @else {
+    <div class="state-card">
+      <mat-icon>smart_display</mat-icon>
+      <h1>This week’s video is on the way</h1>
+      <p>The next weekly briefing will appear here on Monday. Check back then.</p>
+      <a mat-flat-button color="primary" routerLink="/dashboard/learn">Back to Learn</a>
+    </div>
+  }
+</section>

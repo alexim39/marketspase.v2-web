@@ -21,6 +21,8 @@ import { GoalService } from '../../../core/goals/goal.service';
 import { Goal, GOAL_KIND_LABELS } from '../../../core/goals/goal.models';
 import { TrainingService } from '../../../core/training/training.service';
 import { CourseSummary } from '../../../core/training/training.models';
+import { WeeklyVideoService } from '../../../core/weekly-video/weekly-video.service';
+import { CurrentWeeklyVideo } from '../../../core/weekly-video/weekly-video.models';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ApiError, userError } from '../../../core/http/api-error';
 
@@ -63,6 +65,23 @@ import { ApiError, userError } from '../../../core/http/api-error';
           <p>{{ err }}</p>
           <button mat-button type="button" (click)="reload()">Retry</button>
         </div>
+      }
+
+      @if (weeklyVideo(); as weekly) {
+        @if (weekly.video; as video) {
+          <a class="weekly-card" routerLink="/dashboard/learn/video-of-the-week">
+            <span class="weekly-icon"><mat-icon>smart_display</mat-icon></span>
+            <span class="weekly-copy">
+              <span class="eyebrow">Video of the week</span>
+              <strong>{{ video.title }}</strong>
+              <small>{{ video.weekLabel }} · {{ weekly.engagement.currentStreak }}-week streak · {{ weekly.progress?.completed ? (weekly.reflection ? 'Week complete' : 'Reflection pending') : 'Watch this week’s briefing' }}</small>
+            </span>
+            <span class="weekly-action">
+              {{ weekly.progress?.completed ? (weekly.reflection ? 'View' : 'Write reflection') : 'Watch now' }}
+              <mat-icon>arrow_forward</mat-icon>
+            </span>
+          </a>
+        }
       }
 
       <div class="metrics">
@@ -213,6 +232,15 @@ import { ApiError, userError } from '../../../core/http/api-error';
     .head-actions { display: flex; gap: 8px; flex-wrap: wrap; flex: none; }
     .eyebrow { margin: 0; color: var(--ms-primary-strong); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
     .muted { color: var(--ms-text-muted); }
+    .weekly-card { display: flex; align-items: center; gap: 12px; padding: 13px 15px; border: 1px solid color-mix(in srgb, var(--ms-primary) 24%, var(--ms-line)); border-radius: var(--ms-radius-lg); background: linear-gradient(120deg, var(--ms-primary-soft), var(--ms-surface) 62%); color: var(--ms-text); text-decoration: none; box-shadow: var(--ms-shadow-sm); }
+    .weekly-card:hover { border-color: var(--ms-primary); transform: translateY(-1px); }
+    .weekly-icon { width: 42px; height: 42px; flex: none; display: grid; place-items: center; border-radius: 12px; background: var(--ms-primary); color: #fff; }
+    .weekly-icon mat-icon { font-size: 25px; width: 25px; height: 25px; }
+    .weekly-copy { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+    .weekly-copy strong { font-size: .98rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .weekly-copy small { color: var(--ms-text-muted); font-size: .78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .weekly-action { display: inline-flex; align-items: center; gap: 2px; flex: none; color: var(--ms-primary-strong); font-size: .8rem; font-weight: 800; }
+    .weekly-action mat-icon { font-size: 17px; width: 17px; height: 17px; }
     .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
     .metric { background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-md); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; }
     .metric > span:first-child { color: var(--ms-text-muted); font-size: 0.72em; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -265,6 +293,7 @@ export class LearnHubComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly goalsSvc = inject(GoalService);
   private readonly training = inject(TrainingService);
+  private readonly weeklyVideos = inject(WeeklyVideoService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -272,6 +301,7 @@ export class LearnHubComponent implements OnInit {
   protected readonly journey = signal<Journey | null>(null);
   protected readonly goals = signal<Goal[]>([]);
   protected readonly courses = signal<CourseSummary[]>([]);
+  protected readonly weeklyVideo = signal<CurrentWeeklyVideo | null>(null);
 
   protected readonly currentRank = computed<AppRank>(() =>
     ((this.journey()?.levelLabel ?? this.auth.currentUser()?.commissionRank) as AppRank | undefined) ?? 'Partner');
@@ -320,14 +350,16 @@ export class LearnHubComponent implements OnInit {
       journey: this.progression.mine().pipe(catchError(() => of(null))),
       goals: this.goalsSvc.mine().pipe(catchError(() => of(null))),
       courses: this.training.courses().pipe(catchError(() => of(null))),
+      weekly: this.weeklyVideos.current().pipe(catchError(() => of(null))),
     }).pipe(
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.loading.set(false)),
     ).subscribe({
-      next: ({ journey, goals, courses }) => {
+      next: ({ journey, goals, courses, weekly }) => {
         this.journey.set(journey?.data ?? null);
         this.goals.set(goals?.data ?? []);
         this.courses.set(courses?.data ?? []);
+        this.weeklyVideo.set(weekly?.data ?? null);
       },
       error: (err: ApiError) => this.error.set(userError(err)),
     });

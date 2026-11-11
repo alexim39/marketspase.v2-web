@@ -130,6 +130,7 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
     title: 'Academy and progress',
     link: '/dashboard/learn',
     children: [
+      { label: 'Video of the week', link: '/dashboard/learn/video-of-the-week', title: 'Weekly briefing and reflection' },
       { label: 'Progress', link: '/dashboard/progress', title: 'Level journey' },
       { label: 'Goals', link: '/dashboard/goals', title: 'Goals' },
       { label: 'Courses', link: '/dashboard/training/courses', title: 'Courses' },

@@ -95,6 +95,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     icon: 'settings',
     children: [
       { label: 'Training quizzes', link: '/training-quizzes', icon: 'quiz' },
+      { label: 'Weekly video', link: '/weekly-videos', icon: 'smart_display' },
       { label: 'Tutorials', link: '/tutorials', icon: 'smart_display' },
       { label: 'Platform settings', link: '/settings', icon: 'tune' },
     ],
