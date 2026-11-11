@@ -86,7 +86,8 @@ Set these in the API host dashboard before switching traffic:
   `EMAIL_USER=noreply@marketspase.com`, `EMAIL_PASS=�`, `EMAIL_FROM_EMAIL=�`
 - `PAYSTACKTOKEN=�` (hosted deposits, verification, bank directory + account-name resolution)
 - `PAYSTACK_PUBLIC_KEY=�` (optional; hosted checkout does not expose it)
-- `PAYSTACK_AUTO_PAYOUT=true` (automatic transfers; set `false` for the manual queue kill switch)
+- `PAYSTACK_AUTO_PAYOUT` is retired and ignored. Withdrawals are automatic-only;
+  failures refund the wallet instead of entering an admin queue
 - Paystack webhook URL: `https://<api-host>/v1/billing/paystack/webhook`,
   subscribed to `charge.success`, `transfer.success`, `transfer.failed` and
   `transfer.reversed` � see `platform/docs/payments/PAYSTACK.md`

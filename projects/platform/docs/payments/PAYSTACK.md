@@ -33,9 +33,9 @@ PAYSTACKTOKEN=sk_live_…
 # Optional. The hosted-checkout flow does not use it.
 PAYSTACK_PUBLIC_KEY=pk_live_…
 
-# Automatic payouts are on by default. Set false to fall back to the manual
-# admin-review queue (incident kill switch).
-PAYSTACK_AUTO_PAYOUT=true
+# Automatic payouts are mandatory: there is no manual review queue. A failed
+# automatic payout refunds the wallet and asks the partner to retry.
+# (The retired PAYSTACK_AUTO_PAYOUT flag is ignored.)
 
 # Used to build the checkout return URL.
 FRONTEND_URL=https://marketspase.com
