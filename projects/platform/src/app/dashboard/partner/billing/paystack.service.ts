@@ -26,11 +26,26 @@ export interface ResolvedAccount {
   accountNumber: string;
 }
 
+export interface SavedWithdrawalAccount {
+  bankCode: string;
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
+  accountLast4: string;
+  savedAt?: string | null;
+}
+
+export interface SavedWithdrawalAccountResult {
+  saved: boolean;
+  account: SavedWithdrawalAccount | null;
+}
+
 export interface WithdrawalRequest {
   bankCode: string;
   bankName: string;
   accountNumber: string;
   amountNgn: number;
+  saveAccount?: boolean;
 }
 
 export interface WithdrawalResult {
@@ -121,5 +136,15 @@ export class PaystackService {
         { withCredentials: true },
       )
       .pipe(map((res) => res.data));
+  }
+
+  /** Owner-scoped saved payout destination for the withdrawal dialog. */
+  savedWithdrawalAccount(): Observable<SavedWithdrawalAccountResult> {
+    return this.http
+      .get<{ data: SavedWithdrawalAccountResult }>(
+        this.apiURL + '/v1/billing/withdrawal-account',
+        { withCredentials: true },
+      )
+      .pipe(map((res) => res.data), catchError(this.handleError));
   }
 }

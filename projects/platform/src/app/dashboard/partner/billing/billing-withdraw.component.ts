@@ -10,11 +10,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { PartnerInterface } from '../../../_common/services/partner.service';
 import { formatMoney } from '../../../core/format/money';
 import { userError } from '../../../core/http/api-error';
 import { UiFeedbackService } from '../../../core/ui/ui-feedback.service';
-import { BankOption, PaystackService, ResolvedAccount } from './paystack.service';
+import { BankOption, PaystackService, ResolvedAccount, SavedWithdrawalAccount } from './paystack.service';
 
 /**
  * Modern withdrawal dialog.
@@ -36,6 +37,7 @@ import { BankOption, PaystackService, ResolvedAccount } from './paystack.service
     MatIconModule,
     MatInputModule,
     MatProgressBarModule,
+    MatSlideToggleModule,
   ],
   template: `
     <div class="withdraw-dialog">
@@ -116,6 +118,21 @@ import { BankOption, PaystackService, ResolvedAccount } from './paystack.service
             <p class="error" role="alert">{{ lookupError }}</p>
           }
 
+          <div class="save-toggle">
+            <mat-slide-toggle [checked]="saveAccount()" (change)="saveAccount.set($any($event).checked)">
+              Save this account for future withdrawals
+            </mat-slide-toggle>
+            <p class="toggle-hint">
+              @if (savedAccountLoaded()) {
+                Loaded from your saved payout account. Turn this off and submit to remove it.
+              } @else if (saveAccount()) {
+                Your bank and account number will be filled in automatically next time.
+              } @else {
+                This account will not be saved after this withdrawal.
+              }
+            </p>
+          </div>
+
           <mat-form-field appearance="outline">
             <mat-label>Amount</mat-label>
             <span matTextPrefix>₦</span>
@@ -179,6 +196,9 @@ import { BankOption, PaystackService, ResolvedAccount } from './paystack.service
     .resolved div { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
     .resolved strong { font-size: 0.95em; overflow-wrap: anywhere; }
     .resolved span { font-size: 0.8em; opacity: 0.85; }
+    .save-toggle { display: flex; flex-direction: column; gap: 0.2em; margin: 0.1em 0 0.9em; padding: 0.55em 0.7em; border: 1px solid var(--ms-line); border-radius: 10px; background: var(--ms-canvas); }
+    .save-toggle mat-slide-toggle { font-size: 0.84em; font-weight: 600; }
+    .toggle-hint { margin: 0; color: var(--ms-text-muted); font-size: 0.76em; line-height: 1.4; }
     .error { margin: 0.25em 0 0.7em; color: var(--ms-error); font-size: 0.86em; line-height: 1.4; }
     .cta { width: 100%; min-height: 46px; }
     .muted { color: var(--ms-text-muted); font-size: 0.84em; line-height: 1.5; }
@@ -219,6 +239,9 @@ export class BillingWithdrawComponent implements OnInit {
   protected readonly reviewing = signal(false);
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly saveAccount = signal(false);
+  protected readonly savedAccount = signal<SavedWithdrawalAccount | null>(null);
+  protected readonly savedAccountLoaded = signal(false);
 
   private readonly lookup$ = new Subject<void>();
 
@@ -235,6 +258,15 @@ export class BillingWithdrawComponent implements OnInit {
       .subscribe({
         next: (banks) => this.banks.set(banks),
         error: () => this.error.set('Could not load the bank list. Close and try again.'),
+      });
+
+    this.paymentService.savedWithdrawalAccount()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (saved) => {
+          if (saved?.saved && saved.account) this.applySavedAccount(saved.account);
+        },
+        error: () => { /* saved account is optional; never block the form */ },
       });
 
     this.lookup$
@@ -272,6 +304,9 @@ export class BillingWithdrawComponent implements OnInit {
   protected onBankQuery(value: string): void {
     this.bankQuery.set(value);
     this.bankTouched.set(true);
+    if (this.savedAccountLoaded() && value !== this.savedAccount()?.bankName) {
+      this.savedAccountLoaded.set(false);
+    }
     if (this.selectedBank() && value !== this.selectedBank()?.name) {
       this.selectedBank.set(null);
       this.resolvedAccount.set(null);
@@ -282,6 +317,9 @@ export class BillingWithdrawComponent implements OnInit {
     this.selectedBank.set(bank);
     this.bankQuery.set(bank.name);
     this.bankTouched.set(true);
+    if (this.savedAccountLoaded() && bank.code !== this.savedAccount()?.bankCode) {
+      this.savedAccountLoaded.set(false);
+    }
     this.resolvedAccount.set(null);
     this.lookup$.next();
   }
@@ -292,11 +330,32 @@ export class BillingWithdrawComponent implements OnInit {
     input.value = digits;
     this.form.controls['accountNumber'].setValue(digits);
     this.error.set(null);
+    if (this.savedAccountLoaded() && digits !== this.savedAccount()?.accountNumber) {
+      this.savedAccountLoaded.set(false);
+    }
     if (digits.length === 10) this.lookup$.next();
     else {
       this.resolvedAccount.set(null);
       this.resolveError.set(null);
     }
+  }
+
+  private applySavedAccount(account: SavedWithdrawalAccount): void {
+    if (this.form.dirty || this.bankTouched()) return;
+    this.savedAccount.set(account);
+    const bank = this.banks().find((item) => item.code === account.bankCode)
+      ?? { code: account.bankCode, name: account.bankName };
+    this.selectedBank.set(bank);
+    this.bankQuery.set(bank.name);
+    this.bankTouched.set(true);
+    this.form.controls['accountNumber'].setValue(account.accountNumber);
+    this.resolvedAccount.set({
+      accountName: account.accountName,
+      accountNumber: account.accountNumber,
+    });
+    this.resolveError.set(null);
+    this.saveAccount.set(true);
+    this.savedAccountLoaded.set(true);
   }
 
   protected amountValue(): number {
@@ -334,6 +393,7 @@ export class BillingWithdrawComponent implements OnInit {
       bankName: bank.name,
       accountNumber: account.accountNumber,
       amountNgn: this.amountValue(),
+      saveAccount: this.saveAccount(),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.loading.set(false);
