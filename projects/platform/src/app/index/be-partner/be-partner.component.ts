@@ -24,10 +24,10 @@ import { RouterModule } from '@angular/router';
             Free to join. Activation is a real product purchase.<br />
             <a
               class="whatsapp-link"
-              href="https://whatsapp.com/channel/0029Vb77xA51NCrKysUMO11D"
+              href="https://wa.me/2348080386208?text=Hello%20MarketSpase%2C%20I%20would%20like%20to%20speak%20with%20a%20human."
               target="_blank"
               rel="noopener"
-              title="Open the MarketSpase WhatsApp channel"
+              title="Chat with MarketSpase on WhatsApp"
             >
               <mat-icon aria-hidden="true">chat</mat-icon>
               chat with a human on WhatsApp
