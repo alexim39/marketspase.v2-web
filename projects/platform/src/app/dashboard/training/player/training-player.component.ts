@@ -62,7 +62,13 @@ export class TrainingPlayerComponent implements OnChanges, OnDestroy {
   private heartbeatBusy = false;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['lesson'] && !changes['lesson'].firstChange) {
+    const change = changes['lesson'];
+    if (!change || change.firstChange) return;
+    // Watch heartbeats update the parent's lesson object. Only rebuild the
+    // YouTube player when the member actually moves to a different video.
+    const previous = change.previousValue as Lesson | undefined;
+    const current = change.currentValue as Lesson | undefined;
+    if (previous?.id !== current?.id || previous?.youtubeId !== current?.youtubeId) {
       this.reset();
     }
   }

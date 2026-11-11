@@ -27,13 +27,13 @@
           @if (c.certified) {
             <span class="chip chip--done"><mat-icon>verified</mat-icon> Certified</span>
           } @else {
-            <span class="chip">{{ c.lessons }} lessons · {{ formatDuration(c.estimatedMinutes * 60) }}</span>
+            <span class="chip">{{ c.lessons.length }} lessons · {{ formatDuration(c.estimatedMinutes * 60) }}</span>
           }
         </div>
         <h1>{{ c.title }}</h1>
         @if (c.tagline) { <p class="hero-tagline">{{ c.tagline }}</p> }
         <div class="hero-meta">
-          <span><mat-icon>play_circle</mat-icon>{{ c.lessons }} video lessons</span>
+          <span><mat-icon>play_circle</mat-icon>{{ c.lessons.length }} video lessons</span>
           <span><mat-icon>quiz</mat-icon>Quiz in every lesson</span>
           <span><mat-icon>workspace_premium</mat-icon>{{ c.milestone ? c.milestone.toUpperCase() + ' rank credit' : 'Elective certificate' }}</span>
         </div>
