@@ -213,6 +213,12 @@
             </div>
           } @else if (commentsLoading()) {
             <mat-progress-bar mode="indeterminate" aria-label="Loading reflections" />
+          } @else if (commentsError() && comments().length === 0) {
+            <div class="empty-comments">
+              <mat-icon>cloud_off</mat-icon>
+              <p>{{ commentsError() }}</p>
+              <button mat-stroked-button type="button" (click)="loadComments(true)">Try again</button>
+            </div>
           } @else if (comments().length === 0) {
             <div class="empty-comments">
               <mat-icon>edit_note</mat-icon>
@@ -221,7 +227,7 @@
           } @else {
             <div class="reflection-list">
               @for (item of comments(); track item.id) {
-                <article class="reflection-item">
+                <article class="reflection-item" style="content-visibility:auto;contain-intrinsic-size:0 120px">
                   <span class="avatar">{{ initials(item) }}</span>
                   <div class="reflection-body">
                     <div class="reflection-meta">
@@ -232,6 +238,20 @@
                     <p>{{ item.body }}</p>
                   </div>
                 </article>
+              }
+            </div>
+            <div class="comments-more" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ms-line)">
+              @if (commentsError()) {
+                <span class="inline-error" role="alert">{{ commentsError() }}</span>
+                <button mat-button type="button" (click)="loadMoreComments()" [disabled]="commentsLoadingMore()">Retry</button>
+              } @else if (commentsHasMore()) {
+                <button mat-stroked-button type="button" (click)="loadMoreComments()" [disabled]="commentsLoadingMore()">
+                  <mat-icon>{{ commentsLoadingMore() ? 'hourglass_top' : 'expand_more' }}</mat-icon>
+                  {{ commentsLoadingMore() ? 'Loading…' : 'Load more reflections' }}
+                </button>
+                <span class="muted small">{{ comments().length }} of {{ commentsTotal() }} shown</span>
+              } @else {
+                <span class="muted small">All {{ commentsTotal() }} reflections loaded.</span>
               }
             </div>
           }

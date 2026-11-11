@@ -127,6 +127,7 @@ export class AdminWeeklyVideosComponent implements OnInit, OnDestroy {
   protected readonly selectedId = signal<string | null>(null);
   protected readonly stats = signal<WeeklyVideoStats | null>(null);
   protected readonly statsLoading = signal(false);
+  protected readonly commentsLoadingMore = signal(false);
   protected readonly busyId = signal<string | null>(null);
   protected readonly archiveConfirm = signal<string | null>(null);
   protected readonly displayedColumns = ['week', 'video', 'status', 'delivery', 'engagement', 'actions'];
@@ -502,6 +503,47 @@ export class AdminWeeklyVideosComponent implements OnInit, OnDestroy {
         this.statsLoading.set(false);
       },
     });
+  }
+
+  protected async loadMoreAdminComments(): Promise<void> {
+    const id = this.selectedId();
+    const current = this.stats();
+    if (!id || !current || this.commentsLoadingMore()) return;
+    const loaded = current.comments.items.length;
+    if (loaded >= current.comments.total) return;
+    this.commentsLoadingMore.set(true);
+    try {
+      const data = await new Promise<{ items: WeeklyComment[]; total: number } | null>((resolve, reject) => {
+        this.api.comments(id, { limit: 50, skip: loaded }).subscribe({
+          next: (response) => {
+            if (!response.data) {
+              resolve(null);
+              return;
+            }
+            resolve({ items: response.data.items ?? [], total: response.data.total ?? 0 });
+          },
+          error: reject,
+        });
+      });
+      if (data) {
+        this.stats.update((stats) => {
+          if (!stats) return stats;
+          const seen = new Set(stats.comments.items.map((item) => item.id));
+          const appended = data.items.filter((item) => !seen.has(item.id));
+          return {
+            ...stats,
+            comments: {
+              items: [...stats.comments.items, ...appended],
+              total: data.total,
+            },
+          };
+        });
+      }
+    } catch (error) {
+      this.error.set(userError(error as ApiError));
+    } finally {
+      this.commentsLoadingMore.set(false);
+    }
   }
 
   protected async toggleComment(comment: WeeklyComment): Promise<void> {

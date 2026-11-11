@@ -361,6 +361,13 @@
             <tr mat-row *matRowDef="let row; columns: commentColumns"></tr>
           </table>
         </div>
+        @if (data.comments.items.length < data.comments.total) {
+          <button mat-stroked-button type="button" (click)="loadMoreAdminComments()" [disabled]="commentsLoadingMore()">
+            <mat-icon>{{ commentsLoadingMore() ? 'hourglass_top' : 'expand_more' }}</mat-icon>
+            {{ commentsLoadingMore() ? 'Loading…' : 'Load more reflections' }}
+          </button>
+          <span class="muted small">{{ data.comments.items.length }} of {{ data.comments.total }} shown</span>
+        }
       }
     </section>
   }

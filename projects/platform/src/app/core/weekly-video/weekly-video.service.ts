@@ -50,11 +50,15 @@ export class WeeklyVideoService {
     );
   }
 
-  comments(id: string, params: { limit?: number; skip?: number } = {}): Observable<ApiEnvelope<WeeklyVideoComments>> {
+  comments(
+    id: string,
+    params: { limit?: number; cursor?: string | null; skip?: number } = {},
+  ): Observable<ApiEnvelope<WeeklyVideoComments>> {
     const query = new URLSearchParams({
-      limit: String(params.limit ?? 50),
-      skip: String(params.skip ?? 0),
+      limit: String(params.limit ?? 20),
     });
+    if (params.cursor) query.set('cursor', params.cursor);
+    if (params.skip) query.set('skip', String(params.skip));
     return this.api.get<ApiEnvelope<WeeklyVideoComments>>(
       `v1/weekly-videos/${encodeURIComponent(id)}/comments?${query.toString()}`,
     );

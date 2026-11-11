@@ -90,6 +90,8 @@ export interface WeeklyVideoComments {
   count: number;
   total: number;
   items: WeeklyVideoReflection[];
+  hasMore?: boolean;
+  nextCursor?: string | null;
   message?: string;
 }
 

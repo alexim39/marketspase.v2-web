@@ -72,6 +72,10 @@ export class WeeklyVideoComponent implements OnInit, OnDestroy {
   protected readonly comments = signal<WeeklyVideoReflection[]>([]);
   protected readonly commentsTotal = signal(0);
   protected readonly commentsLoading = signal(false);
+  protected readonly commentsLoadingMore = signal(false);
+  protected readonly commentsHasMore = signal(false);
+  protected readonly commentsCursor = signal<string | null>(null);
+  protected readonly commentsError = signal<string | null>(null);
   protected readonly heartbeatError = signal<string | null>(null);
   protected readonly reflectionText = signal('');
   protected readonly reflectionSaving = signal(false);
@@ -85,6 +89,7 @@ export class WeeklyVideoComponent implements OnInit, OnDestroy {
   private heartbeatTimer: number | null = null;
   private heartbeatBusy = false;
   private commentsLoadedFor: string | null = null;
+  private readonly commentsPageSize = 20;
 
   protected readonly video = computed(() => this.data()?.video ?? null);
   protected readonly progress = computed(() => this.data()?.progress ?? null);
@@ -138,6 +143,10 @@ export class WeeklyVideoComponent implements OnInit, OnDestroy {
     this.resetPlayer();
     this.comments.set([]);
     this.commentsTotal.set(0);
+    this.commentsHasMore.set(false);
+    this.commentsCursor.set(null);
+    this.commentsLoadingMore.set(false);
+    this.commentsError.set(null);
     this.reflectionText.set('');
     this.reflectionError.set(null);
     this.reflectionNotice.set(null);
@@ -290,22 +299,95 @@ export class WeeklyVideoComponent implements OnInit, OnDestroy {
     if (!video || !this.progress()?.completed) return;
     if (!force && this.commentsLoadedFor === video.id) return;
     this.commentsLoading.set(true);
+    this.commentsError.set(null);
+    if (force) {
+      this.comments.set([]);
+      this.commentsTotal.set(0);
+      this.commentsHasMore.set(false);
+      this.commentsCursor.set(null);
+      this.commentsLoadedFor = null;
+    }
     try {
-      const response = await new Promise<{ items: WeeklyVideoReflection[]; total: number } | null>((resolve, reject) => {
-        this.videoApi.comments(video.id).subscribe({
-          next: (res) => resolve(res.data ? { items: res.data.items ?? [], total: res.data.total ?? 0 } : null),
+      const data = await new Promise<{
+        items: WeeklyVideoReflection[];
+        total: number;
+        hasMore: boolean;
+        nextCursor: string | null;
+      } | null>((resolve, reject) => {
+        this.videoApi.comments(video.id, { limit: this.commentsPageSize }).subscribe({
+          next: (res) => {
+            if (!res.data) {
+              resolve(null);
+              return;
+            }
+            resolve({
+              items: res.data.items ?? [],
+              total: res.data.total ?? 0,
+              hasMore: res.data.hasMore === true,
+              nextCursor: res.data.nextCursor ?? null,
+            });
+          },
           error: reject,
         });
       });
-      if (response) {
-        this.comments.set(response.items);
-        this.commentsTotal.set(response.total);
+      if (data) {
+        this.comments.set(data.items);
+        this.commentsTotal.set(data.total);
+        this.commentsHasMore.set(data.hasMore);
+        this.commentsCursor.set(data.nextCursor);
         this.commentsLoadedFor = video.id;
       }
     } catch {
-      // The locked/unlocked state is already shown; comments can retry on reload.
+      this.commentsError.set('Reflections could not be loaded. Please try again.');
     } finally {
       this.commentsLoading.set(false);
+    }
+  }
+
+  protected async loadMoreComments(): Promise<void> {
+    const video = this.video();
+    const cursor = this.commentsCursor();
+    if (!video || !cursor || !this.commentsHasMore() || this.commentsLoadingMore()) return;
+    this.commentsLoadingMore.set(true);
+    this.commentsError.set(null);
+    try {
+      const data = await new Promise<{
+        items: WeeklyVideoReflection[];
+        total: number;
+        hasMore: boolean;
+        nextCursor: string | null;
+      } | null>((resolve, reject) => {
+        this.videoApi.comments(video.id, {
+          limit: this.commentsPageSize,
+          cursor,
+        }).subscribe({
+          next: (res) => {
+            if (!res.data) {
+              resolve(null);
+              return;
+            }
+            resolve({
+              items: res.data.items ?? [],
+              total: res.data.total ?? 0,
+              hasMore: res.data.hasMore === true,
+              nextCursor: res.data.nextCursor ?? null,
+            });
+          },
+          error: reject,
+        });
+      });
+      if (data) {
+        const seen = new Set(this.comments().map((item) => item.id));
+        const appended = data.items.filter((item) => !seen.has(item.id));
+        this.comments.update((current) => [...current, ...appended]);
+        this.commentsTotal.set(data.total);
+        this.commentsHasMore.set(data.hasMore);
+        this.commentsCursor.set(data.nextCursor);
+      }
+    } catch {
+      this.commentsError.set('More reflections could not be loaded. Please try again.');
+    } finally {
+      this.commentsLoadingMore.set(false);
     }
   }
 
