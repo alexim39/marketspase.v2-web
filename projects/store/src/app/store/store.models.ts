@@ -44,12 +44,23 @@ export interface StorePublic {
   marketing?: StoreMarketing | null;
 }
 
+export interface StoreProductMedia {
+  type: 'image' | 'video';
+  url: string;
+  thumbnailUrl?: string;
+  width?: number | null;
+  height?: number | null;
+  duration?: number | null;
+  order?: number;
+}
+
 export interface StoreProductPublic {
   id: string;
   productId: string;
   name: string;
   image: string;
   images: string[];
+  media?: StoreProductMedia[];
   category: string;
   shortDesc: string;
   description?: string;

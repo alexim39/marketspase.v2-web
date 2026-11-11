@@ -3,13 +3,15 @@ import { CurrencyPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { MediaGalleryComponent } from '@marketspase/shared/ui/media-gallery/media-gallery.component';
 import { SeoService } from '../../_common/services/seo.service';
 import { StoreProductDetail, StoreProductPublic, StorePublic } from '../store.models';
 import {
   StoreService,
   storeAssetUrl,
   storeError,
-  storeProductImage,
+  storeProductCover,
+  storeProductMedia,
 } from '../store.service';
 import { CartService } from '../cart/cart.service';
 
@@ -18,7 +20,7 @@ import { CartService } from '../cart/cart.service';
   templateUrl: './store-product.component.html',
   styleUrls: ['./store-product.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CurrencyPipe, MatIconModule, RouterModule],
+  imports: [CurrencyPipe, MatIconModule, RouterModule, MediaGalleryComponent],
 })
 export class StoreProductComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -31,20 +33,12 @@ export class StoreProductComponent implements OnInit {
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly detail = signal<StoreProductDetail | null>(null);
-  protected readonly activeImage = signal(0);
   protected readonly addMessage = signal<string | null>(null);
   protected readonly differentStore = signal<string | null>(null);
 
   protected readonly store = computed(() => this.detail()?.store ?? null);
   protected readonly product = computed(() => this.detail()?.product ?? null);
-  protected readonly gallery = computed(() => {
-    const product = this.product();
-    if (!product) return [] as string[];
-    const images = [product.image, ...(product.images ?? [])]
-      .map(storeProductImage)
-      .filter(Boolean);
-    return [...new Set(images)];
-  });
+  protected readonly media = computed(() => storeProductMedia(this.product()));
 
   ngOnInit(): void {
     const slug = String(this.route.snapshot.paramMap.get('username') ?? '').trim();
@@ -57,11 +51,6 @@ export class StoreProductComponent implements OnInit {
     this.load(slug, productId);
   }
 
-  protected selectImage(index: number): void {
-    if (index < 0 || index >= this.gallery().length) return;
-    this.activeImage.set(index);
-  }
-
   protected addToCart(goToCheckout = false): void {
     const store = this.store();
     const product = this.product();
@@ -71,7 +60,7 @@ export class StoreProductComponent implements OnInit {
         storeProductId: product.id,
         productId: product.productId,
         name: product.name,
-        image: product.image,
+        image: storeProductCover(product),
         category: product.category,
         unitPrice: product.retailPrice,
         stock: product.stock,
@@ -157,7 +146,7 @@ export class StoreProductComponent implements OnInit {
             title: `${product.name} | ${store.name} | MarketSpase Store`,
             description: product.shortDesc || `Buy ${product.name} from ${store.name} on MarketSpase Store.`,
             path: `/${store.slug}/product/${product.id}`,
-            image: storeProductImage(product.image) || undefined,
+            image: storeProductCover(product) || undefined,
           });
         },
         error: (err: unknown) => {

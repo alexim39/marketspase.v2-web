@@ -2,6 +2,16 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../_common/services/api.service';
 
+export interface ProductMedia {
+  type: 'image' | 'video';
+  url: string;
+  thumbnailUrl?: string;
+  width?: number | null;
+  height?: number | null;
+  duration?: number | null;
+  order?: number;
+}
+
 export interface ProductInterface {
     img: string;
     name: string;
@@ -14,11 +24,12 @@ export interface ProductInterface {
     category?: string;
     shortDesc?: string;
     gallery?: string[];
+    media?: ProductMedia[];
     benefits?: string[];
     howToUse?: string;
     deliveryNote?: string;
     stock?: number | null;
-    status?: 'active' | 'inactive' | 'archived';
+    status?: 'draft' | 'active' | 'inactive' | 'archived';
     featured?: boolean;
     sortOrder?: number;
     cogs?: number;
@@ -26,6 +37,8 @@ export interface ProductInterface {
     partnerPrice?: number;
     retailPrice?: number;
     commissionable?: boolean;
+    pricingMode?: 'resale' | 'direct' | 'both';
+    resaleEnabled?: boolean;
     saleMode?: 'personal' | 'resale';
 }
   

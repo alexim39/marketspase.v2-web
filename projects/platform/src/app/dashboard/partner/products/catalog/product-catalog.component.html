@@ -146,6 +146,9 @@
                 @if (product.featured) {
                   <span class="badge badge--featured">Featured</span>
                 }
+                @if (hasVideo(product)) {
+                  <span class="badge badge--video"><mat-icon>play_arrow</mat-icon> Video</span>
+                }
               </a>
 
               <div class="card-body">

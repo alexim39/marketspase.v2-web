@@ -1,0 +1,507 @@
+<section class="wizard">
+  <header class="wizard-head">
+    <div class="head-copy">
+      <button mat-icon-button type="button" class="back-arrow" aria-label="Close product wizard" (click)="cancelled.emit()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <p class="eyebrow">Admin · Products</p>
+        <h1>{{ productId() ? 'Edit product' : 'New product' }}</h1>
+        <p class="muted">Build a publishable product with real landed costs, profit checks and up to five media items.</p>
+      </div>
+    </div>
+    <div class="head-actions">
+      <button mat-stroked-button type="button" (click)="saveDraft()" [disabled]="busy() || uploading()">
+        <mat-icon>save</mat-icon> {{ form().status === 'active' ? 'Save changes' : 'Save draft' }}
+      </button>
+      <button mat-button type="button" (click)="cancelled.emit()">Close</button>
+    </div>
+  </header>
+
+  <nav class="steps" aria-label="Product wizard steps">
+    @for (item of steps; track item.number) {
+      <button
+        type="button"
+        class="step"
+        [class.active]="step() === item.number"
+        [class.done]="step() > item.number"
+        [disabled]="item.number > step()"
+        (click)="goToStep(item.number)"
+      >
+        <span class="step-number">{{ step() > item.number ? '✓' : item.number }}</span>
+        <span>{{ item.label }}</span>
+      </button>
+    }
+  </nav>
+
+  @if (busy() || previewing() || uploading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Working" />
+  }
+
+  @if (error(); as message) {
+    <div class="alert error" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ message }}</p>
+    </div>
+  }
+  @if (notice(); as message) {
+    <div class="alert ok" role="status">
+      <mat-icon>check_circle_outline</mat-icon>
+      <p>{{ message }}</p>
+    </div>
+  }
+
+  @switch (step()) {
+    @case (1) {
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Step 1</p>
+            <h2>Product basics</h2>
+            <p class="muted">Tell customers and partners what this product is and how it is sold.</p>
+          </div>
+        </div>
+
+        <div class="grid two">
+          <mat-form-field appearance="outline" class="span-2">
+            <mat-label>Product name</mat-label>
+            <input matInput maxlength="200" [value]="form().name" (input)="setText('name', $any($event.target).value)" placeholder="e.g. MarketSpase Signature Hoodie" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>SKU / internal code</mat-label>
+            <input matInput maxlength="80" [value]="form().sku" (input)="setText('sku', $any($event.target).value)" placeholder="MS-HOODIE-001" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Category</mat-label>
+            <input matInput maxlength="80" [value]="form().category" (input)="setText('category', $any($event.target).value)" placeholder="Clothing" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>How is this product sold?</mat-label>
+            <mat-select [value]="form().pricingMode" (selectionChange)="setMode($event.value)">
+              <mat-option value="resale">Partner resale — partners buy wholesale and resell</mat-option>
+              <mat-option value="direct">Direct / activation — platform sells to members</mat-option>
+              <mat-option value="both">Both channels</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Stock (blank = unlimited)</mat-label>
+            <input matInput type="number" min="0" step="1" [value]="form().stock ?? ''" (input)="setNumber('stock', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Visibility</mat-label>
+            <mat-select [value]="form().status" (selectionChange)="setStatus($event.value)">
+              <mat-option value="draft">Draft — not visible</mat-option>
+              <mat-option value="active">Active — validated on save</mat-option>
+              <mat-option value="inactive">Inactive — hidden</mat-option>
+              <mat-option value="archived">Archived</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Sort order</mat-label>
+            <input matInput type="number" min="0" step="1" [value]="form().sortOrder ?? ''" (input)="setNumber('sortOrder', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="span-2">
+            <mat-label>Short description</mat-label>
+            <input matInput maxlength="240" [value]="form().shortDesc" (input)="setText('shortDesc', $any($event.target).value)" placeholder="One line that sells the product." />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="span-2">
+            <mat-label>Full description</mat-label>
+            <textarea matInput rows="5" maxlength="8000" [value]="form().desc" (input)="setText('desc', $any($event.target).value)" placeholder="Materials, fit, what is included, care instructions…"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="span-2">
+            <mat-label>Benefits (one per line)</mat-label>
+            <textarea matInput rows="4" [value]="form().benefits.join('\n')" (input)="setBenefits($any($event.target).value)" placeholder="Premium fabric&#10;Unisex fit&#10;Nationwide delivery"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>How to use / care</mat-label>
+            <textarea matInput rows="3" [value]="form().howToUse" (input)="setText('howToUse', $any($event.target).value)"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Delivery note</mat-label>
+            <textarea matInput rows="3" [value]="form().deliveryNote" (input)="setText('deliveryNote', $any($event.target).value)"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="toggle-row">
+          <mat-checkbox [checked]="form().commissionable" (change)="setCommissionable($any($event.checked))">
+            Commissionable — pay the growth-plan product commission on this product
+          </mat-checkbox>
+          <mat-checkbox [checked]="form().featured" (change)="setFeatured($any($event.checked))">
+            Featured product
+          </mat-checkbox>
+        </div>
+      </section>
+    }
+
+    @case (2) {
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Step 2</p>
+            <h2>Landed cost</h2>
+            <p class="muted">Capture every cost required to get one unit from manufacturing to a customer. The pricing engine uses these numbers, not guesses.</p>
+          </div>
+          <div class="cost-summary">
+            <span>Total cost / unit</span>
+            <strong>{{ totalCost() | currency:'₦':'symbol':'1.0-0' }}</strong>
+          </div>
+        </div>
+
+        <div class="grid three">
+          <mat-form-field appearance="outline">
+            <mat-label>Manufacturing / unit COGS *</mat-label>
+            <input matInput type="number" min="0" step="0.01" [value]="form().costBreakdown.manufacturing || ''" (input)="setCost('manufacturing', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Packaging</mat-label>
+            <input matInput type="number" min="0" step="0.01" [value]="form().costBreakdown.packaging || ''" (input)="setCost('packaging', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Inbound freight &amp; clearing</mat-label>
+            <input matInput type="number" min="0" step="0.01" [value]="form().costBreakdown.inboundFreight || ''" (input)="setCost('inboundFreight', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Duties / tariffs</mat-label>
+            <input matInput type="number" min="0" step="0.01" [value]="form().costBreakdown.duties || ''" (input)="setCost('duties', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Other landed cost</mat-label>
+            <input matInput type="number" min="0" step="0.01" [value]="form().costBreakdown.other || ''" (input)="setCost('other', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Last-mile delivery (platform-borne)</mat-label>
+            <input matInput type="number" min="0" step="0.01" [value]="form().costBreakdown.lastMileShipping || ''" (input)="setCost('lastMileShipping', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Handling / fulfilment ops</mat-label>
+            <input matInput type="number" min="0" step="0.01" [value]="form().costBreakdown.handling || ''" (input)="setCost('handling', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Acquisition allowance (optional)</mat-label>
+            <input matInput type="number" min="0" step="0.01" [value]="form().costBreakdown.acquisitionAllowance || ''" (input)="setCost('acquisitionAllowance', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Mentor / activation bonus</mat-label>
+            <input matInput type="number" min="0" step="0.01" [value]="form().mentorBonus ?? ''" (input)="setNumber('mentorBonus', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+        </div>
+
+        <div class="cost-strip">
+          <div>
+            <span>Product landed cost</span>
+            <strong>{{ landingCost() | currency:'₦':'symbol':'1.0-0' }}</strong>
+            <small>Manufacturing + packaging + freight + duties + other</small>
+          </div>
+          <div>
+            <span>Total cost per unit</span>
+            <strong>{{ totalCost() | currency:'₦':'symbol':'1.0-0' }}</strong>
+            <small>Delivery, handling and acquisition included. Mentor/activation bonus is applied separately in pricing.</small>
+          </div>
+          <div>
+            <span>Selling price used for margin</span>
+            <strong>{{ (form().pricingMode === 'direct' ? form().price : form().partnerPrice) | currency:'₦':'symbol':'1.0-0' }}</strong>
+            <small>Set prices in step 4; commission is paid on the margin, not the full price.</small>
+          </div>
+        </div>
+
+        <div class="grid three rates">
+          <mat-form-field appearance="outline">
+            <mat-label>Payment fee %</mat-label>
+            <input matInput type="number" min="1.5" max="100" step="0.1" [value]="percent(form().costBreakdown.paymentFeeRate)" (input)="setRate('paymentFeeRate', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Refund / return reserve %</mat-label>
+            <input matInput type="number" min="3" max="100" step="0.1" [value]="percent(form().costBreakdown.refundReserveRate)" (input)="setRate('refundReserveRate', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Rank / generation reserve %</mat-label>
+            <input matInput type="number" min="1.5" max="100" step="0.1" [value]="percent(form().costBreakdown.rankReserveRate)" (input)="setRate('rankReserveRate', $any($event.target).valueAsNumber)" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="span-3">
+            <mat-label>Cost notes</mat-label>
+            <input matInput maxlength="1000" [value]="form().costBreakdown.notes" (input)="setNotes($any($event.target).value)" placeholder="Supplier quote, freight invoice, clearing agent…" />
+          </mat-form-field>
+        </div>
+      </section>
+    }
+
+    @case (3) {
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Step 3</p>
+            <h2>Product media</h2>
+            <p class="muted">Add 1–5 images or videos. The first item is the cover. Images up to 8 MB; videos up to 50 MB.</p>
+          </div>
+          <div class="media-count" [class.full]="media().length >= 5">{{ media().length }} / 5</div>
+        </div>
+
+        <label class="upload-box" [class.disabled]="media().length >= 5 || uploading()">
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif,video/mp4,video/webm,video/quicktime" multiple (change)="onFiles($event)" [disabled]="media().length >= 5 || uploading()" />
+          <mat-icon>cloud_upload</mat-icon>
+          <strong>{{ uploading() ? 'Uploading…' : 'Upload images or videos' }}</strong>
+          <span>Drag and drop, or click to choose. You can reorder and choose the cover below.</span>
+        </label>
+
+        @if (media().length === 0) {
+          <div class="empty-media">
+            <mat-icon>perm_media</mat-icon>
+            <p>No media yet. A product must have at least one image or video before publishing.</p>
+          </div>
+        } @else {
+          <div class="media-grid">
+            @for (item of media(); track mediaId(item); let index = $index) {
+              <article class="media-card" [class.cover]="index === 0">
+                <div class="media-preview">
+                  @if (item.type === 'video') {
+                    <video [src]="item.url" [poster]="item.thumbnailUrl || ''" controls muted playsinline preload="metadata"></video>
+                    <span class="type-badge"><mat-icon>videocam</mat-icon> Video</span>
+                  } @else {
+                    <img [src]="item.url" [alt]="form().name || 'Product image'" loading="lazy" />
+                    <span class="type-badge"><mat-icon>image</mat-icon> Image</span>
+                  }
+                  @if (index === 0) { <span class="cover-badge">Cover</span> }
+                </div>
+                <div class="media-actions">
+                  <button mat-stroked-button type="button" (click)="setCover(index)" [disabled]="index === 0">Make cover</button>
+                  <button mat-icon-button type="button" aria-label="Move media up" (click)="moveMedia(index, -1)" [disabled]="index === 0"><mat-icon>arrow_upward</mat-icon></button>
+                  <button mat-icon-button type="button" aria-label="Move media down" (click)="moveMedia(index, 1)" [disabled]="index === media().length - 1"><mat-icon>arrow_downward</mat-icon></button>
+                  <button mat-icon-button type="button" class="danger" aria-label="Remove media" (click)="removeMedia(index)"><mat-icon>delete_outline</mat-icon></button>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    @case (4) {
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Step 4</p>
+            <h2>Pricing &amp; margin</h2>
+            <p class="muted">The server checks every number. A product cannot publish if it loses money or leaves partners below the margin floor.</p>
+          </div>
+          <button mat-stroked-button type="button" (click)="calculatePricing()" [disabled]="previewing()">
+            <mat-icon>calculate</mat-icon> {{ previewing() ? 'Calculating…' : 'Calculate' }}
+          </button>
+        </div>
+
+        <div class="pricing-grid">
+          <div class="price-inputs">
+            <div class="grid two">
+              @if (form().pricingMode === 'direct' || form().pricingMode === 'both') {
+                <mat-form-field appearance="outline">
+                  <mat-label>Platform direct price (₦)</mat-label>
+                  <input matInput type="number" min="0" step="0.01" [value]="form().price ?? ''" (input)="setPrice('price', $any($event.target).valueAsNumber)" />
+                </mat-form-field>
+              }
+              @if (form().pricingMode === 'resale' || form().pricingMode === 'both') {
+                <mat-form-field appearance="outline">
+                  <mat-label>Partner wholesale price (₦)</mat-label>
+                  <input matInput type="number" min="0" step="0.01" [value]="form().partnerPrice ?? ''" (input)="setPrice('partnerPrice', $any($event.target).valueAsNumber)" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Suggested retail price (₦)</mat-label>
+                  <input matInput type="number" min="0" step="0.01" [value]="form().retailPrice ?? ''" (input)="setPrice('retailPrice', $any($event.target).valueAsNumber)" />
+                </mat-form-field>
+              }
+            </div>
+
+            @if (pricing(); as p) {
+              <div class="suggested">
+                <div>
+                  <span>{{ form().pricingMode === 'direct' ? 'Suggested selling price' : 'Suggested partner price' }}</span>
+                  <strong>{{ p.recommendedPartnerPrice | currency:'₦':'symbol':'1.0-0' }}</strong>
+                </div>
+                @if (form().pricingMode !== 'direct') {
+                  <div>
+                    <span>Suggested retail price</span>
+                    <strong>{{ p.recommendedRetailPrice | currency:'₦':'symbol':'1.0-0' }}</strong>
+                  </div>
+                }
+                <div>
+                  <span>Break-even</span>
+                  <strong>{{ p.breakEvenPrice | currency:'₦':'symbol':'1.0-0' }}</strong>
+                </div>
+                @if (form().pricingMode !== 'direct') {
+                  <div>
+                    <span>Minimum retail</span>
+                    <strong>{{ p.minimumRetailPrice | currency:'₦':'symbol':'1.0-0' }}</strong>
+                  </div>
+                }
+                <button mat-flat-button color="primary" type="button" (click)="useSuggestedPrices()">
+                  <mat-icon>auto_fix_high</mat-icon> Use suggested prices
+                </button>
+              </div>
+            }
+
+            <div class="grid two">
+              <mat-form-field appearance="outline">
+                <mat-label>Target platform contribution %</mat-label>
+                <input matInput type="number" min="0" max="100" step="0.1" [value]="percent(form().targetPlatformContributionPct)" (input)="setTarget('targetPlatformContributionPct', $any($event.target).valueAsNumber)" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Target partner margin %</mat-label>
+                <input matInput type="number" min="0" max="100" step="0.1" [value]="percent(form().targetPartnerMarginPct)" (input)="setTarget('targetPartnerMarginPct', $any($event.target).valueAsNumber)" />
+              </mat-form-field>
+            </div>
+            <p class="hint">
+              @if (pricing(); as p) {
+                Minimum floors: {{ (p.minPlatformContributionPct * 100) | number:'1.0-1' }}% and
+                {{ p.minPlatformContributionAmount | currency:'₦':'symbol':'1.0-0' }} platform contribution;
+                {{ (p.minPartnerMarginPct * 100) | number:'1.0-1' }}% partner margin.
+              } @else {
+                Minimum floors come from platform settings and are enforced on the server.
+              }
+              The target values above are recommendations only.
+            </p>
+          </div>
+
+          <aside class="margin-panel">
+            @if (pricing(); as p) {
+              <div [class]="'status status--' + p.status">
+                <span>{{ pricingStatusLabel() }}</span>
+                <strong>{{ p.platformContribution | currency:'₦':'symbol':'1.0-0' }}</strong>
+                <small>platform contribution · {{ (p.platformContributionPct * 100) | number:'1.1-1' }}% of price</small>
+              </div>
+
+              @if (p.reasons.length > 0) {
+                <ul class="issues blocking">
+                  @for (reason of p.reasons; track reason) { <li>{{ reason }}</li> }
+                </ul>
+              }
+              @if (p.warnings.length > 0) {
+                <ul class="issues warning">
+                  @for (warning of p.warnings; track warning) { <li>{{ warning }}</li> }
+                </ul>
+              }
+
+              <dl class="waterfall">
+                <div><dt>{{ form().pricingMode === 'direct' ? 'Selling price' : 'Partner price' }}</dt><dd>{{ p.sellingPrice | currency:'₦':'symbol':'1.0-0' }}</dd></div>
+                <div><dt>Landed cost</dt><dd>−{{ p.landedCost | currency:'₦':'symbol':'1.0-0' }}</dd></div>
+                <div><dt>Payment fee</dt><dd>−{{ p.paymentFee | currency:'₦':'symbol':'1.0-0' }}</dd></div>
+                <div><dt>Commission at max depth</dt><dd>−{{ p.commission | currency:'₦':'symbol':'1.0-0' }}</dd></div>
+                <div><dt>Refund reserve</dt><dd>−{{ p.refundReserve | currency:'₦':'symbol':'1.0-0' }}</dd></div>
+                <div><dt>Rank / generation reserve</dt><dd>−{{ p.rankReserve | currency:'₦':'symbol':'1.0-0' }}</dd></div>
+                <div><dt>Handling / fulfilment</dt><dd>−{{ p.handling | currency:'₦':'symbol':'1.0-0' }}</dd></div>
+                @if (p.mentorBonus > 0) { <div><dt>Mentor bonus</dt><dd>−{{ p.mentorBonus | currency:'₦':'symbol':'1.0-0' }}</dd></div> }
+                @if (p.acquisitionAllowance > 0) { <div><dt>Acquisition allowance</dt><dd>−{{ p.acquisitionAllowance | currency:'₦':'symbol':'1.0-0' }}</dd></div> }
+                <div class="total"><dt>Platform contribution</dt><dd>{{ p.platformContribution | currency:'₦':'symbol':'1.0-0' }}</dd></div>
+              </dl>
+
+              @if (form().pricingMode !== 'direct') {
+                <div class="partner-margin" [class.bad]="p.partnerMarginPct < 0.20">
+                  <span>Partner margin</span>
+                  <strong>{{ p.partnerMargin | currency:'₦':'symbol':'1.0-0' }}</strong>
+                  <small>{{ (p.partnerMarginPct * 100) | number:'1.1-1' }}% of retail after the platform store fee</small>
+                </div>
+              }
+            } @else {
+              <div class="empty-pricing">
+                <mat-icon>query_stats</mat-icon>
+                <p>Add costs and prices, then calculate to see the full margin waterfall.</p>
+              </div>
+            }
+          </aside>
+        </div>
+      </section>
+    }
+
+    @case (5) {
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Step 5</p>
+            <h2>Review &amp; publish</h2>
+            <p class="muted">Check the product, media and margin summary. Publishing runs the same server-side checks again.</p>
+          </div>
+        </div>
+
+        <div class="review-grid">
+          <article class="review-card">
+            <h3>Product</h3>
+            <dl>
+              <div><dt>Name</dt><dd>{{ form().name }}</dd></div>
+              <div><dt>SKU</dt><dd>{{ form().sku || '—' }}</dd></div>
+              <div><dt>Category</dt><dd>{{ form().category || 'Essentials' }}</dd></div>
+              <div><dt>Channel</dt><dd>{{ form().pricingMode }}</dd></div>
+              <div><dt>Commissionable</dt><dd>{{ form().commissionable ? 'Yes' : 'No' }}</dd></div>
+            </dl>
+          </article>
+
+          <article class="review-card">
+            <h3>Costs</h3>
+            <dl>
+              <div><dt>Product landed cost</dt><dd>{{ landingCost() | currency:'₦':'symbol':'1.0-0' }}</dd></div>
+              <div><dt>Total cost per unit</dt><dd>{{ totalCost() | currency:'₦':'symbol':'1.0-0' }}</dd></div>
+              <div><dt>Direct price</dt><dd>{{ form().price ? (form().price | currency:'₦':'symbol':'1.0-0') : '—' }}</dd></div>
+              <div><dt>Partner price</dt><dd>{{ form().partnerPrice ? (form().partnerPrice | currency:'₦':'symbol':'1.0-0') : '—' }}</dd></div>
+              <div><dt>Suggested retail</dt><dd>{{ form().retailPrice ? (form().retailPrice | currency:'₦':'symbol':'1.0-0') : '—' }}</dd></div>
+            </dl>
+          </article>
+
+          <article class="review-card">
+            <h3>Media</h3>
+            <div class="review-media">
+              @for (item of media(); track mediaId(item); let i = $index) {
+                <div class="review-thumb">
+                  @if (item.type === 'video') {
+                    <video [src]="item.url" [poster]="item.thumbnailUrl || ''" muted playsinline preload="metadata"></video>
+                    <span class="mini-play"><mat-icon>play_arrow</mat-icon></span>
+                  } @else {
+                    <img [src]="item.url" [alt]="form().name" />
+                  }
+                  @if (i === 0) { <small>Cover</small> }
+                </div>
+              }
+            </div>
+          </article>
+
+          <article class="review-card">
+            <h3>Pricing check</h3>
+            @if (pricing(); as p) {
+              <div [class]="'status status--' + p.status">
+                <span>{{ pricingStatusLabel() }}</span>
+                <strong>{{ p.platformContribution | currency:'₦':'symbol':'1.0-0' }}</strong>
+                <small>{{ (p.platformContributionPct * 100) | number:'1.1-1' }}% platform contribution</small>
+              </div>
+              @if (p.reasons.length > 0) {
+                <ul class="issues blocking">@for (reason of p.reasons; track reason) { <li>{{ reason }}</li> }</ul>
+              }
+              @if (p.warnings.length > 0) {
+                <ul class="issues warning">@for (warning of p.warnings; track warning) { <li>{{ warning }}</li> }</ul>
+              }
+              <p class="muted small">Publishing is blocked while any red issue remains. Warnings are allowed but should be reviewed.</p>
+            } @else {
+              <p class="muted">Return to step 4 and calculate pricing before publishing.</p>
+            }
+          </article>
+        </div>
+      </section>
+    }
+  }
+
+  <footer class="wizard-actions">
+    <button mat-stroked-button type="button" (click)="cancelled.emit()">Cancel</button>
+    <span class="spacer"></span>
+    @if (step() > 1) {
+      <button mat-stroked-button type="button" (click)="back()" [disabled]="busy() || uploading()">
+        <mat-icon>arrow_back</mat-icon> Back
+      </button>
+    }
+    <button mat-stroked-button type="button" (click)="saveDraft()" [disabled]="busy() || uploading()">
+      {{ form().status === 'active' ? 'Save changes' : 'Save draft' }}
+    </button>
+    @if (step() < 5) {
+      <button mat-flat-button color="primary" type="button" (click)="next()" [disabled]="busy() || uploading()">
+        Continue <mat-icon>arrow_forward</mat-icon>
+      </button>
+    } @else {
+      <button mat-flat-button color="primary" type="button" (click)="publish()" [disabled]="!canPublish()">
+        <mat-icon>publish</mat-icon> {{ busy() ? 'Publishing…' : 'Publish product' }}
+      </button>
+    }
+  </footer>
+</section>

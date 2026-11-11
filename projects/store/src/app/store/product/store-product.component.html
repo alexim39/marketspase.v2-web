@@ -29,24 +29,11 @@
 
         <div class="product-layout">
           <section class="gallery">
-            <div class="main-image">
-              @if (gallery()[activeImage()]; as image) {
-                <img [src]="image" [alt]="p.name">
-              } @else {
-                <span class="image-fallback">
-                  <img src="/logo/marketspase-mark-white.png" alt="" width="1024" height="1024" aria-hidden="true">
-                </span>
-              }
-            </div>
-            @if (gallery().length > 1) {
-              <div class="thumbs">
-                @for (image of gallery(); track image; let index = $index) {
-                  <button type="button" class="thumb" [class.active]="activeImage() === index" (click)="selectImage(index)" [attr.aria-label]="'View image ' + (index + 1)">
-                    <img [src]="image" [alt]="p.name" loading="lazy">
-                  </button>
-                }
-              </div>
-            }
+            <async-media-gallery
+              [media]="media()"
+              [fallback]="p.image"
+              [productName]="p.name"
+            />
           </section>
 
           <section class="info">

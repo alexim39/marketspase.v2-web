@@ -22,6 +22,7 @@ import {
 import {
   isOutOfStock,
   productCategory,
+  productHasVideo,
   productImage,
   productPrice,
   productSummary,
@@ -207,6 +208,10 @@ export class ResaleHubComponent {
 
   protected imageOf(product: ResaleProductInterface): string {
     return productImage(product);
+  }
+
+  protected hasVideo(product: ResaleProductInterface): boolean {
+    return productHasVideo(product);
   }
 
   protected summaryOf(product: ResaleProductInterface): string {

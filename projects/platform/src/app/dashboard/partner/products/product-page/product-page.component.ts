@@ -3,6 +3,7 @@ import { CurrencyPipe } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MediaGalleryComponent } from '@marketspase/shared/ui/media-gallery/media-gallery.component';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -16,9 +17,10 @@ import {
   productCategory,
   productDeliveryNote,
   productDescription,
-  productGallery,
+  productHasVideo,
   productHowToUse,
   productImage,
+  productMedia,
   productSummary,
   stockLabel,
 } from '../product-display';
@@ -37,6 +39,7 @@ import {
     CurrencyPipe,
     MatButtonModule,
     MatIconModule,
+    MediaGalleryComponent,
     PageSkeletonComponent,
     RouterModule,
   ],
@@ -52,7 +55,6 @@ export class ProductPageComponent implements OnInit {
 
   protected readonly product = signal<ProductInterface | null>(null);
   protected readonly related = signal<ProductInterface[]>([]);
-  protected readonly activeImage = signal(0);
   protected readonly quantity = signal(1);
   protected readonly loading = signal(true);
   protected readonly failed = signal(false);
@@ -63,7 +65,7 @@ export class ProductPageComponent implements OnInit {
 
   protected readonly gallery = computed(() => {
     const product = this.product();
-    return product ? productGallery(product) : [];
+    return product ? productMedia(product) : [];
   });
 
   protected readonly category = computed(() => {
@@ -143,6 +145,10 @@ export class ProductPageComponent implements OnInit {
     return productImage(product);
   }
 
+  protected hasVideo(product: ProductInterface): boolean {
+    return productHasVideo(product);
+  }
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
@@ -196,7 +202,6 @@ export class ProductPageComponent implements OnInit {
 
   private showProduct(product: ProductInterface): void {
     this.product.set(product);
-    this.activeImage.set(0);
     this.quantity.set(1);
     this.loading.set(false);
     this.loadRelated(product);
@@ -214,11 +219,6 @@ export class ProductPageComponent implements OnInit {
         },
         error: () => this.related.set([]),
       });
-  }
-
-  protected selectImage(index: number): void {
-    if (index < 0 || index >= this.gallery().length) return;
-    this.activeImage.set(index);
   }
 
   protected retry(): void {

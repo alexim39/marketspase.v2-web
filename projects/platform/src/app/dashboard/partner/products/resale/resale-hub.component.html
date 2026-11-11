@@ -185,6 +185,9 @@
                 <mat-icon class="thumb-fallback">inventory_2</mat-icon>
                 <img [src]="imageOf(product)" [alt]="product.name" loading="lazy" (error)="hideBrokenImage($event)">
                 <span class="badge">{{ categoryOf(product) }}</span>
+                @if (hasVideo(product)) {
+                  <span class="badge badge--video"><mat-icon>play_arrow</mat-icon> Video</span>
+                }
               </a>
 
               <div class="card-body">

@@ -1,4 +1,4 @@
-import { ProductInterface } from './monthly-purchase.service';
+import { ProductInterface, ProductMedia } from './monthly-purchase.service';
 
 export type ProductCategory = { key: string; label: string };
 export type StockState = 'available' | 'in' | 'low' | 'out';
@@ -81,7 +81,48 @@ export const productCategory = (product: ProductInterface): ProductCategory => {
     : { key: 'essentials', label: 'Essentials' };
 };
 
-export const productImage = (product: ProductInterface): string => imageFromRaw(product.img);
+export const productImage = (product: ProductInterface): string => {
+  const media = productMedia(product);
+  const first = media[0];
+  if (!first) return '';
+  if (first.type === 'video') {
+    return first.thumbnailUrl || media.find((item) => item.type === 'image')?.url || '';
+  }
+  return first.url;
+};
+
+/** Mixed image/video gallery with legacy image fallback. */
+export const productMedia = (product: ProductInterface): ProductMedia[] => {
+  const media = (product.media ?? [])
+    .filter((item) => item && item.url)
+    .map((item) => ({
+      type: item.type === 'video' ? 'video' as const : 'image' as const,
+      url: String(item.url),
+      thumbnailUrl: item.thumbnailUrl ? String(item.thumbnailUrl) : (item.type === 'video' ? '' : String(item.url)),
+      width: item.width ?? null,
+      height: item.height ?? null,
+      duration: item.duration ?? null,
+      order: item.order ?? 0,
+    }))
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  if (media.length > 0) return media;
+  const legacy = [product.img, ...(product.gallery ?? [])]
+    .map(imageFromRaw)
+    .filter(Boolean);
+  return [...new Set(legacy)].slice(0, 5).map((url, index) => ({
+    type: 'image' as const,
+    url,
+    thumbnailUrl: url,
+    width: null,
+    height: null,
+    duration: null,
+    order: index,
+  }));
+};
+
+export const productHasVideo = (product: ProductInterface): boolean => (
+  productMedia(product).some((item) => item.type === 'video')
+);
 
 export const productGallery = (product: ProductInterface): string[] => {
   const gallery = (product.gallery ?? []).map(imageFromRaw).filter(Boolean);

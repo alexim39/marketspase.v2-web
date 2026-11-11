@@ -472,6 +472,26 @@
   object-fit: cover;
 }
 
+.related-video {
+  position: absolute;
+  z-index: 2;
+  right: 0.55em;
+  top: 0.55em;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(10, 12, 16, 0.74);
+  color: #fff;
+}
+
+.related-video mat-icon {
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+}
+
 .related-fallback {
   position: absolute;
   inset: 0;

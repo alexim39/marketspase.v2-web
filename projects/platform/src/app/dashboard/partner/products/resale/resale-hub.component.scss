@@ -290,6 +290,23 @@
   backdrop-filter: blur(8px);
 }
 
+.badge--video {
+  left: auto;
+  right: 0.5em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.14em;
+  background: rgba(10, 12, 16, 0.74);
+  border-color: transparent;
+  color: #fff;
+}
+
+.badge--video mat-icon {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+}
+
 .card-body {
   display: flex;
   flex: 1;

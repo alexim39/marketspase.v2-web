@@ -1,4 +1,4 @@
-Ôªø# Production Readiness Audit ‚Äî 2026-11-04 (updated 2026-11-09)
+# Production Readiness Audit ó 2026-11-04 (updated 2026-11-11)
 
 Scope: deployment configuration, production API connectivity, payment hooks, email
 links, font/PWA dependencies and cross-browser behavior. Code-side fixes are listed
@@ -10,17 +10,17 @@ redeploy, the single-upline migration and the production PII keyring.
 | Area | Status |
 |---|---|
 | Platform production build | **Passes, warning-free** |
-| API test suite | **726 / 726 pass** (last verified 2026-11-10) |
+| API test suite | **738 / 738 pass** (last verified 2026-11-11) |
 | Web CI | **Green** on the latest web commit |
 | Cross-browser layout (Edge + WebKit) | **92 / 92 runs, 0 overflow** (2026-11-04 audit) |
 | Axe (authenticated, light/dark/mobile/desktop) | **68 scans, 0 violations** (2026-11-04 audit) |
-| Live API reachable | **Verify after deploy** ‚Äî `https://marketspasev2api-p3jkxlvy.back4.app/health` should return **200** |
+| Live API reachable | **Verify after deploy** ó `https://marketspasev2api-p3jkxlvy.back4.app/health` should return **200** |
 | Live API CORS for `marketspase.com` | **Verify after deploy** (see below) |
 | Single-upline migration | **Not yet run in production** |
 | Production PII keyring | **Not yet configured/verified** |
 | Production env checklist | Documented below; values live in the host dashboard |
 
-## Critical ‚Äî production API host
+## Critical ó production API host
 
 The production API host is `https://marketspasev2api-p3jkxlvy.back4.app`.
 The previous host is retired and must not be used.
@@ -58,7 +58,7 @@ curl -i -X OPTIONS https://marketspasev2api-p3jkxlvy.back4.app/v1/auth/signin \
 | CORS list had a duplicate origin and an insecure `http://survey...` entry | Removed duplicate + insecure entry | `api/server.js` |
 | `.env.example` did not list the Paystack key or the production `NODE_ENV` requirement | Added `PAYSTACKTOKEN=`, `PAYSTACK_PUBLIC_KEY=` and `NODE_ENV=production` note | `api/.env.example` |
 | Deposits were Opay-only and withdrawals trusted a client-typed account name | Added Paystack hosted checkout + signature-verified webhook + idempotent credit; withdrawals re-resolve the account server-side, start an automatic Paystack transfer, and refund automatically on failure. The legacy admin withdrawal queue and page were removed; exceptions reconcile in the Paystack dashboard | `api/src/modules/billing/**`, `api/src/jobs/payout-reconcile.js`, `platform/.../wallet/deposit/**`, `platform/.../partner/billing/**` |
-| Training approvals were tied to the retired 10-level ladder | IPO/QSG/SMO/Leadership now auto-record from the course certificate and count toward the four-rank model (Partner ‚Üí Builder ‚Üí Leader ‚Üí Ambassador); the confirmation inbox is retired and redirects to Team | `api/src/modules/training/**`, `api/src/modules/progression/**`, `platform/.../progress/**`, `platform/.../training/detail/**`, `platform/.../mentorship/**`, `platform/.../shell/**` |
+| Training approvals were tied to the retired 10-level ladder | IPO/QSG/SMO/Leadership now auto-record from the course certificate and count toward the four-rank model (Partner ? Builder ? Leader ? Ambassador); the confirmation inbox is retired and redirects to Team | `api/src/modules/training/**`, `api/src/modules/progression/**`, `platform/.../progress/**`, `platform/.../training/detail/**`, `platform/.../mentorship/**`, `platform/.../shell/**` |
 | Admin panel carried retired features and the prospect flow still asked for a reservation code | Removed Payout queue (merged into Compensation), Prolific Women, Reservation codes, the Withdrawals queue and Oversight from both UI and API; prospect conversion is now a no-code confirmation; learning paths/old rank cards removed; G8 removed from role UI and backend normalization (legacy g8 reads as Leader) | `platform/.../admin/**`, `platform/.../partner/mentorship/**`, `api/server.js`, `api/src/modules/{crm,identity-access,progression,reservations}/**` |
 
 Later cleanup (2026-11-08/09): the Buy Prospect pool and legacy campaign pool-lead
@@ -82,42 +82,42 @@ Set these in the API host dashboard before switching traffic:
 - `PUBLIC_SITE_URL=https://marketspase.com`
 - `EXTRA_CORS_ORIGINS=https://marketspase.com,https://www.marketspase.com`
 - `EMAIL_HOST=marketspase.com`, `EMAIL_PORT=465`, `EMAIL_SECURE=true`,
-  `EMAIL_USER=noreply@marketspase.com`, `EMAIL_PASS=‚Ä¶`, `EMAIL_FROM_EMAIL=‚Ä¶`
-- `PAYSTACKTOKEN=‚Ä¶` (hosted deposits, verification, bank directory + account-name resolution)
-- `PAYSTACK_PUBLIC_KEY=‚Ä¶` (optional; hosted checkout does not expose it)
+  `EMAIL_USER=noreply@marketspase.com`, `EMAIL_PASS=Ö`, `EMAIL_FROM_EMAIL=Ö`
+- `PAYSTACKTOKEN=Ö` (hosted deposits, verification, bank directory + account-name resolution)
+- `PAYSTACK_PUBLIC_KEY=Ö` (optional; hosted checkout does not expose it)
 - `PAYSTACK_AUTO_PAYOUT=true` (automatic transfers; set `false` for the manual queue kill switch)
 - Paystack webhook URL: `https://<api-host>/v1/billing/paystack/webhook`,
   subscribed to `charge.success`, `transfer.success`, `transfer.failed` and
-  `transfer.reversed` ‚Äî see `platform/docs/payments/PAYSTACK.md`
+  `transfer.reversed` ó see `platform/docs/payments/PAYSTACK.md`
 - Paystack account: **Transfers enabled**, **transfer OTP disabled**, **balance funded**
 - `OPAY_MODE=live`, `OPAY_LIVE_PUBLIC_KEY`, `OPAY_LIVE_PRIVATE_KEY`,
   `OPAY_MERCHANT_ID`, `OPAY_CALLBACK_URL`, `OPAY_RETURN_URL`
 - `CLOUDINARY_*`
 - `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`
 - `DEEPSEEK_API_KEY` if Ora is enabled; `ORA_DAILY_LIMIT=25`
-- `SMS_PROVIDER=http`, `BULKSMS_API_TOKEN=‚Ä¶`, `BULKSMS_SENDER_ID=marketspase`
+- `SMS_PROVIDER=http`, `BULKSMS_API_TOKEN=Ö`, `BULKSMS_SENDER_ID=marketspase`
 
 ## Deploy sequence
 
 1. Set the production environment above.
-2. Run `npm run migrate:upline` (dry) ‚Üí `APPLY=1 npm run migrate:upline` ‚Üí
+2. Run `npm run migrate:upline` (dry) ? `APPLY=1 npm run migrate:upline` ?
    `npm run audit:upline`.
 3. Redeploy the API (this publishes the current router order, Paystack webhook,
    `/health`, single-upline reads, Customer Leads, personal-page leads and the
    compensation/product paths).
 4. Configure the Paystack webhook:
-   `https://<api-host>/v1/billing/paystack/webhook` ‚Üí `charge.success`,
+   `https://<api-host>/v1/billing/paystack/webhook` ? `charge.success`,
    `transfer.success`, `transfer.failed`, `transfer.reversed`.
 5. In Paystack: enable Transfers, disable transfer OTP, and fund the payout balance.
 6. Verify CORS with the preflight command above.
-7. Run `npm run migrate:pii` (dry) ‚Üí `APPLY=1 npm run migrate:pii` if PII sealing
+7. Run `npm run migrate:pii` (dry) ? `APPLY=1 npm run migrate:pii` if PII sealing
    or key rotation is part of the release.
 8. Build and deploy the platform, store and admin apps. Confirm SPA fallback
    (`/dashboard/*`, `/lead/*`, `/stores/*` reloads).
 9. Verify the money path without charging:
    - deposit methods show Paystack enabled;
    - `GET /v1/billing/banks` returns the live bank list;
-   - an invalid account returns the friendly ‚Äúcould not verify‚Äù message;
+   - an invalid account returns the friendly ìcould not verifyî message;
    - a bad webhook signature returns **400**;
    - the deposit page hands off to `checkout.paystack.com` (abandon the checkout).
 10. Run one withdrawal with a real Nigerian bank account the business controls and
@@ -131,7 +131,7 @@ Set these in the API host dashboard before switching traffic:
 - The API runs on Back4App at `https://marketspasev2api-p3jkxlvy.back4.app`.
 - `push-sw.js` caches the app shell; its cache name is versioned (`ms-shell-v1`) and
   navigation is network-first, so a deploy refreshes the shell.
-- After changing `styles`/`assets` in `angular.json`, restart `ng serve` ‚Äî HMR does
+- After changing `styles`/`assets` in `angular.json`, restart `ng serve` ó HMR does
   not reload builder configuration. A stale dev server will serve the old CSS while
   the updated `index.html` no longer has the Google Fonts link, which makes icons
   disappear until the server is restarted.

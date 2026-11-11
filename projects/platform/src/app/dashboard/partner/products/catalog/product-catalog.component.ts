@@ -18,6 +18,7 @@ import {
   isOutOfStock,
   isPriced,
   productCategory,
+  productHasVideo,
   productImage,
   productPrice,
   productSummary,
@@ -219,6 +220,10 @@ export class ProductCatalogComponent {
 
   protected imageOf(product: ProductInterface): string {
     return productImage(product);
+  }
+
+  protected hasVideo(product: ProductInterface): boolean {
+    return productHasVideo(product);
   }
 
   protected summaryOf(product: ProductInterface): string {

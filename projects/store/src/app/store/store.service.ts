@@ -10,6 +10,8 @@ import {
   StoreOrderEnvelope,
   StoreOrderVerifyEnvelope,
   StoreProductEnvelope,
+  StoreProductMedia,
+  StoreProductPublic,
   StoreReturnEnvelope,
   PublicLeadPageEnvelope,
   PublicLeadSubmitEnvelope,
@@ -174,6 +176,48 @@ export const storeProductImage = (image: string): string => {
   if (/\.(png|jpe?g|webp|gif|avif)$/i.test(value)) return `${base}/${value}`;
   return `${base}/${value}.PNG`;
 };
+
+/** Mixed image/video gallery for a store product, with legacy image fallback. */
+export const storeProductMedia = (product: StoreProductPublic | null | undefined): StoreProductMedia[] => {
+  if (!product) return [];
+  const media = (product.media ?? [])
+    .filter((item) => item && item.url)
+    .map((item) => ({
+      type: item.type === 'video' ? 'video' as const : 'image' as const,
+      url: item.url,
+      thumbnailUrl: item.thumbnailUrl || (item.type === 'video' ? '' : item.url),
+      width: item.width ?? null,
+      height: item.height ?? null,
+      duration: item.duration ?? null,
+      order: item.order ?? 0,
+    }))
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  if (media.length > 0) return media;
+  const urls = [product.image, ...(product.images ?? [])]
+    .map(storeProductImage)
+    .filter(Boolean);
+  return [...new Set(urls)].slice(0, 5).map((url, index) => ({
+    type: 'image' as const,
+    url,
+    thumbnailUrl: url,
+    width: null,
+    height: null,
+    duration: null,
+    order: index,
+  }));
+};
+
+export const storeProductCover = (product: StoreProductPublic | null | undefined): string => {
+  if (!product) return '';
+  const first = storeProductMedia(product)[0];
+  if (!first) return '';
+  if (first.type === 'video') return first.thumbnailUrl || product.image || '';
+  return first.url;
+};
+
+export const storeProductHasVideo = (product: StoreProductPublic | null | undefined): boolean => (
+  storeProductMedia(product).some((item) => item.type === 'video')
+);
 
 export const storeError = (error: unknown): string => {
   const value = error as { error?: { message?: unknown }; message?: unknown };

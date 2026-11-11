@@ -22,31 +22,14 @@
   } @else {
     @if (product(); as item) {
       <div class="product-layout">
-        <section class="gallery dp-card" aria-label="Product images">
-          <div class="main-image">
-            <mat-icon class="image-fallback">inventory_2</mat-icon>
-            @if (gallery()[activeImage()]; as image) {
-              <img [src]="image" [alt]="item.name" (error)="hideBrokenImage($event)">
-            }
-            @if (item.featured) {
-              <span class="featured-badge">Featured</span>
-            }
-          </div>
-
-          @if (gallery().length > 1) {
-            <div class="thumb-row">
-              @for (image of gallery(); track image; let index = $index) {
-                <button
-                  type="button"
-                  class="thumb-button"
-                  [class.active]="activeImage() === index"
-                  [attr.aria-label]="'View image ' + (index + 1)"
-                  (click)="selectImage(index)"
-                >
-                  <img [src]="image" [alt]="item.name" loading="lazy">
-                </button>
-              }
-            </div>
+        <section class="gallery dp-card" aria-label="Product media">
+          <async-media-gallery
+            [media]="gallery()"
+            [fallback]="item.img"
+            [productName]="item.name"
+          />
+          @if (item.featured) {
+            <span class="featured-badge">Featured</span>
           }
         </section>
 
@@ -144,7 +127,7 @@
             <a mat-button routerLink="/dashboard/products"><mat-icon>arrow_back</mat-icon> Back to shop</a>
           </div>
 
-          @if (isPartner()) {
+          @if (isPartner() && item.resaleEnabled) {
             <a
               class="resale-banner dp-card"
               routerLink="/dashboard/products/resell"
@@ -214,6 +197,9 @@
                 <div class="related-thumb">
                   <mat-icon class="related-fallback">inventory_2</mat-icon>
                   <img [src]="imageOf(item)" [alt]="item.name" loading="lazy" (error)="hideBrokenImage($event)">
+                  @if (hasVideo(item)) {
+                    <span class="related-video"><mat-icon>play_arrow</mat-icon></span>
+                  }
                 </div>
                 <div class="related-copy">
                   <strong>{{ item.name }}</strong>

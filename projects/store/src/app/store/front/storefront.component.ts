@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SeoService } from '../../_common/services/seo.service';
@@ -9,7 +10,8 @@ import {
   StoreService,
   storeAssetUrl,
   storeError,
-  storeProductImage,
+  storeProductCover,
+  storeProductHasVideo,
 } from '../store.service';
 import { scrollToSection } from '../../_common/utils/scroll-to-section';
 
@@ -18,7 +20,7 @@ import { scrollToSection } from '../../_common/utils/scroll-to-section';
   templateUrl: './storefront.component.html',
   styleUrls: ['./storefront.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CurrencyPipe, RouterModule],
+  imports: [CurrencyPipe, MatIconModule, RouterModule],
 })
 export class StorefrontComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -84,7 +86,11 @@ export class StorefrontComponent implements OnInit {
   }
 
   protected productImage(product: StoreProductPublic): string {
-    return storeProductImage(product.image);
+    return storeProductCover(product);
+  }
+
+  protected productHasVideo(product: StoreProductPublic): boolean {
+    return storeProductHasVideo(product);
   }
 
   protected initials(store: StorePublic): string {
