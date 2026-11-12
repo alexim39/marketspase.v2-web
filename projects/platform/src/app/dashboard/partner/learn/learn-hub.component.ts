@@ -141,7 +141,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
                     } @else {
                       <span class="pill pill--muted">Not started</span>
                     }
-                    <a mat-button [routerLink]="['training/courses', course.id]">{{ course.percent > 0 ? 'Resume' : 'Start' }}</a>
+                    <a mat-button [routerLink]="['/dashboard/training/courses', course.id]" [queryParams]="course.nextLessonId ? { lesson: course.nextLessonId } : null">{{ course.percent > 0 ? 'Resume' : 'Start' }}</a>
                   </li>
                 }
               </ul>
