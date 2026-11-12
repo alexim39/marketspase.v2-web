@@ -268,7 +268,7 @@ type CampaignTab = 'studio' | 'campaigns' | 'placement';
                   </div>
                   <ol class="steps">
                     <li><strong>You fund the budget.</strong><span>The full amount leaves your wallet and is held for ad operations. Each prospect allocated costs ₦{{ costPerProspect | number }}.</span></li>
-                    <li><strong>AI Admin review.</strong><span>AI Admin checks the campaign before it becomes eligible. Budget is held and refundable.</span></li>
+                    <li><strong>Instant activation.</strong><span>Your campaign goes live as soon as funding clears. If you chose a future start date, allocation waits until that date.</span></li>
                     <li><strong>Fair allocation.</strong><span>The engine places activated partners using wait time, capped contribution, preferred states, capacity and support. If no preferred-state prospect is available, it falls back to other eligible states.</span></li>
                     <li><strong>Automatic close-out.</strong><span>When the budget or partner slots are exhausted, the campaign ends and any unspent budget returns to your wallet.</span></li>
                   </ol>
@@ -304,7 +304,7 @@ type CampaignTab = 'studio' | 'campaigns' | 'placement';
                           @if (campaign.flight.endAt) { – {{ campaign.flight.endAt | date: 'mediumDate' }} } @else { · continuous }
                         </p>
                         @if (campaign.status === 'Pending') {
-                          <p class="muted small">Awaiting AI Admin review. Budget is held and refundable.</p>
+                          <p class="muted small">Legacy campaign awaiting review. Budget is held and refundable.</p>
                         }
                         <div class="campaign-actions">
                           @if (campaign.trackingUrl) {

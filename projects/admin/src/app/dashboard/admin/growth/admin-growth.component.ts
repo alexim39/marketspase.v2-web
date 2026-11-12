@@ -39,7 +39,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
         <div>
           <p class="eyebrow">Admin desk</p>
           <h1>Growth campaigns</h1>
-          <p class="muted">Approve funded campaigns, run fair partner allocation and close out spend.</p>
+          <p class="muted">Monitor live campaigns, run fair partner allocation and close out spend. New campaigns activate automatically; Pending is reserved for legacy review.</p>
         </div>
         <div class="head-actions">
           <button mat-stroked-button type="button" (click)="runAll()" [disabled]="allocating() || loading()">
@@ -65,7 +65,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
       <div class="layout">
         <div class="panel">
           <div class="panel-head">
-            <div><p class="eyebrow">Campaigns</p><h2>Review and close-out queue</h2></div>
+            <div><p class="eyebrow">Campaigns</p><h2>Live campaigns and close-out queue</h2></div>
             <span class="count">{{ campaigns().length }}</span>
           </div>
           @if (loading()) { <mat-progress-bar mode="indeterminate" aria-label="Loading" /> }
@@ -346,7 +346,7 @@ export class AdminGrowthComponent implements OnInit {
     { label: 'All', value: '' },
   ];
 
-  protected readonly status = signal('Pending');
+  protected readonly status = signal('Active');
   protected readonly campaigns = signal<AdminGrowthCampaign[]>([]);
   protected readonly activeCampaignList = signal<AdminGrowthCampaign[]>([]);
   protected readonly queue = signal<CampaignQueueRow[]>([]);
