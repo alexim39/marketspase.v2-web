@@ -74,7 +74,12 @@ import { ApiError, userError } from '../../../../core/http/api-error';
               </div>
               <div class="chips">
                 <span class="chip">{{ sourceLabel(task.source) }}</span>
-                <span class="chip" [class.chip--ok]="task.status === 'contacted'">{{ statusLabel(task.status) }}</span>
+                <span
+                  class="chip"
+                  [class.chip--pending]="task.status === 'pending'"
+                  [class.chip--ok]="task.status === 'contacted'">
+                  {{ statusLabel(task.status) }}
+                </span>
               </div>
             </div>
 
@@ -163,9 +168,30 @@ import { ApiError, userError } from '../../../../core/http/api-error';
     .task-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .task-head h2 { margin: 0 0 2px; font-size: 1.08rem; }
     .muted { color: var(--ms-text-muted); }
-    .chips { display: flex; gap: 6px; flex-wrap: wrap; }
-    .chip { border: 1px solid var(--ms-line); border-radius: 999px; padding: 3px 9px; font-size: .72rem; font-weight: 700; text-transform: capitalize; }
-    .chip--ok { border-color: var(--ms-success); color: var(--ms-success); }
+    .chips { display: flex; align-items: center; align-self: flex-start; gap: 6px; flex-wrap: wrap; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--ms-line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: var(--ms-canvas);
+      color: var(--ms-text-muted);
+      font-size: .72rem;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    .chip--pending {
+      border-color: color-mix(in srgb, var(--ms-warning) 30%, var(--ms-line));
+      background: var(--ms-warning-soft);
+      color: var(--ms-warning);
+    }
+    .chip--ok {
+      border-color: color-mix(in srgb, var(--ms-success) 30%, var(--ms-line));
+      background: var(--ms-success-soft);
+      color: var(--ms-success);
+    }
     .task-meta { display: flex; gap: 14px; flex-wrap: wrap; color: var(--ms-text-muted); font-size: .85rem; }
     .task-meta span { display: inline-flex; align-items: center; gap: 4px; }
     .task-meta mat-icon { font-size: 17px; width: 17px; height: 17px; }
