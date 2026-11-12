@@ -291,6 +291,6 @@ export class MyPartnersContactsContainerComponent implements OnInit {
   }
 
   backToPartners(): void {
-    this.router.navigateByUrl('dashboard/mentorship/partners/my-partners');
+    this.router.navigateByUrl('/dashboard/mentorship/partners/my-partners');
   }
 }

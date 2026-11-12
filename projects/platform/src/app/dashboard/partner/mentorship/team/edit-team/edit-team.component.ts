@@ -204,7 +204,7 @@ export class EditTeamComponent implements OnInit {
     }
 
     back(): void {
-      this.router.navigateByUrl('dashboard/mentorship/team/members');
+      this.router.navigateByUrl('/dashboard/mentorship/team/members');
     }
 
     showDescription () {

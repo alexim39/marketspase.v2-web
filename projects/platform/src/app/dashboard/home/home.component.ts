@@ -66,14 +66,14 @@ interface ActivityItem {
             <strong>Your partner account is not activated yet</strong>
             <p>Complete the identity step and activate with the MarketSpase starter product to unlock campaign allocation and commissions.</p>
           </div>
-          <a mat-flat-button color="primary" routerLink="activate">Activate now</a>
+          <a mat-flat-button color="primary" routerLink="/dashboard/activate">Activate now</a>
         </div>
       }
       @if (profileIncomplete() && !bannerDismissed()) {
         <div class="profile-banner" role="status">
           <mat-icon>account_circle</mat-icon>
           <p>Your profile setup is incomplete — add your phone number and location so your upline and prospects can reach you.</p>
-          <a mat-button routerLink="settings/profiles">Complete profile</a>
+          <a mat-button routerLink="/dashboard/settings/profiles">Complete profile</a>
           <button mat-icon-button (click)="bannerDismissed.set(true)" aria-label="Dismiss">
             <mat-icon>close</mat-icon>
           </button>
@@ -119,7 +119,7 @@ interface ActivityItem {
           } @else {
             <strong>You are all clear</strong>
             <p class="muted">No urgent actions. Add a prospect or fund a campaign to keep momentum.</p>
-            <a mat-flat-button color="primary" routerLink="prospects/pipeline">Add a prospect</a>
+            <a mat-flat-button color="primary" routerLink="/dashboard/prospects/pipeline">Add a prospect</a>
           }
           @if (overview(); as o) {
             <span class="cc-next-count">{{ o.actions.total + (storeActionCount() > 0 ? 1 : 0) }} action{{ o.actions.total + (storeActionCount() > 0 ? 1 : 0) === 1 ? '' : 's' }} today</span>
@@ -145,15 +145,15 @@ interface ActivityItem {
           </div>
           <div class="growth-actions">
             @if (growthState() === 'member') {
-              <a mat-flat-button color="primary" routerLink="activate">Activate now</a>
+              <a mat-flat-button color="primary" routerLink="/dashboard/activate">Activate now</a>
             } @else if (growthState() === 'kyc') {
-              <a mat-flat-button color="primary" routerLink="activate">Finish KYC</a>
+              <a mat-flat-button color="primary" routerLink="/dashboard/activate">Finish KYC</a>
             } @else if (growthState() === 'queued') {
-              <a mat-flat-button routerLink="campaigns">Partner acquisition</a>
+              <a mat-flat-button routerLink="/dashboard/campaigns">Partner acquisition</a>
             } @else {
-              <a mat-button routerLink="campaigns">Manage acquisition</a>
+              <a mat-button routerLink="/dashboard/campaigns">Manage acquisition</a>
             }
-            <a mat-button routerLink="compensation">Compensation</a>
+            <a mat-button routerLink="/dashboard/compensation">Compensation</a>
           </div>
         </div>
       }
@@ -161,14 +161,14 @@ interface ActivityItem {
       <div class="cc-quick" aria-label="Quick actions">
         <a mat-stroked-button routerLink="/dashboard/prospects/new"><mat-icon>person_add</mat-icon> Add prospect</a>
         @if (storeActionCount() > 0) {
-          <a mat-stroked-button routerLink="products/store-orders">
+          <a mat-stroked-button routerLink="/dashboard/products/store-orders">
             <mat-icon>local_shipping</mat-icon> Fulfil {{ storeActionCount() }} store order{{ storeActionCount() === 1 ? '' : 's' }}
           </a>
         }
-        <a mat-stroked-button routerLink="campaigns"><mat-icon>campaign</mat-icon> Fund acquisition</a>
-        <a mat-stroked-button routerLink="messages"><mat-icon>forum</mat-icon> Send message</a>
-        <a mat-stroked-button routerLink="wallet"><mat-icon>add_card</mat-icon> Deposit</a>
-        <a mat-stroked-button routerLink="ora"><mat-icon>smart_toy</mat-icon> Ask Ora</a>
+        <a mat-stroked-button routerLink="/dashboard/campaigns"><mat-icon>campaign</mat-icon> Fund acquisition</a>
+        <a mat-stroked-button routerLink="/dashboard/messages"><mat-icon>forum</mat-icon> Send message</a>
+        <a mat-stroked-button routerLink="/dashboard/wallet"><mat-icon>add_card</mat-icon> Deposit</a>
+        <a mat-stroked-button routerLink="/dashboard/ora"><mat-icon>smart_toy</mat-icon> Ask Ora</a>
       </div>
 
       <div class="cc-momentum">
@@ -177,7 +177,7 @@ interface ActivityItem {
             <div class="cc-widget-head"><mat-icon>account_balance_wallet</mat-icon><span>Wallet</span></div>
             <strong class="cc-widget-value">₦{{ walletBalance() | number }}</strong>
             <span class="muted">₦{{ pendingCommissions() | number }} pending · ₦{{ releasedCommissions() | number }} released</span>
-            <a mat-button routerLink="wallet">Open wallet</a>
+            <a mat-button routerLink="/dashboard/wallet">Open wallet</a>
           </mat-card-content>
         </mat-card>
 
@@ -186,7 +186,7 @@ interface ActivityItem {
             <div class="cc-widget-head"><mat-icon>storefront</mat-icon><span>Store</span></div>
             <strong class="cc-widget-value">₦{{ storePendingEarnings() | number }}</strong>
             <span class="muted">{{ storeActionCount() }} to fulfil · ₦{{ storeReleasedEarnings() | number }} released</span>
-            <a mat-button routerLink="products/store-orders">Open store orders</a>
+            <a mat-button routerLink="/dashboard/products/store-orders">Open store orders</a>
           </mat-card-content>
         </mat-card>
 
@@ -195,7 +195,7 @@ interface ActivityItem {
             <div class="cc-widget-head"><mat-icon>campaign</mat-icon><span>Partner acquisition</span></div>
             <strong class="cc-widget-value">{{ activeCampaigns() }}</strong>
             <span class="muted">active · ₦{{ campaignSpend() | number }} spent · ₦{{ campaignRemaining() | number }} left</span>
-            <a mat-button routerLink="campaigns">Manage acquisition</a>
+            <a mat-button routerLink="/dashboard/campaigns">Manage acquisition</a>
           </mat-card-content>
         </mat-card>
 
@@ -204,7 +204,7 @@ interface ActivityItem {
             <div class="cc-widget-head"><mat-icon>groups</mat-icon><span>Team pulse</span></div>
             <strong class="cc-widget-value">{{ (overview()?.team?.downline?.total ?? 0) | number }}</strong>
             <span class="muted">{{ overview()?.team?.downline?.active ?? 0 }} active · {{ overview()?.team?.recruits?.current ?? 0 }} new</span>
-            <a mat-button routerLink="mentorship/partners/my-partners">View team</a>
+            <a mat-button routerLink="/dashboard/mentorship/partners/my-partners">View team</a>
           </mat-card-content>
         </mat-card>
 
@@ -213,7 +213,7 @@ interface ActivityItem {
             <div class="cc-widget-head"><mat-icon>event_available</mat-icon><span>Follow-ups</span></div>
             <strong class="cc-widget-value">{{ followUpsDue() }}</strong>
             <span class="muted">overdue + due today</span>
-            <a mat-button routerLink="prospects/reminders">Open reminders</a>
+            <a mat-button routerLink="/dashboard/prospects/reminders">Open reminders</a>
           </mat-card-content>
         </mat-card>
 
@@ -226,7 +226,7 @@ interface ActivityItem {
             </div>
             <strong class="cc-widget-value">{{ rankLabel() }}</strong>
             <span class="muted">{{ trainingSummary() }}</span>
-            <a mat-button routerLink="training">Continue learning</a>
+            <a mat-button routerLink="/dashboard/training">Continue learning</a>
           </mat-card-content>
         </mat-card>
 
@@ -241,7 +241,7 @@ interface ActivityItem {
                 on track
               }
             </span>
-            <a mat-button routerLink="goals">Review goals</a>
+            <a mat-button routerLink="/dashboard/goals">Review goals</a>
           </mat-card-content>
         </mat-card>
       </div>
@@ -251,7 +251,7 @@ interface ActivityItem {
           <mat-icon>smart_display</mat-icon>
           <p><strong>New:</strong> short videos show how each part of the app works.</p>
           <span class="spacer"></span>
-          <a mat-button routerLink="training/tutorials">Watch tutorials</a>
+          <a mat-button routerLink="/dashboard/training/tutorials">Watch tutorials</a>
           <button mat-icon-button (click)="tutorialsDismissed.set(true)" aria-label="Dismiss tutorials callout">
             <mat-icon>close</mat-icon>
           </button>
@@ -311,7 +311,7 @@ interface ActivityItem {
               }
             </ul>
             @if (o.actions.total + (storeActionCount() > 0 ? 1 : 0) > topActions().length) {
-              <a mat-button routerLink="insights">View all {{ o.actions.total + (storeActionCount() > 0 ? 1 : 0) }} actions</a>
+              <a mat-button routerLink="/dashboard/insights">View all {{ o.actions.total + (storeActionCount() > 0 ? 1 : 0) }} actions</a>
             }
           } @else {
             <p class="empty">Nothing needs you right now. Momentum is yours to make.</p>
@@ -337,9 +337,9 @@ interface ActivityItem {
                 </li>
               }
             </ul>
-            <a mat-button routerLink="community">Open community</a>
+            <a mat-button routerLink="/dashboard/community">Open community</a>
           } @else if (!loading()) {
-            <p class="empty">Quiet here — <a routerLink="community">be the first to post</a>.</p>
+            <p class="empty">Quiet here — <a routerLink="/dashboard/community">be the first to post</a>.</p>
           }
         </div>
 
@@ -739,7 +739,7 @@ export class HomeComponent implements OnInit {
         title: `Placed with ${placed.owner?.name || 'a campaign owner'}`,
         detail: placed.campaign?.name ? `Campaign: ${placed.campaign.name}` : 'Campaign allocation',
         at: placed.allocatedAt ?? null,
-        link: 'campaigns',
+        link: '/dashboard/campaigns',
       });
     }
 
@@ -750,7 +750,7 @@ export class HomeComponent implements OnInit {
         title: `Commission ₦${Number(entry.amount ?? 0).toLocaleString('en-NG')} · ${entry.status}`,
         detail: `Level ${entry.level} · ${entry.buyer?.name || 'Product order'}`,
         at: entry.releasedAt ?? entry.createdAt ?? null,
-        link: 'compensation',
+        link: '/dashboard/compensation',
       });
     }
 
@@ -761,7 +761,7 @@ export class HomeComponent implements OnInit {
         title: `Certified: ${cert.title}`,
         detail: cert.number ? `Certificate ${cert.number}` : 'Course completed',
         at: cert.at ?? null,
-        link: 'training/courses',
+        link: '/dashboard/training/courses',
       });
     }
 
@@ -773,7 +773,7 @@ export class HomeComponent implements OnInit {
         title: `Promoted from ${promoted.from} to ${promoted.to}`,
         detail: 'Rank journey',
         at: null,
-        link: 'progress',
+        link: '/dashboard/progress',
       });
     }
 
@@ -807,7 +807,7 @@ export class HomeComponent implements OnInit {
           category: 'store',
           title: `${storeCount} store order${storeCount === 1 ? '' : 's'} need${storeCount === 1 ? 's' : ''} fulfilment`,
           detail: 'Start processing, add tracking and mark delivery to release escrow.',
-          link: 'products/store-orders',
+          link: '/dashboard/products/store-orders',
         }
       : null;
     return [...(storeAction ? [storeAction] : []), ...base].slice(0, 5);
@@ -834,10 +834,10 @@ export class HomeComponent implements OnInit {
    */
   protected starterItems(): Array<{ key: string; label: string; link: string; done: boolean }> {
     return [
-      { key: 'profile', label: 'Complete your profile', link: 'settings/profiles', done: !this.profileIncomplete() },
+      { key: 'profile', label: 'Complete your profile', link: '/dashboard/settings/profiles', done: !this.profileIncomplete() },
       { key: 'prospect', label: 'Submit at least one contact/prospect', link: '/dashboard/prospects/new', done: this.hasProspect() },
-      { key: 'goal', label: 'Set your first goal', link: 'goals', done: (this.overview()?.goals.total ?? 1) > 0 },
-      { key: 'ipo', label: 'Take the IPO course', link: 'training', done: this.ipoDone() },
+      { key: 'goal', label: 'Set your first goal', link: '/dashboard/goals', done: (this.overview()?.goals.total ?? 1) > 0 },
+      { key: 'ipo', label: 'Take the IPO course', link: '/dashboard/training', done: this.ipoDone() },
     ];
   }
 

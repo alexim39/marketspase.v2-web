@@ -36,7 +36,7 @@ interface MoreGroup {
           <h1>Everything else, one tap away</h1>
           <p class="muted">Your account, insights, support and admin tools.</p>
         </div>
-        <a mat-flat-button color="primary" routerLink="settings/profiles">Edit account</a>
+        <a mat-flat-button color="primary" routerLink="/dashboard/settings/profiles">Edit account</a>
       </header>
 
       <!-- Account card -->
@@ -56,7 +56,7 @@ interface MoreGroup {
           <strong>{{ profilePercent() }}%</strong>
           <div class="meter"><span [style.width.%]="profilePercent()"></span></div>
           @if (profilePercent() < 100) {
-            <a mat-button routerLink="settings/profiles">Complete profile</a>
+            <a mat-button routerLink="/dashboard/settings/profiles">Complete profile</a>
           }
         </div>
       </div>

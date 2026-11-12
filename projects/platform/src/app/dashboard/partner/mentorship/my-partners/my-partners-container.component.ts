@@ -149,6 +149,6 @@ export class MyPartnersContainerComponent implements OnInit {
    * Navigate back to the dashboard
    */
   navigateBack(): void {
-    this.router.navigateByUrl('dashboard');
+    this.router.navigateByUrl('/dashboard');
   }
 }

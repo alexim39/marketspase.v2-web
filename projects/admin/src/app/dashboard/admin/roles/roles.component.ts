@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { AdminService } from '../../../core/admin/admin.service';
 import { ManagedPartner, PlatformStats } from '../../../core/admin/admin.models';
 import { ApiError, userError } from '../../../core/http/api-error';
@@ -312,7 +312,6 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
 export class ManageRolesComponent implements OnInit {
   private readonly admin = inject(AdminService);
   private readonly dialog = inject(MatDialog);
-  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -601,16 +600,17 @@ export class ManageRolesComponent implements OnInit {
           this.eraseId.set(null);
           const msg = userError(err);
           this.error.set(msg);
-          // Downline guard: turn the dead-end 409 into an actionable ask —
-          // offer the Network tree so the admin can reassign first.
+          // Downline guard: turn the dead-end 409 into the inline
+          // "Change upline" editor instead of sending the admin to a
+          // route that does not exist in the standalone admin app.
           const downline = /reassign (\d+) downline/i.exec(`${err.message ?? ''} ${msg}`);
           if (err.status === 409 && downline) {
             const n = downline[1];
-            if (window.confirm(
-              `${this.displayName(row)} has ${n} downline member${n === '1' ? '' : 's'} but no upline above them to inherit the team.\n\nReassign them before erasing this account.\n\nOpen the Network tree now to move them under a new upline?`,
-            )) {
-              this.router.navigateByUrl('dashboard/network/tree');
-            }
+            this.error.set(
+              `${msg} Reassign the ${n} downline member${n === '1' ? '' : 's'} first using “Change upline” on this row.`,
+            );
+            this.uplineId.set(row.id);
+            this.uplineUsername.set('');
           }
         },
       });

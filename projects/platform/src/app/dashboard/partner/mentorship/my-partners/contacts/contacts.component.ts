@@ -495,7 +495,7 @@ export class MyPartnersContactsComponent {
   viewDossier(): void {
     const id = this.ownerId();
     if (id) this.router.navigate(['/dashboard/mentorship/partners/my-partners/detail', id]).catch(() => undefined);
-    else this.router.navigateByUrl('dashboard/mentorship/partners/my-partners').catch(() => undefined);
+    else this.router.navigateByUrl('/dashboard/mentorship/partners/my-partners').catch(() => undefined);
   }
 
   scrollToTop(): void {

@@ -182,7 +182,7 @@ export class PartnerResetPasswordComponent implements OnInit {
             tone: 'success',
             confirmText: 'Sign in now',
           }).then(() => {
-            void this.router.navigateByUrl('partner/signin');
+            void this.router.navigateByUrl('/partner/signin');
           });
         },
         error: (err: ApiError) => {

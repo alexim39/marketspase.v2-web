@@ -61,7 +61,7 @@ export class MyPartnerSupportContainerComponent implements OnInit, OnDestroy {
   ) { }
 
   back(): void {
-    this.router.navigateByUrl('dashboard/mentorship/partners/my-partners');
+    this.router.navigateByUrl('/dashboard/mentorship/partners/my-partners');
   }
 
   ngOnInit(): void {

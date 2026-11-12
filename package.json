@@ -17,7 +17,8 @@
     "test:store": "ng test store --watch=false --browsers=ChromeHeadlessNoSandbox",
     "test:admin": "ng test admin --watch=false",
     "check:legacy-endpoints": "node scripts/check-legacy-endpoints.mjs",
-    "ci": "npm run check:legacy-endpoints && npm run build && npm run test:store && npm run test:admin"
+    "check:internal-links": "node scripts/check-internal-links.mjs",
+    "ci": "npm run check:legacy-endpoints && npm run check:internal-links && npm run build && npm run test:store && npm run test:admin"
   },
   "private": true,
   "packageManager": "npm@11.20.0",

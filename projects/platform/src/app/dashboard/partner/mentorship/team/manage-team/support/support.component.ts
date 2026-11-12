@@ -64,7 +64,7 @@ export class TeamSupportComponent implements OnDestroy {
 
 
   back(): void {
-    this.router.navigateByUrl('dashboard/mentorship/team/members');
+    this.router.navigateByUrl('/dashboard/mentorship/team/members');
   }
 
   deleteTeam(teamId: string) {
@@ -76,7 +76,7 @@ export class TeamSupportComponent implements OnDestroy {
         next: () => {
           this.deleting = false;
           this.confirmingDelete = false;
-          this.router.navigateByUrl('dashboard/mentorship/team/members');
+          this.router.navigateByUrl('/dashboard/mentorship/team/members');
         },
         error: (error: unknown) => {
           this.deleting = false;
@@ -164,7 +164,7 @@ export class TeamSupportComponent implements OnDestroy {
           this.removing = false;
           this.confirmRemoveId = null;
           if (afterLeaveGoBack) {
-            this.router.navigateByUrl('dashboard/mentorship/team/members');
+            this.router.navigateByUrl('/dashboard/mentorship/team/members');
             return;
           }
           this.team = {

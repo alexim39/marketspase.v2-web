@@ -121,7 +121,7 @@ export class MyPartnerSupportComponent implements OnInit, OnChanges {
   }
 
   protected back(): void {
-    this.router.navigateByUrl('dashboard/mentorship/partners/my-partners');
+    this.router.navigateByUrl('/dashboard/mentorship/partners/my-partners');
   }
 
   protected scrollToTop(): void {

@@ -167,7 +167,7 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
             message: res?.message ?? 'Check your email to verify your account.',
             tone: 'success',
             confirmText: 'Go to sign in',
-          }).then(() => this.router.navigateByUrl('partner/signin'));
+          }).then(() => this.router.navigateByUrl('/partner/signin'));
         },
         error: (error: unknown) => {
           this.isSubmitting.set(false);

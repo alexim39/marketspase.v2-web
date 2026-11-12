@@ -127,7 +127,7 @@ interface StageRow {
                   } @else {
                     <span class="pill">Due today</span>
                   }
-                  <a mat-button [routerLink]="['prospects/detail', item.prospectId]">Open</a>
+                  <a mat-button [routerLink]="['/dashboard/prospects/detail', item.prospectId]">Open</a>
                 </li>
               }
             </ul>
