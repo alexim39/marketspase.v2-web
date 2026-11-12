@@ -14,6 +14,7 @@ export interface MentorHandoffMember {
   id: string;
   name: string;
   username: string;
+  profileImage?: string | null;
   accountState: 'member' | 'partner';
   activatedAt: string | null;
 }
@@ -51,8 +52,17 @@ export interface MentorHandoffTemplate {
   body: string;
 }
 
+export interface MentorHandoffListMeta {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+  hasMore: boolean;
+}
+
 export interface MentorHandoffListEnvelope {
   data: MentorHandoffTask[];
+  meta: MentorHandoffListMeta;
   success: boolean;
 }
 

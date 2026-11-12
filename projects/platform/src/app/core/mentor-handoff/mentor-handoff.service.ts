@@ -9,13 +9,23 @@ import {
   MentorHandoffTemplatesEnvelope,
 } from './mentor-handoff.models';
 
+export interface MentorHandoffListQuery {
+  status?: 'pending' | 'contacted' | 'closed';
+  page?: number;
+  limit?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class MentorHandoffService {
   private readonly api = inject(ApiClient);
 
-  list(status?: 'pending' | 'contacted' | 'closed'): Observable<MentorHandoffListEnvelope> {
-    const query = status ? `?status=${status}` : '';
-    return this.api.get<MentorHandoffListEnvelope>(`v1/mentor-handoffs${query}`);
+  list(query: MentorHandoffListQuery = {}): Observable<MentorHandoffListEnvelope> {
+    const params = new URLSearchParams();
+    if (query.status) params.set('status', query.status);
+    if (query.page) params.set('page', String(query.page));
+    if (query.limit) params.set('limit', String(query.limit));
+    const suffix = params.toString() ? `?${params.toString()}` : '';
+    return this.api.get<MentorHandoffListEnvelope>(`v1/mentor-handoffs${suffix}`);
   }
 
   templates(): Observable<MentorHandoffTemplatesEnvelope> {

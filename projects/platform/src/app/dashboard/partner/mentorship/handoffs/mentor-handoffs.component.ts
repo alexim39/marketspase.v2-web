@@ -8,11 +8,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { AvatarComponent } from '../../../../_common/avatar.component';
 import { MentorHandoffService } from '../../../../core/mentor-handoff/mentor-handoff.service';
 import {
+  MentorHandoffListMeta,
   MentorHandoffTask,
   MentorHandoffTemplate,
 } from '../../../../core/mentor-handoff/mentor-handoff.models';
+import { PresenceService, PresenceStatus } from '../../../../core/presence/presence.service';
 import { ApiError, userError } from '../../../../core/http/api-error';
 
 @Component({
@@ -20,6 +23,7 @@ import { ApiError, userError } from '../../../../core/http/api-error';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
+    AvatarComponent,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -37,6 +41,24 @@ import { ApiError, userError } from '../../../../core/http/api-error';
         </div>
         <a mat-stroked-button routerLink="/dashboard/team">Back to team</a>
       </header>
+
+      <div class="task-toolbar">
+        <div class="filter-group" role="group" aria-label="Filter tasks">
+          @for (filter of filters; track filter.value) {
+            <button
+              type="button"
+              class="filter-btn"
+              [class.filter-btn--active]="statusFilter() === filter.value"
+              [attr.aria-pressed]="statusFilter() === filter.value"
+              (click)="setFilter(filter.value)">
+              {{ filter.label }}
+            </button>
+          }
+        </div>
+        @if (meta(); as m) {
+          <span class="muted small">{{ m.total }} {{ m.total === 1 ? 'task' : 'tasks' }}</span>
+        }
+      </div>
 
       @if (loading()) {
         <mat-progress-bar mode="indeterminate" aria-label="Loading mentor tasks" />
@@ -57,8 +79,10 @@ import { ApiError, userError } from '../../../../core/http/api-error';
       @if (!loading() && tasks().length === 0) {
         <div class="empty">
           <mat-icon>group_add</mat-icon>
-          <h2>No new member tasks yet</h2>
-          <p>When someone joins your team through a referral or campaign allocation, their welcome task appears here.</p>
+          <h2>{{ statusFilter() ? 'No tasks in this view' : 'No new member tasks yet' }}</h2>
+          <p>{{ statusFilter()
+            ? 'Try another filter or check back after the next referral or allocation.'
+            : 'When someone joins your team through a referral or campaign allocation, their welcome task appears here.' }}</p>
         </div>
       }
 
@@ -66,11 +90,18 @@ import { ApiError, userError } from '../../../../core/http/api-error';
         @for (task of tasks(); track task.id) {
           <article class="task-card">
             <div class="task-head">
-              <div>
-                <h2>{{ task.member?.name ?? 'New team member' }}</h2>
-                <p class="muted">
-                  @{{ task.member?.username || 'member' }} · joined {{ task.joinedAt | date:'mediumDate' }}
-                </p>
+              <div class="task-member">
+                <async-avatar
+                  [photo]="task.member?.profileImage"
+                  [name]="task.member?.name ?? 'New team member'"
+                  size="sm"
+                  [presence]="presenceOf(task.partnerId)" />
+                <div class="task-member-copy">
+                  <h2>{{ task.member?.name ?? 'New team member' }}</h2>
+                  <p class="muted">
+                    @{{ task.member?.username || 'member' }} · joined {{ task.joinedAt | date:'mediumDate' }}
+                  </p>
+                </div>
               </div>
               <div class="chips">
                 <span class="chip">{{ sourceLabel(task.source) }}</span>
@@ -148,6 +179,20 @@ import { ApiError, userError } from '../../../../core/http/api-error';
           </article>
         }
       </div>
+
+      @if (tasks().length > 0) {
+        <div class="list-footer">
+          <span class="muted small">
+            Showing {{ tasks().length }} of {{ meta()?.total ?? tasks().length }}
+          </span>
+          @if (meta()?.hasMore) {
+            <button mat-stroked-button type="button" (click)="loadMore()" [disabled]="loadingMore()">
+              <mat-icon>{{ loadingMore() ? 'hourglass_top' : 'expand_more' }}</mat-icon>
+              {{ loadingMore() ? 'Loading more…' : 'Load more' }}
+            </button>
+          }
+        </div>
+      }
     </section>
   `,
   styles: [`
@@ -163,12 +208,20 @@ import { ApiError, userError } from '../../../../core/http/api-error';
     .alert p, .notice p, .empty p { margin: 0; }
     .empty { display: grid; justify-items: center; text-align: center; padding: 38px 16px; gap: 6px; }
     .empty h2 { margin: 4px 0 0; }
+    .task-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .filter-group { display: inline-flex; gap: 3px; padding: 3px; background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: 999px; }
+    .filter-btn { border: 0; background: transparent; border-radius: 999px; padding: 6px 12px; color: var(--ms-text-muted); font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
+    .filter-btn:hover { color: var(--ms-text); }
+    .filter-btn--active { background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
     .task-list { display: grid; gap: 12px; }
     .task-card { background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: 14px; padding: 16px; display: grid; gap: 12px; }
-    .task-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .task-head h2 { margin: 0 0 2px; font-size: 1.08rem; }
+    .task-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .task-member { display: flex; align-items: center; gap: 10px; flex: 1 1 240px; min-width: 0; }
+    .task-member-copy { min-width: 0; }
+    .task-member-copy h2 { margin: 0 0 2px; font-size: 1.08rem; overflow-wrap: anywhere; }
     .muted { color: var(--ms-text-muted); }
-    .chips { display: flex; align-items: center; align-self: flex-start; gap: 6px; flex-wrap: wrap; }
+    .small { font-size: .8rem; }
+    .chips { display: flex; align-items: center; align-self: flex-start; flex: 0 0 auto; gap: 6px; flex-wrap: wrap; }
     .chip {
       display: inline-flex;
       align-items: center;
@@ -202,22 +255,38 @@ import { ApiError, userError } from '../../../../core/http/api-error';
     .preview-label { font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--ms-text-muted); }
     .preview p { margin: 5px 0; white-space: pre-wrap; }
     .direct-actions { display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid var(--ms-line); padding-top: 10px; }
-    @media (max-width: 640px) { .compose-row mat-form-field { min-width: 100%; } }
+    .list-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 4px 2px 0; }
+    @media (max-width: 640px) {
+      .compose-row mat-form-field { min-width: 100%; }
+      .task-member { flex-basis: 100%; }
+    }
   `],
 })
 export class MentorHandoffsComponent implements OnInit {
+  private static readonly PAGE_SIZE = 20;
+
   private readonly handoffs = inject(MentorHandoffService);
+  private readonly presence = inject(PresenceService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly tasks = signal<MentorHandoffTask[]>([]);
   protected readonly templates = signal<MentorHandoffTemplate[]>([]);
   protected readonly loading = signal(true);
+  protected readonly loadingMore = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly notice = signal<string | null>(null);
   protected readonly sending = signal<string | null>(null);
   protected readonly selected = signal<Record<string, string>>({});
+  protected readonly statusFilter = signal<'' | 'pending' | 'contacted'>('');
+  protected readonly meta = signal<MentorHandoffListMeta | null>(null);
+  protected readonly presenceMap = signal<Record<string, string | null>>({});
   protected readonly templateMap = computed(() => new Map(this.templates().map((t) => [t.key, t])));
+  protected readonly filters = [
+    { label: 'All tasks', value: '' as const },
+    { label: 'Needs welcome', value: 'pending' as const },
+    { label: 'Contacted', value: 'contacted' as const },
+  ];
 
   ngOnInit(): void {
     this.load();
@@ -226,19 +295,89 @@ export class MentorHandoffsComponent implements OnInit {
   protected load(): void {
     this.loading.set(true);
     this.error.set(null);
+    this.tasks.set([]);
+    this.meta.set(null);
     forkJoin({
-      tasks: this.handoffs.list(),
+      tasks: this.handoffs.list({
+        status: this.statusFilter() || undefined,
+        page: 1,
+        limit: MentorHandoffsComponent.PAGE_SIZE,
+      }),
       templates: this.handoffs.templates(),
     }).pipe(
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.loading.set(false)),
     ).subscribe({
       next: ({ tasks, templates }) => {
-        this.tasks.set(tasks.data ?? []);
+        const rows = tasks.data ?? [];
+        this.tasks.set(rows);
+        this.meta.set(tasks.meta ?? null);
         this.templates.set(templates.data ?? []);
+        this.refreshPresence(rows);
       },
       error: (err: ApiError) => this.error.set(userError(err)),
     });
+  }
+
+  protected loadMore(): void {
+    const current = this.meta();
+    if (!current?.hasMore || this.loading() || this.loadingMore()) return;
+    this.loadingMore.set(true);
+    this.error.set(null);
+    this.handoffs.list({
+      status: this.statusFilter() || undefined,
+      page: current.page + 1,
+      limit: MentorHandoffsComponent.PAGE_SIZE,
+    }).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.loadingMore.set(false)),
+    ).subscribe({
+      next: (res) => {
+        const rows = res.data ?? [];
+        const seen = new Set(this.tasks().map((task) => task.id));
+        this.tasks.update((currentRows) => [
+          ...currentRows,
+          ...rows.filter((task) => !seen.has(task.id)),
+        ]);
+        this.meta.set(res.meta ?? current);
+        this.refreshPresence(rows);
+      },
+      error: (err: ApiError) => this.error.set(userError(err)),
+    });
+  }
+
+  protected setFilter(value: '' | 'pending' | 'contacted'): void {
+    if (this.statusFilter() === value) return;
+    this.statusFilter.set(value);
+    this.selected.set({});
+    this.load();
+  }
+
+  protected presenceOf(partnerId: string | null | undefined): PresenceStatus {
+    return this.presence.statusOf(this.presenceMap()[String(partnerId ?? '')] ?? null);
+  }
+
+  private refreshPresence(rows: MentorHandoffTask[]): void {
+    const ids = [...new Set(rows.map((task) => task.partnerId).filter(Boolean))];
+    if (ids.length === 0) return;
+    this.presence.lookup(ids).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (map) => this.presenceMap.update((current) => ({ ...current, ...map })),
+    });
+  }
+
+  private applyUpdated(updated: MentorHandoffTask): void {
+    if (this.statusFilter() === 'pending' && updated.status !== 'pending') {
+      this.tasks.update((rows) => rows.filter((row) => row.id !== updated.id));
+      this.meta.update((current) => current
+        ? { ...current, total: Math.max(current.total - 1, 0) }
+        : current);
+      return;
+    }
+    this.tasks.update((rows) => rows.map((row) => (
+      row.id === updated.id ? { ...row, ...updated } : row
+    )));
   }
 
   protected selectedTemplate(taskId: string): string {
@@ -272,7 +411,7 @@ export class MentorHandoffsComponent implements OnInit {
       next: (res) => {
         const updated = res.data?.handoff;
         if (updated) {
-          this.tasks.update((rows) => rows.map((row) => row.id === updated.id ? { ...row, ...updated } : row));
+          this.applyUpdated(updated);
         }
         const channels = res.data?.channels;
         this.notice.set(channels?.email && channels?.sms
@@ -286,7 +425,7 @@ export class MentorHandoffsComponent implements OnInit {
   protected markContacted(task: MentorHandoffTask): void {
     this.handoffs.markContacted(task.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
-        this.tasks.update((rows) => rows.map((row) => row.id === task.id ? { ...row, ...(res.data ?? {}) } : row));
+        if (res.data) this.applyUpdated(res.data);
         this.notice.set('Task marked as contacted.');
       },
       error: (err: ApiError) => this.error.set(userError(err)),
