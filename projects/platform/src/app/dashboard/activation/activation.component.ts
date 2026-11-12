@@ -15,15 +15,18 @@ import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { AuthService } from '../../core/auth/auth.service';
 import { ApiError, userError } from '../../core/http/api-error';
 import { OnboardingService } from '../../core/onboarding/onboarding.service';
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
 import {
+  MentorContactPreference,
   OnboardingStatus,
   ShippingInput,
   StarterProduct,
@@ -37,9 +40,11 @@ import { States } from '../../_common/services/countries';
     DatePipe,
     DecimalPipe,
     MatButtonModule,
+    MatCheckboxModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatRadioModule,
     MatSelectModule,
     PageSkeletonComponent,
     ReactiveFormsModule,
@@ -252,6 +257,33 @@ import { States } from '../../_common/services/countries';
                       <li>Nationwide delivery included</li>
                       <li>Activation and onboarding access</li>
                     </ul>
+                  </div>
+                </div>
+
+                <div class="mentor-contact">
+                  <div class="mentor-contact-head">
+                    <div>
+                      <h4>How should your mentor contact you?</h4>
+                      <p class="muted small">Your direct mentor uses this only for onboarding support. You can change it later.</p>
+                    </div>
+                    <mat-icon aria-hidden="true">support_agent</mat-icon>
+                  </div>
+                  <div [formGroup]="mentorForm" class="mentor-form">
+                    <mat-radio-group formControlName="preference" aria-label="Mentor contact preference">
+                      <mat-radio-button value="in_app">In-app chat</mat-radio-button>
+                      <mat-radio-button value="email">Email</mat-radio-button>
+                      <mat-radio-button value="whatsapp">WhatsApp</mat-radio-button>
+                      <mat-radio-button value="phone">Phone call</mat-radio-button>
+                      <mat-radio-button value="prefer_not_now">Prefer not to be contacted yet</mat-radio-button>
+                    </mat-radio-group>
+                    @if (needsMentorConsent()) {
+                      <mat-checkbox formControlName="consent">
+                        I agree my direct mentor can use this channel to contact me about my onboarding.
+                      </mat-checkbox>
+                    }
+                    @if (mentorForm.get('preference')?.value === 'prefer_not_now') {
+                      <p class="muted small">No direct mentor outreach will be made. You can change this later if you want support.</p>
+                    }
                   </div>
                 </div>
 
@@ -526,6 +558,12 @@ import { States } from '../../_common/services/countries';
     .check-list li { display: flex; align-items: center; gap: 8px; }
     .check-list mat-icon { color: var(--ms-success); font-size: 18px; width: 18px; height: 18px; }
     .shipping-grid { margin-top: 4px; }
+    .mentor-contact { margin: 16px 0 18px; padding: 14px; border: 1px solid var(--ms-line); border-radius: 12px; background: var(--ms-canvas); display: grid; gap: 10px; }
+    .mentor-contact-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .mentor-contact-head h4 { margin: 0 0 3px; font-size: 0.98rem; }
+    .mentor-form { display: grid; gap: 10px; }
+    .mentor-form mat-radio-group { display: grid; gap: 7px; }
+    .mentor-form mat-checkbox { margin-top: 2px; }
     .wallet-box { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px; border: 1px solid var(--ms-line); border-radius: 12px; background: var(--ms-canvas); margin: 8px 0 12px; flex-wrap: wrap; }
     .wallet-box > div { display: grid; gap: 2px; }
     .wallet-box strong { font-size: 1.2rem; font-variant-numeric: tabular-nums; }
@@ -647,6 +685,15 @@ export class ActivationComponent implements OnInit {
     notes: [''],
   });
 
+  protected readonly mentorForm = this.fb.nonNullable.group({
+    preference: ['in_app' as MentorContactPreference],
+    consent: [false],
+  });
+
+  protected needsMentorConsent(): boolean {
+    return ['email', 'whatsapp', 'phone'].includes(this.mentorForm.controls.preference.value);
+  }
+
   ngOnInit(): void {
     this.refresh();
   }
@@ -734,6 +781,19 @@ export class ActivationComponent implements OnInit {
       this.error.set('Complete the delivery address before activating.');
       return;
     }
+    const mentor = this.mentorForm.getRawValue();
+    if (['email', 'whatsapp', 'phone'].includes(mentor.preference) && !mentor.consent) {
+      this.error.set('Agree to share your chosen contact channel with your mentor.');
+      return;
+    }
+    if (mentor.preference === 'email' && !partner.email) {
+      this.error.set('Add an email address before choosing email.');
+      return;
+    }
+    if (['whatsapp', 'phone'].includes(mentor.preference) && !partner.phone) {
+      this.error.set('Add a phone number before choosing WhatsApp or phone.');
+      return;
+    }
     if (partner.balance < product.price) {
       this.error.set('Your wallet balance is too low. Fund your wallet and try again.');
       return;
@@ -744,6 +804,8 @@ export class ActivationComponent implements OnInit {
     this.onboarding.createOrder({
       productId: product.id,
       shipping: this.shippingForm.getRawValue() as ShippingInput,
+      mentorContactPreference: mentor.preference,
+      mentorContactConsent: mentor.consent,
       idempotencyKey: this.checkoutKey,
     }).pipe(
       takeUntilDestroyed(this.destroyRef),
@@ -766,8 +828,12 @@ export class ActivationComponent implements OnInit {
   }
 
   protected canPay(): boolean {
+    const mentor = this.mentorForm.getRawValue();
+    const mentorReady = !['email', 'whatsapp', 'phone'].includes(mentor.preference)
+      || (mentor.consent && (mentor.preference === 'email' ? !!this.partner()?.email : !!this.partner()?.phone));
     return this.kycSubmitted()
       && this.shippingForm.valid
+      && mentorReady
       && this.walletReady()
       && !this.isPartner();
   }
@@ -810,6 +876,10 @@ export class ActivationComponent implements OnInit {
       city: address?.city ?? '',
       state: address?.state ?? '',
       country: address?.country ?? 'Nigeria',
+    }, { emitEvent: false });
+    this.mentorForm.patchValue({
+      preference: status.partner.mentorContactPreference ?? 'in_app',
+      consent: !!status.partner.mentorContactConsentAt,
     }, { emitEvent: false });
   }
 

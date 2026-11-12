@@ -267,6 +267,39 @@
 
   <mat-expansion-panel>
     <mat-expansion-panel-header>
+      <mat-panel-title> Mentor contact <span class="section-badge section-badge--optional">Optional</span> </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="form-container">
+      <p class="mentor-note">Choose how your direct mentor may contact you about onboarding. Your phone and email stay private unless you choose Email, WhatsApp, or Phone and agree to share that channel.</p>
+      <form class="flex-form" [formGroup]="mentorForm" (ngSubmit)="onMentorPreferenceSubmit()">
+        <div class="form-ungroup">
+          <mat-radio-group formControlName="preference" aria-label="Mentor contact preference" class="mentor-options">
+            <mat-radio-button value="in_app">In-app chat</mat-radio-button>
+            <mat-radio-button value="email">Email</mat-radio-button>
+            <mat-radio-button value="whatsapp">WhatsApp</mat-radio-button>
+            <mat-radio-button value="phone">Phone call</mat-radio-button>
+            <mat-radio-button value="prefer_not_now">Prefer not to be contacted yet</mat-radio-button>
+          </mat-radio-group>
+          @if (requiresMentorConsent()) {
+            <mat-checkbox formControlName="consent">
+              I agree my direct mentor can use this channel to contact me about my onboarding.
+            </mat-checkbox>
+          }
+          @if (mentorForm.get('preference')?.value === 'prefer_not_now') {
+            <p class="muted">No direct mentor outreach will be made.</p>
+          }
+        </div>
+        <div class="form-group"></div>
+        <button mat-flat-button color="primary" [disabled]="mentorBusy()">
+          {{ mentorBusy() ? 'Saving…' : 'Save preference' }}
+        </button>
+      </form>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
       <mat-panel-title> Account </mat-panel-title>
     </mat-expansion-panel-header>
 

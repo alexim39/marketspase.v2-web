@@ -52,6 +52,7 @@ const PLATFORM_ROUTES = [
   /^\/dashboard\/ora$/,
   /^\/dashboard\/pipeline$/,
   /^\/dashboard\/team$/,
+  /^\/dashboard\/team\/handoffs$/,
   /^\/dashboard\/learn(?:\/video-of-the-week(?:\/[^/]+)?)?$/,
   /^\/dashboard\/more$/,
   /^\/dashboard\/checkout$/,

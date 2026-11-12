@@ -4,6 +4,7 @@ export type AccountState = 'member' | 'partner';
 export type KycStatus = 'not_started' | 'pending' | 'verified' | 'rejected';
 export type IdType = 'nin' | 'drivers_license' | 'passport' | 'voters_card';
 export type ActivationOrderStatus = 'Paid' | 'Fulfilled' | 'Refunded' | 'Cancelled';
+export type MentorContactPreference = 'in_app' | 'email' | 'whatsapp' | 'phone' | 'prefer_not_now';
 
 export interface OnboardingPartner {
   id: string;
@@ -18,6 +19,9 @@ export interface OnboardingPartner {
   activatedAt: string | null;
   createdAt?: string | null;
   emailVerified: boolean;
+  mentorContactPreference?: MentorContactPreference;
+  mentorContactConsentAt?: string | null;
+  mentorContactPreferenceUpdatedAt?: string | null;
   address?: {
     street?: string;
     city?: string;
@@ -77,6 +81,8 @@ export interface ActivationOrder {
     notes?: string;
   };
   paymentMethod: string;
+  mentorContactPreference?: MentorContactPreference;
+  mentorContactConsentAt?: string | null;
   activatedAt: string;
   fulfilledAt: string | null;
   refundedAt: string | null;
@@ -115,6 +121,8 @@ export interface ShippingInput {
 export interface CreateActivationOrderInput {
   productId: string;
   shipping: ShippingInput;
+  mentorContactPreference: MentorContactPreference;
+  mentorContactConsent: boolean;
   idempotencyKey: string;
 }
 

@@ -15,6 +15,9 @@ export interface PartnerInterface {
   kycStatus?: 'not_started' | 'pending' | 'verified' | 'rejected';
   commissionRank?: 'Partner' | 'Builder' | 'Leader' | 'Ambassador';
   activatedAt?: string | null;
+  mentorContactPreference?: 'in_app' | 'email' | 'whatsapp' | 'phone' | 'prefer_not_now';
+  mentorContactConsentAt?: string | null;
+  mentorContactPreferenceUpdatedAt?: string | null;
   password: string;
   username: string;
   bio?: string;

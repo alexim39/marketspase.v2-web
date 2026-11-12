@@ -59,6 +59,7 @@ export const dashboardRoutes: Routes = [
 
             // New IA landing pages
             { path: 'pipeline', loadComponent: () => import('./pipeline/pipeline-hub.component').then(m => m.PipelineHubComponent), title: "Pipeline - Who needs you today" },
+            { path: 'team/handoffs', loadComponent: () => import('./mentorship/handoffs/mentor-handoffs.component').then(m => m.MentorHandoffsComponent), title: "New member tasks - Mentor onboarding" },
             { path: 'team', loadComponent: () => import('./team/team-hub.component').then(m => m.TeamHubComponent), title: "Team - Who needs you today" },
             { path: 'learn/video-of-the-week', loadComponent: () => import('./learn/weekly-video/weekly-video.component').then(m => m.WeeklyVideoComponent), title: "Video of the Week - Weekly briefing" },
             { path: 'learn/video-of-the-week/:id', loadComponent: () => import('./learn/weekly-video/weekly-video.component').then(m => m.WeeklyVideoComponent), title: "Video of the Week - Weekly briefing" },

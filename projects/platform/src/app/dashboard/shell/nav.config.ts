@@ -89,6 +89,7 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
     title: 'Your people and coaching',
     link: '/dashboard/team',
     children: [
+      { label: 'New member tasks', link: '/dashboard/team/handoffs', title: 'Welcome every new partner' },
       { label: 'Activation', link: '/dashboard/mentorship/team/activation', title: 'Who needs you next' },
       { label: 'Partner acquisition', link: '/dashboard/campaigns', title: 'Fund central acquisition and receive activated partners' },
       { label: 'My partners', link: '/dashboard/mentorship/partners/my-partners', title: 'Your partners' },

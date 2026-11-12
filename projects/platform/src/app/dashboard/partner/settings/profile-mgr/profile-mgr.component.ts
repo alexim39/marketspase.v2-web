@@ -4,9 +4,11 @@ import { RouterModule } from '@angular/router';
 import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatTableModule } from '@angular/material/table';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
@@ -27,6 +29,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Countries, States } from '../../../../_common/services/countries';
 import { HttpErrorResponse } from '@angular/common/http';
 import { userError } from '../../../../core/http/api-error';
+import { MentorHandoffService } from '../../../../core/mentor-handoff/mentor-handoff.service';
+import { MentorHandoffPreference } from '../../../../core/mentor-handoff/mentor-handoff.models';
 
 interface MeterItem {
   label: string;
@@ -83,26 +87,31 @@ styles: [`
     .flex-form .form-group, .flex-form .form-ungroup { flex: 1 1 100%; }
   }
   .muted { color: var(--ms-text-muted); font-size: 0.85em; }
+  .mentor-options { display: grid; gap: 8px; margin-bottom: 12px; }
+  .mentor-note { margin: 0 0 12px; color: var(--ms-text-muted); font-size: 0.9em; line-height: 1.5; }
   .public-link button { vertical-align: middle; color: var(--ms-primary-strong); }
 `],
 providers: [provideNativeDateAdapter(), ProfileService],
 changeDetection: ChangeDetectionStrategy.OnPush,
 imports: [FormsModule, CommonModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule,
-    ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, MatSnackBarModule, ProfilePictureUploadComponent, DeleteAccountComponent, RouterModule
+    ReactiveFormsModule, MatButtonToggleModule, MatCheckboxModule, MatFormFieldModule, MatRadioModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, MatSnackBarModule, ProfilePictureUploadComponent, DeleteAccountComponent, RouterModule
 ]
 })
 export class ProfileMgrComponent implements OnInit, OnDestroy {
   readonly dialog = inject(MatDialog);
   private readonly snack = inject(MatSnackBar);
   private readonly ui = inject(UiFeedbackService);
+  private readonly mentorHandoffs = inject(MentorHandoffService);
   @Input() partner!: PartnerInterface;
 
   protected readonly profile = signal<PartnerInterface | null>(null);
+  protected readonly mentorBusy = signal(false);
 
   profileMgrForm!: FormGroup;
   usernameForm!: FormGroup;
   passwordForm!: FormGroup;
   professionalForm!: FormGroup;
+  mentorForm!: FormGroup;
   hideCurrent = signal(true);
   hideNew = signal(true);
 
@@ -168,7 +177,46 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
         skill: new FormControl(this.partner.skill, [Validators.required]),
         id: new FormControl(this.partner._id),
       });
+      this.mentorForm = new FormGroup({
+        preference: new FormControl<MentorHandoffPreference>(
+          this.partner.mentorContactPreference ?? 'in_app',
+        ),
+        consent: new FormControl(!!this.partner.mentorContactConsentAt),
+      });
     }
+  }
+
+  protected requiresMentorConsent(): boolean {
+    return ['email', 'whatsapp', 'phone'].includes(this.mentorForm.value.preference);
+  }
+
+  protected onMentorPreferenceSubmit(): void {
+    if (!this.mentorForm || this.mentorBusy()) return;
+    const { preference, consent } = this.mentorForm.value as {
+      preference: MentorHandoffPreference;
+      consent: boolean;
+    };
+    if (this.requiresMentorConsent() && !consent) {
+      this.ui.error('Agree to share your chosen contact channel with your mentor.');
+      return;
+    }
+    this.mentorBusy.set(true);
+    this.subscriptions.push(
+      this.mentorHandoffs.updatePreference(preference, !!consent).subscribe({
+        next: () => {
+          this.mentorBusy.set(false);
+          this.refreshShared({
+            mentorContactPreference: preference,
+            mentorContactConsentAt: this.requiresMentorConsent() ? new Date().toISOString() : null,
+          });
+          this.ui.success('Mentor contact preference saved.');
+        },
+        error: (error: HttpErrorResponse) => {
+          this.mentorBusy.set(false);
+          this.ui.error(userError(error));
+        },
+      }),
+    );
   }
 
   /** Completion meter — required gates onboarding, recommended polishes it. */

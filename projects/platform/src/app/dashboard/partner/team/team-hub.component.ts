@@ -43,7 +43,8 @@ import { ApiError, userError } from '../../../core/http/api-error';
           <p class="muted">Activation, training and coaching signals across your team.</p>
         </div>
         <div class="head-actions">
-          <a mat-flat-button color="primary" routerLink="/dashboard/mentorship/partners/my-partners">My partners</a>
+          <a mat-flat-button color="primary" routerLink="/dashboard/team/handoffs">New member tasks</a>
+          <a mat-stroked-button routerLink="/dashboard/mentorship/partners/my-partners">My partners</a>
           <a mat-stroked-button routerLink="/dashboard/network/tree">Team tree</a>
         </div>
       </header>
