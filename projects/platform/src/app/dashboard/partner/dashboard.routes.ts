@@ -19,6 +19,11 @@ export const dashboardRoutes: Routes = [
                 title: "Activate your partner account",
             },
             {
+                path: 'path',
+                loadComponent: () => import('./launch-path/launch-path.component').then(r => r.LaunchPathComponent),
+                title: "My Launch Path - From signup to first commission",
+            },
+            {
                 path: 'campaigns',
                 loadComponent: () => import('../campaigns/campaigns.component').then(r => r.CampaignsComponent),
                 title: "Partner acquisition - Fund central acquisition",

@@ -40,6 +40,9 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
     description: "Today's priorities",
     section: 'workspace',
     title: 'Home - what should I do today?',
+    children: [
+      { label: 'My launch path', link: '/dashboard/path', title: 'Your guided route to first earnings' },
+    ],
   },
   {
     key: 'products',
@@ -165,6 +168,7 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
       { label: 'Appearance', link: '/dashboard/settings/appearance', title: 'Light, dark or system theme' },
       { label: 'Verification & KYC', link: '/dashboard/settings/verification', title: 'Identity status and verification' },
       { label: 'Billing & withdrawals', link: '/dashboard/settings/billing', title: 'Bank account and withdrawals' },
+      { label: 'Trust & compliance', link: '/dashboard/settings/trust', title: 'Identity, consent, statements and data controls' },
       { label: 'Personal page', link: '/dashboard/settings/landing-page', title: 'Set up your public lead page' },
       { label: 'Notifications', link: '/dashboard/notifications/center', title: 'Alerts and notification settings' },
       { label: 'Insights', link: '/dashboard/insights', title: 'Your business insights' },

@@ -12,7 +12,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, forkJoin } from 'rxjs';
+import { finalize, forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -27,6 +28,7 @@ import { OnboardingService } from '../../core/onboarding/onboarding.service';
 import { OnboardingStatus } from '../../core/onboarding/onboarding.models';
 import { CampaignsService } from '../../core/campaigns/campaigns.service';
 import {
+  CampaignAnalytics,
   GrowthCampaign,
   MyAllocation,
   PlacedPartner,
@@ -35,7 +37,7 @@ import { ApiError, userError } from '../../core/http/api-error';
 import { States } from '../../_common/services/countries';
 import { CampaignAnalyticsDialogComponent } from './analytics/campaign-analytics.component';
 
-type CampaignTab = 'studio' | 'campaigns' | 'placement';
+type CampaignTab = 'studio' | 'campaigns' | 'roi' | 'placement';
 
 @Component({
   selector: 'async-growth-campaigns',
@@ -158,6 +160,9 @@ type CampaignTab = 'studio' | 'campaigns' | 'placement';
             </button>
             <button mat-button type="button" [class.active]="tab() === 'campaigns'" (click)="setTab('campaigns')">
               <mat-icon>campaign</mat-icon> My campaigns
+            </button>
+            <button mat-button type="button" [class.active]="tab() === 'roi'" (click)="setTab('roi')">
+              <mat-icon>query_stats</mat-icon> ROI
             </button>
             <button mat-button type="button" [class.active]="tab() === 'placement'" (click)="setTab('placement')">
               <mat-icon>group_add</mat-icon> Placement
@@ -336,6 +341,54 @@ type CampaignTab = 'studio' | 'campaigns' | 'placement';
               </div>
             }
 
+            @case ('roi') {
+              <div class="panel">
+                <div class="panel-head">
+                  <div><p class="eyebrow">Growth investment</p><h2>Campaign ROI cockpit</h2></div>
+                  <span class="count">{{ campaigns().length }}</span>
+                </div>
+                <p class="muted small campaign-note">See what your acquisition budget is producing: joins, activated partners, cost per activation and 7-day retention. Use the signal to decide whether to fund again.</p>
+
+                @if (campaigns().length === 0) {
+                  <div class="empty"><mat-icon>query_stats</mat-icon><p>No campaign data yet. Fund your first campaign to start measuring ROI.</p><button mat-flat-button color="primary" type="button" (click)="setTab('studio')">Open Studio</button></div>
+                } @else {
+                  <div class="roi-summary">
+                    <div><span>Spent</span><strong>₦{{ roiTotals().spent | number: '1.0-0' }}</strong></div>
+                    <div><span>Signups</span><strong>{{ roiTotals().signups }}</strong></div>
+                    <div><span>Activated</span><strong>{{ roiTotals().activated }}</strong></div>
+                    <div><span>Cost per activation</span><strong>{{ roiTotals().costPerActivated === null ? '—' : '₦' + (roiTotals().costPerActivated | number: '1.0-0') }}</strong></div>
+                    <div><span>7-day retention</span><strong>{{ roiTotals().retentionRate === null ? '—' : roiTotals().retentionRate + '%' }}</strong></div>
+                  </div>
+
+                  @if (roiLoading()) {
+                    <p class="muted load-note">Loading campaign outcomes…</p>
+                  }
+
+                  <div class="roi-table-wrap">
+                    <table class="roi-table">
+                      <thead><tr><th>Campaign</th><th>Spent</th><th>Signups</th><th>Activated</th><th>Activation</th><th>Cost / activation</th><th>7-day retention</th><th>Signal</th><th></th></tr></thead>
+                      <tbody>
+                        @for (campaign of campaigns(); track campaign.id) {
+                          <tr>
+                            <td><strong>{{ campaign.name }}</strong><small>{{ campaign.status }}</small></td>
+                            <td>₦{{ campaign.budget.spent | number: '1.0-0' }}</td>
+                            <td>{{ roiFor(campaign.id)?.summary?.signups ?? '—' }}</td>
+                            <td>{{ roiFor(campaign.id)?.summary?.activated ?? '—' }}</td>
+                            <td>{{ activationLabel(campaign) }}</td>
+                            <td>{{ costPerActivated(campaign) === null ? '—' : '₦' + (costPerActivated(campaign) | number: '1.0-0') }}</td>
+                            <td>{{ retentionLabel(campaign) }}</td>
+                            <td><span class="roi-signal" [class]="'roi-signal roi-signal--' + roiSignal(campaign).tone">{{ roiSignal(campaign).label }}</span></td>
+                            <td><button mat-button type="button" (click)="openAnalytics(campaign)">Analytics</button></td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="fine">Activation and retention are leading indicators. Commission payback follows when allocated partners sell products; keep campaigns funded while activation and retention stay healthy.</p>
+                }
+              </div>
+            }
+
             @case ('placement') {
               <div class="panel placed-panel">
                 <div class="panel-head">
@@ -437,6 +490,23 @@ type CampaignTab = 'studio' | 'campaigns' | 'placement';
     .flight { margin: 8px 0; font-size: 0.8125rem; }
     .campaign-actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
     .danger { color: var(--ms-error); }
+    .roi-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
+    .roi-summary div { padding: 12px 16px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-md); background: var(--ms-canvas); display: flex; flex-direction: column; gap: 2px; }
+    .roi-summary span { color: var(--ms-text-muted); font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .roi-summary strong { font-size: 1.125rem; font-variant-numeric: tabular-nums; }
+    .roi-table-wrap { overflow-x: auto; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); }
+    .roi-table { width: 100%; border-collapse: collapse; min-width: 860px; }
+    .roi-table th, .roi-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--ms-line); }
+    .roi-table th { color: var(--ms-text-muted); font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .roi-table tbody tr:last-child td { border-bottom: 0; }
+    .roi-table td small { display: block; color: var(--ms-text-muted); font-size: 0.6875rem; }
+    .roi-signal { border-radius: 999px; padding: 4px 10px; font-size: 0.6875rem; font-weight: 700; white-space: nowrap; }
+    .roi-signal--strong { background: var(--ms-success-soft); color: var(--ms-success); }
+    .roi-signal--watch { background: var(--ms-warning-soft); color: var(--ms-warning); }
+    .roi-signal--weak { background: var(--ms-error-soft); color: var(--ms-error); }
+    .roi-signal--early { background: var(--ms-canvas); color: var(--ms-text-muted); }
+    .load-note { margin: 0 0 12px; }
+    @media (max-width: 900px) { .roi-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     .empty { display: grid; place-items: center; gap: 8px; padding: 48px 16px; color: var(--ms-text-muted); text-align: center; }
     .empty mat-icon { font-size: 40px; width: 40px; height: 40px; }
     .empty p { margin: 0; line-height: 1.6; }
@@ -497,6 +567,8 @@ export class CampaignsComponent implements OnInit {
   protected readonly campaigns = signal<GrowthCampaign[]>([]);
   protected readonly allocation = signal<MyAllocation | null>(null);
   protected readonly placedPartners = signal<PlacedPartner[]>([]);
+  protected readonly roi = signal<Record<string, CampaignAnalytics>>({});
+  protected readonly roiLoading = signal(false);
   protected readonly copiedCampaignId = signal<string | null>(null);
   protected readonly tab = signal<CampaignTab>('studio');
   protected readonly partner = computed(() => this.status()?.partner ?? null);
@@ -514,6 +586,31 @@ export class CampaignsComponent implements OnInit {
     const remaining = list.reduce((sum, c) => sum + Number(c.budget?.remaining ?? 0), 0);
     const active = list.filter((c) => c.status === 'Active').length;
     return { total, spent, remaining, active };
+  });
+
+  protected readonly roiTotals = computed(() => {
+    let spent = 0;
+    let signups = 0;
+    let activated = 0;
+    let retained = 0;
+    let eligible = 0;
+    for (const campaign of this.campaigns()) {
+      const analytics = this.roi()[campaign.id];
+      if (!analytics) continue;
+      spent += Number(campaign.budget.spent ?? 0);
+      signups += Number(analytics.summary.signups ?? 0);
+      activated += Number(analytics.summary.activated ?? 0);
+      retained += Number(analytics.summary.retained7 ?? 0);
+      eligible += Number(analytics.summary.eligible7 ?? 0);
+    }
+    return {
+      spent,
+      signups,
+      activated,
+      costPerActivated: activated > 0 ? Math.round(spent / activated) : null,
+      activationRate: signups > 0 ? Math.round((activated / signups) * 100) : null,
+      retentionRate: eligible > 0 ? Math.round((retained / eligible) * 100) : null,
+    };
   });
 
   protected readonly form = this.fb.nonNullable.group({
@@ -763,8 +860,61 @@ export class CampaignsComponent implements OnInit {
         this.campaigns.set(campaigns.data);
         this.allocation.set(allocation.data);
         this.placedPartners.set(placed.data);
+        this.loadRoi(campaigns.data);
       },
       error: (err: ApiError) => this.error.set(userError(err)),
     });
+  }
+
+  private loadRoi(campaigns: GrowthCampaign[]): void {
+    if (campaigns.length === 0) {
+      this.roi.set({});
+      this.roiLoading.set(false);
+      return;
+    }
+    this.roiLoading.set(true);
+    const requests = campaigns.map((campaign) => this.campaignsService.analytics(campaign.id, 30).pipe(catchError(() => of(null))));
+    forkJoin(requests).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (rows) => {
+        const map: Record<string, CampaignAnalytics> = {};
+        rows.forEach((row, index) => {
+          if (row?.data) map[campaigns[index].id] = row.data;
+        });
+        this.roi.set(map);
+        this.roiLoading.set(false);
+      },
+      error: () => this.roiLoading.set(false),
+    });
+  }
+
+  protected roiFor(campaignId: string): CampaignAnalytics | null {
+    return this.roi()[campaignId] ?? null;
+  }
+
+  protected activationLabel(campaign: GrowthCampaign): string {
+    const value = this.roiFor(campaign.id)?.summary.activationRate;
+    return value === null || value === undefined ? '—' : `${value}%`;
+  }
+
+  protected retentionLabel(campaign: GrowthCampaign): string {
+    const value = this.roiFor(campaign.id)?.summary.retentionRate;
+    return value === null || value === undefined ? '—' : `${value}%`;
+  }
+
+  protected costPerActivated(campaign: GrowthCampaign): number | null {
+    const analytics = this.roiFor(campaign.id);
+    const activated = Number(analytics?.summary.activated ?? 0);
+    if (activated <= 0) return null;
+    return Math.round(Number(campaign.budget.spent ?? 0) / activated);
+  }
+
+  protected roiSignal(campaign: GrowthCampaign): { label: string; tone: 'strong' | 'watch' | 'weak' | 'early' } {
+    const analytics = this.roiFor(campaign.id);
+    if (!analytics || Number(analytics.summary.signups ?? 0) === 0) return { label: 'Collecting', tone: 'early' };
+    const activation = Number(analytics.summary.activationRate ?? 0);
+    const retention = analytics.summary.retentionRate;
+    if (activation >= 50 && (retention === null || retention >= 60)) return { label: 'Strong', tone: 'strong' };
+    if (activation >= 25) return { label: 'Watch', tone: 'watch' };
+    return { label: 'Weak', tone: 'weak' };
   }
 }

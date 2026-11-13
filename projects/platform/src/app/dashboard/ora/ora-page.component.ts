@@ -117,6 +117,9 @@ const RECOMMENDATIONS: Array<{ title: string; body: string; link: string; linkLa
                     @if (a.payload?.subject) {
                       <p class="draft-subject">{{ a.payload?.subject }}</p>
                     }
+                    @if (a.type === 'send_followup' && a.payload?.channel) {
+                      <span class="channel-pill">Will send via {{ a.payload?.channel === 'sms' ? 'SMS' : 'email' }} after approval</span>
+                    }
                     @if (a.payload?.body) {
                       <p class="draft">{{ a.payload?.body }}</p>
                     }
@@ -191,6 +194,7 @@ const RECOMMENDATIONS: Array<{ title: string; body: string; link: string; linkLa
     .approval:first-of-type { border-top: none; padding-top: 0; }
     .approval p { margin: 0.15em 0 0; }
     .approval .draft-subject { color: inherit; font-weight: 700; }
+    .approval .channel-pill { display: inline-block; margin: 2px 0 4px; padding: 2px 8px; border-radius: 999px; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
     .approval .draft { white-space: pre-wrap; max-height: 8em; overflow-y: auto; padding: 0.4em 0.55em; border-left: 2px solid var(--ms-primary); background: var(--ms-canvas); border-radius: 4px; }
     .plan { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5em; }
     .plan li { display: flex; flex-direction: column; gap: 0.15em; border-top: 1px solid var(--ms-line); padding-top: 0.5em; }

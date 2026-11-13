@@ -279,6 +279,12 @@ export interface StoreCustomerLeadsEnvelope {
       paidOrders: number;
       revenue: number;
       newThisMonth: number;
+      segments?: {
+        new: number;
+        repeat: number;
+        dormant: number;
+        loyal: number;
+      };
     };
     statusCounts: Record<string, number>;
   };

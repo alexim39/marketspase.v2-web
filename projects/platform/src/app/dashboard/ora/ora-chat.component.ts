@@ -154,6 +154,9 @@ interface ChatMsg extends OraMessage {
                           @if (a.payload?.subject) {
                             <small class="draft-subject">{{ a.payload?.subject }}</small>
                           }
+                          @if (a.type === 'send_followup' && a.payload?.channel) {
+                            <small class="channel-pill">Send via {{ a.payload?.channel === 'sms' ? 'SMS' : 'email' }} after approval</small>
+                          }
                           @if (a.payload?.body) {
                             <small class="draft">{{ a.payload?.body }}</small>
                           }
@@ -261,6 +264,7 @@ interface ChatMsg extends OraMessage {
     .action-copy strong { font-size: 0.92em; }
     .action-copy small { color: var(--ms-text-muted); line-height: 1.35; }
     .action-copy .draft-subject { color: inherit; font-weight: 700; }
+    .action-copy .channel-pill { display: inline-block; width: fit-content; padding: 2px 8px; border-radius: 999px; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-size: 0.68em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
     .action-copy .draft { white-space: pre-wrap; max-height: 7.5em; overflow-y: auto; padding: 0.35em 0.45em; border-left: 2px solid var(--ms-primary); background: var(--ms-surface); border-radius: 4px; }
     .action-copy .plan-preview { display: grid; gap: 0.2em; white-space: normal; }
     .action-copy .plan-item { display: block; }
@@ -416,6 +420,7 @@ export class OraChatComponent implements OnInit {
     if (a.status === 'failed') return a.error || 'Could not complete this action.';
     if (a.status === 'executed') {
       const result = (a.result ?? {}) as Record<string, unknown>;
+      if (result['channel']) return `Sent via ${result['channel'] === 'sms' ? 'SMS' : 'email'}.`;
       if (result['sent'] !== undefined) return `Sent ${result['sent']} of ${result['total']}.`;
       if (result['dateKey']) return 'Plan saved.';
       if (result['followUpDate']) return 'Follow-up scheduled.';

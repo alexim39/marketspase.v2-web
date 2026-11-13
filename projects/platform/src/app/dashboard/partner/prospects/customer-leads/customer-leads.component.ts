@@ -32,18 +32,17 @@ const STATUSES = ['New', 'Contacted', 'Qualified', 'Converted', 'Closed'] as con
       <div class="breadcrumb">
         <a routerLink="/dashboard">Dashboard</a> &gt;
         <a routerLink="/dashboard/prospects/pipeline">Pipeline</a> &gt;
-        <span>Customer leads</span>
+        <span>Customers</span>
       </div>
     </section>
 
     <section class="leads-page">
       <header class="page-head">
         <div>
-          <p class="eyebrow">Store customers</p>
-          <h2>Customer leads</h2>
+          <p class="eyebrow">Pipeline · Customer retention</p>
+          <h1>Customers who buy from you</h1>
           <p class="subtitle">
-            Everyone who checked out in your store, with the contact and delivery details they entered.
-            Follow up, tag your progress and turn a first order into a repeat customer.
+            These are buyers, not cold prospects. Track repeat orders, spot customers who have gone quiet and follow up only where they opted in.
           </p>
         </div>
         <div class="head-actions">
@@ -53,19 +52,33 @@ const STATUSES = ['New', 'Contacted', 'Qualified', 'Converted', 'Closed'] as con
       </header>
 
       @if (loading()) {
-        <async-page-skeleton layout="dashboard" [rows]="3" label="customer leads" [showHeader]="false" />
+        <async-page-skeleton layout="dashboard" [rows]="3" label="customer retention" [showHeader]="false" />
       }
 
       @if (error(); as err) {
-        <p class="error" role="alert">{{ err }}</p>
+        <div class="alert" role="alert"><mat-icon>error_outline</mat-icon><p>{{ err }}</p><button mat-stroked-button type="button" (click)="load()">Retry</button></div>
       }
 
       @if (summary(); as s) {
-        <div class="kpi-grid">
-          <div class="dp-card kpi"><mat-icon>groups</mat-icon><strong>{{ s.totalLeads }}</strong><span>customers captured</span></div>
-          <div class="dp-card kpi"><mat-icon>workspace_premium</mat-icon><strong>{{ s.repeatCustomers }}</strong><span>repeat customers</span></div>
-          <div class="dp-card kpi"><mat-icon>payments</mat-icon><strong>{{ s.revenue | currency:'NGN':'symbol-narrow':'1.0-0' }}</strong><span>lifetime value</span></div>
-          <div class="dp-card kpi"><mat-icon>fiber_new</mat-icon><strong>{{ s.newThisMonth }}</strong><span>new this month</span></div>
+        <section class="kpi-grid" aria-label="Customer summary">
+          <div class="kpi"><span class="kpi-icon"><mat-icon>groups</mat-icon></span><div><strong>{{ s.totalLeads }}</strong><span>Customers captured</span></div></div>
+          <div class="kpi"><span class="kpi-icon kpi-icon--ok"><mat-icon>repeat</mat-icon></span><div><strong>{{ s.repeatCustomers }}</strong><span>Repeat customers</span></div></div>
+          <div class="kpi"><span class="kpi-icon kpi-icon--info"><mat-icon>payments</mat-icon></span><div><strong>{{ s.revenue | currency:'NGN':'symbol-narrow':'1.0-0' }}</strong><span>Lifetime value</span></div></div>
+          <div class="kpi" [class.kpi--attention]="(s.segments?.dormant ?? 0) > 0">
+            <span class="kpi-icon kpi-icon--warn"><mat-icon>schedule</mat-icon></span>
+            <div><strong>{{ s.segments?.dormant ?? 0 }}</strong><span>Reorder due</span></div>
+          </div>
+        </section>
+      }
+
+      @if ((summary()?.segments?.dormant ?? 0) > 0) {
+        <div class="retention-banner" role="status">
+          <mat-icon>notifications_active</mat-icon>
+          <div>
+            <strong>{{ summary()?.segments?.dormant }} customer{{ summary()?.segments?.dormant === 1 ? '' : 's' }} have not ordered in 60+ days</strong>
+            <p>A short, consent-based check-in can bring them back. Start with the reorder-due list.</p>
+          </div>
+          <button mat-stroked-button type="button" (click)="setSegment('dormant')">Review reorder due</button>
         </div>
       }
 
@@ -84,28 +97,38 @@ const STATUSES = ['New', 'Contacted', 'Qualified', 'Converted', 'Closed'] as con
             }
           </mat-select>
         </mat-form-field>
-        <button mat-stroked-button type="button" (click)="load()" [disabled]="loading()">
-          <mat-icon>refresh</mat-icon> Refresh
-        </button>
+        <button mat-stroked-button type="button" (click)="load()" [disabled]="loading()"><mat-icon>refresh</mat-icon> Refresh</button>
+      </div>
+
+      <div class="segment-row" role="tablist" aria-label="Customer segment">
+        <button type="button" class="segment-btn" [class.segment-btn--active]="segment() === 'all'" (click)="setSegment('all')">All <span>{{ summary()?.totalLeads ?? total() }}</span></button>
+        <button type="button" class="segment-btn" [class.segment-btn--active]="segment() === 'new'" (click)="setSegment('new')">New <span>{{ summary()?.segments?.new ?? 0 }}</span></button>
+        <button type="button" class="segment-btn" [class.segment-btn--active]="segment() === 'repeat'" (click)="setSegment('repeat')">Repeat <span>{{ summary()?.segments?.repeat ?? 0 }}</span></button>
+        <button type="button" class="segment-btn" [class.segment-btn--active]="segment() === 'loyal'" (click)="setSegment('loyal')">Loyal <span>{{ summary()?.segments?.loyal ?? 0 }}</span></button>
+        <button type="button" class="segment-btn" [class.segment-btn--active]="segment() === 'dormant'" (click)="setSegment('dormant')">Reorder due <span>{{ summary()?.segments?.dormant ?? 0 }}</span></button>
       </div>
 
       @if (!loading() && rows().length === 0) {
         <div class="empty-card">
           <mat-icon>person_add</mat-icon>
-          <h3>No customer leads yet</h3>
-          <p>Customer details appear here automatically when someone reaches checkout in your store. Share your store link to get the first one.</p>
-          <a mat-flat-button color="primary" routerLink="/dashboard/products/my-store">Open my store</a>
+          <h3>{{ segment() === 'all' ? 'No customer leads yet' : 'No customers in this segment' }}</h3>
+          <p>{{ segment() === 'all' ? 'Customer details appear here automatically when someone reaches checkout in your store. Share your store link to get the first one.' : 'Try another segment or clear the filters to see the rest of your customers.' }}</p>
+          @if (segment() === 'all') {
+            <a mat-flat-button color="primary" routerLink="/dashboard/products/my-store">Open my store</a>
+          } @else {
+            <button mat-stroked-button type="button" (click)="setSegment('all')">Show all customers</button>
+          }
         </div>
       } @else if (rows().length > 0) {
-        <div class="table-wrap dp-card">
+        <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 <th>Customer</th>
-                <th>Location</th>
+                <th>Segment</th>
                 <th>Orders</th>
-                <th>Value</th>
-                <th>Last checkout</th>
+                <th>Lifetime value</th>
+                <th>Last order</th>
                 <th>Status</th>
                 <th></th>
               </tr>
@@ -123,28 +146,30 @@ const STATUSES = ['New', 'Contacted', 'Qualified', 'Converted', 'Closed'] as con
                       </div>
                     </div>
                   </td>
-                  <td data-label="Location">
-                    <strong>{{ row.city || '—' }}</strong>
-                    <span class="muted">{{ row.state || '' }}</span>
+                  <td data-label="Segment">
+                    <span [class]="'segment-pill segment-pill--' + segmentFor(row).tone">{{ segmentFor(row).label }}</span>
+                    @if (isReorderDue(row)) { <span class="reorder-tag">Reorder due</span> }
                   </td>
                   <td data-label="Orders">
                     <strong>{{ row.paidOrders }}</strong>
                     <span class="muted">{{ row.checkoutCount }} checkouts</span>
                   </td>
-                  <td data-label="Value"><strong>{{ row.totalSpent | currency:'NGN':'symbol-narrow':'1.0-0' }}</strong></td>
-                  <td data-label="Last checkout">
-                    <strong>{{ row.lastCheckoutAt | date:'mediumDate' }}</strong>
+                  <td data-label="Lifetime value"><strong>{{ row.totalSpent | currency:'NGN':'symbol-narrow':'1.0-0' }}</strong></td>
+                  <td data-label="Last order">
+                    <strong>{{ row.lastPaidAt | date:'mediumDate' }}</strong>
                     @if (row.consentToContact) { <span class="consent">Opted in</span> }
                   </td>
                   <td data-label="Status"><span class="status" [class]="'status status-' + row.status.toLowerCase()">{{ row.status }}</span></td>
                   <td data-label="Actions" class="actions">
                     <button mat-icon-button type="button" (click)="select(row)" aria-label="Open customer"><mat-icon>open_in_new</mat-icon></button>
+                    @if (row.consentToContact && row.phone) {
+                      <a mat-icon-button [href]="whatsapp(row.phone, row.name)" target="_blank" rel="noopener" aria-label="WhatsApp customer"><mat-icon>chat</mat-icon></a>
+                    }
                     @if (row.phone) {
                       <a mat-icon-button [href]="'tel:' + row.phone" aria-label="Call customer"><mat-icon>call</mat-icon></a>
-                      <a mat-icon-button [href]="whatsapp(row.phone)" target="_blank" rel="noopener" aria-label="WhatsApp customer"><mat-icon>chat</mat-icon></a>
                     }
                     @if (row.email) {
-                      <a mat-icon-button [href]="'mailto:' + row.email" aria-label="Email customer"><mat-icon>mail</mat-icon></a>
+                      <a mat-icon-button [href]="email(row)" aria-label="Email customer"><mat-icon>mail</mat-icon></a>
                     }
                   </td>
                 </tr>
@@ -156,54 +181,53 @@ const STATUSES = ['New', 'Contacted', 'Qualified', 'Converted', 'Closed'] as con
         <div class="pager">
           <span class="muted">Showing {{ rows().length }} of {{ total() }}</span>
           <div>
-            <button mat-button type="button" [disabled]="pageIndex() === 0 || loading()" (click)="prevPage()">Previous</button>
-            <button mat-button type="button" [disabled]="pageIndex() + pageSize >= total() || loading()" (click)="nextPage()">Next</button>
+            <button mat-stroked-button type="button" [disabled]="pageIndex() === 0 || loading()" (click)="prevPage()">Previous</button>
+            <button mat-stroked-button type="button" [disabled]="pageIndex() + pageSize >= total() || loading()" (click)="nextPage()">Next</button>
           </div>
         </div>
       }
 
       @if (selected(); as customer) {
-        <div class="detail dp-card">
+        <section class="detail">
           <div class="detail-head">
             <div class="customer-cell">
               <span class="avatar large">{{ initial(customer) }}</span>
               <div>
                 <h3>{{ customer.name || 'Customer' }}</h3>
                 <span class="muted">{{ customer.email }} · {{ customer.phone }}</span>
+                <span [class]="'segment-pill segment-pill--' + segmentFor(customer).tone">{{ segmentFor(customer).label }}</span>
               </div>
             </div>
             <button mat-icon-button type="button" (click)="selected.set(null)" aria-label="Close customer"><mat-icon>close</mat-icon></button>
           </div>
 
           <div class="detail-grid">
-            <div>
-              <h4>Delivery address</h4>
-              <p>{{ customer.street }}<br>{{ customer.city }}, {{ customer.state }}<br>{{ customer.country }}</p>
-              @if (customer.note) { <p class="muted">Checkout note: “{{ customer.note }}”</p> }
-            </div>
-            <div>
-              <h4>Customer value</h4>
-              <p><strong>{{ customer.totalSpent | currency:'NGN':'symbol-narrow':'1.0-0' }}</strong> lifetime</p>
-              <p class="muted">{{ customer.paidOrders }} paid · {{ customer.checkoutCount }} checkouts · {{ customer.refundedOrders }} refunds</p>
-              <p class="muted">First seen {{ customer.firstSeenAt | date:'mediumDate' }}</p>
-            </div>
-            <div>
-              <h4>Consent</h4>
-              <p>
-                <span class="status" [class]="'status ' + (customer.consentToContact ? 'status-converted' : 'status-closed')">
-                  {{ customer.consentToContact ? 'Opted in to updates' : 'Order contact only' }}
-                </span>
-              </p>
-            </div>
+            <div><h4>Delivery address</h4><p>{{ customer.street }}<br>{{ customer.city }}, {{ customer.state }}<br>{{ customer.country }}</p>@if (customer.note) { <p class="muted">Checkout note: “{{ customer.note }}”</p> }</div>
+            <div><h4>Customer value</h4><p><strong>{{ customer.totalSpent | currency:'NGN':'symbol-narrow':'1.0-0' }}</strong> lifetime</p><p class="muted">{{ customer.paidOrders }} paid · {{ customer.checkoutCount }} checkouts · {{ customer.refundedOrders }} refunds</p><p class="muted">Average order {{ averageOrder(customer) }}</p></div>
+            <div><h4>Retention</h4><p>Last order {{ customer.lastPaidAt | date:'mediumDate' }}</p><p class="muted">{{ reorderText(customer) }}</p><p class="muted">First seen {{ customer.firstSeenAt | date:'mediumDate' }}</p></div>
+            <div><h4>Consent</h4><p><span class="status" [class]="'status ' + (customer.consentToContact ? 'status-converted' : 'status-closed')">{{ customer.consentToContact ? 'Opted in to updates' : 'Order contact only' }}</span></p><p class="muted">Only contact customers who opted in, and keep every message relevant.</p></div>
+          </div>
+
+          <div class="outreach-row">
+            @if (customer.consentToContact && customer.phone) {
+              <a mat-stroked-button [href]="whatsapp(customer.phone, customer.name, reorderMessage(customer))" target="_blank" rel="noopener"><mat-icon>chat</mat-icon> WhatsApp check-in</a>
+            }
+            @if (customer.email) {
+              <a mat-stroked-button [href]="email(customer, reorderMessage(customer))"><mat-icon>mail</mat-icon> Email check-in</a>
+            }
+            @if (customer.phone) {
+              <a mat-stroked-button [href]="'tel:' + customer.phone"><mat-icon>call</mat-icon> Call</a>
+            }
+            @if (!customer.consentToContact) {
+              <span class="consent-note"><mat-icon>info</mat-icon> Outreach is limited to their order contact preference.</span>
+            }
           </div>
 
           <div class="detail-form">
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Pipeline status</mat-label>
               <mat-select [value]="draftStatus()" (valueChange)="draftStatus.set($event)">
-                @for (option of statuses; track option) {
-                  <mat-option [value]="option">{{ option }}</mat-option>
-                }
+                @for (option of statuses; track option) { <mat-option [value]="option">{{ option }}</mat-option> }
               </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="notes">
@@ -214,81 +238,112 @@ const STATUSES = ['New', 'Contacted', 'Qualified', 'Converted', 'Closed'] as con
           <div class="detail-actions">
             @if (notice(); as message) { <span class="notice">{{ message }}</span> }
             <button mat-stroked-button type="button" (click)="selected.set(null)">Cancel</button>
-            <button mat-flat-button color="primary" type="button" (click)="save()" [disabled]="saving()">
-              {{ saving() ? 'Saving…' : 'Save customer' }}
-            </button>
+            <button mat-flat-button color="primary" type="button" (click)="save()" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save customer' }}</button>
           </div>
-        </div>
+        </section>
       }
     </section>
-  `,
+`,
   styles: [`
-    .breadcrumb-wrapper { margin-bottom: 1em; }
+    .breadcrumb-wrapper { margin-bottom: 16px; }
     .breadcrumb a { text-decoration: none; }
-    .leads-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
-    .page-head { display: flex; justify-content: space-between; gap: 1em; align-items: flex-start; flex-wrap: wrap; }
-    .page-head h2 { margin: 0.1em 0 0; }
-    .eyebrow { margin: 0; color: var(--ms-primary-strong); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
-    .subtitle { margin: 0.35em 0 0; color: var(--ms-text-muted); max-width: 52em; line-height: 1.55; }
-    .head-actions { display: flex; gap: 0.5em; flex-wrap: wrap; }
-    .head-actions mat-icon { margin-right: 0.25em; }
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75em; }
-    .kpi { display: flex; flex-direction: column; gap: 0.15em; padding: 1em; }
-    .kpi mat-icon { color: var(--ms-primary-strong); }
-    .kpi strong { font-size: 1.4em; font-variant-numeric: tabular-nums; }
-    .kpi span { color: var(--ms-text-muted); font-size: 0.8em; }
-    .toolbar { display: flex; gap: 0.75em; align-items: center; flex-wrap: wrap; }
+    .leads-page { display: flex; flex-direction: column; gap: 16px; max-width: 1200px; margin: 0 auto; padding-bottom: 32px; }
+    .page-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+    .page-head h1 { margin: 4px 0 8px; font-size: clamp(2rem, 3vw, 2.5rem); letter-spacing: -0.03em; }
+    .eyebrow { margin: 0; color: var(--ms-primary-strong); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+    .subtitle { margin: 0; color: var(--ms-text-muted); max-width: 62em; line-height: 1.6; }
+    .head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .head-actions mat-icon { margin-right: 6px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 8px; background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); }
+    .kpi { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--ms-radius-md); }
+    .kpi--attention { background: var(--ms-warning-soft); }
+    .kpi-icon { flex: none; width: 40px; height: 40px; border-radius: var(--ms-radius-md); display: grid; place-items: center; background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
+    .kpi-icon--ok { background: var(--ms-success-soft); color: var(--ms-success); }
+    .kpi-icon--info { background: var(--ms-info-soft); color: var(--ms-primary-strong); }
+    .kpi-icon--warn { background: var(--ms-warning-soft); color: var(--ms-warning); }
+    .kpi-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    .kpi div { display: flex; flex-direction: column; gap: 1px; }
+    .kpi strong { font-family: var(--ms-font-display); font-size: 1.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .kpi span:last-child { color: var(--ms-text-muted); font-size: 0.75rem; font-weight: 600; }
+    .retention-banner { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-radius: var(--ms-radius-lg); background: var(--ms-warning-soft); border: 1px solid var(--ms-warning); color: var(--ms-warning); }
+    .retention-banner > div { flex: 1; min-width: 240px; }
+    .retention-banner strong { display: block; font-size: 0.875rem; }
+    .retention-banner p { margin: 2px 0 0; font-size: 0.8125rem; line-height: 1.5; }
+    .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
     .toolbar .search { flex: 1 1 280px; }
     .toolbar .status-filter { flex: 0 1 180px; }
-    .table-wrap { overflow-x: auto; padding: 0.25em 0.75em; }
+    .toolbar > button mat-icon { margin-right: 4px; }
+    .segment-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .segment-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 6px 14px; border: 1px solid var(--ms-line); border-radius: 999px; background: var(--ms-surface); color: var(--ms-text); font: inherit; font-size: 0.8125rem; font-weight: 500; cursor: pointer; }
+    .segment-btn:hover { border-color: var(--ms-primary); }
+    .segment-btn span { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--ms-canvas); color: var(--ms-text-muted); font-size: 0.6875rem; font-weight: 700; }
+    .segment-btn--active { border-color: var(--ms-primary); background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-weight: 600; }
+    .segment-btn--active span { background: var(--ms-surface); color: var(--ms-primary-strong); }
+    .table-wrap { overflow-x: auto; background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); }
     table { width: 100%; border-collapse: collapse; }
-    th, td { text-align: left; padding: 0.75em 0.55em; border-bottom: 1px solid var(--ms-line); vertical-align: middle; }
-    th { color: var(--ms-text-muted); font-size: 0.72em; text-transform: uppercase; letter-spacing: 0.06em; }
+    th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--ms-line); vertical-align: middle; }
+    th { color: var(--ms-text-muted); font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.06em; }
     tbody tr:last-child td { border-bottom: none; }
     tbody tr.selected { background: var(--ms-primary-soft); }
-    .customer-cell { display: flex; align-items: center; gap: 0.65em; }
-    .customer-cell div { display: flex; flex-direction: column; gap: 0.05em; min-width: 0; }
+    .customer-cell { display: flex; align-items: center; gap: 12px; }
+    .customer-cell div { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
     .customer-cell strong { text-transform: capitalize; }
-    .avatar { width: 34px; height: 34px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-weight: 800; }
-    .avatar.large { width: 44px; height: 44px; }
-    .muted { color: var(--ms-text-muted); font-size: 0.82em; }
-    .status { display: inline-block; border-radius: 999px; padding: 3px 9px; font-size: 0.72em; font-weight: 700; background: var(--ms-surface-3); color: var(--ms-text); white-space: nowrap; }
+    .avatar { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-weight: 700; }
+    .avatar.large { width: 48px; height: 48px; }
+    .muted { color: var(--ms-text-muted); font-size: 0.8125rem; }
+    .status, .segment-pill { display: inline-block; border-radius: 999px; padding: 4px 10px; font-size: 0.6875rem; font-weight: 700; white-space: nowrap; }
+    .status { background: var(--ms-canvas); color: var(--ms-text-muted); }
     .status-new { background: var(--ms-info-soft); color: var(--ms-primary-strong); }
-    .status-contacted, .status-qualified { background: var(--ms-warning-soft, var(--ms-primary-soft)); color: var(--ms-warning, var(--ms-primary-strong)); }
+    .status-contacted, .status-qualified { background: var(--ms-warning-soft); color: var(--ms-warning); }
     .status-converted { background: var(--ms-success-soft); color: var(--ms-success); }
-    .status-closed { background: var(--ms-surface-3); color: var(--ms-text-muted); }
-    .consent { display: block; color: var(--ms-success); font-size: 0.75em; font-weight: 700; }
+    .status-closed { background: var(--ms-canvas); color: var(--ms-text-muted); }
+    .segment-pill { background: var(--ms-canvas); color: var(--ms-text-muted); }
+    .segment-pill--new { background: var(--ms-info-soft); color: var(--ms-primary-strong); }
+    .segment-pill--repeat { background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
+    .segment-pill--loyal { background: var(--ms-success-soft); color: var(--ms-success); }
+    .segment-pill--dormant { background: var(--ms-warning-soft); color: var(--ms-warning); }
+    .reorder-tag { display: block; margin-top: 4px; color: var(--ms-warning); font-size: 0.6875rem; font-weight: 700; }
+    .consent { display: block; color: var(--ms-success); font-size: 0.6875rem; font-weight: 700; }
     .actions { white-space: nowrap; }
-    .pager { display: flex; justify-content: space-between; align-items: center; gap: 1em; flex-wrap: wrap; }
-    .empty-card { display: flex; flex-direction: column; align-items: center; gap: 0.65em; text-align: center; padding: 2.6em 1.5em; border: 1px dashed var(--ms-line); border-radius: 14px; background: var(--ms-canvas); color: var(--ms-text-muted); }
-    .empty-card mat-icon { font-size: 44px; width: 44px; height: 44px; opacity: 0.6; }
+    .pager { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .pager button { min-height: 40px; }
+    .empty-card { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 48px 24px; border: 1px dashed var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-surface); color: var(--ms-text-muted); }
+    .empty-card mat-icon { font-size: 40px; width: 40px; height: 40px; opacity: 0.65; }
     .empty-card h3 { margin: 0; color: var(--ms-text); }
-    .empty-card p { margin: 0; max-width: 38em; }
-    .detail { padding: 1.1em; display: flex; flex-direction: column; gap: 1em; }
-    .detail-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; }
+    .empty-card p { margin: 0; max-width: 44em; line-height: 1.6; }
+    .detail { display: flex; flex-direction: column; gap: 16px; padding: 24px; background: var(--ms-surface); border: 1px solid var(--ms-primary); border-radius: var(--ms-radius-lg); }
+    .detail-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
     .detail-head h3 { margin: 0; text-transform: capitalize; }
-    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1em; }
-    .detail-grid h4 { margin: 0 0 0.35em; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ms-text-muted); }
-    .detail-grid p { margin: 0 0 0.3em; line-height: 1.55; }
-    .detail-form { display: grid; grid-template-columns: minmax(160px, 220px) minmax(0, 1fr); gap: 0.8em; }
-    .detail-actions { display: flex; justify-content: flex-end; align-items: center; gap: 0.5em; flex-wrap: wrap; }
-    .notice { color: var(--ms-success); font-size: 0.85em; margin-right: auto; }
-    .error { color: var(--ms-error); }
+    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .detail-grid h4 { margin: 0 0 6px; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ms-text-muted); }
+    .detail-grid p { margin: 0 0 4px; line-height: 1.55; }
+    .outreach-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 12px 16px; border-radius: var(--ms-radius-md); background: var(--ms-canvas); }
+    .outreach-row button, .outreach-row a { min-height: 40px; }
+    .outreach-row mat-icon { margin-right: 4px; }
+    .consent-note { display: inline-flex; align-items: center; gap: 4px; color: var(--ms-text-muted); font-size: 0.75rem; }
+    .detail-form { display: grid; grid-template-columns: minmax(160px, 220px) minmax(0, 1fr); gap: 12px; }
+    .detail-actions { display: flex; justify-content: flex-end; align-items: center; gap: 8px; flex-wrap: wrap; border-top: 1px solid var(--ms-line); padding-top: 16px; }
+    .notice { color: var(--ms-success); font-size: 0.8125rem; margin-right: auto; }
+    .alert { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--ms-radius-lg); background: var(--ms-error-soft); color: var(--ms-error); }
+    .alert p { flex: 1; margin: 0; }
     button { min-height: 40px; }
+    @media (max-width: 1000px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 760px) {
-      .table-wrap { overflow: visible; padding: 0; background: transparent; }
+      .table-wrap { background: transparent; border: 0; overflow: visible; }
       table, thead, tbody, tr, td { display: block; }
       thead { display: none; }
-      tbody { display: flex; flex-direction: column; gap: 0.75em; }
-      tbody tr { background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: 12px; padding: 0.35em 0.7em; }
-      td { display: flex; justify-content: space-between; gap: 0.8em; border-bottom: 1px solid var(--ms-line); padding: 0.55em 0; }
+      tbody { display: flex; flex-direction: column; gap: 12px; }
+      tbody tr { background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); padding: 8px 16px; }
+      td { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--ms-line); padding: 8px 0; }
       td:last-child { border-bottom: none; }
-      td::before { content: attr(data-label); color: var(--ms-text-muted); font-size: 0.72em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+      td::before { content: attr(data-label); color: var(--ms-text-muted); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
       .customer-cell { align-items: flex-start; }
       .actions { justify-content: flex-end; }
-      .detail-form { grid-template-columns: 1fr; }
+      .detail { padding: 16px; }
+      .detail-form { grid-template-columns: minmax(0, 1fr); }
+      .kpi-grid { grid-template-columns: minmax(0, 1fr); }
     }
-  `],
+`],
 })
 export class CustomerLeadsComponent implements OnInit {
   private readonly store = inject(StoreService);
@@ -303,9 +358,11 @@ export class CustomerLeadsComponent implements OnInit {
   protected readonly total = signal(0);
   protected readonly summary = signal<{
     totalLeads: number; repeatCustomers: number; paidOrders: number; revenue: number; newThisMonth: number;
+    segments?: { new: number; repeat: number; dormant: number; loyal: number };
   } | null>(null);
   protected readonly query = signal('');
   protected readonly status = signal('');
+  protected readonly segment = signal<'all' | 'new' | 'repeat' | 'dormant' | 'loyal'>('all');
   protected readonly pageIndex = signal(0);
   protected readonly pageSize = 50;
   protected readonly selected = signal<StoreCustomerLead | null>(null);
@@ -323,6 +380,7 @@ export class CustomerLeadsComponent implements OnInit {
     this.store.customerLeads({
       q: this.query().trim(),
       status: this.status() || undefined,
+      segment: this.segment(),
       limit: this.pageSize,
       skip: this.pageIndex() * this.pageSize,
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -347,6 +405,12 @@ export class CustomerLeadsComponent implements OnInit {
 
   protected setStatus(value: string): void {
     this.status.set(value);
+    this.pageIndex.set(0);
+    this.load();
+  }
+
+  protected setSegment(value: 'all' | 'new' | 'repeat' | 'dormant' | 'loyal'): void {
+    this.segment.set(value);
     this.pageIndex.set(0);
     this.load();
   }
@@ -398,8 +462,50 @@ export class CustomerLeadsComponent implements OnInit {
     return String(row.name || row.email || 'C').trim().charAt(0).toUpperCase();
   }
 
-  protected whatsapp(phone: string): string {
+  protected segmentFor(row: StoreCustomerLead): { label: string; tone: 'new' | 'repeat' | 'loyal' | 'dormant' } {
+    if (this.isReorderDue(row)) return { label: 'Reorder due', tone: 'dormant' };
+    if (row.paidOrders >= 3) return { label: 'Loyal', tone: 'loyal' };
+    if (row.paidOrders >= 2) return { label: 'Repeat', tone: 'repeat' };
+    if (row.paidOrders >= 1) return { label: 'Customer', tone: 'new' };
+    return { label: 'New lead', tone: 'new' };
+  }
+
+  protected isReorderDue(row: StoreCustomerLead): boolean {
+    if (!row.lastPaidAt || row.paidOrders < 1) return false;
+    const last = new Date(row.lastPaidAt).getTime();
+    if (Number.isNaN(last)) return false;
+    return Date.now() - last >= 60 * 86400000;
+  }
+
+  protected averageOrder(row: StoreCustomerLead): string {
+    if (!row.paidOrders) return '—';
+    return `₦${(row.totalSpent / row.paidOrders).toLocaleString('en-NG', { maximumFractionDigits: 0 })}`;
+  }
+
+  protected reorderText(row: StoreCustomerLead): string {
+    if (!row.lastPaidAt) return 'No paid order yet — keep the first conversation warm.';
+    const last = new Date(row.lastPaidAt).getTime();
+    if (Number.isNaN(last)) return 'Last order date unavailable.';
+    const days = Math.floor((Date.now() - last) / 86400000);
+    if (this.isReorderDue(row)) return `Reorder due — last order was ${days} day${days === 1 ? '' : 's'} ago.`;
+    const next = new Date(last + 60 * 86400000);
+    return `Next reorder check-in after ${next.toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}.`;
+  }
+
+  protected reorderMessage(row: StoreCustomerLead): string {
+    const first = String(row.name || 'there').trim().split(/\s+/)[0] || 'there';
+    return `Hi ${first}, it has been a while since your last order. Would you like me to help you restock or recommend something that fits what you bought before?`;
+  }
+
+  protected whatsapp(phone: string, name = '', message = ''): string {
     const digits = String(phone ?? '').replace(/\D/g, '').replace(/^0/, '234');
-    return `https://wa.me/${digits}`;
+    const text = message || `Hi ${String(name || 'there').trim().split(/\s+/)[0] || 'there'}, just checking in. How can I help with your next order?`;
+    return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+  }
+
+  protected email(row: StoreCustomerLead, message = ''): string {
+    const subject = encodeURIComponent('Checking in from MarketSpase');
+    const body = encodeURIComponent(message || `Hi ${String(row.name || 'there').trim().split(/\s+/)[0] || 'there'}, just checking in. How can I help with your next order?`);
+    return `mailto:${row.email}?subject=${subject}&body=${body}`;
   }
 }

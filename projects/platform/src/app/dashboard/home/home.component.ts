@@ -31,6 +31,7 @@ import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page
 import { FeedPost } from '../../core/community/community.models';
 import { Journey } from '../../core/progression/progression.models';
 import { ApiError } from '../../core/http/api-error';
+import { LaunchPathComponent } from '../partner/launch-path/launch-path.component';
 
 /** One meaningful moment for the Home activity timeline. */
 interface ActivityItem {
@@ -55,7 +56,7 @@ interface ActivityItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AvatarComponent, DatePipe, DecimalPipe, MatButtonModule, MatCardModule, MatChipsModule,
-    MatIconModule, RouterModule, ProgressRingComponent, PageSkeletonComponent,
+    MatIconModule, RouterModule, ProgressRingComponent, PageSkeletonComponent, LaunchPathComponent,
   ],
   template: `
     <section class="home-page">
@@ -94,6 +95,7 @@ interface ActivityItem {
           </button>
         </div>
       }
+      <async-launch-path [compact]="true" />
       <header class="cc-hero">
         <div class="cc-hero-main">
           <p class="eyebrow">Command center · {{ today | date:'fullDate' }}</p>

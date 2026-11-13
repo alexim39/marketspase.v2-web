@@ -81,10 +81,11 @@ export class StoreService {
     return this.api.patch<StoreReturnEnvelope>(`v1/stores/me/returns/${returnId}`, { action, note });
   }
 
-  customerLeads(query: { q?: string; status?: string; limit?: number; skip?: number } = {}): Observable<StoreCustomerLeadsEnvelope> {
+  customerLeads(query: { q?: string; status?: string; segment?: string; limit?: number; skip?: number } = {}): Observable<StoreCustomerLeadsEnvelope> {
     const params = new URLSearchParams();
     if (query.q) params.set('q', query.q);
     if (query.status) params.set('status', query.status);
+    if (query.segment && query.segment !== 'all') params.set('segment', query.segment);
     if (query.limit) params.set('limit', String(query.limit));
     if (query.skip) params.set('skip', String(query.skip));
     const suffix = params.toString() ? `?${params.toString()}` : '';

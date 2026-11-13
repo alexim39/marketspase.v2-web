@@ -37,6 +37,11 @@ export const SettingsRoutes: Routes = [
             title: "Billing Settings - Manage your billing information",
         },
         {
+            path: 'trust',
+            loadComponent: () => import('./trust/trust-centre.component').then(m => m.TrustCentreComponent),
+            title: "Trust & Compliance - Identity, consent, records and data",
+        },
+        {
             path: 'billing/commissions',
             redirectTo: '/dashboard/compensation',
             pathMatch: 'full',
