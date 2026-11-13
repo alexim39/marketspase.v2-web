@@ -47,8 +47,8 @@
             ],
             "styles": [
               "projects/platform/src/styles.scss",
-              "node_modules/@fontsource-variable/bricolage-grotesque/wght.css",
-              "node_modules/@fontsource-variable/manrope/wght.css",
+              "node_modules/@fontsource-variable/space-grotesk/wght.css",
+              "node_modules/@fontsource-variable/inter/wght.css",
               "node_modules/@fontsource-variable/jetbrains-mono/wght.css",
               "node_modules/@fontsource/material-icons/latin.css"
             ],
@@ -143,8 +143,8 @@
             "styles": [
               "projects/store/src/theme.scss",
               "projects/store/src/styles.scss",
-              "node_modules/@fontsource-variable/bricolage-grotesque/wght.css",
-              "node_modules/@fontsource-variable/manrope/wght.css",
+              "node_modules/@fontsource-variable/space-grotesk/wght.css",
+              "node_modules/@fontsource-variable/inter/wght.css",
               "node_modules/@fontsource-variable/jetbrains-mono/wght.css",
               "node_modules/@fontsource/material-icons/latin.css",
               "node_modules/sweetalert2/dist/sweetalert2.min.css"
@@ -273,8 +273,8 @@
             ],
             "styles": [
               "projects/admin/src/styles.scss",
-              "node_modules/@fontsource-variable/bricolage-grotesque/wght.css",
-              "node_modules/@fontsource-variable/manrope/wght.css",
+              "node_modules/@fontsource-variable/space-grotesk/wght.css",
+              "node_modules/@fontsource-variable/inter/wght.css",
               "node_modules/@fontsource-variable/jetbrains-mono/wght.css",
               "node_modules/@fontsource/material-icons/latin.css"
             ]

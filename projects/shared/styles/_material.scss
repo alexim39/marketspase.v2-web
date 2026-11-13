@@ -139,11 +139,11 @@ $ms-primary: (
 );
 
 $ms-typography: (
-  plain-family: ('Manrope Variable', 'Manrope', 'Segoe UI', system-ui, sans-serif),
-  brand-family: ('Bricolage Grotesque Variable', 'Bricolage Grotesque', 'Manrope Variable', 'Segoe UI', sans-serif),
+  plain-family: ('Inter Variable', 'Inter', 'Segoe UI', system-ui, sans-serif),
+  brand-family: ('Space Grotesk Variable', 'Space Grotesk', 'Inter Variable', 'Segoe UI', sans-serif),
   bold-weight: 700,
   medium-weight: 600,
-  regular-weight: 450,
+  regular-weight: 400,
 );
 
 $ms-light-theme: mat.define-theme(

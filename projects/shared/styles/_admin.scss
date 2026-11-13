@@ -1,0 +1,110 @@
+/**
+ * Admin density layer.
+ *
+ * Admin pages use component-scoped styles, so this global layer focuses on
+ * rhythm, surfaces and tables only. It intentionally keeps admin denser than
+ * the marketing/store surfaces while staying on the 8px grid.
+ */
+
+.content {
+  .page-head {
+    gap: 24px !important;
+    margin-bottom: 32px !important;
+  }
+
+  .page-head h1,
+  .page-head h2 {
+    letter-spacing: -0.03em;
+  }
+
+  .page-head p {
+    margin-top: 8px !important;
+    color: var(--ms-text-muted);
+  }
+
+  .filters {
+    gap: 8px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .filters button {
+    min-height: 40px;
+    padding: 8px 16px !important;
+    border-radius: var(--ms-radius-pill) !important;
+    font-size: 0.8125rem !important;
+    font-weight: 500;
+  }
+
+  .panel {
+    margin-bottom: 24px !important;
+    padding: 24px !important;
+    border: 1px solid var(--ms-line) !important;
+    border-radius: var(--ms-radius-lg) !important;
+    background: var(--ms-surface) !important;
+    box-shadow: var(--ms-shadow-sm);
+  }
+
+  .panel-head {
+    gap: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .panel-head h2 {
+    margin-top: 4px !important;
+    font-size: 1.125rem !important;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--ms-line) !important;
+    border-radius: var(--ms-radius-lg) !important;
+    background: var(--ms-surface);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  table th {
+    padding: 12px 24px !important;
+    border-bottom: 1px solid var(--ms-line);
+    color: var(--ms-text-muted);
+    font-size: 0.6875rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  table td {
+    padding: 16px 24px !important;
+    border-bottom: 1px solid var(--ms-line);
+    font-size: 0.875rem !important;
+    vertical-align: middle;
+  }
+
+  table tr:last-child td {
+    border-bottom: none;
+  }
+
+  table tbody tr:hover td {
+    background: var(--ms-surface-2);
+  }
+
+  .pager {
+    display: flex;
+    align-items: center;
+    gap: 16px !important;
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 900px) {
+  .content {
+    .panel { padding: 16px !important; }
+    table th { padding-inline: 16px !important; }
+    table td { padding: 12px 16px !important; }
+  }
+}

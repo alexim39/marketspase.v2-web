@@ -313,9 +313,9 @@ export type PageSkeletonLayout =
     .ms-skel-page {
       display: flex;
       flex-direction: column;
-      gap: var(--ms-space-5);
+      gap: var(--ms-space-3);
       width: 100%;
-      padding: 8px 0 40px;
+      padding: 8px 0 48px;
     }
 
     .ms-skel-head { display: flex; flex-direction: column; gap: 10px; margin-bottom: 2px; }

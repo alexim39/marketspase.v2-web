@@ -3,16 +3,16 @@
   --ms-ink: #0e0c1d;
   --ms-ink-text: #f6f4ff;
   --ms-ink-icon: #a5b4fc;
-  --ms-canvas: #f6f7fb;
+  --ms-canvas: #fafafa;
   --ms-surface: #ffffff;
-  --ms-surface-2: #fbfcff;
-  --ms-surface-3: #f0f2f8;
-  --ms-surface-glass: color-mix(in srgb, var(--ms-surface) 84%, transparent);
-  --ms-line: #e7eaf3;
-  --ms-line-strong: #d8ddeb;
-  --ms-text: #12131a;
-  --ms-text-muted: #676c7e;
-  --ms-text-soft: #697086;
+  --ms-surface-2: #fcfcfd;
+  --ms-surface-3: #f4f4f5;
+  --ms-surface-glass: color-mix(in srgb, var(--ms-surface) 86%, transparent);
+  --ms-line: #e4e4e7;
+  --ms-line-strong: #d4d4d8;
+  --ms-text: #09090b;
+  --ms-text-muted: #71717a;
+  --ms-text-soft: #52525b;
 
   /* Brand: violet MarketSpase, with a small energetic accent set. */
   --ms-primary: #667eea;
@@ -27,67 +27,75 @@
   --ms-highlight-soft: #fef3c7;
 
   /* Semantic */
-  --ms-success: #047857;
-  --ms-success-soft: #d1fae5;
-  --ms-warning: #b45309;
-  --ms-warning-soft: #fef3c7;
-  --ms-error: #b91c1c;
-  --ms-error-soft: #fee2e2;
-  --ms-info: #1d4ed8;
-  --ms-info-soft: #dbeafe;
+  --ms-success: #059669;
+  --ms-success-soft: #ecfdf5;
+  --ms-warning: #d97706;
+  --ms-warning-soft: #fffbeb;
+  --ms-error: #dc2626;
+  --ms-error-soft: #fef2f2;
+  --ms-info: #2563eb;
+  --ms-info-soft: #eff6ff;
 
-  /* Shape, elevation, spacing */
+  /* Shape, elevation, spacing — 8px layout grid. */
   --ms-radius-sm: 8px;
-  --ms-radius-md: 12px;
-  --ms-radius-lg: 18px;
-  --ms-radius-xl: 26px;
+  --ms-radius-md: 10px;
+  --ms-radius-lg: 12px;
+  --ms-radius-xl: 16px;
+  --ms-radius-2xl: 24px;
   --ms-radius-pill: 999px;
-  --ms-shadow-sm: 0 1px 2px rgba(18, 19, 26, 0.04);
-  --ms-shadow-md: 0 12px 32px rgba(18, 19, 26, 0.08);
-  --ms-shadow-lg: 0 28px 70px rgba(18, 19, 26, 0.14);
-  --ms-shadow-glow: 0 14px 40px rgba(102, 126, 234, 0.24);
-  --ms-space-1: 4px;
-  --ms-space-2: 8px;
-  --ms-space-3: 12px;
-  --ms-space-4: 16px;
-  --ms-space-5: 20px;
-  --ms-space-6: 24px;
-  --ms-space-7: 32px;
-  --ms-space-8: 40px;
-  --ms-space-9: 56px;
-  --ms-space-10: 72px;
+  --ms-shadow-sm: 0 1px 2px rgba(9, 9, 11, 0.04);
+  --ms-shadow-md: 0 8px 24px rgba(9, 9, 11, 0.06);
+  --ms-shadow-lg: 0 24px 64px rgba(9, 9, 11, 0.12);
+  --ms-shadow-glow: 0 12px 32px rgba(102, 126, 234, 0.18);
+  --ms-space-1: 8px;
+  --ms-space-2: 16px;
+  --ms-space-3: 24px;
+  --ms-space-4: 32px;
+  --ms-space-5: 40px;
+  --ms-space-6: 48px;
+  --ms-space-7: 64px;
+  --ms-space-8: 80px;
+  --ms-space-9: 96px;
+  --ms-space-10: 120px;
+  --ms-gutter: 32px;
+  --ms-content-sm: 960px;
+  --ms-content-md: 1200px;
+  --ms-content-lg: 1280px;
+  --ms-content-xl: 1440px;
+  --ms-duration: 160ms;
+  --ms-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 
-  /* Type system: characterful display + highly legible geometric UI face. */
-  --ms-font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', 'Manrope Variable', 'Segoe UI', sans-serif;
-  --ms-font-sans: 'Manrope Variable', 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  /* Type system: Space Grotesk display + Inter UI. */
+  --ms-font-display: 'Space Grotesk Variable', 'Space Grotesk', 'Inter Variable', 'Segoe UI', sans-serif;
+  --ms-font-sans: 'Inter Variable', 'Inter', 'Segoe UI', system-ui, sans-serif;
   --ms-font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --ms-text-2xs: 0.68rem;
+  --ms-text-2xs: 0.6875rem;
   --ms-text-xs: 0.75rem;
-  --ms-text-sm: 0.82rem;
-  --ms-text-md: 0.95rem;
-  --ms-text-lg: 1.08rem;
-  --ms-text-xl: 1.3rem;
-  --ms-display-sm: clamp(1.8rem, 3vw, 2.4rem);
-  --ms-display-md: clamp(2.2rem, 4.4vw, 3.4rem);
-  --ms-display-lg: clamp(2.6rem, 6vw, 4.6rem);
-  --ms-leading-tight: 1.02;
-  --ms-leading-body: 1.62;
-  --ms-tracking-display: -0.045em;
-  --ms-tracking-label: 0.16em;
+  --ms-text-sm: 0.875rem;
+  --ms-text-md: 1rem;
+  --ms-text-lg: 1.125rem;
+  --ms-text-xl: 1.375rem;
+  --ms-display-sm: clamp(1.75rem, 3vw, 2.25rem);
+  --ms-display-md: clamp(2rem, 4vw, 3rem);
+  --ms-display-lg: clamp(2.5rem, 6vw, 4rem);
+  --ms-leading-tight: 1.05;
+  --ms-leading-body: 1.6;
+  --ms-tracking-display: -0.03em;
+  --ms-tracking-label: 0.12em;
   --ms-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 62%, #a855f7 100%);
   --ms-gradient-soft: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.08));
 
   /* Sidenav rail */
   --ms-nav-bg: #ffffff;
-  --ms-nav-text: #12131a;
-  --ms-nav-muted: #697086;
-  --ms-nav-icon: #7b8198;
-  --ms-nav-line: #e7eaf3;
-  --ms-nav-hover: #f3f5fb;
-  --ms-nav-active-bg: linear-gradient(100deg, rgba(102, 126, 234, 0.14), rgba(118, 75, 162, 0.06));
+  --ms-nav-text: #09090b;
+  --ms-nav-muted: #71717a;
+  --ms-nav-icon: #71717a;
+  --ms-nav-line: #e4e4e7;
+  --ms-nav-hover: #f4f4f5;
+  --ms-nav-active-bg: linear-gradient(100deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.05));
   --ms-nav-active-text: #4c5bd4;
   --ms-nav-active-icon: #4c5bd4;
-  --ms-nav-sub-text: #697086;
+  --ms-nav-sub-text: #52525b;
   --ms-nav-pill-bg: #667eea;
   --ms-nav-pill-text: #ffffff;
 
@@ -114,19 +122,19 @@
 }
 
 html[data-theme="dark"] {
-  --ms-ink: #080610;
-  --ms-ink-text: #f6f4ff;
+  --ms-ink: #050507;
+  --ms-ink-text: #fafafa;
   --ms-ink-icon: #aab8ff;
-  --ms-canvas: #0b0914;
-  --ms-surface: #14111f;
-  --ms-surface-2: #1a1628;
-  --ms-surface-3: #211c33;
-  --ms-surface-glass: color-mix(in srgb, var(--ms-surface) 84%, transparent);
-  --ms-line: #2c2544;
-  --ms-line-strong: #3a3158;
-  --ms-text: #f5f3ff;
-  --ms-text-muted: #a9a1c2;
-  --ms-text-soft: #8c84a8;
+  --ms-canvas: #09090b;
+  --ms-surface: #121216;
+  --ms-surface-2: #17171c;
+  --ms-surface-3: #1f1f26;
+  --ms-surface-glass: color-mix(in srgb, var(--ms-surface) 86%, transparent);
+  --ms-line: #27272f;
+  --ms-line-strong: #3f3f46;
+  --ms-text: #fafafa;
+  --ms-text-muted: #a1a1aa;
+  --ms-text-soft: #71717a;
 
   --ms-primary: #818cf8;
   --ms-primary-strong: #aab8ff;
@@ -140,52 +148,54 @@ html[data-theme="dark"] {
   --ms-highlight-soft: #451a03;
 
   --ms-success: #34d399;
-  --ms-success-soft: #064e3b;
+  --ms-success-soft: #052e22;
   --ms-warning: #fbbf24;
-  --ms-warning-soft: #451a03;
+  --ms-warning-soft: #3a2506;
   --ms-error: #f87171;
-  --ms-error-soft: #450a0a;
+  --ms-error-soft: #3f1010;
   --ms-info: #60a5fa;
-  --ms-info-soft: #172554;
+  --ms-info-soft: #102445;
 
   --ms-radius-sm: 8px;
-  --ms-radius-md: 12px;
-  --ms-radius-lg: 18px;
-  --ms-radius-xl: 26px;
+  --ms-radius-md: 10px;
+  --ms-radius-lg: 12px;
+  --ms-radius-xl: 16px;
+  --ms-radius-2xl: 24px;
   --ms-radius-pill: 999px;
   --ms-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --ms-shadow-md: 0 14px 36px rgba(0, 0, 0, 0.5);
-  --ms-shadow-lg: 0 30px 76px rgba(0, 0, 0, 0.62);
-  --ms-shadow-glow: 0 18px 48px rgba(129, 140, 248, 0.24);
-  --ms-space-1: 4px;
-  --ms-space-2: 8px;
-  --ms-space-3: 12px;
-  --ms-space-4: 16px;
-  --ms-space-5: 20px;
-  --ms-space-6: 24px;
-  --ms-space-7: 32px;
-  --ms-space-8: 40px;
-  --ms-space-9: 56px;
-  --ms-space-10: 72px;
+  --ms-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.42);
+  --ms-shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.58);
+  --ms-shadow-glow: 0 12px 32px rgba(129, 140, 248, 0.2);
+  --ms-space-1: 8px;
+  --ms-space-2: 16px;
+  --ms-space-3: 24px;
+  --ms-space-4: 32px;
+  --ms-space-5: 40px;
+  --ms-space-6: 48px;
+  --ms-space-7: 64px;
+  --ms-space-8: 80px;
+  --ms-space-9: 96px;
+  --ms-space-10: 120px;
+  --ms-gutter: 32px;
 
-  --ms-font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', 'Manrope Variable', 'Segoe UI', sans-serif;
-  --ms-font-sans: 'Manrope Variable', 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --ms-font-display: 'Space Grotesk Variable', 'Space Grotesk', 'Inter Variable', 'Segoe UI', sans-serif;
+  --ms-font-sans: 'Inter Variable', 'Inter', 'Segoe UI', system-ui, sans-serif;
   --ms-font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --ms-gradient: linear-gradient(135deg, #818cf8 0%, #a78bfa 62%, #e879f9 100%);
   --ms-gradient-soft: linear-gradient(135deg, rgba(129, 140, 248, 0.16), rgba(167, 139, 250, 0.1));
 
-  --ms-nav-bg: #0d0a18;
-  --ms-nav-text: #f5f3ff;
-  --ms-nav-muted: #a9a1c2;
-  --ms-nav-icon: rgba(245, 243, 255, 0.68);
-  --ms-nav-line: #2a2542;
-  --ms-nav-hover: rgba(245, 243, 255, 0.07);
-  --ms-nav-active-bg: linear-gradient(100deg, rgba(129, 140, 248, 0.26), rgba(167, 139, 250, 0.14));
+  --ms-nav-bg: #0c0c10;
+  --ms-nav-text: #fafafa;
+  --ms-nav-muted: #a1a1aa;
+  --ms-nav-icon: rgba(250, 250, 250, 0.68);
+  --ms-nav-line: #27272f;
+  --ms-nav-hover: rgba(250, 250, 250, 0.06);
+  --ms-nav-active-bg: linear-gradient(100deg, rgba(129, 140, 248, 0.22), rgba(167, 139, 250, 0.1));
   --ms-nav-active-text: #e0e7ff;
   --ms-nav-active-icon: #aab8ff;
-  --ms-nav-sub-text: rgba(245, 243, 255, 0.72);
+  --ms-nav-sub-text: rgba(250, 250, 250, 0.7);
   --ms-nav-pill-bg: #818cf8;
-  --ms-nav-pill-text: #0b0914;
+  --ms-nav-pill-text: #09090b;
 
   color-scheme: dark;
 }

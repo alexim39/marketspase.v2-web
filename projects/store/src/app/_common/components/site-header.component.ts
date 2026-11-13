@@ -78,16 +78,16 @@ import { CartService } from '../../store/cart/cart.service';
     }
 
     .bar {
-      min-height: 70px;
+      min-height: 72px;
       display: flex;
       align-items: center;
-      gap: 1.5em;
+      gap: 24px;
     }
 
     .brand {
       display: inline-flex;
       align-items: center;
-      gap: 0.55em;
+      gap: 8px;
       color: var(--ms-text);
       text-decoration: none;
       flex: none;
@@ -100,12 +100,12 @@ import { CartService } from '../../store/cart/cart.service';
     }
 
     .brand-store {
-      padding-left: 0.55em;
+      padding-left: 8px;
       border-left: 1px solid var(--ms-line);
       color: var(--ms-text-muted);
-      font-size: 0.68rem;
-      font-weight: 800;
-      letter-spacing: 0.18em;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
       line-height: 1;
       text-transform: uppercase;
     }
@@ -114,20 +114,20 @@ import { CartService } from '../../store/cart/cart.service';
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 0.2em;
+      gap: 4px;
       margin-left: auto;
     }
 
     .desktop-nav a {
       display: inline-flex;
       align-items: center;
-      min-height: 42px;
-      padding: 0 0.8em;
-      border-radius: 12px;
+      min-height: 40px;
+      padding: 0 16px;
+      border-radius: var(--ms-radius-lg);
       color: var(--ms-text-muted);
       text-decoration: none;
-      font-size: 0.86em;
-      font-weight: 650;
+      font-size: 0.875rem;
+      font-weight: 500;
     }
 
     .desktop-nav a:hover,
@@ -163,11 +163,11 @@ import { CartService } from '../../store/cart/cart.service';
     }
 
     .desktop-nav .cta {
-      margin-left: 0.35em;
-      padding: 0 1em;
+      margin-left: 8px;
+      padding: 0 16px;
       background: var(--ms-primary-strong);
       color: #fff;
-      font-weight: 750;
+      font-weight: 600;
     }
 
     .desktop-nav .cta:hover {
@@ -178,10 +178,10 @@ import { CartService } from '../../store/cart/cart.service';
     .theme-toggle {
       display: inline-grid;
       place-items: center;
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       border: 1px solid var(--ms-line);
-      border-radius: 11px;
+      border-radius: var(--ms-radius-md);
       background: var(--ms-surface);
       color: var(--ms-text-muted);
       cursor: pointer;
@@ -195,23 +195,23 @@ import { CartService } from '../../store/cart/cart.service';
     .mobile-theme {
       width: 100%;
       grid-auto-flow: column;
-      gap: 0.5em;
+      gap: 8px;
       height: auto;
-      min-height: 44px;
-      padding: 0 0.8em;
+      min-height: 48px;
+      padding: 0 16px;
       font: inherit;
-      font-size: 0.86em;
-      font-weight: 650;
+      font-size: 0.875rem;
+      font-weight: 500;
     }
 
     .menu-btn {
       display: none;
       margin-left: auto;
-      width: 42px;
-      height: 42px;
+      width: 40px;
+      height: 40px;
       place-items: center;
       border: 1px solid var(--ms-line);
-      border-radius: 12px;
+      border-radius: var(--ms-radius-md);
       background: var(--ms-surface);
       color: var(--ms-text);
       cursor: pointer;
@@ -219,7 +219,7 @@ import { CartService } from '../../store/cart/cart.service';
 
     .mobile-nav {
       display: none;
-      padding: 0.5em 0.85em 1em;
+      padding: 8px 16px 16px;
       border-top: 1px solid var(--ms-line);
       background: var(--ms-surface);
     }
@@ -227,12 +227,12 @@ import { CartService } from '../../store/cart/cart.service';
     .mobile-nav a {
       display: flex;
       align-items: center;
-      min-height: 46px;
-      padding: 0 0.75em;
-      border-radius: 10px;
+      min-height: 48px;
+      padding: 0 16px;
+      border-radius: var(--ms-radius-md);
       color: var(--ms-text);
       text-decoration: none;
-      font-weight: 650;
+      font-weight: 500;
     }
 
     .mobile-nav a:hover {
@@ -241,7 +241,7 @@ import { CartService } from '../../store/cart/cart.service';
     }
 
     .mobile-nav .mobile-cta {
-      margin-top: 0.3em;
+      margin-top: 8px;
       justify-content: center;
       background: var(--ms-primary-strong);
       color: #fff;

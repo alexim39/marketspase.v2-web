@@ -1,22 +1,34 @@
 # MarketSpase Design System
 
-Last verified: 2026-11-09.
+Last verified: 2026-11-13.
 
 One visual language for the platform, store and admin apps. Feature apps should
 consume the shared tokens, Material theme and UI primitives instead of defining
 their own colours, type scales or loading states.
 
+## App personalities
+
+- **Platform** — calm, focused workspace. Strong hierarchy, restrained chrome,
+  clear cards and data surfaces.
+- **Store** — editorial and spacious. Larger display type, wide gutters,
+  image-led sections and a lighter border rhythm.
+- **Admin** — spacious but scannable. Sticky table headers, clear row rhythm,
+  generous page padding and fast visual scanning.
+
+Linear/Vercel-style restraint is the reference: monochrome surfaces, crisp
+typography, 1px borders, soft shadows and brand violet/teal used sparingly.
+
 ## Typography
 
 | Role | Family | Usage |
 | --- | --- | --- |
-| Display | **Bricolage Grotesque Variable** | Page titles, hero headings, card values, empty-state titles |
-| UI / body | **Manrope Variable** | Body copy, labels, navigation, tables, buttons, form fields |
+| Display | **Space Grotesk Variable** | Page titles, hero headings, card values, empty-state titles |
+| UI / body | **Inter Variable** | Body copy, labels, navigation, tables, buttons, form fields |
 | Data / code | **JetBrains Mono Variable** | Reference codes, audit IDs, technical values |
 
-The pairing is deliberately not Inter/Roboto/Helvetica: Bricolage gives
-MarketSpase a recognisable, young editorial voice while Manrope keeps dense
-product and admin screens highly legible.
+Space Grotesk gives MarketSpase a confident, modern editorial voice. Inter
+keeps dense product and admin screens highly legible. The pairing is
+deliberately restrained rather than decorative.
 
 ### Tokens
 
@@ -26,18 +38,22 @@ product and admin screens highly legible.
 - `--ms-leading-tight`, `--ms-leading-body`
 - `--ms-tracking-display`, `--ms-tracking-label`
 
-Headings automatically use the display face. Body copy is 16px / 1.62.
+Headings automatically use the display face. Body copy is 16px / 1.6.
 
 ## Spacing and shape
 
-- Spacing: `--ms-space-1` (4px) through `--ms-space-10` (72px)
-- Radii: `--ms-radius-sm` 8px, `--ms-radius-md` 12px, `--ms-radius-lg` 18px,
-  `--ms-radius-xl` 26px, `--ms-radius-pill` 999px
+- Strict 8px layout grid: `--ms-space-1` (8px) through `--ms-space-10` (120px).
+- 4px is reserved only for optical alignment inside icons, badges and compact
+  controls where 8px would break density.
+- Radii: `--ms-radius-sm` 8px, `--ms-radius-md` 10px, `--ms-radius-lg` 12px,
+  `--ms-radius-xl` 16px, `--ms-radius-2xl` 24px, `--ms-radius-pill` 999px.
+- Borders are always 1px using `--ms-line` or `--ms-line-strong`.
 - Elevation: `--ms-shadow-sm`, `--ms-shadow-md`, `--ms-shadow-lg`,
-  `--ms-shadow-glow`
-- Controls keep a 44px minimum touch target.
-- Page widths: `min(1180px, calc(100% - 2.5em))` for public storefronts;
-  routed app pages use the shell content width.
+  `--ms-shadow-glow`. No heavy or coloured shadows.
+- Controls keep a 44px minimum touch target; primary actions are 48px high.
+- Page widths: `--ms-content-lg` (1280px) for storefronts and platform pages;
+  admin uses a 1500px max-width with 32px gutters.
+- Mobile gutters step down to 24px and then 16px.
 
 ## Themes
 
@@ -49,6 +65,21 @@ colours in feature components; use semantic tokens (`--ms-surface`,
 The user-facing theme choice (Light / Dark / System) lives in **More → Settings →
 Appearance** (`/dashboard/settings/appearance`) in the platform app. The store
 and admin expose their own switchers; all use the shared `ThemeService`.
+
+## Component rules
+
+- **Buttons:** 40px default height, 48px primary height, 12px radius, 16px
+  horizontal padding. Use one primary action per surface.
+- **Cards:** 1px border, 12px radius, 24px padding, soft shadow. Avoid nested
+  cards; use dividers or tinted surfaces instead.
+- **Tables:** 48px header, 56px rows, 16px × 24px cells, uppercase 11px headers.
+  Hover uses `--ms-surface-2`; no zebra striping by default.
+- **Dialogs:** 16px radius, no extra surface padding when the dialog paints its
+  own hero, soft shadow, mobile bottom-sheet treatment under 600px.
+- **Forms:** 12px field radius, always-visible labels, 48px control height,
+  one clear helper or error line.
+- **Status:** chips are pill-shaped, sentence case, and use semantic soft
+  backgrounds. Colour is never the only signal; include a label or icon.
 
 ## Material forms
 
