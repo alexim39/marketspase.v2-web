@@ -233,6 +233,8 @@ import { ApiError, userError } from '../../../core/http/api-error';
                   <span><small>Activated</small><strong>{{ row.activated }}</strong></span>
                   <span><small>KYC</small><strong>{{ row.kycVerified }}</strong></span>
                   <span><small>Rate</small><strong>{{ row.activationRate }}%</strong></span>
+                  <span><small>Active 7d</small><strong>{{ row.retained7 }}/{{ row.eligible7 }}</strong></span>
+                  <span><small>Retention</small><strong>{{ row.retentionRate === null ? '—' : row.retentionRate + '%' }}</strong></span>
                 </div>
                 <span class="muted small">{{ row.lastSignupAt | date: 'mediumDate' }}</span>
               </article>

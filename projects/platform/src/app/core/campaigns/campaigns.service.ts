@@ -5,6 +5,7 @@ import {
   AdminGrowthCampaignEnvelope,
   AdminGrowthCampaignsEnvelope,
   AllocatePartnersEnvelope,
+  CampaignAnalyticsEnvelope,
   CampaignAttributionEnvelope,
   CampaignQueueEnvelope,
   CreateGrowthCampaignInput,
@@ -24,6 +25,10 @@ export class CampaignsService {
 
   get(campaignId: string): Observable<GrowthCampaignEnvelope> {
     return this.api.get<GrowthCampaignEnvelope>(`v1/campaigns/${campaignId}`);
+  }
+
+  analytics(campaignId: string, days = 30): Observable<CampaignAnalyticsEnvelope> {
+    return this.api.get<CampaignAnalyticsEnvelope>(`v1/campaigns/${campaignId}/analytics?days=${days}`);
   }
 
   create(input: CreateGrowthCampaignInput): Observable<GrowthCampaignEnvelope> {

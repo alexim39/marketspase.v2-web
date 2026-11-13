@@ -17,6 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -32,6 +33,7 @@ import {
 } from '../../core/campaigns/campaigns.models';
 import { ApiError, userError } from '../../core/http/api-error';
 import { States } from '../../_common/services/countries';
+import { CampaignAnalyticsDialogComponent } from './analytics/campaign-analytics.component';
 
 type CampaignTab = 'studio' | 'campaigns' | 'placement';
 
@@ -283,6 +285,7 @@ type CampaignTab = 'studio' | 'campaigns' | 'placement';
                   <div><p class="eyebrow">My portfolio</p><h2>Funded campaigns</h2></div>
                   <span class="count">{{ campaigns().length }}</span>
                 </div>
+                <p class="muted small campaign-note">Open analytics on any campaign to see joins, activations and 7-day activity.</p>
                 @if (campaigns().length === 0) {
                   <div class="empty"><mat-icon>campaign</mat-icon><p>No funded campaigns yet. Start in Campaign Studio.</p><button mat-flat-button color="primary" type="button" (click)="setTab('studio')">Open Studio</button></div>
                 } @else {
@@ -307,6 +310,9 @@ type CampaignTab = 'studio' | 'campaigns' | 'placement';
                           <p class="muted small">Legacy campaign awaiting review. Budget is held and refundable.</p>
                         }
                         <div class="campaign-actions">
+                          <button mat-button type="button" (click)="openAnalytics(campaign)">
+                            <mat-icon>insights</mat-icon> View analytics
+                          </button>
                           @if (campaign.trackingUrl) {
                             <a mat-button [href]="campaign.trackingUrl" target="_blank" rel="noopener">Open join page</a>
                             <button mat-button type="button" (click)="copyTracking(campaign)">
@@ -373,6 +379,7 @@ type CampaignTab = 'studio' | 'campaigns' | 'placement';
     .content-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr); gap: 18px; align-items: start; }
     .panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
     .panel-head h2 { margin: 4px 0 0; font-size: 1.2rem; }
+    .campaign-note { margin: -6px 0 12px; }
     .intro { margin: 0 0 14px; line-height: 1.5; }
     .min-badge, .count { border-radius: 999px; background: var(--ms-primary-soft); color: var(--ms-primary-strong); padding: 5px 10px; font-size: 0.74rem; font-weight: 800; white-space: nowrap; }
     .info-icon { color: var(--ms-text-muted); font-size: 18px; width: 18px; height: 18px; cursor: help; }
@@ -459,6 +466,7 @@ export class CampaignsComponent implements OnInit {
   private readonly campaignsService = inject(CampaignsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
+  private readonly dialog = inject(MatDialog);
 
   protected readonly costPerProspect = 550;
   protected readonly minProspects = 2;
@@ -693,6 +701,16 @@ export class CampaignsComponent implements OnInit {
       },
       () => this.error.set('Could not copy the campaign link. Open the join page and copy the address instead.'),
     );
+  }
+
+  protected openAnalytics(campaign: GrowthCampaign): void {
+    this.dialog.open(CampaignAnalyticsDialogComponent, {
+      data: campaign,
+      width: '920px',
+      maxWidth: '94vw',
+      maxHeight: '92vh',
+      restoreFocus: true,
+    });
   }
 
   protected cancel(campaign: GrowthCampaign): void {

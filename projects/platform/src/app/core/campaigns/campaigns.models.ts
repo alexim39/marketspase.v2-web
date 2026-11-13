@@ -204,10 +204,43 @@ export interface CampaignAttributionRow {
   signups: number;
   activated: number;
   kycVerified: number;
+  eligible7: number;
+  retained7: number;
   activationRate: number;
+  retentionRate: number | null;
   lastSignupAt: string | null;
+  lastActivityAt: string | null;
 }
 
 export interface CampaignAttributionEnvelope extends ApiEnvelope<CampaignAttributionRow[]> {
   data: CampaignAttributionRow[];
+}
+
+export interface CampaignAnalyticsPoint {
+  date: string;
+  signups: number;
+  activated: number;
+}
+
+export interface CampaignAnalyticsSummary {
+  signups: number;
+  activated: number;
+  kycVerified: number;
+  eligible7: number;
+  retained7: number;
+  activationRate: number;
+  retentionRate: number | null;
+  lastSignupAt: string | null;
+  lastActivityAt: string | null;
+}
+
+export interface CampaignAnalytics {
+  campaign: GrowthCampaign;
+  windowDays: number;
+  summary: CampaignAnalyticsSummary;
+  series: CampaignAnalyticsPoint[];
+}
+
+export interface CampaignAnalyticsEnvelope extends ApiEnvelope<CampaignAnalytics> {
+  data: CampaignAnalytics;
 }

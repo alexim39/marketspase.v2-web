@@ -204,8 +204,12 @@ export interface CampaignAttributionRow {
   signups: number;
   activated: number;
   kycVerified: number;
+  eligible7: number;
+  retained7: number;
   activationRate: number;
+  retentionRate: number | null;
   lastSignupAt: string | null;
+  lastActivityAt: string | null;
 }
 
 export interface CampaignAttributionEnvelope extends ApiEnvelope<CampaignAttributionRow[]> {
