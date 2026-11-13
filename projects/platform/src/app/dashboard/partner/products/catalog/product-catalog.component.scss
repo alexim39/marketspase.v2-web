@@ -5,17 +5,17 @@
 .catalog-page {
   display: flex;
   flex-direction: column;
-  gap: 1.1em;
-  padding-top: 0.75em;
-  padding-bottom: 2em;
+  gap: 16px;
+  padding-top: 8px;
+  padding-bottom: 32px;
 }
 
 .eyebrow {
   margin: 0;
   color: var(--ms-primary-strong);
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.13em;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -23,8 +23,8 @@
 .catalog-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(250px, 0.55fr);
-  gap: 1.25em;
-  padding: 1.35em 1.45em;
+  gap: 24px;
+  padding: 24px;
   overflow: hidden;
   background:
     radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--ms-secondary) 16%, transparent), transparent 58%),
@@ -40,25 +40,25 @@
 }
 
 .hero-copy h1 {
-  margin: 0.18em 0 0.3em;
+  margin: 4px 0 8px;
   max-width: 13ch;
-  font-size: clamp(1.85rem, 4vw, 2.8rem);
+  font-size: clamp(2rem, 4vw, 3rem);
   line-height: 1.04;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.03em;
 }
 
 .subtitle {
   margin: 0;
   max-width: 44em;
   color: var(--ms-text-muted);
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55em;
-  margin-top: 1.05em;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .hero-actions a,
@@ -69,9 +69,9 @@
 .hero-cart {
   display: flex;
   flex-direction: column;
-  gap: 0.3em;
+  gap: 4px;
   align-self: stretch;
-  padding: 1em 1.1em;
+  padding: 16px;
   background: color-mix(in srgb, var(--ms-surface) 92%, transparent);
   border: 1px solid var(--ms-line);
   border-radius: var(--ms-radius-lg);
@@ -82,8 +82,8 @@
 .cart-numbers {
   display: flex;
   align-items: baseline;
-  gap: 0.4em;
-  margin-top: 0.15em;
+  gap: 4px;
+  margin-top: 4px;
 }
 
 .cart-numbers strong {
@@ -94,14 +94,14 @@
 
 .cart-numbers span {
   color: var(--ms-text-muted);
-  font-size: 0.85em;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .cart-total {
-  margin: 0 0 0.4em;
-  font-size: 1.02em;
-  font-weight: 700;
+  margin: 0 0 8px;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .hero-cart button {
@@ -109,38 +109,38 @@
 }
 
 .cart-note {
-  margin: 0.15em 0 0;
+  margin: 4px 0 0;
   color: var(--ms-text-muted);
-  font-size: 0.76em;
-  line-height: 1.4;
+  font-size: 0.75rem;
+  line-height: 1.5;
 }
 
 /* ── Trust strip ──────────────────────────────────────────────────────── */
 .trust-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55em;
+  gap: 8px;
 }
 
 .trust-strip > div {
   flex: 1 1 150px;
   display: flex;
   align-items: center;
-  gap: 0.5em;
-  padding: 0.62em 0.85em;
+  gap: 8px;
+  padding: 8px 16px;
   background: var(--ms-surface);
   border: 1px solid var(--ms-line);
   border-radius: 999px;
   color: var(--ms-text-muted);
-  font-size: 0.82em;
-  font-weight: 650;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .trust-strip mat-icon {
   flex: none;
-  width: 19px;
-  height: 19px;
-  font-size: 19px;
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
   color: var(--ms-primary-strong);
 }
 
