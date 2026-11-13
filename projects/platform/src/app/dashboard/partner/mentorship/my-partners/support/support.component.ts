@@ -1,6 +1,6 @@
 ﻿import { ChangeDetectionStrategy, Component, DestroyRef, inject, Input, OnChanges, OnInit, signal, SimpleChanges } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DatePipe, LowerCasePipe } from '@angular/common';
+import { DatePipe, DecimalPipe, LowerCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -36,7 +36,7 @@ import { ApiError, userError } from '../../../../../core/http/api-error';
   styleUrls: ['support.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    AvatarComponent, DatePipe, FormsModule, LowerCasePipe, MatButtonModule, MatChipsModule,
+    AvatarComponent, DatePipe, DecimalPipe, FormsModule, LowerCasePipe, MatButtonModule, MatChipsModule,
     MatIconModule, MatInputModule, PageSkeletonComponent, RouterModule,
     PartnerBusinessKpiComponent,
   ],
@@ -83,6 +83,17 @@ export class MyPartnerSupportComponent implements OnInit, OnChanges {
   protected trainingDone(key: string): boolean {
     const stamp = (this.journey()?.milestones?.[key] ?? {}) as { done?: boolean };
     return stamp.done === true;
+  }
+
+  protected goalsComplete(): number {
+    return this.goals().filter((goal) => goal.progress.complete).length;
+  }
+
+  protected checkinLabel(kind: string | null | undefined): string {
+    if (kind === 'welcome') return 'Welcome call';
+    if (kind === 'day3') return 'Day 3 check-in';
+    if (kind === 'day7') return 'Day 7 review';
+    return 'Check-in';
   }
 
   protected displayName(): string {

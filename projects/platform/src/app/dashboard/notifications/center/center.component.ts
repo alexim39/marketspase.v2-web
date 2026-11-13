@@ -92,13 +92,14 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
     </section>
 
     <section class="center-page">
-      <header class="hero">
-        <div class="hero-text">
-          <h2>Notifications</h2>
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">Inbox · Alerts &amp; actions</p>
+          <h1>Notifications</h1>
           <p class="subtitle">
             @if (urgent().length > 0) {
               <strong class="urgent">{{ urgent().length }} need action now.</strong>
-              <span class="next-step">Start at the top — each one tells you what to do next.</span>
+              <span>Each item tells you what to do next.</span>
             } @else {
               You're all caught up on urgent items.
             }
@@ -107,26 +108,29 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
             <p class="stats-line">{{ stats }}</p>
           }
         </div>
-        <div class="hero-actions">
+        <div class="head-actions">
           @if (all().length > 0) {
-            <button mat-button (click)="markAllRead()" [disabled]="markingAll() || loading()">
-              Mark all read
-            </button>
-            <button mat-button (click)="archiveAll()" [disabled]="markingAll() || loading()">
-              Archive all
-            </button>
+            <button mat-stroked-button type="button" (click)="markAllRead()" [disabled]="markingAll() || loading()">Mark all read</button>
+            <button mat-stroked-button type="button" (click)="archiveAll()" [disabled]="markingAll() || loading()">Archive all</button>
             @if (confirmBulkDelete()) {
-              <button mat-button color="warn" (click)="deleteAll()" [disabled]="markingAll() || loading()">
-                Confirm delete all
-              </button>
-              <button mat-button (click)="confirmBulkDelete.set(false)">Cancel</button>
+              <button mat-flat-button color="warn" type="button" (click)="deleteAll()" [disabled]="markingAll() || loading()">Confirm delete all</button>
+              <button mat-button type="button" (click)="confirmBulkDelete.set(false)">Cancel</button>
             } @else {
-              <button mat-button (click)="confirmBulkDelete.set(true)">Delete all</button>
+              <button mat-button type="button" (click)="confirmBulkDelete.set(true)">Delete all</button>
             }
           }
           <a mat-button routerLink="/dashboard/notifications/preferences">Settings</a>
         </div>
       </header>
+
+      @if (!loading() && all().length > 0) {
+        <section class="summary-strip" aria-label="Notification summary">
+          <div class="summary-card"><span class="summary-icon"><mat-icon>notifications</mat-icon></span><div><strong>{{ all().length }}</strong><span>Total</span><small>All visible updates</small></div></div>
+          <div class="summary-card"><span class="summary-icon summary-icon--warn"><mat-icon>priority_high</mat-icon></span><div><strong>{{ unreadCount() }}</strong><span>Unread</span><small>Not opened yet</small></div></div>
+          <div class="summary-card"><span class="summary-icon summary-icon--bad"><mat-icon>bolt</mat-icon></span><div><strong>{{ urgentCount() }}</strong><span>Urgent</span><small>Needs action now</small></div></div>
+          <div class="summary-card"><span class="summary-icon summary-icon--ok"><mat-icon>inbox</mat-icon></span><div><strong>{{ storedCount() }}</strong><span>Saved alerts</span><small>Can be archived or deleted</small></div></div>
+        </section>
+      }
 
       @if (inbox()?.items?.length) {
         <section class="action-inbox" aria-label="Resolve this next">
@@ -234,6 +238,12 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
                   </button>
                   @if (item.origin === 'stored') {
                     <button mat-button (click)="archiveStored(item.id)" [disabled]="busyId() === item.id">Archive</button>
+                    @if (confirmDeleteId() === item.id) {
+                      <button mat-button color="warn" (click)="deleteStored(item.id)" [disabled]="busyId() === item.id">Confirm delete</button>
+                      <button mat-button (click)="confirmDeleteId.set(null)">Cancel</button>
+                    } @else {
+                      <button mat-button color="warn" (click)="confirmDeleteId.set(item.id)">Delete</button>
+                    }
                   } @else {
                     <button mat-button (click)="dismiss(item.id)" [disabled]="busyId() === item.id">Dismiss</button>
                   }
@@ -378,6 +388,25 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
     .breadcrumb-wrapper { margin-bottom: 1em; }
     .breadcrumb a { text-decoration: none; }
     .center-page { display: flex; flex-direction: column; gap: 1.25em; }
+    .page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5em; flex-wrap: wrap; }
+    .page-head h1 { margin: 4px 0 8px; font-size: clamp(2rem, 3vw, 2.5rem); letter-spacing: -0.03em; }
+    .eyebrow { margin: 0; color: var(--ms-primary-strong); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+    .page-head .subtitle { margin: 0; color: var(--ms-text-muted); font-size: 0.9375rem; line-height: 1.6; }
+    .page-head .subtitle .urgent { color: var(--ms-error); }
+    .stats-line { margin: 6px 0 0; color: var(--ms-text-muted); font-size: 0.75rem; }
+    .head-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .head-actions button, .head-actions a { min-height: 40px; }
+    .summary-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 8px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-surface); }
+    .summary-card { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--ms-radius-md); }
+    .summary-icon { width: 40px; height: 40px; flex: none; border-radius: var(--ms-radius-md); display: grid; place-items: center; background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
+    .summary-icon--warn { background: var(--ms-warning-soft); color: var(--ms-warning); }
+    .summary-icon--bad { background: var(--ms-error-soft); color: var(--ms-error); }
+    .summary-icon--ok { background: var(--ms-success-soft); color: var(--ms-success); }
+    .summary-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    .summary-card > div { display: flex; flex-direction: column; gap: 1px; }
+    .summary-card strong { font-family: var(--ms-font-display); font-size: 1.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .summary-card span:last-of-type { color: var(--ms-text-muted); font-size: 0.75rem; font-weight: 600; }
+    .summary-card small { color: var(--ms-text-muted); font-size: 0.6875rem; }
     .action-inbox { display: flex; flex-direction: column; gap: 0.75em; padding: 1em; border: 1px solid var(--ms-line); border-radius: 14px; background: var(--ms-surface); }
     .inbox-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; }
     .inbox-head h3 { margin: 2px 0 0; font-size: 1.05em; }
@@ -448,8 +477,14 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
     }
     .empty-card mat-icon { font-size: 40px; height: 40px; width: 40px; opacity: 0.6; }
     .empty-card p { margin: 0; max-width: 34em; }
+    @media (max-width: 900px) {
+      .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
     @media (max-width: 640px) {
-      .hero { padding: 0.9em 1em; }
+      .page-head h1 { font-size: 1.8rem; }
+      .summary-strip { grid-template-columns: minmax(0, 1fr); }
+      .head-actions { width: 100%; }
+      .head-actions button, .head-actions a { flex: 1; justify-content: center; }
       .feed-item { padding: 0.8em 0.9em; }
       .feed-actions button, .feed-actions a { min-height: 48px; }
     }
@@ -505,6 +540,8 @@ export class NotificationsCenterComponent implements OnInit {
 
   protected readonly urgent = computed(() => this.all().filter((i) => i.urgency && !i.read));
   protected readonly urgentCount = computed(() => this.urgent().length);
+  protected readonly unreadCount = computed(() => this.all().filter((i) => !i.read).length);
+  protected readonly storedCount = computed(() => this.stored().length);
 
   protected readonly buckets = computed<DayBucket[]>(() => {
     const rest = this.all().filter((i) => !(i.urgency && !i.read));

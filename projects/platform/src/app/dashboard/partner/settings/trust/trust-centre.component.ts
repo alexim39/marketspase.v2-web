@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, forkJoin, of } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
@@ -260,7 +261,11 @@ export class TrustCentreComponent implements OnInit {
 
   ngOnInit(): void {
     forkJoin({
-      partner: this.partners.getSharedPartnerData$.pipe(catchError(() => of(null))),
+      partner: this.partners.getSharedPartnerData$.pipe(
+        filter((value): value is PartnerInterface => !!value),
+        take(1),
+        catchError(() => of(null)),
+      ),
       onboarding: this.onboardingService.status().pipe(catchError(() => of(null))),
       compensation: this.compensation.me().pipe(catchError(() => of(null))),
       wallet: this.wallet.history().pipe(catchError(() => of([]))),
@@ -331,7 +336,11 @@ export class TrustCentreComponent implements OnInit {
     this.exporting.set(true);
     this.exportNotice.set(null);
     forkJoin({
-      partner: this.partners.getSharedPartnerData$.pipe(catchError(() => of(null))),
+      partner: this.partners.getSharedPartnerData$.pipe(
+        filter((value): value is PartnerInterface => !!value),
+        take(1),
+        catchError(() => of(null)),
+      ),
       onboarding: this.onboardingService.status().pipe(catchError(() => of(null))),
       compensation: this.compensation.me().pipe(catchError(() => of(null))),
       wallet: this.wallet.history().pipe(catchError(() => of([]))),
