@@ -128,22 +128,22 @@ import { formatSignedMoney, isWalletCredit } from '../../../core/format/money';
     </section>
   `,
   styles: [`
-    .breadcrumb-wrapper { margin-bottom: 1em; }
+    .breadcrumb-wrapper { margin-bottom: 16px; }
     .breadcrumb a { text-decoration: none; }
-    .history-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
+    .history-page { display: flex; flex-direction: column; gap: 16px; padding-bottom: 32px; }
     .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: var(--ms-text-muted); max-width: 44em; }
-    .toolbar { display: flex; gap: 0.75em; align-items: center; flex-wrap: wrap; }
+    .subtitle { margin: 8px 0 0; color: var(--ms-text-muted); max-width: 44em; }
+    .toolbar { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
     .toolbar mat-form-field { min-width: 200px; }
-    .table-wrap { overflow-x: auto; border-radius: 8px; }
+    .table-wrap { overflow-x: auto; border-radius: var(--ms-radius-sm); }
     table { width: 100%; }
-    .num { font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .num { font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
     .num.credit { color: var(--ms-success); }
-    .mono { font-family: ui-monospace, monospace; font-size: 0.85em; }
-    .muted { color: var(--ms-text-muted); font-size: 0.85em; }
+    .mono { font-family: var(--ms-font-mono); font-size: 0.8125rem; }
+    .muted { color: var(--ms-text-muted); font-size: 0.875rem; }
     .empty { color: var(--ms-text-muted); }
-    .error { color: var(--ms-error); display: flex; align-items: center; gap: 0.5em; }
-    .load-more-row { display: flex; justify-content: center; padding: 1em 0 0.5em; }
+    .error { color: var(--ms-error); display: flex; align-items: center; gap: 8px; }
+    .load-more-row { display: flex; justify-content: center; padding: 16px 0 8px; }
     button { min-height: 44px; }
   `],
 })
