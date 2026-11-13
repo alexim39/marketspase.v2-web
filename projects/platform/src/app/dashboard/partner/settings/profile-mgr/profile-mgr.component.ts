@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy, signal, WritableSignal } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -37,6 +39,28 @@ interface MeterItem {
   done: boolean;
   required: boolean;
 }
+
+const MAX_PROFILE_TAGS = 10;
+const MAX_PROFILE_TAG_LENGTH = 40;
+
+/** Accept legacy strings and arrays; trim, dedupe, cap for the API contract. */
+const normalizeProfileTags = (value: unknown): string[] => {
+  const raw = Array.isArray(value) ? value : String(value ?? '').split(',');
+  const seen = new Set<string>();
+  const tags: string[] = [];
+  for (const entry of raw) {
+    for (const part of String(entry ?? '').split(',')) {
+      const tag = part.replace(/\s+/g, ' ').trim().slice(0, MAX_PROFILE_TAG_LENGTH);
+      if (!tag) continue;
+      const key = tag.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      tags.push(tag);
+      if (tags.length >= MAX_PROFILE_TAGS) return tags;
+    }
+  }
+  return tags;
+};
 
 /**
  * @title profile manager — completion-driven account page.
@@ -111,6 +135,9 @@ styles: [`
   .form-group { flex: 1 1 calc(50% - 16px); min-width: 220px; display: flex; flex-direction: column; }
   .form-ungroup { flex: 1 1 100%; display: flex; flex-direction: column; }
   .form-group mat-form-field, .form-ungroup mat-form-field { width: 100%; }
+  .tag-field { width: 100%; }
+  .tag-field mat-chip-grid { width: 100%; }
+  .tag-field input { min-width: 100px; }
   .form-actions { flex: 1 1 100%; display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--ms-line); padding-top: 16px; }
   .form-actions button { min-height: 44px; }
   .divider { height: 1px; background: var(--ms-line); }
@@ -158,7 +185,7 @@ styles: [`
 providers: [provideNativeDateAdapter(), ProfileService],
 changeDetection: ChangeDetectionStrategy.OnPush,
 imports: [FormsModule, CommonModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule,
-    ReactiveFormsModule, MatButtonToggleModule, MatCheckboxModule, MatFormFieldModule, MatRadioModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, MatSnackBarModule, ProfilePictureUploadComponent, DeleteAccountComponent, RouterModule
+    ReactiveFormsModule, MatButtonToggleModule, MatCheckboxModule, MatChipsModule, MatFormFieldModule, MatRadioModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, MatSnackBarModule, ProfilePictureUploadComponent, DeleteAccountComponent, RouterModule
 ]
 })
 export class ProfileMgrComponent implements OnInit, OnDestroy {
@@ -178,6 +205,10 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   mentorForm!: FormGroup;
   hideCurrent = signal(true);
   hideNew = signal(true);
+  protected readonly hobbyTags = signal<string[]>([]);
+  protected readonly skillTags = signal<string[]>([]);
+  protected readonly chipSeparatorKeys = [ENTER, COMMA];
+  protected readonly maxProfileTags = MAX_PROFILE_TAGS;
 
   subscriptions: Array<Subscription> = [];
 
@@ -210,6 +241,10 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
 
     if (this.partner) {
       this.isNigeria = (this.partner?.address?.country ?? 'Nigeria') === 'Nigeria';
+      const hobbies = normalizeProfileTags(this.partner.hobby);
+      const skills = normalizeProfileTags(this.partner.skill);
+      this.hobbyTags.set(hobbies);
+      this.skillTags.set(skills);
       this.profileMgrForm = new FormGroup({
         name: new FormControl(this.partner.name, Validators.required),
         surname: new FormControl(this.partner.surname, Validators.required),
@@ -237,8 +272,8 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
       this.professionalForm = new FormGroup({
         jobTitle: new FormControl(this.partner.jobTitle, [Validators.required]),
         educationBackground: new FormControl(this.partner.educationBackground, [Validators.required]),
-        hobby: new FormControl(this.partner.hobby, [Validators.required]),
-        skill: new FormControl(this.partner.skill, [Validators.required]),
+        hobby: new FormControl(hobbies, [Validators.required]),
+        skill: new FormControl(skills, [Validators.required]),
         id: new FormControl(this.partner._id),
       });
       this.mentorForm = new FormGroup({
@@ -281,6 +316,52 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
         },
       }),
     );
+  }
+
+  protected get hobbyControl(): FormControl<string[]> {
+    return this.professionalForm.get('hobby') as FormControl<string[]>;
+  }
+
+  protected get skillControl(): FormControl<string[]> {
+    return this.professionalForm.get('skill') as FormControl<string[]>;
+  }
+
+  protected addHobby(event: MatChipInputEvent): void {
+    this.addProfileTag(event, this.hobbyTags, this.hobbyControl);
+  }
+
+  protected removeHobby(tag: string): void {
+    this.removeProfileTag(tag, this.hobbyTags, this.hobbyControl);
+  }
+
+  protected addSkill(event: MatChipInputEvent): void {
+    this.addProfileTag(event, this.skillTags, this.skillControl);
+  }
+
+  protected removeSkill(tag: string): void {
+    this.removeProfileTag(tag, this.skillTags, this.skillControl);
+  }
+
+  private addProfileTag(event: MatChipInputEvent, target: WritableSignal<string[]>, control: AbstractControl | null): void {
+    const values = normalizeProfileTags(event.value);
+    event.chipInput?.clear();
+    if (values.length === 0) return;
+    const next = [...target()];
+    for (const value of values) {
+      if (next.length >= MAX_PROFILE_TAGS) break;
+      if (next.some((tag) => tag.toLowerCase() === value.toLowerCase())) continue;
+      next.push(value);
+    }
+    target.set(next);
+    control?.setValue(next);
+    control?.markAsTouched();
+  }
+
+  private removeProfileTag(tag: string, target: WritableSignal<string[]>, control: AbstractControl | null): void {
+    const next = target().filter((item) => item !== tag);
+    target.set(next);
+    control?.setValue(next);
+    control?.markAsTouched();
   }
 
   /** Completion meter — required gates onboarding, recommended polishes it. */

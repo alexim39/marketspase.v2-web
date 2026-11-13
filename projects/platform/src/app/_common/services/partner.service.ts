@@ -29,8 +29,8 @@ export interface PartnerInterface {
   profileImage?: string;
   jobTitle?: string;
   educationBackground?: string;
-  hobby?: string;
-  skill?: string;
+  hobby?: string[] | string;
+  skill?: string[] | string;
   whatsappGroupLink?: string;
   whatsappChatLink?: string;
   testimonial?: string;

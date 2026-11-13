@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
@@ -80,101 +80,159 @@ const withDetail = (err: ApiError): string => {
     </section>
 
     <section class="events-page">
-      <div class="page-head">
+      <header class="page-head">
         <div>
-          <h2>Events</h2>
-          <p class="subtitle">Gatherings worth showing up for.</p>
+          <p class="eyebrow">Community · Gatherings</p>
+          <h1>Events</h1>
+          <p class="subtitle">Meetups, trainings and team gatherings worth showing up for. RSVP, invite your network and keep the conversation going.</p>
         </div>
         <div class="head-actions">
           <mat-button-toggle-group [value]="tab()" (change)="tab.set($event.value)" aria-label="Event list">
-            <mat-button-toggle value="upcoming">Upcoming</mat-button-toggle>
-            <mat-button-toggle value="mine">My events</mat-button-toggle>
+            <mat-button-toggle value="upcoming">Upcoming <span class="toggle-count">{{ upcoming().length }}</span></mat-button-toggle>
+            <mat-button-toggle value="mine">My events <span class="toggle-count">{{ mine().length }}</span></mat-button-toggle>
           </mat-button-toggle-group>
-          <button mat-button (click)="toggleCompose()">{{ showCompose() ? 'Cancel' : 'New event' }}</button>
+          <button mat-flat-button color="primary" type="button" (click)="toggleCompose()">
+            <mat-icon>{{ showCompose() ? 'close' : 'add' }}</mat-icon>
+            {{ showCompose() ? 'Close composer' : 'New event' }}
+          </button>
         </div>
-      </div>
+      </header>
 
       @if (loading()) {
         <async-page-skeleton layout="cards" [rows]="4" label="community events" [showHeader]="false" />
       }
 
       @if (error(); as err) {
-        <p class="error" role="alert">
-          {{ err }}
-          <button mat-button (click)="reload()">Retry</button>
-        </p>
+        <div class="alert" role="alert">
+          <mat-icon>error_outline</mat-icon>
+          <p>{{ err }}</p>
+          <button mat-stroked-button type="button" (click)="reload()">Retry</button>
+        </div>
+      }
+
+      @if (!loading() && !error() && (upcoming().length > 0 || mine().length > 0)) {
+        <section class="summary-strip" role="status" aria-label="Events summary">
+          <div class="summary-item">
+            <span class="summary-icon"><mat-icon>event_upcoming</mat-icon></span>
+            <div><strong>{{ upcoming().length }}</strong><span>Upcoming events</span></div>
+          </div>
+          <div class="summary-item">
+            <span class="summary-icon summary-icon--ok"><mat-icon>groups</mat-icon></span>
+            <div><strong>{{ totalGoing() }}</strong><span>Going across events</span></div>
+          </div>
+          <div class="summary-item">
+            <span class="summary-icon summary-icon--info"><mat-icon>event_note</mat-icon></span>
+            <div><strong>{{ mine().length }}</strong><span>Events I created</span></div>
+          </div>
+          <div class="summary-item">
+            <span class="summary-icon summary-icon--warn"><mat-icon>star</mat-icon></span>
+            <div><strong>{{ featuredCount() }}</strong><span>Featured gatherings</span></div>
+          </div>
+        </section>
       }
 
       @if (showCompose()) {
-        <form class="compose-form dp-card" [formGroup]="form" (ngSubmit)="publish()">
-          <mat-form-field appearance="outline">
-            <mat-label>Title</mat-label>
-            <input matInput formControlName="title" maxlength="120" placeholder="e.g. Saturday cell meeting" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Details</mat-label>
-            <textarea matInput rows="3" formControlName="body" maxlength="2000"></textarea>
-          </mat-form-field>
-          <div class="two-col">
-            <mat-form-field appearance="outline">
-              <mat-label>Starts date</mat-label>
-              <input matInput [matDatepicker]="startsDatePicker" formControlName="startsDate" />
-              <mat-datepicker-toggle matSuffix [for]="startsDatePicker" />
-              <mat-datepicker #startsDatePicker />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Starts time</mat-label>
-              <input matInput [matTimepicker]="startsTimePicker" formControlName="startsTime" />
-              <mat-timepicker-toggle matSuffix [for]="startsTimePicker" />
-              <mat-timepicker #startsTimePicker interval="30m" />
-            </mat-form-field>
+        <form class="compose-card" [formGroup]="form" (ngSubmit)="publish()">
+          <div class="compose-head">
+            <span class="compose-icon"><mat-icon>{{ editingId() ? 'edit_calendar' : 'add_task' }}</mat-icon></span>
+            <div>
+              <h2>{{ editingId() ? 'Edit event' : 'Create an event' }}</h2>
+              <p>Set the schedule and audience. Members RSVP from this page and get a reminder.</p>
+            </div>
+            <button mat-icon-button type="button" (click)="toggleCompose()" aria-label="Close event composer">
+              <mat-icon>close</mat-icon>
+            </button>
           </div>
-          <div class="two-col">
+
+          <section class="form-section">
+            <h3>Event details</h3>
             <mat-form-field appearance="outline">
-              <mat-label>Ends date (optional)</mat-label>
-              <input
-                matInput
-                [matDatepicker]="endsDatePicker"
-                formControlName="endsDate"
-                [min]="form.controls.startsDate.value"
-              />
-              <mat-datepicker-toggle matSuffix [for]="endsDatePicker" />
-              <mat-datepicker #endsDatePicker />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Ends time (optional)</mat-label>
-              <input matInput [matTimepicker]="endsTimePicker" formControlName="endsTime" />
-              <mat-timepicker-toggle matSuffix [for]="endsTimePicker" />
-              <mat-timepicker #endsTimePicker interval="30m" />
-              @if (form.hasError('endsIncomplete')) {
-                <mat-error>Pick both an end date and time.</mat-error>
+              <mat-label>Title</mat-label>
+              <input matInput formControlName="title" maxlength="120" placeholder="e.g. Saturday cell meeting" />
+              @if (form.get('title')?.hasError('required') || form.get('title')?.hasError('minlength')) {
+                <mat-error>Give the event a clear title.</mat-error>
               }
             </mat-form-field>
-          </div>
-          <div class="two-col">
             <mat-form-field appearance="outline">
-              <mat-label>Venue (optional)</mat-label>
-              <input matInput formControlName="location" maxlength="200" placeholder="e.g. Ikeja hall" />
+              <mat-label>Details</mat-label>
+              <textarea matInput rows="3" formControlName="body" maxlength="2000" placeholder="What will happen, who should come and what should they bring?"></textarea>
+              @if (form.get('body')?.hasError('required')) {
+                <mat-error>Add a short description.</mat-error>
+              }
             </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Audience</mat-label>
-              <mat-select formControlName="scope">
-                <mat-option value="global">Everyone</mat-option>
-                <mat-option value="team">My team</mat-option>
-                <mat-option value="leadership">Leadership</mat-option>
-                @if (teamId()) {
-                  <mat-option value="members">Team members only{{ teamName() ? ' — ' + teamName() : '' }}</mat-option>
+          </section>
+
+          <section class="form-section">
+            <h3>Schedule</h3>
+            <div class="two-col">
+              <mat-form-field appearance="outline">
+                <mat-label>Starts date</mat-label>
+                <input matInput [matDatepicker]="startsDatePicker" formControlName="startsDate" />
+                <mat-datepicker-toggle matSuffix [for]="startsDatePicker" />
+                <mat-datepicker #startsDatePicker />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Starts time</mat-label>
+                <input matInput [matTimepicker]="startsTimePicker" formControlName="startsTime" />
+                <mat-timepicker-toggle matSuffix [for]="startsTimePicker" />
+                <mat-timepicker #startsTimePicker interval="30m" />
+              </mat-form-field>
+            </div>
+            <div class="two-col">
+              <mat-form-field appearance="outline">
+                <mat-label>Ends date (optional)</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="endsDatePicker"
+                  formControlName="endsDate"
+                  [min]="form.controls.startsDate.value"
+                />
+                <mat-datepicker-toggle matSuffix [for]="endsDatePicker" />
+                <mat-datepicker #endsDatePicker />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Ends time (optional)</mat-label>
+                <input matInput [matTimepicker]="endsTimePicker" formControlName="endsTime" />
+                <mat-timepicker-toggle matSuffix [for]="endsTimePicker" />
+                <mat-timepicker #endsTimePicker interval="30m" />
+                @if (form.hasError('endsIncomplete')) {
+                  <mat-error>Pick both an end date and time.</mat-error>
                 }
-              </mat-select>
-            </mat-form-field>
-          </div>
+              </mat-form-field>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h3>Venue &amp; audience</h3>
+            <div class="two-col">
+              <mat-form-field appearance="outline">
+                <mat-label>Venue (optional)</mat-label>
+                <input matInput formControlName="location" maxlength="200" placeholder="e.g. Ikeja hall or Zoom" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Audience</mat-label>
+                <mat-select formControlName="scope">
+                  <mat-option value="global">Everyone</mat-option>
+                  <mat-option value="team">My team</mat-option>
+                  <mat-option value="leadership">Leadership</mat-option>
+                  @if (teamId()) {
+                    <mat-option value="members">Team members only{{ teamName() ? ' — ' + teamName() : '' }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </section>
+
           <div class="form-actions">
-            <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || publishing()">
-              {{ publishing() ? 'Saving…' : (editingId() ? 'Save changes' : 'Create event') }}
-            </button>
-            @if (editingId()) {
-              <button mat-button type="button" (click)="cancelEdit()" [disabled]="publishing()">Cancel</button>
-            }
+            <p class="muted">Events are visible to the audience you choose and appear in Upcoming for them.</p>
+            <div class="action-buttons">
+              <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || publishing()">
+                {{ publishing() ? 'Saving…' : (editingId() ? 'Save changes' : 'Create event') }}
+              </button>
+              @if (editingId()) {
+                <button mat-stroked-button type="button" (click)="cancelEdit()" [disabled]="publishing()">Cancel edit</button>
+              }
+            </div>
             @if (publishError(); as err) {
               <span class="error" role="alert">{{ err }}</span>
             }
@@ -183,229 +241,384 @@ const withDetail = (err: ApiError): string => {
       }
 
       @if (featureError(); as ferr) {
-        <p class="error" role="alert">{{ ferr }}</p>
+        <div class="alert alert--inline" role="alert">
+          <mat-icon>error_outline</mat-icon>
+          <p>{{ ferr }}</p>
+        </div>
       }
 
       @if (visible().length > 0) {
         <ol class="event-list">
           @for (event of visible(); track event.id) {
-            <li class="dp-card event-card" [class.event-card--featured]="event.featured">
-              <div class="event-top">
-                <div>
-                  @if (event.featured) {
-                    <span class="dp-status dp-status--warn"><mat-icon>star</mat-icon> Featured</span>
-                  }
-                  <strong>{{ event.title }}</strong>
-                  <span class="muted byline"> · <async-avatar [photo]="event.author?.profileImage" [name]="event.author?.name ?? 'Teammate'" size="xs" [presence]="presenceOf(event.authorId)" />{{ event.author?.name ?? 'Teammate' }}</span>
-                </div>
-                <span class="muted">{{ event.startsAt | date:'medium' }}</span>
+            <li class="event-card" [class.event-card--featured]="event.featured">
+              <div class="event-date" aria-hidden="true">
+                <span class="date-month">{{ event.startsAt | date:'MMM' }}</span>
+                <span class="date-day">{{ event.startsAt | date:'d' }}</span>
+                <span class="date-weekday">{{ event.startsAt | date:'EEE' }}</span>
               </div>
-              <p>{{ event.body }}</p>
-              @if (event.location) {
-                <p class="muted"><mat-icon>place</mat-icon> {{ event.location }}</p>
-              }
-              <div class="rsvp-row" role="group" aria-label="RSVP">
-                @for (opt of rsvpOptions; track opt.value) {
-                  <button
-                    mat-button
-                    [color]="event.myRsvp === opt.value ? 'primary' : undefined"
-                    (click)="rsvp(event, opt.value)"
-                    [disabled]="actingId() === event.id"
-                  >{{ opt.label }} ({{ event.rsvps[opt.value] ?? 0 }})</button>
-                }
-                <span class="spacer"></span>
-                <button mat-button (click)="toggleShare(event)" [attr.aria-expanded]="shareEventId() === event.id" title="Invite others to this event">
-                  <mat-icon>share</mat-icon>Invite
-                </button>
-                @if (canFeature(event)) {
-                  <button mat-button (click)="toggleFeature(event)" [disabled]="actingId() === event.id" [title]="event.featured ? 'Remove highlight' : 'Highlight at top'">
-                    <mat-icon>{{ event.featured ? 'star' : 'star_border' }}</mat-icon>
-                    {{ event.featured ? 'Unfeature' : 'Feature' }}
-                  </button>
-                }
-                @if (isMine(event)) {
-                  <button mat-button (click)="startEdit(event)" [disabled]="actingId() === event.id">Edit</button>
-                  @if (confirmingCancelId() === event.id) {
-                    <span class="delete-confirm" role="alertdialog" aria-label="Confirm event deletion">
-                      <strong>Delete this event?</strong> RSVPs go with it — this cannot be undone.
-                      <button mat-button (click)="confirmingCancelId.set(null)" [disabled]="actingId() === event.id">Keep</button>
-                      <button mat-flat-button color="warn" (click)="confirmCancel(event)" [disabled]="actingId() === event.id">
-                        {{ actingId() === event.id ? 'Deleting…' : 'Yes, delete' }}
-                      </button>
-                    </span>
-                  } @else {
-                    <button mat-button color="warn" (click)="confirmingCancelId.set(event.id)" [disabled]="actingId() === event.id">Cancel event</button>
-                  }
-                }
-              </div>
-              <div class="thread-toggle">
-                <button mat-button (click)="toggleThread(event)" [attr.aria-expanded]="openThreadId() === event.id">
-                  <mat-icon>comment</mat-icon>
-                  Discussion{{ event.commentCount ? ' (' + event.commentCount + ')' : '' }}
-                </button>
-                @if (event.teamId) {
-                  <a mat-button routerLink="/dashboard/messages" [queryParams]="{ teamGroup: event.teamId }" title="Discuss in the team group chat">
-                    <mat-icon>forum</mat-icon>Team chat
-                  </a>
-                }
-              </div>
-              @if (shareEventId() === event.id) {
-                <div class="share-panel" role="region" aria-label="Invite to this event">
-                  <p class="invite-text">{{ inviteText(event) }}</p>
-                  <div class="share-actions">
-                    <button mat-stroked-button (click)="copyInvite(event)"><mat-icon>content_copy</mat-icon>Copy invite</button>
-                    <button mat-stroked-button (click)="copyEventLink()"><mat-icon>link</mat-icon>Copy my link</button>
-                    <button mat-stroked-button (click)="whatsAppInvite(event)"><mat-icon>share</mat-icon>WhatsApp</button>
-                    <button mat-stroked-button (click)="facebookInvite()"><mat-icon>share</mat-icon>Facebook</button>
+
+              <div class="event-main">
+                <div class="event-top">
+                  <div class="event-title">
+                    <div class="event-chips">
+                      @if (event.featured) {
+                        <span class="chip chip--featured"><mat-icon>star</mat-icon>Featured</span>
+                      }
+                      @if (isPast(event)) {
+                        <span class="chip chip--past"><mat-icon>history</mat-icon>Past</span>
+                      } @else {
+                        <span class="chip chip--upcoming"><mat-icon>event_available</mat-icon>Upcoming</span>
+                      }
+                      <span class="chip chip--scope">{{ scopeLabel(event.scope) }}</span>
+                    </div>
+                    <h2>{{ event.title }}</h2>
+                    <div class="byline">
+                      <async-avatar [photo]="event.author?.profileImage" [name]="event.author?.name ?? 'Teammate'" size="xs" [presence]="presenceOf(event.authorId)" />
+                      <span>Hosted by <strong>{{ event.author?.name ?? 'Teammate' }}</strong></span>
+                    </div>
                   </div>
                 </div>
-              }
-              @if (canManageAttendees(event) && isPast(event)) {
-                <div class="attend-panel" role="region" aria-label="Attendance">
-                  <button mat-button (click)="toggleAttendees(event)" [attr.aria-expanded]="attendeesOpenId() === event.id">
-                    <mat-icon>how_to_reg</mat-icon>
-                    Attendance{{ recap(event.id).going > 0 ? ' (' + recap(event.id).attended + '/' + recap(event.id).going + ' here)' : '' }}
+
+                <div class="event-meta">
+                  <span><mat-icon>schedule</mat-icon>{{ event.startsAt | date:'EEE, MMM d · h:mm a' }}@if (event.endsAt) {<span class="meta-end"> – {{ event.endsAt | date:'h:mm a' }}</span>}</span>
+                  @if (event.location) {
+                    <span><mat-icon>place</mat-icon>{{ event.location }}</span>
+                  }
+                </div>
+
+                <p class="event-body">{{ event.body }}</p>
+
+                <div class="rsvp-row" role="group" aria-label="RSVP">
+                  <span class="rsvp-label">Will you attend?</span>
+                  @for (opt of rsvpOptions; track opt.value) {
+                    <button
+                      type="button"
+                      class="rsvp-btn"
+                      [class.rsvp-btn--active]="event.myRsvp === opt.value"
+                      (click)="rsvp(event, opt.value)"
+                      [disabled]="actingId() === event.id"
+                    >
+                      <mat-icon>{{ opt.icon }}</mat-icon>
+                      {{ opt.label }}
+                      <span class="rsvp-count">{{ event.rsvps?.[opt.value] ?? 0 }}</span>
+                    </button>
+                  }
+                </div>
+
+                <div class="event-actions">
+                  <button mat-button type="button" (click)="toggleShare(event)" [attr.aria-expanded]="shareEventId() === event.id" title="Invite others to this event">
+                    <mat-icon>share</mat-icon>Invite
                   </button>
-                  @if (attendeesOpenId() === event.id) {
+                  <button mat-button type="button" (click)="toggleThread(event)" [attr.aria-expanded]="openThreadId() === event.id">
+                    <mat-icon>comment</mat-icon>
+                    Discussion{{ event.commentCount ? ' (' + event.commentCount + ')' : '' }}
+                  </button>
+                  @if (event.teamId) {
+                    <a mat-button routerLink="/dashboard/messages" [queryParams]="{ teamGroup: event.teamId }" title="Discuss in the team group chat">
+                      <mat-icon>forum</mat-icon>Team chat
+                    </a>
+                  }
+                  @if (canManageAttendees(event) && isPast(event)) {
+                    <button mat-button type="button" (click)="toggleAttendees(event)" [attr.aria-expanded]="attendeesOpenId() === event.id">
+                      <mat-icon>how_to_reg</mat-icon>
+                      Attendance{{ recap(event.id).going > 0 ? ' (' + recap(event.id).attended + '/' + recap(event.id).going + ' here)' : '' }}
+                    </button>
+                  }
+                  <span class="spacer"></span>
+                  @if (canFeature(event)) {
+                    <button mat-button type="button" (click)="toggleFeature(event)" [disabled]="actingId() === event.id" [title]="event.featured ? 'Remove highlight' : 'Highlight at top'">
+                      <mat-icon>{{ event.featured ? 'star' : 'star_border' }}</mat-icon>
+                      {{ event.featured ? 'Unfeature' : 'Feature' }}
+                    </button>
+                  }
+                  @if (isMine(event)) {
+                    <button mat-button type="button" (click)="startEdit(event)" [disabled]="actingId() === event.id" title="Edit event">
+                      <mat-icon>edit</mat-icon>Edit
+                    </button>
+                    @if (confirmingCancelId() === event.id) {
+                      <span class="delete-confirm" role="alertdialog" aria-label="Confirm event deletion">
+                        <strong>Delete this event?</strong> RSVPs go with it — this cannot be undone.
+                        <span class="delete-actions">
+                          <button mat-button type="button" (click)="confirmingCancelId.set(null)" [disabled]="actingId() === event.id">Keep</button>
+                          <button mat-flat-button color="warn" type="button" (click)="confirmCancel(event)" [disabled]="actingId() === event.id">
+                            {{ actingId() === event.id ? 'Deleting…' : 'Yes, delete' }}
+                          </button>
+                        </span>
+                      </span>
+                    } @else {
+                      <button mat-button color="warn" type="button" (click)="confirmingCancelId.set(event.id)" [disabled]="actingId() === event.id">Cancel event</button>
+                    }
+                  }
+                </div>
+
+                @if (shareEventId() === event.id) {
+                  <div class="share-panel" role="region" aria-label="Invite to this event">
+                    <div class="panel-head">
+                      <span class="panel-icon"><mat-icon>share</mat-icon></span>
+                      <div><h3>Invite your network</h3><p>Copy the invite or share it where your people already are.</p></div>
+                    </div>
+                    <p class="invite-text">{{ inviteText(event) }}</p>
+                    <div class="share-actions">
+                      <button mat-stroked-button type="button" (click)="copyInvite(event)"><mat-icon>content_copy</mat-icon>Copy invite</button>
+                      <button mat-stroked-button type="button" (click)="copyEventLink()"><mat-icon>link</mat-icon>Copy my link</button>
+                      <button mat-stroked-button type="button" (click)="whatsAppInvite(event)"><mat-icon>chat</mat-icon>WhatsApp</button>
+                      <button mat-stroked-button type="button" (click)="facebookInvite()"><mat-icon>public</mat-icon>Facebook</button>
+                    </div>
+                  </div>
+                }
+
+                @if (attendeesOpenId() === event.id) {
+                  <div class="attend-panel" role="region" aria-label="Attendance">
+                    <div class="panel-head">
+                      <span class="panel-icon"><mat-icon>how_to_reg</mat-icon></span>
+                      <div><h3>Attendance</h3><p>Mark who showed up to keep the recap accurate.</p></div>
+                    </div>
                     @if (attendeesLoading()) {
                       <mat-progress-bar mode="indeterminate" aria-label="Loading" />
                     } @else if (attendeeList(event.id).length > 0) {
                       <ul class="attend-list">
                         @for (a of attendeeList(event.id); track a.partnerId) {
                           <li>
-                            <span class="who"><strong>{{ a.name }}</strong><span class="muted">@{{ a.username ?? '—' }} · {{ a.status }}</span></span>
+                            <span class="who"><strong>{{ a.name }}</strong><span class="muted">&#64;{{ a.username ?? '—' }} · {{ a.status }}</span></span>
                             <span class="spacer"></span>
-                            <button mat-button [disabled]="markingId() !== null" (click)="setAttendance(event, a, true)" [color]="a.attended === true ? 'primary' : undefined" [attr.aria-pressed]="a.attended === true">Here</button>
-                            <button mat-button [disabled]="markingId() !== null" (click)="setAttendance(event, a, false)" [color]="a.attended === false ? 'warn' : undefined" [attr.aria-pressed]="a.attended === false">Absent</button>
+                            <button mat-button type="button" [disabled]="markingId() !== null" (click)="setAttendance(event, a, true)" [class.active]="a.attended === true" [attr.aria-pressed]="a.attended === true">Here</button>
+                            <button mat-button type="button" [disabled]="markingId() !== null" (click)="setAttendance(event, a, false)" [class.active-warn]="a.attended === false" [attr.aria-pressed]="a.attended === false">Absent</button>
                           </li>
                         }
                       </ul>
                       <div class="recap-row">
                         <span class="muted">{{ recap(event.id).attended }} attended · {{ recap(event.id).noShow }} no-show</span>
-                        <span class="spacer"></span>
-                                </div>
+                      </div>
                     } @else {
                       <p class="muted">No RSVPs yet.</p>
                     }
-                  }
-                </div>
-              }
-              @if (openThreadId() === event.id) {
-                <div class="thread">
-                  @if (threadLoading()) {
-                    <mat-progress-bar mode="indeterminate" aria-label="Loading" />
-                  }
-                  @if (threadError(); as err) {
-                    <p class="error" role="alert">{{ err }}</p>
-                  }
-                  @for (c of topComments(event.id); track c.id) {
-                    <div class="comment">
-                      <strong class="byline"><async-avatar [photo]="c.author?.profileImage" [name]="c.author?.name ?? 'Teammate'" size="xs" [presence]="presenceOf(c.authorId)" />{{ c.author?.name ?? 'Teammate' }}</strong>
-                      <p>{{ c.body }}</p>
-                      <div class="comment-foot">
-                        <span class="muted">{{ c.createdAt | date:'short' }}</span>
-                        <button mat-button (click)="replyTo.set({ id: c.id, name: c.author?.name ?? 'teammate' })">Reply</button>
-                        @if (canDelete(event, c)) {
-                          <button mat-button color="warn" (click)="deleteThreadComment(event, c)">Delete</button>
+                  </div>
+                }
+
+                @if (openThreadId() === event.id) {
+                  <div class="thread">
+                    <div class="panel-head">
+                      <span class="panel-icon"><mat-icon>forum</mat-icon></span>
+                      <div><h3>Discussion</h3><p>Ask the host or coordinate with other attendees.</p></div>
+                    </div>
+                    @if (threadLoading()) {
+                      <mat-progress-bar mode="indeterminate" aria-label="Loading" />
+                    }
+                    @if (threadError(); as err) {
+                      <p class="error" role="alert">{{ err }}</p>
+                    }
+                    @for (c of topComments(event.id); track c.id) {
+                      <div class="comment">
+                        <div class="comment-head">
+                          <async-avatar [photo]="c.author?.profileImage" [name]="c.author?.name ?? 'Teammate'" size="xs" [presence]="presenceOf(c.authorId)" />
+                          <strong>{{ c.author?.name ?? 'Teammate' }}</strong>
+                          <span class="muted">{{ c.createdAt | date:'short' }}</span>
+                        </div>
+                        <p>{{ c.body }}</p>
+                        <div class="comment-foot">
+                          <button mat-button type="button" (click)="replyTo.set({ id: c.id, name: c.author?.name ?? 'teammate' })">Reply</button>
+                          @if (canDelete(event, c)) {
+                            <button mat-button color="warn" type="button" (click)="deleteThreadComment(event, c)">Delete</button>
+                          }
+                        </div>
+                        @for (r of replies(event.id, c.id); track r.id) {
+                          <div class="comment comment--reply">
+                            <div class="comment-head">
+                              <async-avatar [photo]="r.author?.profileImage" [name]="r.author?.name ?? 'Teammate'" size="xs" [presence]="presenceOf(r.authorId)" />
+                              <strong>{{ r.author?.name ?? 'Teammate' }}</strong>
+                              <span class="muted">{{ r.createdAt | date:'short' }}</span>
+                            </div>
+                            <p>{{ r.body }}</p>
+                            <div class="comment-foot">
+                              @if (canDelete(event, r)) {
+                                <button mat-button color="warn" type="button" (click)="deleteThreadComment(event, r)">Delete</button>
+                              }
+                            </div>
+                          </div>
                         }
                       </div>
-                      @for (r of replies(event.id, c.id); track r.id) {
-                        <div class="comment comment--reply">
-                          <strong class="byline"><async-avatar [photo]="r.author?.profileImage" [name]="r.author?.name ?? 'Teammate'" size="xs" [presence]="presenceOf(r.authorId)" />{{ r.author?.name ?? 'Teammate' }}</strong>
-                          <p>{{ r.body }}</p>
-                          <div class="comment-foot">
-                            <span class="muted">{{ r.createdAt | date:'short' }}</span>
-                            @if (canDelete(event, r)) {
-                              <button mat-button color="warn" (click)="deleteThreadComment(event, r)">Delete</button>
-                            }
-                          </div>
-                        </div>
+                    } @empty {
+                      @if (!threadLoading()) {
+                        <p class="muted">No questions yet — ask the host anything below.</p>
                       }
+                    }
+                    <div class="comment-box">
+                      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>@if (replyTo(); as rt) { Reply to {{ rt.name }}… } @else { Ask a question… }</mat-label>
+                        <input matInput [value]="threadDraft()" (input)="threadDraft.set($any($event.target).value)" maxlength="1000" (keydown.enter)="sendThreadComment(event)" />
+                      </mat-form-field>
+                      @if (replyTo()) {
+                        <button mat-button type="button" (click)="replyTo.set(null)">Cancel reply</button>
+                      }
+                      <button mat-flat-button color="primary" type="button" (click)="sendThreadComment(event)" [disabled]="!threadDraft().trim() || threadSending()">
+                        <mat-icon>send</mat-icon>
+                        {{ threadSending() ? 'Posting…' : 'Post' }}
+                      </button>
                     </div>
-                  } @empty {
-                    @if (!threadLoading()) {
-                      <p class="empty">No questions yet — ask the host anything below.</p>
-                    }
-                  }
-                  <div class="comment-box">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                      <mat-label>@if (replyTo(); as rt) { Reply to {{ rt.name }}… } @else { Ask a question… }</mat-label>
-                      <input matInput [value]="threadDraft()" (input)="threadDraft.set($any($event.target).value)" maxlength="1000" (keydown.enter)="sendThreadComment(event)" />
-                    </mat-form-field>
-                    @if (replyTo()) {
-                      <button mat-button (click)="replyTo.set(null)">Cancel reply</button>
-                    }
-                    <button mat-flat-button color="primary" (click)="sendThreadComment(event)" [disabled]="!threadDraft().trim() || threadSending()">
-                      {{ threadSending() ? 'Posting…' : 'Post' }}
-                    </button>
                   </div>
-                </div>
-              }
+                }
+              </div>
             </li>
           }
         </ol>
       } @else if (!loading() && !error()) {
-        <p class="empty">
-          @if (tab() === 'upcoming') {
-            Nothing scheduled — check back soon or create one.
-          } @else {
-            You haven't created any events yet.
-          }
-        </p>
+        <div class="empty-card">
+          <span class="empty-icon"><mat-icon>{{ tab() === 'upcoming' ? 'event_available' : 'event_note' }}</mat-icon></span>
+          <h2>{{ tab() === 'upcoming' ? 'Nothing scheduled yet' : 'No events created yet' }}</h2>
+          <p>{{ tab() === 'upcoming' ? 'Check back soon, or create a gathering for your team and network.' : 'Create your first event and invite your team — it only takes a minute.' }}</p>
+          <button mat-flat-button color="primary" type="button" (click)="toggleCompose()">Create an event</button>
+        </div>
       }
     </section>
-  `,
+`,
   styles: [`
-    .breadcrumb-wrapper { margin-bottom: 1em; }
+    .breadcrumb-wrapper { margin-bottom: 16px; }
     .breadcrumb a { text-decoration: none; }
-    .events-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
-    .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
-    .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: var(--ms-text-muted); }
-    .head-actions { display: flex; gap: 0.5em; align-items: center; flex-wrap: wrap; }
-    .compose-form { padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
-    .form-actions { display: flex; align-items: center; gap: 0.75em; }
-    .event-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75em; }
-    .event-card { padding: 1em; display: flex; flex-direction: column; gap: 0.5em; }
-    .event-card--featured { border-left: 4px solid var(--ms-primary); }
-    .event-card p { margin: 0; }
-    .event-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75em; flex-wrap: wrap; }
-    .byline { display: inline-flex; align-items: center; gap: 0.4em; }
-    .event-top .muted mat-icon, p.muted mat-icon { font-size: 16px; height: 16px; width: 16px; vertical-align: -3px; }
-    .rsvp-row { display: flex; align-items: center; gap: 0.1em; flex-wrap: wrap; border-top: 1px solid var(--ms-line); padding-top: 0.5em; }
-    .rsvp-row .spacer { flex: 1; }
-    .rsvp-row button, .delete-confirm button { min-height: 44px; }
-    .share-panel, .attend-panel { border-top: 1px solid var(--ms-line); padding-top: 0.7em; display: flex; flex-direction: column; gap: 0.6em; }
-    .invite-text { margin: 0; background: var(--ms-canvas); border: 1px dashed var(--ms-line); border-radius: 8px; padding: 0.7em 0.9em; overflow-wrap: anywhere; }
-    .share-actions { display: flex; gap: 0.5em; flex-wrap: wrap; }
-    .share-actions button { min-height: 44px; }
+    .events-page { display: flex; flex-direction: column; gap: 24px; max-width: 1160px; margin: 0 auto; padding-bottom: 32px; }
+    .page-head { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 24px; }
+    .page-head h1 { margin: 4px 0 8px; font-size: clamp(2rem, 3vw, 2.5rem); letter-spacing: -0.03em; }
+    .eyebrow { margin: 0; color: var(--ms-primary-strong); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+    .subtitle { margin: 0; max-width: 62em; color: var(--ms-text-muted); line-height: 1.6; }
+    .head-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .head-actions button mat-icon { margin-right: 6px; }
+    .toggle-count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; margin-left: 6px; border-radius: 999px; background: var(--ms-canvas); color: var(--ms-text-muted); font-size: 0.6875rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .mat-button-toggle-checked .toggle-count { background: var(--ms-surface); color: var(--ms-primary-strong); }
+
+    .summary-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 8px; background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); }
+    .summary-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--ms-radius-md); }
+    .summary-icon { flex: none; width: 40px; height: 40px; border-radius: var(--ms-radius-md); display: grid; place-items: center; background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
+    .summary-icon--ok { background: var(--ms-success-soft); color: var(--ms-success); }
+    .summary-icon--info { background: var(--ms-info-soft); color: var(--ms-primary-strong); }
+    .summary-icon--warn { background: var(--ms-warning-soft); color: var(--ms-warning); }
+    .summary-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    .summary-item div { display: flex; flex-direction: column; gap: 1px; }
+    .summary-item strong { font-family: var(--ms-font-display); font-size: 1.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .summary-item span:last-child { color: var(--ms-text-muted); font-size: 0.75rem; font-weight: 600; }
+
+    .compose-card { display: flex; flex-direction: column; gap: 24px; padding: 24px; background: var(--ms-surface); border: 1px solid var(--ms-primary); border-radius: var(--ms-radius-lg); box-shadow: var(--ms-shadow-md); }
+    .compose-head { display: flex; align-items: center; gap: 16px; }
+    .compose-icon { flex: none; width: 48px; height: 48px; border-radius: var(--ms-radius-lg); display: grid; place-items: center; background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
+    .compose-icon mat-icon { font-size: 24px; width: 24px; height: 24px; }
+    .compose-head > div { flex: 1; min-width: 0; }
+    .compose-head h2 { margin: 0 0 2px; font-size: 1.25rem; }
+    .compose-head p { margin: 0; color: var(--ms-text-muted); font-size: 0.875rem; line-height: 1.5; }
+    .form-section { display: flex; flex-direction: column; gap: 8px; }
+    .form-section h3 { margin: 0 0 4px; font-size: 0.9375rem; }
+    .two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; }
+    .form-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--ms-line); padding-top: 16px; }
+    .form-actions .muted { flex: 1; min-width: 220px; margin: 0; color: var(--ms-text-muted); font-size: 0.75rem; line-height: 1.5; }
+    .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+    .action-buttons button { min-height: 44px; }
+
+    .event-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+    .event-card { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 24px; padding: 24px; background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); box-shadow: var(--ms-shadow-sm); }
+    .event-card--featured { border-left: 3px solid var(--ms-primary); }
+    .event-date { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; align-self: start; padding: 12px 8px; border-radius: var(--ms-radius-lg); background: var(--ms-primary-soft); color: var(--ms-primary-strong); border: 1px solid var(--ms-line); }
+    .date-month { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+    .date-day { font-family: var(--ms-font-display); font-size: 2rem; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .date-weekday { font-size: 0.6875rem; font-weight: 600; color: var(--ms-text-muted); }
+    .event-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+    .event-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+    .event-title { min-width: 0; }
+    .event-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .chip { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 4px 10px; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; }
+    .chip mat-icon { font-size: 14px; width: 14px; height: 14px; }
+    .chip--featured { background: var(--ms-warning-soft); color: var(--ms-warning); }
+    .chip--past { background: var(--ms-canvas); color: var(--ms-text-muted); }
+    .chip--upcoming { background: var(--ms-success-soft); color: var(--ms-success); }
+    .chip--scope { background: var(--ms-info-soft); color: var(--ms-primary-strong); }
+    .event-title h2 { margin: 0 0 4px; font-size: 1.375rem; line-height: 1.3; }
+    .byline { display: inline-flex; align-items: center; gap: 8px; color: var(--ms-text-muted); font-size: 0.8125rem; }
+    .byline strong { color: var(--ms-text); font-weight: 600; }
+    .event-meta { display: flex; align-items: center; gap: 8px 20px; flex-wrap: wrap; color: var(--ms-text-muted); font-size: 0.8125rem; }
+    .event-meta span { display: inline-flex; align-items: center; gap: 6px; }
+    .event-meta mat-icon { font-size: 16px; width: 16px; height: 16px; color: var(--ms-primary-strong); }
+    .meta-end { color: var(--ms-text-muted); }
+    .event-body { margin: 0; color: var(--ms-text-muted); line-height: 1.65; white-space: pre-wrap; }
+
+    .rsvp-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 12px 16px; background: var(--ms-canvas); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); }
+    .rsvp-label { color: var(--ms-text-muted); font-size: 0.75rem; font-weight: 600; margin-right: 4px; }
+    .rsvp-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 14px; border: 1px solid var(--ms-line); border-radius: 999px; background: var(--ms-surface); color: var(--ms-text); font: inherit; font-size: 0.8125rem; font-weight: 500; cursor: pointer; transition: border-color 160ms ease, background 160ms ease; }
+    .rsvp-btn:hover:not(:disabled) { border-color: var(--ms-primary); }
+    .rsvp-btn mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    .rsvp-btn--active { border-color: var(--ms-primary); background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-weight: 600; }
+    .rsvp-count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--ms-canvas); color: var(--ms-text-muted); font-size: 0.6875rem; font-weight: 700; }
+    .rsvp-btn--active .rsvp-count { background: var(--ms-surface); color: var(--ms-primary-strong); }
+
+    .event-actions { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; border-top: 1px solid var(--ms-line); padding-top: 8px; }
+    .event-actions .spacer { flex: 1; }
+    .event-actions button, .event-actions a { min-height: 40px; }
+    .event-actions mat-icon { font-size: 18px; width: 18px; height: 18px; margin-right: 4px; }
+    .delete-confirm { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--ms-error-soft); border: 1px solid var(--ms-error); border-radius: var(--ms-radius-md); padding: 8px 12px; font-size: 0.8125rem; }
+    .delete-actions { display: inline-flex; gap: 8px; }
+    .delete-actions button { min-height: 36px; }
+
+    .share-panel, .attend-panel, .thread { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--ms-line); padding-top: 16px; }
+    .panel-head { display: flex; align-items: flex-start; gap: 12px; }
+    .panel-icon { flex: none; width: 36px; height: 36px; border-radius: var(--ms-radius-md); display: grid; place-items: center; background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
+    .panel-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    .panel-head h3 { margin: 0 0 2px; font-size: 0.9375rem; }
+    .panel-head p { margin: 0; color: var(--ms-text-muted); font-size: 0.75rem; line-height: 1.5; }
+    .invite-text { margin: 0; background: var(--ms-canvas); border: 1px dashed var(--ms-line); border-radius: var(--ms-radius-md); padding: 12px 16px; overflow-wrap: anywhere; font-size: 0.8125rem; line-height: 1.6; }
+    .share-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .share-actions button { min-height: 40px; }
+    .share-actions mat-icon { margin-right: 4px; }
+
     .attend-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-    .attend-list li { display: flex; align-items: center; gap: 0.5em; padding: 0.45em 0; border-top: 1px solid var(--ms-line); flex-wrap: wrap; }
+    .attend-list li { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid var(--ms-line); flex-wrap: wrap; }
+    .attend-list li:first-child { border-top: 0; }
     .attend-list .who { display: flex; flex-direction: column; min-width: 0; }
-    .attend-list button { min-height: 44px; }
-    .recap-row { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
-    .recap-row .spacer { flex: 1; }
-    .thread-toggle { display: flex; }
-    .thread-toggle button { min-height: 44px; }
-    .thread { display: flex; flex-direction: column; gap: 0.6em; border-top: 1px solid var(--ms-line); padding-top: 0.75em; }
-    .comment { display: flex; flex-direction: column; gap: 0.2em; background: var(--ms-canvas); border: 1px solid var(--ms-line); border-radius: 8px; padding: 0.6em 0.8em; }
-    .comment p { margin: 0; white-space: pre-wrap; }
-    .comment--reply { margin-left: 1.5em; }
-    .comment-foot { display: flex; align-items: center; gap: 0.4em; flex-wrap: wrap; }
-    .comment-foot button { min-height: 44px; }
-    .comment-box { display: flex; gap: 0.5em; align-items: center; flex-wrap: wrap; }
-    .comment-box mat-form-field { flex: 1; min-width: 200px; }
-    .delete-confirm { display: inline-flex; align-items: center; gap: 0.4em; flex-wrap: wrap; background: var(--ms-error-soft); border: 1px solid var(--ms-error); border-radius: 8px; padding: 0.3em 0.6em; font-size: 0.85em; }
-    html[data-theme='dark'] .delete-confirm { color: #e89a9a; }
-    .delete-confirm button { min-height: 44px; }
-    .muted { color: var(--ms-text-muted); font-size: 0.85em; }
-    .error { color: var(--ms-error); display: flex; align-items: center; gap: 0.5em; }
-    .empty { color: var(--ms-text-muted); }
-    @media only screen and (max-width: 600px) {
-      .two-col { grid-template-columns: 1fr; }
+    .attend-list .who strong { font-size: 0.8125rem; font-weight: 600; }
+    .attend-list .who .muted { font-size: 0.75rem; }
+    .attend-list .spacer { flex: 1; }
+    .attend-list button { min-height: 36px; }
+    .attend-list button.active { background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
+    .attend-list button.active-warn { background: var(--ms-error-soft); color: var(--ms-error); }
+    .recap-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .comment { display: flex; flex-direction: column; gap: 6px; background: var(--ms-canvas); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-md); padding: 12px 16px; }
+    .comment p { margin: 0; white-space: pre-wrap; line-height: 1.55; font-size: 0.875rem; }
+    .comment--reply { margin-left: 24px; border-left: 2px solid var(--ms-line); }
+    .comment-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .comment-head strong { font-size: 0.8125rem; font-weight: 600; }
+    .comment-head .muted { font-size: 0.75rem; }
+    .comment-foot { display: flex; align-items: center; gap: 8px; }
+    .comment-foot button { min-height: 36px; }
+    .comment-box { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .comment-box mat-form-field { flex: 1; min-width: 220px; }
+    .comment-box button { min-height: 44px; }
+    .comment-box button mat-icon { margin-right: 4px; }
+
+    .alert { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--ms-radius-lg); background: var(--ms-error-soft); color: var(--ms-error); }
+    .alert p { flex: 1; margin: 0; }
+    .alert--inline { font-size: 0.875rem; }
+    .muted { color: var(--ms-text-muted); font-size: 0.875rem; }
+    .error { color: var(--ms-error); display: flex; align-items: center; gap: 8px; }
+    .empty-card { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding: 48px 24px; background: var(--ms-surface); border: 1px dashed var(--ms-line); border-radius: var(--ms-radius-lg); color: var(--ms-text-muted); }
+    .empty-card h2 { margin: 0; color: var(--ms-text); font-size: 1.25rem; }
+    .empty-card p { margin: 0; max-width: 44em; line-height: 1.6; }
+    .empty-icon { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
+    .empty-icon mat-icon { font-size: 28px; width: 28px; height: 28px; }
+
+    @media (max-width: 900px) {
+      .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .event-card { grid-template-columns: 72px minmax(0, 1fr); gap: 16px; padding: 16px; }
+      .date-day { font-size: 1.625rem; }
     }
-  `],
+    @media (max-width: 640px) {
+      .events-page { gap: 16px; }
+      .compose-card { padding: 16px; }
+      .two-col { grid-template-columns: minmax(0, 1fr); }
+      .event-card { grid-template-columns: minmax(0, 1fr); }
+      .event-date { flex-direction: row; align-items: baseline; gap: 6px; align-self: start; padding: 8px 12px; width: fit-content; }
+      .date-day { font-size: 1.25rem; }
+      .rsvp-label { width: 100%; }
+      .rsvp-btn { flex: 1; justify-content: center; }
+      .event-actions .spacer { display: none; }
+      .comment--reply { margin-left: 16px; }
+      .delete-confirm { display: flex; width: 100%; }
+    }
+`],
 })
 export class CommunityEventsComponent implements OnInit {
   private readonly events = inject(EventService);
@@ -564,11 +777,28 @@ export class CommunityEventsComponent implements OnInit {
     this.mine.set(bump(this.mine()));
   }
 
-  protected readonly rsvpOptions: Array<{ label: string; value: RsvpStatus }> = [
-    { label: 'Going', value: 'going' },
-    { label: 'Interested', value: 'interested' },
-    { label: 'Declined', value: 'declined' },
+  protected readonly rsvpOptions: Array<{ label: string; value: RsvpStatus; icon: string }> = [
+    { label: 'Going', value: 'going', icon: 'check_circle' },
+    { label: 'Interested', value: 'interested', icon: 'star_border' },
+    { label: 'Declined', value: 'declined', icon: 'cancel' },
   ];
+
+  protected readonly totalGoing = computed(() => this.upcoming().reduce((sum, event) => sum + (event.rsvps?.going ?? 0), 0));
+
+  protected readonly featuredCount = computed(() => {
+    const featured = new Map<string, boolean>();
+    for (const event of [...this.upcoming(), ...this.mine()]) featured.set(event.id, !!event.featured);
+    return [...featured.values()].filter(Boolean).length;
+  });
+
+  protected scopeLabel(scope: AudienceScope): string {
+    switch (scope) {
+      case 'team': return 'My team';
+      case 'leadership': return 'Leadership';
+      case 'members': return 'Team members';
+      default: return 'Everyone';
+    }
+  }
 
   protected readonly form = this.fb.group(
     {

@@ -290,21 +290,59 @@
               </div>
 
               <div class="form-group">
-                <mat-form-field appearance="outline">
-                  <mat-label>Best hobby</mat-label>
-                  <input matInput formControlName="hobby" required maxlength="50">
+                <mat-form-field appearance="outline" class="tag-field">
+                  <mat-label>Hobbies</mat-label>
+                  <mat-chip-grid #hobbyGrid [formControl]="hobbyControl" aria-label="Hobbies">
+                    @for (tag of hobbyTags(); track tag) {
+                      <mat-chip-row [value]="tag" (removed)="removeHobby(tag)">
+                        {{ tag }}
+                        <button matChipRemove type="button" [attr.aria-label]="'Remove ' + tag">
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      </mat-chip-row>
+                    }
+                    <input
+                      [matChipInputFor]="hobbyGrid"
+                      [matChipInputSeparatorKeyCodes]="chipSeparatorKeys"
+                      [matChipInputAddOnBlur]="true"
+                      [disabled]="hobbyTags().length >= maxProfileTags"
+                      (matChipInputTokenEnd)="addHobby($event)"
+                      placeholder="Add a hobby"
+                      aria-label="Add a hobby"
+                    />
+                  </mat-chip-grid>
+                  <mat-hint>Add up to {{ maxProfileTags }} — press Enter or comma after each.</mat-hint>
                   @if (professionalForm.get('hobby')?.hasError('required')) {
-                    <mat-error>This is required</mat-error>
+                    <mat-error>Add at least one hobby.</mat-error>
                   }
                 </mat-form-field>
               </div>
 
               <div class="form-group">
-                <mat-form-field appearance="outline">
-                  <mat-label>Best skill</mat-label>
-                  <input matInput formControlName="skill" required maxlength="50">
+                <mat-form-field appearance="outline" class="tag-field">
+                  <mat-label>Skills</mat-label>
+                  <mat-chip-grid #skillGrid [formControl]="skillControl" aria-label="Skills">
+                    @for (tag of skillTags(); track tag) {
+                      <mat-chip-row [value]="tag" (removed)="removeSkill(tag)">
+                        {{ tag }}
+                        <button matChipRemove type="button" [attr.aria-label]="'Remove ' + tag">
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      </mat-chip-row>
+                    }
+                    <input
+                      [matChipInputFor]="skillGrid"
+                      [matChipInputSeparatorKeyCodes]="chipSeparatorKeys"
+                      [matChipInputAddOnBlur]="true"
+                      [disabled]="skillTags().length >= maxProfileTags"
+                      (matChipInputTokenEnd)="addSkill($event)"
+                      placeholder="Add a skill"
+                      aria-label="Add a skill"
+                    />
+                  </mat-chip-grid>
+                  <mat-hint>Add up to {{ maxProfileTags }} — press Enter or comma after each.</mat-hint>
                   @if (professionalForm.get('skill')?.hasError('required')) {
-                    <mat-error>This is required</mat-error>
+                    <mat-error>Add at least one skill.</mat-error>
                   }
                 </mat-form-field>
               </div>
