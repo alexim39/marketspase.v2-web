@@ -27,6 +27,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { OnboardingService } from '../../core/onboarding/onboarding.service';
 import { OnboardingStatus } from '../../core/onboarding/onboarding.models';
 import { CampaignsService } from '../../core/campaigns/campaigns.service';
+import { CompensationService } from '../../core/compensation/compensation.service';
+import { MyCompensation } from '../../core/compensation/compensation.models';
 import {
   CampaignAnalytics,
   GrowthCampaign,
@@ -356,6 +358,8 @@ type CampaignTab = 'studio' | 'campaigns' | 'roi' | 'placement';
                     <div><span>Spent</span><strong>₦{{ roiTotals().spent | number: '1.0-0' }}</strong></div>
                     <div><span>Signups</span><strong>{{ roiTotals().signups }}</strong></div>
                     <div><span>Activated</span><strong>{{ roiTotals().activated }}</strong></div>
+                    <div><span>Your commission</span><strong>₦{{ roiTotals().commission | number: '1.0-0' }}</strong></div>
+                    <div><span>Payback</span><strong>{{ roiTotals().payback === null ? '—' : roiTotals().payback + '%' }}</strong></div>
                     <div><span>Cost per activation</span><strong>{{ roiTotals().costPerActivated === null ? '—' : '₦' + (roiTotals().costPerActivated | number: '1.0-0') }}</strong></div>
                     <div><span>7-day retention</span><strong>{{ roiTotals().retentionRate === null ? '—' : roiTotals().retentionRate + '%' }}</strong></div>
                   </div>
@@ -366,7 +370,7 @@ type CampaignTab = 'studio' | 'campaigns' | 'roi' | 'placement';
 
                   <div class="roi-table-wrap">
                     <table class="roi-table">
-                      <thead><tr><th>Campaign</th><th>Spent</th><th>Signups</th><th>Activated</th><th>Activation</th><th>Cost / activation</th><th>7-day retention</th><th>Signal</th><th></th></tr></thead>
+                      <thead><tr><th>Campaign</th><th>Spent</th><th>Signups</th><th>Activated</th><th>Activation</th><th>Cost / activation</th><th>Your commission</th><th>Payback</th><th>7-day retention</th><th>Signal</th><th></th></tr></thead>
                       <tbody>
                         @for (campaign of campaigns(); track campaign.id) {
                           <tr>
@@ -376,6 +380,8 @@ type CampaignTab = 'studio' | 'campaigns' | 'roi' | 'placement';
                             <td>{{ roiFor(campaign.id)?.summary?.activated ?? '—' }}</td>
                             <td>{{ activationLabel(campaign) }}</td>
                             <td>{{ costPerActivated(campaign) === null ? '—' : '₦' + (costPerActivated(campaign) | number: '1.0-0') }}</td>
+                            <td>₦{{ campaignEarnings(campaign.id) | number: '1.0-0' }}</td>
+                            <td>{{ payback(campaign) === null ? '—' : payback(campaign) + '%' }}</td>
                             <td>{{ retentionLabel(campaign) }}</td>
                             <td><span class="roi-signal" [class]="'roi-signal roi-signal--' + roiSignal(campaign).tone">{{ roiSignal(campaign).label }}</span></td>
                             <td><button mat-button type="button" (click)="openAnalytics(campaign)">Analytics</button></td>
@@ -384,7 +390,7 @@ type CampaignTab = 'studio' | 'campaigns' | 'roi' | 'placement';
                       </tbody>
                     </table>
                   </div>
-                  <p class="fine">Activation and retention are leading indicators. Commission payback follows when allocated partners sell products; keep campaigns funded while activation and retention stay healthy.</p>
+                  <p class="fine">Commission shown is your own commission attributable to partners placed by that campaign, from the compensation ledger. Payback compares it with campaign spend. Activation and retention are leading indicators; keep campaigns funded while both stay healthy.</p>
                 }
               </div>
             }
@@ -490,7 +496,7 @@ type CampaignTab = 'studio' | 'campaigns' | 'roi' | 'placement';
     .flight { margin: 8px 0; font-size: 0.8125rem; }
     .campaign-actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
     .danger { color: var(--ms-error); }
-    .roi-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
+    .roi-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 16px; }
     .roi-summary div { padding: 12px 16px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-md); background: var(--ms-canvas); display: flex; flex-direction: column; gap: 2px; }
     .roi-summary span { color: var(--ms-text-muted); font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
     .roi-summary strong { font-size: 1.125rem; font-variant-numeric: tabular-nums; }
@@ -534,6 +540,7 @@ type CampaignTab = 'studio' | 'campaigns' | 'roi' | 'placement';
 export class CampaignsComponent implements OnInit {
   private readonly onboarding = inject(OnboardingService);
   private readonly campaignsService = inject(CampaignsService);
+  private readonly compensationService = inject(CompensationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
@@ -567,6 +574,7 @@ export class CampaignsComponent implements OnInit {
   protected readonly campaigns = signal<GrowthCampaign[]>([]);
   protected readonly allocation = signal<MyAllocation | null>(null);
   protected readonly placedPartners = signal<PlacedPartner[]>([]);
+  protected readonly compensation = signal<MyCompensation | null>(null);
   protected readonly roi = signal<Record<string, CampaignAnalytics>>({});
   protected readonly roiLoading = signal(false);
   protected readonly copiedCampaignId = signal<string | null>(null);
@@ -594,7 +602,9 @@ export class CampaignsComponent implements OnInit {
     let activated = 0;
     let retained = 0;
     let eligible = 0;
+    let commission = 0;
     for (const campaign of this.campaigns()) {
+      commission += this.campaignEarnings(campaign.id);
       const analytics = this.roi()[campaign.id];
       if (!analytics) continue;
       spent += Number(campaign.budget.spent ?? 0);
@@ -607,6 +617,8 @@ export class CampaignsComponent implements OnInit {
       spent,
       signups,
       activated,
+      commission,
+      payback: spent > 0 ? Math.round((commission / spent) * 100) : null,
       costPerActivated: activated > 0 ? Math.round(spent / activated) : null,
       activationRate: signups > 0 ? Math.round((activated / signups) * 100) : null,
       retentionRate: eligible > 0 ? Math.round((retained / eligible) * 100) : null,
@@ -851,15 +863,17 @@ export class CampaignsComponent implements OnInit {
       campaigns: this.campaignsService.mine(),
       allocation: this.campaignsService.myAllocation(),
       placed: this.campaignsService.myPlacedPartners(),
+      compensation: this.compensationService.me().pipe(catchError(() => of(null))),
     }).pipe(
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.loading.set(false)),
     ).subscribe({
-      next: ({ status, campaigns, allocation, placed }) => {
+      next: ({ status, campaigns, allocation, placed, compensation }) => {
         this.status.set(status.data);
         this.campaigns.set(campaigns.data);
         this.allocation.set(allocation.data);
         this.placedPartners.set(placed.data);
+        this.compensation.set(compensation?.data ?? null);
         this.loadRoi(campaigns.data);
       },
       error: (err: ApiError) => this.error.set(userError(err)),
@@ -906,6 +920,28 @@ export class CampaignsComponent implements OnInit {
     const activated = Number(analytics?.summary.activated ?? 0);
     if (activated <= 0) return null;
     return Math.round(Number(campaign.budget.spent ?? 0) / activated);
+  }
+
+  /** Owner commissions attributable to partners placed by this campaign. */
+  protected campaignEarnings(campaignId: string): number {
+    const compensation = this.compensation();
+    if (!compensation) return 0;
+    const partnerIds = new Set(
+      this.placedPartners()
+        .filter((placement) => placement.campaign?.id === campaignId)
+        .map((placement) => placement.partner?.id)
+        .filter((id): id is string => !!id),
+    );
+    if (partnerIds.size === 0) return 0;
+    return compensation.entries
+      .filter((entry) => !!entry.buyer?.id && partnerIds.has(entry.buyer.id))
+      .reduce((sum, entry) => sum + Number(entry.amount ?? 0), 0);
+  }
+
+  protected payback(campaign: GrowthCampaign): number | null {
+    const spent = Number(campaign.budget.spent ?? 0);
+    if (spent <= 0) return null;
+    return Math.round((this.campaignEarnings(campaign.id) / spent) * 100);
   }
 
   protected roiSignal(campaign: GrowthCampaign): { label: string; tone: 'strong' | 'watch' | 'weak' | 'early' } {
