@@ -77,6 +77,28 @@ export interface CenterListResponse {
 
 export type CenterListEnvelope = ApiEnvelope<CenterListResponse>;
 
+export type ActionInboxCategory = 'followup' | 'reorder' | 'campaign' | 'rank' | 'payout';
+
+export interface ActionInboxItem {
+  id: string;
+  category: ActionInboxCategory;
+  title: string;
+  detail: string;
+  count: number;
+  link: string;
+  actionLabel: string;
+  priority: 'critical' | 'high' | 'normal' | 'low';
+  dueAt: string | null;
+}
+
+export interface ActionInbox {
+  items: ActionInboxItem[];
+  total: number;
+  generatedAt: string;
+}
+
+export type ActionInboxEnvelope = ApiEnvelope<ActionInbox>;
+
 export interface ChannelPreference {
   inApp: boolean;
   email: boolean;

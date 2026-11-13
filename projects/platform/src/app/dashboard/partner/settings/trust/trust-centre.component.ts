@@ -17,6 +17,7 @@ import { StoreService } from '../../../../core/store/store.service';
 import { StoreEarnings } from '../../../../core/store/store.models';
 import { ApiError, userError } from '../../../../core/http/api-error';
 import { DeleteAccountComponent } from '../profile-mgr/delete-account.component';
+import { FeatureEventsService } from '../../../../core/analytics/feature-events.service';
 
 /**
  * Trust & compliance center — one place for identity, consent, statements,
@@ -244,6 +245,7 @@ export class TrustCentreComponent implements OnInit {
   private readonly compensation = inject(CompensationService);
   private readonly wallet = inject(WalletService);
   private readonly store = inject(StoreService);
+  private readonly featureEvents = inject(FeatureEventsService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -353,6 +355,7 @@ export class TrustCentreComponent implements OnInit {
         URL.revokeObjectURL(url);
         this.exporting.set(false);
         this.exportNotice.set('Your data export has been downloaded.');
+        this.featureEvents.track('trust_data_export', 'trust_center');
       },
       error: (err: ApiError) => {
         this.exporting.set(false);

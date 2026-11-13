@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
 import { ApiClient } from '../http/api-client.service';
 import {
+  ActionInboxEnvelope,
   CenterListEnvelope,
   FeedEnvelope,
   NotificationPreferences,
@@ -65,6 +66,10 @@ export class NotificationService {
 
   stats(days = 30): Observable<StatsEnvelope> {
     return this.api.get<StatsEnvelope>(`v1/notifications/stats?days=${days}`);
+  }
+
+  actionInbox(): Observable<ActionInboxEnvelope> {
+    return this.api.get<ActionInboxEnvelope>('v1/notifications/action-inbox');
   }
 
   pushConfig(): Observable<PushConfigEnvelope> {

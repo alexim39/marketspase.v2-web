@@ -140,6 +140,72 @@
 
 .product-count { color: var(--ms-text-muted); font-size: 0.875rem; }
 
+.conversion-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px 0 0;
+}
+.conversion-strip div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 12px 16px;
+  border: 1px solid var(--ms-line);
+  border-radius: var(--ms-radius-lg);
+  background: var(--ms-surface);
+}
+.conversion-strip strong { font-size: 1.125rem; font-variant-numeric: tabular-nums; }
+.conversion-strip span { color: var(--ms-text-muted); font-size: 0.75rem; font-weight: 600; }
+
+.collection-section { margin-bottom: 32px; }
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.sold-badge {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(10, 12, 16, 0.74);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+}
+.sold-note { color: var(--ms-success); font-size: 0.75rem; font-weight: 600; }
+
+.order-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 32px 0;
+}
+.order-step {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--ms-line);
+  border-radius: var(--ms-radius-lg);
+  background: var(--ms-surface);
+}
+.order-step > span {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--ms-primary-soft);
+  color: var(--ms-primary-strong);
+  font-weight: 700;
+}
+.order-step strong { display: block; font-size: 0.9rem; }
+.order-step p { margin: 2px 0 0; color: var(--ms-text-muted); font-size: 0.8125rem; line-height: 1.5; }
+
 .category-row {
   display: flex;
   gap: 8px;
@@ -340,6 +406,12 @@
 
 @keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
 
+@media (max-width: 900px) {
+  .conversion-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .collection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .order-steps { grid-template-columns: minmax(0, 1fr); }
+}
+
 @media (max-width: 800px) {
   .store-info-grid { grid-template-columns: 1fr; gap: 0.8em; }
 }
@@ -351,6 +423,7 @@
   .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6em; }
   .product-copy { padding: 0.6em 0.65em 0.75em; }
   .product-copy strong { font-size: 0.86em; }
+  .conversion-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 360px) {

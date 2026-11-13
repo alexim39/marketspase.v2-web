@@ -75,6 +75,29 @@ export interface CreateContactPayload {
   notes?: string;
 }
 
+export interface ActivationPlaybookTask {
+  key: string;
+  label: string;
+  done: boolean;
+}
+
+export interface ActivationPlaybook {
+  tasks: ActivationPlaybookTask[];
+  completed: number;
+  total: number;
+  percent: number;
+  nextTask: ActivationPlaybookTask | null;
+  atRisk: boolean;
+  checkins: {
+    count: number;
+    kinds: string[];
+    lastAt: string | null;
+    nextKind: string | null;
+    nextDueAt: string | null;
+  };
+  mentorBonus: { amount: number; status: string; dueAt: string | null } | null;
+}
+
 export interface ActivationBoardItem {
   partnerId: string;
   member: { username: string; name: string } | null;
@@ -82,11 +105,14 @@ export interface ActivationBoardItem {
   levelLabel?: string;
   depth?: number;
   relation?: string;
+  joinedAt?: string | null;
+  daysSinceJoin?: number;
   ipoDone: boolean;
   qsgDone: boolean;
   smoDone: boolean;
   nextAction: string;
   nextTone: 'warn' | 'bad' | 'info' | 'ok';
+  playbook?: ActivationPlaybook;
 }
 
 export interface ActivationBoard {

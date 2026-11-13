@@ -263,6 +263,9 @@ export interface StoreCustomerLead {
   firstSeenAt: string | null;
   lastCheckoutAt: string | null;
   lastPaidAt: string | null;
+  lastOutreachAt?: string | null;
+  lastOutreachChannel?: string;
+  outreachCount?: number;
 }
 
 export interface StoreCustomerLeadsEnvelope {

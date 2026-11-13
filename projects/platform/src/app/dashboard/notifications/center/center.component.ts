@@ -10,6 +10,7 @@ import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page
 import { forkJoin } from 'rxjs';
 import { NotificationService } from '../../../core/notifications/notification.service';
 import {
+  ActionInbox,
   CATEGORY_LABELS,
   NotificationPreferences,
   StoredNotificationItem,
@@ -126,6 +127,28 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
           <a mat-button routerLink="/dashboard/notifications/preferences">Settings</a>
         </div>
       </header>
+
+      @if (inbox()?.items?.length) {
+        <section class="action-inbox" aria-label="Resolve this next">
+          <div class="inbox-head">
+            <div><p class="eyebrow">Action inbox</p><h3>Resolve this next</h3></div>
+            <span class="inbox-count">{{ inbox()?.total }}</span>
+          </div>
+          <div class="inbox-grid">
+            @for (item of inbox()?.items; track item.id) {
+              <article class="inbox-card" [class.inbox-card--high]="item.priority === 'high' || item.priority === 'critical'">
+                <span class="inbox-icon"><mat-icon>{{ inboxIcon(item.category) }}</mat-icon></span>
+                <div class="inbox-copy">
+                  <span class="inbox-meta">{{ item.count }} · {{ item.priority }}</span>
+                  <strong>{{ item.title }}</strong>
+                  <p>{{ item.detail }}</p>
+                </div>
+                <a mat-stroked-button [routerLink]="item.link">{{ item.actionLabel }}</a>
+              </article>
+            }
+          </div>
+        </section>
+      }
 
       <div class="toolbar">
         <mat-form-field appearance="outline" class="search-field">
@@ -355,6 +378,21 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
     .breadcrumb-wrapper { margin-bottom: 1em; }
     .breadcrumb a { text-decoration: none; }
     .center-page { display: flex; flex-direction: column; gap: 1.25em; }
+    .action-inbox { display: flex; flex-direction: column; gap: 0.75em; padding: 1em; border: 1px solid var(--ms-line); border-radius: 14px; background: var(--ms-surface); }
+    .inbox-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; }
+    .inbox-head h3 { margin: 2px 0 0; font-size: 1.05em; }
+    .inbox-head .eyebrow { margin: 0; color: var(--ms-primary-strong); font-size: 0.7em; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+    .inbox-count { border-radius: 999px; background: var(--ms-primary-soft); color: var(--ms-primary-strong); padding: 3px 10px; font-weight: 700; font-size: 0.75em; }
+    .inbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.6em; }
+    .inbox-card { display: flex; align-items: flex-start; gap: 0.7em; padding: 0.8em; border: 1px solid var(--ms-line); border-radius: 12px; background: var(--ms-canvas); flex-wrap: wrap; }
+    .inbox-card--high { border-left: 3px solid var(--ms-warning); }
+    .inbox-icon { width: 34px; height: 34px; flex: none; border-radius: 10px; display: grid; place-items: center; background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
+    .inbox-icon mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    .inbox-copy { flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 1px; }
+    .inbox-meta { color: var(--ms-text-muted); font-size: 0.68em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .inbox-copy strong { font-size: 0.86em; }
+    .inbox-copy p { margin: 0; color: var(--ms-text-muted); font-size: 0.76em; line-height: 1.45; }
+    .inbox-card a { min-height: 36px; align-self: center; }
     .hero {
       display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1em;
       background: linear-gradient(135deg, var(--ms-surface) 0%, var(--ms-surface) 70%, color-mix(in srgb, var(--ms-primary, #667eea) 12%, var(--ms-surface)) 100%);
@@ -431,6 +469,7 @@ export class NotificationsCenterComponent implements OnInit {
   protected readonly hasMore = signal(false);
   protected readonly cursor = signal<string | null>(null);
   protected readonly prefs = signal<NotificationPreferences | null>(null);
+  protected readonly inbox = signal<ActionInbox | null>(null);
   protected readonly statsLine = signal<string | null>(null);
   protected readonly unreadOnly = signal(false);
   protected readonly groupFilter = signal<GroupKey | null>(null);
@@ -520,6 +559,17 @@ export class NotificationsCenterComponent implements OnInit {
     return GROUP_LABELS[group];
   }
 
+  protected inboxIcon(category: string): string {
+    switch (category) {
+      case 'followup': return 'person_search';
+      case 'reorder': return 'shopping_bag';
+      case 'campaign': return 'campaign';
+      case 'rank': return 'workspace_premium';
+      case 'payout': return 'payments';
+      default: return 'bolt';
+    }
+  }
+
   protected categoryLabel(kind: string): string {
     return CATEGORY_LABELS[kind] ?? this.chip(kind).label;
   }
@@ -576,6 +626,13 @@ export class NotificationsCenterComponent implements OnInit {
           }
         },
         error: () => { /* stats never block the feed */ },
+      });
+    this.notifications
+      .actionInbox()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.inbox.set(res.data ?? null),
+        error: () => { /* action inbox never blocks the center */ },
       });
   }
 

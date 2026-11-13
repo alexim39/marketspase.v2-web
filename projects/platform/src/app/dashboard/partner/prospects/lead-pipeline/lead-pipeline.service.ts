@@ -80,6 +80,13 @@ export class LeadPipelineService {
     return this.api.get<ActivationBoardEnvelope>('v1/prospects/activation-board');
   }
 
+  recordMentorCheckin(memberId: string, kind: 'welcome' | 'day3' | 'day7' | 'ad_hoc', note = ''): Observable<{ data: unknown }> {
+    return this.api.post<{ data: unknown }>(
+      `v1/prospects/activation-board/${encodeURIComponent(memberId)}/checkin`,
+      { kind, note },
+    );
+  }
+
   prospectName(lead: ProspectLead): string {
     return `${lead.prospectName ?? ''} ${lead.prospectSurname ?? ''}`.trim() || 'Unnamed';
   }

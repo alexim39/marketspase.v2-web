@@ -89,6 +89,11 @@ const PAGE_SIZE = 10;
               <strong>{{ completedCount() }}</strong>
               <small>all stamps confirmed</small>
             </div>
+            <div class="hero-stat">
+              <span>At risk</span>
+              <strong>{{ atRiskCount() }}</strong>
+              <small>need a check-in</small>
+            </div>
           </div>
         </section>
 
@@ -145,6 +150,42 @@ const PAGE_SIZE = 10;
                   <span><strong>SMO</strong><small>{{ m.smoDone ? 'Confirmed' : 'Pending' }}</small></span>
                 </span>
               </div>
+
+              @if (m.playbook; as p) {
+                <div class="playbook" [class.playbook--risk]="p.atRisk">
+                  <div class="playbook-head">
+                    <span><strong>First 7 days</strong> · {{ p.completed }}/{{ p.total }} complete</span>
+                    @if (p.atRisk) { <span class="risk-chip">At risk</span> }
+                    @if (p.mentorBonus; as bonus) {
+                      <span class="bonus-chip">Mentor bonus: {{ bonus.status }}</span>
+                    }
+                  </div>
+                  <div class="task-row">
+                    @for (task of p.tasks; track task.key) {
+                      <span class="task" [class.task--done]="task.done">
+                        <mat-icon>{{ task.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                        {{ task.label }}
+                      </span>
+                    }
+                  </div>
+                  <div class="checkin-row">
+                    <span class="checkin-meta">
+                      Check-ins {{ p.checkins.count }}
+                      @if (p.checkins.lastAt) { · last {{ p.checkins.lastAt | date:'mediumDate' }} }
+                      @if (p.checkins.nextKind) { · next {{ checkinLabel(p.checkins.nextKind) }} }
+                    </span>
+                    @if (checkinId() === m.partnerId) {
+                      <div class="checkin-form">
+                        <input type="text" [value]="checkinNote()" (input)="checkinNote.set($any($event.target).value)" maxlength="500" placeholder="What did you discuss?" aria-label="Check-in note" />
+                        <button mat-flat-button color="primary" type="button" (click)="saveCheckin(m)" [disabled]="checkinBusy()">{{ checkinBusy() ? 'Saving…' : 'Save check-in' }}</button>
+                        <button mat-button type="button" (click)="cancelCheckin()">Cancel</button>
+                      </div>
+                    } @else {
+                      <button mat-stroked-button type="button" (click)="startCheckin(m)">Log {{ p.checkins.nextKind ? checkinLabel(p.checkins.nextKind) : 'check-in' }}</button>
+                    }
+                  </div>
+                </div>
+              }
 
               <div class="member-foot">
                 <div class="member-progress">
@@ -244,6 +285,21 @@ const PAGE_SIZE = 10;
     .stamp--done { background: var(--ms-success-soft); border-color: transparent; color: var(--ms-success); }
     .stamp--done mat-icon { color: var(--ms-success); }
     .stamp--done strong { color: var(--ms-success); }
+    .playbook { display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; border-radius: var(--ms-radius-lg); background: var(--ms-canvas); border: 1px solid var(--ms-line); }
+    .playbook--risk { border-color: var(--ms-warning); background: var(--ms-warning-soft); }
+    .playbook-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; color: var(--ms-text-muted); font-size: 0.75rem; }
+    .playbook-head strong { color: var(--ms-text); }
+    .risk-chip { padding: 2px 8px; border-radius: 999px; background: var(--ms-warning); color: #fff; font-size: 0.6875rem; font-weight: 700; }
+    .bonus-chip { padding: 2px 8px; border-radius: 999px; background: var(--ms-success-soft); color: var(--ms-success); font-size: 0.6875rem; font-weight: 700; text-transform: capitalize; }
+    .task-row { display: flex; gap: 6px 12px; flex-wrap: wrap; }
+    .task { display: inline-flex; align-items: center; gap: 4px; color: var(--ms-text-muted); font-size: 0.75rem; }
+    .task mat-icon { font-size: 15px; width: 15px; height: 15px; }
+    .task--done { color: var(--ms-success); }
+    .checkin-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--ms-line); padding-top: 8px; }
+    .checkin-meta { color: var(--ms-text-muted); font-size: 0.75rem; flex: 1; min-width: 200px; }
+    .checkin-form { display: flex; gap: 8px; flex-wrap: wrap; flex: 1 1 100%; }
+    .checkin-form input { flex: 1; min-width: 180px; min-height: 40px; padding: 0 12px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-md); background: var(--ms-surface); color: var(--ms-text); font: inherit; }
+    .checkin-row button { min-height: 36px; }
     .member-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--ms-line); padding-top: 16px; }
     .member-progress { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 6px; }
     .member-progress span { color: var(--ms-text-muted); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.03em; }
@@ -309,6 +365,11 @@ export class ActivationBoardComponent implements OnInit {
   protected readonly needWorkCount = computed(() => this.items().filter((m) => !this.isDone(m)).length);
 
   protected readonly completedCount = computed(() => this.items().filter((m) => this.isDone(m)).length);
+  protected readonly atRiskCount = computed(() => this.items().filter((m) => m.playbook?.atRisk).length);
+
+  protected readonly checkinId = signal<string | null>(null);
+  protected readonly checkinNote = signal('');
+  protected readonly checkinBusy = signal(false);
 
   protected readonly completionRate = computed(() => {
     const total = this.items().length;
@@ -356,6 +417,44 @@ export class ActivationBoardComponent implements OnInit {
     this.query.set('');
     this.filter.set('all');
     this.page.set(0);
+  }
+
+  protected checkinLabel(kind: string | null): string {
+    if (kind === 'welcome') return 'welcome call';
+    if (kind === 'day3') return 'day 3 check-in';
+    if (kind === 'day7') return 'day 7 review';
+    return 'check-in';
+  }
+
+  protected startCheckin(m: ActivationBoardItem): void {
+    this.checkinId.set(m.partnerId);
+    this.checkinNote.set('');
+  }
+
+  protected cancelCheckin(): void {
+    this.checkinId.set(null);
+    this.checkinNote.set('');
+    this.checkinBusy.set(false);
+  }
+
+  protected saveCheckin(m: ActivationBoardItem): void {
+    if (this.checkinBusy()) return;
+    const kind = (m.playbook?.checkins.nextKind ?? 'ad_hoc') as 'welcome' | 'day3' | 'day7' | 'ad_hoc';
+    this.checkinBusy.set(true);
+    this.leads.recordMentorCheckin(m.partnerId, kind, this.checkinNote())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.checkinBusy.set(false);
+          this.checkinId.set(null);
+          this.checkinNote.set('');
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.checkinBusy.set(false);
+          this.error.set(err.message);
+        },
+      });
   }
 
   protected reload(): void {

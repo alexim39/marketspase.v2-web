@@ -91,11 +91,50 @@
       </div>
     </header>
 
+    <section class="ms-store-page conversion-strip" aria-label="Store facts">
+      <div><strong>{{ products().length }}</strong><span>products ready</span></div>
+      <div><strong>{{ totalSold() }}</strong><span>products sold</span></div>
+      <div><strong>{{ categories().length }}</strong><span>collections</span></div>
+      <div><strong>{{ s.deliveryFee > 0 ? (s.deliveryFee | currency:'₦':'symbol':'1.0-0') : 'Free' }}</strong><span>delivery</span></div>
+      <div><strong>Secure</strong><span>checkout</span></div>
+    </section>
+
     <main class="ms-store-page store-main">
       @if (s.bio) {
         <section class="about-card">
           <p class="eyebrow">About this store</p>
           <p>{{ s.bio }}</p>
+        </section>
+      }
+
+      @if (hasBestSellers()) {
+        <section class="collection-section" aria-label="Popular right now">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Popular right now</p>
+              <h2>Start with what customers already love</h2>
+            </div>
+            <span class="product-count">Best sellers</span>
+          </div>
+          <div class="collection-grid">
+            @for (product of bestSellers(); track product.id) {
+              <a class="product-card" [routerLink]="['/', s.slug, 'product', product.id]">
+                <span class="product-image">
+                  @if (productImage(product)) {
+                    <img [src]="productImage(product)" [alt]="product.name" loading="lazy">
+                  } @else {
+                    <span class="image-fallback"><img src="/logo/marketspase-mark-white.png" alt="" width="1024" height="1024" aria-hidden="true" loading="lazy"></span>
+                  }
+                  @if (product.soldCount > 0) { <span class="sold-badge">{{ product.soldCount }} sold</span> }
+                </span>
+                <span class="product-copy">
+                  <small>{{ categoryLabel(product.category) }}</small>
+                  <strong>{{ product.name }}</strong>
+                  <span class="price">{{ product.retailPrice | currency:'₦':'symbol':'1.0-0' }}</span>
+                </span>
+              </a>
+            }
+          </div>
         </section>
       }
 
@@ -148,12 +187,19 @@
                 <span class="product-copy">
                   <small>{{ categoryLabel(product.category) }}</small>
                   <strong>{{ product.name }}</strong>
+                  @if (product.soldCount > 0) { <span class="sold-note">{{ product.soldCount }} sold</span> }
                   <span class="price">{{ product.retailPrice | currency:'₦':'symbol':'1.0-0' }}</span>
                 </span>
               </a>
             }
           </div>
         }
+      </section>
+
+      <section class="order-steps" aria-label="How ordering works">
+        <div class="order-step"><span>1</span><div><strong>Choose your products</strong><p>Browse the collections and open any product for details.</p></div></div>
+        <div class="order-step"><span>2</span><div><strong>Pay securely</strong><p>Checkout is handled by MarketSpase with a protected payment flow.</p></div></div>
+        <div class="order-step"><span>3</span><div><strong>Get it delivered</strong><p>{{ s.deliveryNote || 'The partner confirms delivery details after your order.' }}</p></div></div>
       </section>
 
       <section class="store-info-grid">

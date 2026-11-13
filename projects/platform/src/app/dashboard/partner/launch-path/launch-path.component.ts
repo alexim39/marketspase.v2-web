@@ -6,7 +6,8 @@ import { RouterModule } from '@angular/router';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { ApiError, userError } from '../../../core/http/api-error';
 import { LaunchPathService } from '../../../core/launch-path/launch-path.service';
-import { LaunchPathState } from '../../../core/launch-path/launch-path.models';
+import { LaunchPathState, LaunchMilestone } from '../../../core/launch-path/launch-path.models';
+import { FeatureEventsService } from '../../../core/analytics/feature-events.service';
 
 /**
  * Guided launch path — the single prescriptive route from signup to first
@@ -21,7 +22,7 @@ import { LaunchPathState } from '../../../core/launch-path/launch-path.models';
       @if (loading()) {
         <div class="compact-skeleton" aria-label="Loading launch path"></div>
       } @else if (state(); as path) {
-        <a class="compact-card" routerLink="/dashboard/path">
+        <a class="compact-card" routerLink="/dashboard/path" (click)="trackNext(path.next)">
           <span class="compact-icon"><mat-icon>route</mat-icon></span>
           <span class="compact-main">
             <span class="compact-eyebrow">My launch path · {{ path.completed }}/{{ path.total }} complete</span>
@@ -80,7 +81,7 @@ import { LaunchPathState } from '../../../core/launch-path/launch-path.models';
                 <div class="hero-next">
                   <span class="next-icon"><mat-icon>{{ next.icon }}</mat-icon></span>
                   <div><span>Next step</span><strong>{{ next.title }}</strong><p>{{ next.detail }}</p></div>
-                  <a mat-flat-button color="primary" [routerLink]="next.link">{{ next.action }}</a>
+                  <a mat-flat-button color="primary" [routerLink]="next.link" (click)="trackNext(next)">{{ next.action }}</a>
                 </div>
               } @else {
                 <p class="hero-done"><mat-icon>verified</mat-icon> Launch path complete — your next focus is Builder and consistent weekly activity.</p>
@@ -106,7 +107,7 @@ import { LaunchPathState } from '../../../core/launch-path/launch-path.models';
                     <strong>{{ m.title }}</strong>
                     <p>{{ m.detail }}</p>
                     @if (!m.done) {
-                      <a mat-stroked-button [routerLink]="m.link">{{ m.action }} <mat-icon>arrow_forward</mat-icon></a>
+                      <a mat-stroked-button [routerLink]="m.link" (click)="trackNext(m)">{{ m.action }} <mat-icon>arrow_forward</mat-icon></a>
                     }
                   </div>
                   <span class="milestone-state">{{ m.done ? 'Done' : m.current ? 'Next' : 'Upcoming' }}</span>
@@ -231,15 +232,22 @@ import { LaunchPathState } from '../../../core/launch-path/launch-path.models';
 })
 export class LaunchPathComponent implements OnInit {
   private readonly path = inject(LaunchPathService);
+  private readonly events = inject(FeatureEventsService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly compact = input(false);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly state = signal<LaunchPathState | null>(null);
+  private viewTracked = false;
 
   ngOnInit(): void {
     this.reload();
+  }
+
+  protected trackNext(milestone: LaunchMilestone | null): void {
+    if (!milestone) return;
+    this.events.track('launch_path_next_action', 'launch_path', { milestone: milestone.key });
   }
 
   protected reload(): void {
@@ -251,6 +259,13 @@ export class LaunchPathComponent implements OnInit {
         next: (state) => {
           this.state.set(state);
           this.loading.set(false);
+          if (!this.compact() && !this.viewTracked) {
+            this.viewTracked = true;
+            this.events.track('launch_path_view', 'launch_path', { rank: state.rank });
+            if (state.percent >= 100) {
+              this.events.track('launch_path_completed', 'launch_path', { rank: state.rank });
+            }
+          }
         },
         error: (err: ApiError) => {
           this.error.set(userError(err));

@@ -163,13 +163,13 @@ const STATUSES = ['New', 'Contacted', 'Qualified', 'Converted', 'Closed'] as con
                   <td data-label="Actions" class="actions">
                     <button mat-icon-button type="button" (click)="select(row)" aria-label="Open customer"><mat-icon>open_in_new</mat-icon></button>
                     @if (row.consentToContact && row.phone) {
-                      <a mat-icon-button [href]="whatsapp(row.phone, row.name)" target="_blank" rel="noopener" aria-label="WhatsApp customer"><mat-icon>chat</mat-icon></a>
+                      <a mat-icon-button [href]="whatsapp(row.phone, row.name)" target="_blank" rel="noopener" aria-label="WhatsApp customer" (click)="recordOutreach(row, 'whatsapp')"><mat-icon>chat</mat-icon></a>
                     }
                     @if (row.phone) {
-                      <a mat-icon-button [href]="'tel:' + row.phone" aria-label="Call customer"><mat-icon>call</mat-icon></a>
+                      <a mat-icon-button [href]="'tel:' + row.phone" aria-label="Call customer" (click)="recordOutreach(row, 'call')"><mat-icon>call</mat-icon></a>
                     }
                     @if (row.email) {
-                      <a mat-icon-button [href]="email(row)" aria-label="Email customer"><mat-icon>mail</mat-icon></a>
+                      <a mat-icon-button [href]="email(row)" aria-label="Email customer" (click)="recordOutreach(row, 'email')"><mat-icon>mail</mat-icon></a>
                     }
                   </td>
                 </tr>
@@ -210,13 +210,13 @@ const STATUSES = ['New', 'Contacted', 'Qualified', 'Converted', 'Closed'] as con
 
           <div class="outreach-row">
             @if (customer.consentToContact && customer.phone) {
-              <a mat-stroked-button [href]="whatsapp(customer.phone, customer.name, reorderMessage(customer))" target="_blank" rel="noopener"><mat-icon>chat</mat-icon> WhatsApp check-in</a>
+              <a mat-stroked-button [href]="whatsapp(customer.phone, customer.name, reorderMessage(customer))" target="_blank" rel="noopener" (click)="recordOutreach(customer, 'whatsapp')"><mat-icon>chat</mat-icon> WhatsApp check-in</a>
             }
             @if (customer.email) {
-              <a mat-stroked-button [href]="email(customer, reorderMessage(customer))"><mat-icon>mail</mat-icon> Email check-in</a>
+              <a mat-stroked-button [href]="email(customer, reorderMessage(customer))" (click)="recordOutreach(customer, 'email')"><mat-icon>mail</mat-icon> Email check-in</a>
             }
             @if (customer.phone) {
-              <a mat-stroked-button [href]="'tel:' + customer.phone"><mat-icon>call</mat-icon> Call</a>
+              <a mat-stroked-button [href]="'tel:' + customer.phone" (click)="recordOutreach(customer, 'call')"><mat-icon>call</mat-icon> Call</a>
             }
             @if (!customer.consentToContact) {
               <span class="consent-note"><mat-icon>info</mat-icon> Outreach is limited to their order contact preference.</span>
@@ -460,6 +460,19 @@ export class CustomerLeadsComponent implements OnInit {
 
   protected initial(row: StoreCustomerLead): string {
     return String(row.name || row.email || 'C').trim().charAt(0).toUpperCase();
+  }
+
+  protected recordOutreach(row: StoreCustomerLead, channel: 'whatsapp' | 'email' | 'call'): void {
+    this.store.recordCustomerOutreach(row.id, channel)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const fresh = res.data;
+          this.rows.update((rows) => rows.map((item) => (item.id === fresh.id ? fresh : item)));
+          if (this.selected()?.id === fresh.id) this.selected.set(fresh);
+        },
+        error: () => { /* outreach still opens; tracking is best-effort */ },
+      });
   }
 
   protected segmentFor(row: StoreCustomerLead): { label: string; tone: 'new' | 'repeat' | 'loyal' | 'dormant' } {

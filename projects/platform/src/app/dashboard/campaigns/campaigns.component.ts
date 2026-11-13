@@ -38,6 +38,7 @@ import {
 import { ApiError, userError } from '../../core/http/api-error';
 import { States } from '../../_common/services/countries';
 import { CampaignAnalyticsDialogComponent } from './analytics/campaign-analytics.component';
+import { FeatureEventsService } from '../../core/analytics/feature-events.service';
 
 type CampaignTab = 'studio' | 'campaigns' | 'roi' | 'placement';
 
@@ -541,6 +542,7 @@ export class CampaignsComponent implements OnInit {
   private readonly onboarding = inject(OnboardingService);
   private readonly campaignsService = inject(CampaignsService);
   private readonly compensationService = inject(CompensationService);
+  private readonly featureEvents = inject(FeatureEventsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
@@ -657,6 +659,7 @@ export class CampaignsComponent implements OnInit {
 
   protected setTab(tab: CampaignTab): void {
     this.tab.set(tab);
+    if (tab === 'roi') this.featureEvents.track('roi_tab_view', 'campaign_roi');
   }
 
   protected formBudget(): number {
@@ -813,6 +816,7 @@ export class CampaignsComponent implements OnInit {
   }
 
   protected openAnalytics(campaign: GrowthCampaign): void {
+    this.featureEvents.track('roi_analytics_open', 'campaign_roi', { campaignId: campaign.id });
     this.dialog.open(CampaignAnalyticsDialogComponent, {
       data: campaign,
       width: '1040px',

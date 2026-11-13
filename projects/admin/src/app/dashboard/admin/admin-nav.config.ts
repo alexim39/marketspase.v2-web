@@ -64,6 +64,8 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     icon: 'trending_up',
     children: [
       { label: 'Growth campaigns', link: '/growth', icon: 'hub' },
+      { label: 'Feature adoption', link: '/feature-adoption', icon: 'insights' },
+      { label: 'Recurring revenue', link: '/recurring-revenue', icon: 'repeat' },
       { label: 'Automation', link: '/automation', icon: 'automation' },
       { label: 'Public pages', link: '/pages', icon: 'public' },
     ],

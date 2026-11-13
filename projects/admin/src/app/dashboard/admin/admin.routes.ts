@@ -95,6 +95,16 @@ export const AdminRoutes: Routes = [
     title: 'Growth campaigns - MarketSpase Admin',
   },
   {
+    path: 'feature-adoption',
+    loadComponent: () => import('./feature-adoption/admin-feature-adoption.component').then((r) => r.AdminFeatureAdoptionComponent),
+    title: 'Feature adoption - MarketSpase Admin',
+  },
+  {
+    path: 'recurring-revenue',
+    loadComponent: () => import('./recurring-revenue/admin-recurring-revenue.component').then((r) => r.AdminRecurringRevenueComponent),
+    title: 'Recurring revenue readiness - MarketSpase Admin',
+  },
+  {
     path: 'compensation',
     loadComponent: () => import('./compensation/admin-compensation.component').then((r) => r.AdminCompensationComponent),
     title: 'Compensation - MarketSpase Admin',

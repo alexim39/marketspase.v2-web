@@ -59,6 +59,15 @@ export class StorefrontComponent implements OnInit {
       : this.products().filter((product) => product.category === category);
   });
 
+  protected readonly totalSold = computed(() => this.products().reduce((sum, product) => sum + Number(product.soldCount ?? 0), 0));
+
+  protected readonly bestSellers = computed(() => [...this.products()]
+    .filter((product) => product.stock > 0)
+    .sort((a, b) => Number(b.soldCount ?? 0) - Number(a.soldCount ?? 0))
+    .slice(0, 4));
+
+  protected readonly hasBestSellers = computed(() => this.bestSellers().some((product) => Number(product.soldCount ?? 0) > 0));
+
   ngOnInit(): void {
     const slug = String(this.route.snapshot.paramMap.get('username') ?? '').trim();
     if (!slug) {

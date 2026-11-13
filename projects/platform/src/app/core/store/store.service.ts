@@ -95,4 +95,8 @@ export class StoreService {
   updateCustomerLead(id: string, body: Record<string, unknown>): Observable<StoreCustomerLeadEnvelope> {
     return this.api.patch<StoreCustomerLeadEnvelope>(`v1/stores/me/customer-leads/${id}`, body);
   }
+
+  recordCustomerOutreach(id: string, channel: 'whatsapp' | 'email' | 'call'): Observable<StoreCustomerLeadEnvelope> {
+    return this.api.post<StoreCustomerLeadEnvelope>(`v1/stores/me/customer-leads/${id}/outreach`, { channel });
+  }
 }
