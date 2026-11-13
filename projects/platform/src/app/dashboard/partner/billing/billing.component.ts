@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';  
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';  
 import { CommonModule } from '@angular/common';  
+import { RouterModule } from '@angular/router';
 import { PaystackService, TransactionInterface, WithdrawalResult } from './paystack.service';  
 import { PartnerInterface } from '../../../_common/services/partner.service';  
 import { MatDialog } from '@angular/material/dialog';  
@@ -33,6 +34,7 @@ import { TransactionsComponent } from './transactions/transactions.component';
         MatIconModule,
         MatButtonModule,
         MatTabsModule,
+        RouterModule,
         TransactionsComponent
     ]
 })  

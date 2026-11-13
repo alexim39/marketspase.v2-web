@@ -1,12 +1,30 @@
 import { ApiEnvelope } from '../../core/auth/auth.models';
 
-export type GoalKind = 'sales' | 'recruitment' | 'team_volume' | 'conversion';
+export type GoalKind =
+  | 'sales'
+  | 'sales_orders'
+  | 'team_volume'
+  | 'team_orders'
+  | 'active_team'
+  | 'recruitment'
+  | 'team_recruitment'
+  | 'conversion'
+  | 'new_prospects'
+  | 'follow_ups'
+  | 'training';
 
 export const GOAL_KIND_LABELS: Record<GoalKind, string> = {
-  sales: 'Personal sales',
-  recruitment: 'Recruitment',
-  team_volume: 'Team volume',
-  conversion: 'Conversions',
+  sales: 'Personal sales volume',
+  sales_orders: 'Personal orders',
+  team_volume: 'Team sales volume',
+  team_orders: 'Team orders',
+  active_team: 'Active team members',
+  recruitment: 'Direct recruits',
+  team_recruitment: 'Team recruits',
+  conversion: 'Prospects converted',
+  new_prospects: 'New prospects added',
+  follow_ups: 'Prospects followed up',
+  training: 'Training stamps confirmed',
 };
 
 export interface GoalForecast {

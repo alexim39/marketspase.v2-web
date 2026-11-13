@@ -1,22 +1,53 @@
-<section class="async-background">
-  <h2>Transaction activities</h2>
-
-  <section class="async-container">
-    <div class="title">
-      <h3>Billing Summary</h3>
-      <div class="fund-area">
-        <button mat-flat-button (click)="withdrawFund()"><mat-icon>paid</mat-icon>Withdraw Fund</button>
-        <div class="fund">
-          <span>Current Balance: {{currentBalance | currency:'₦':'symbol':'1.2-2'}}</span>
-          <mat-icon (click)="reloadBalance()" title="Refresh balance" class="refresh">refresh</mat-icon>
-        </div>
-      </div>
+<section class="billing-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Wallet · Billing</p>
+      <h1>Billing &amp; withdrawals</h1>
+      <p class="subtitle">See your available balance, withdraw to your bank and review every wallet movement in one place.</p>
     </div>
+    <a mat-stroked-button routerLink="/dashboard/wallet"><mat-icon>arrow_back</mat-icon> Wallet</a>
+  </header>
 
+  <section class="balance-hero">
+    <div class="balance-copy">
+      <span class="balance-label">Available to withdraw</span>
+      <strong>{{ currentBalance | currency:'₦':'symbol':'1.2-2' }}</strong>
+      <p>Withdrawals are sent to your verified Nigerian bank account. The full amount is held safely until the payout settles.</p>
+    </div>
+    <div class="balance-actions">
+      <button mat-flat-button color="primary" type="button" (click)="withdrawFund()">
+        <mat-icon>paid</mat-icon>
+        Withdraw funds
+      </button>
+      <button mat-stroked-button type="button" (click)="reloadBalance()">
+        <mat-icon>refresh</mat-icon>
+        Refresh balance
+      </button>
+    </div>
+    <div class="hero-glow" aria-hidden="true"></div>
+  </section>
+
+  <div class="assurance-row" aria-label="Withdrawal assurances">
+    <span><mat-icon>verified_user</mat-icon> Account name verified</span>
+    <span><mat-icon>bolt</mat-icon> Automatic payout</span>
+    <span><mat-icon>undo</mat-icon> Refunded if payout fails</span>
+  </div>
+
+  <section class="activity-card">
+    <div class="activity-head">
+      <div>
+        <p class="eyebrow">Activity</p>
+        <h2>Transaction history</h2>
+      </div>
+      <span class="muted">Deposits, withdrawals and wallet movements</span>
+    </div>
     @if (partner && transactions) {
       <async-transactions [partner]="partner" [transactions]="transactions"></async-transactions>
+    } @else {
+      <div class="empty">
+        <mat-icon>receipt_long</mat-icon>
+        <p>Your transaction history will appear here after your first wallet movement.</p>
+      </div>
     }
-
-
   </section>
 </section>
