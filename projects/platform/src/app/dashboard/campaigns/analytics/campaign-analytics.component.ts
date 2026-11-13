@@ -214,7 +214,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
       align-items: flex-start;
       justify-content: space-between;
       gap: 24px;
-      padding: 28px 30px;
+      padding: 32px;
       overflow: hidden;
       color: #fff;
       background: linear-gradient(125deg, #121024 0%, #24204b 54%, #4c5bd4 100%);
@@ -322,27 +322,27 @@ import { ApiError, userError } from '../../../core/http/api-error';
     .icon-btn { width: 38px; height: 38px; padding: 0; }
     .copy-btn:focus-visible, .icon-btn:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
 
-    .analytics-body { display: grid; gap: 18px; padding: 22px 30px 28px; }
+    .analytics-body { display: grid; gap: 24px; padding: 24px 32px 32px; }
     .alert {
       display: flex;
       align-items: flex-start;
       gap: 10px;
       padding: 12px 14px;
       border: 1px solid var(--ms-danger);
-      border-radius: 14px;
+      border-radius: var(--ms-radius-lg);
       background: var(--ms-surface);
     }
     .alert p { margin: 0; }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
     .stat-card {
       display: flex;
       align-items: flex-start;
       gap: 12px;
       min-width: 0;
-      padding: 18px;
+      padding: 24px;
       border: 1px solid var(--ms-line);
-      border-radius: 16px;
+      border-radius: var(--ms-radius-lg);
       background: var(--ms-surface);
       box-shadow: var(--ms-shadow-sm);
     }
@@ -395,9 +395,9 @@ import { ApiError, userError } from '../../../core/http/api-error';
       display: flex;
       align-items: flex-start;
       gap: 12px;
-      padding: 14px 16px;
+      padding: 16px;
       border: 1px solid color-mix(in srgb, var(--ms-primary) 22%, var(--ms-line));
-      border-radius: 14px;
+      border-radius: var(--ms-radius-lg);
       background: linear-gradient(120deg, var(--ms-primary-soft), color-mix(in srgb, var(--ms-surface) 82%, var(--ms-primary-soft)));
     }
     .insight-icon {
@@ -417,13 +417,13 @@ import { ApiError, userError } from '../../../core/http/api-error';
     .charts-grid { display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: 16px; }
     .chart-card {
       min-width: 0;
-      padding: 18px 18px 12px;
+      padding: 24px 24px 16px;
       border: 1px solid var(--ms-line);
-      border-radius: 16px;
+      border-radius: var(--ms-radius-lg);
       background: var(--ms-surface);
       box-shadow: var(--ms-shadow-sm);
     }
-    .chart-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+    .chart-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 8px; }
     .chart-head h3 { margin: 2px 0 0; font-size: 1rem; }
     .chart-eyebrow {
       color: var(--ms-text-muted);
@@ -448,9 +448,9 @@ import { ApiError, userError } from '../../../core/http/api-error';
       display: grid;
       justify-items: center;
       gap: 8px;
-      padding: 38px 20px;
+      padding: 48px 24px;
       border: 1px dashed var(--ms-line-strong);
-      border-radius: 16px;
+      border-radius: var(--ms-radius-lg);
       background: var(--ms-surface);
       text-align: center;
     }
@@ -460,7 +460,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
       justify-content: center;
       width: 52px;
       height: 52px;
-      border-radius: 16px;
+      border-radius: var(--ms-radius-lg);
       background: var(--ms-primary-soft);
       color: var(--ms-primary-strong);
     }
@@ -474,7 +474,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
       gap: 8px;
       padding: 0 2px;
       color: var(--ms-text-muted);
-      font-size: .76rem;
+      font-size: .75rem;
       line-height: 1.5;
     }
     .data-note mat-icon { flex: none; font-size: 16px; width: 16px; height: 16px; margin-top: 1px; color: var(--ms-success); }
@@ -483,20 +483,20 @@ import { ApiError, userError } from '../../../core/http/api-error';
     .tracking-code { display: inline-block; margin-left: 4px; color: var(--ms-text-soft); }
 
     @media (max-width: 860px) {
-      .analytics-hero { padding: 24px 20px; }
-      .analytics-body { padding: 18px 20px 22px; }
+      .analytics-hero { padding: 24px 16px; }
+      .analytics-body { padding: 16px 16px 24px; }
       .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .charts-grid { grid-template-columns: minmax(0, 1fr); }
     }
     @media (max-width: 560px) {
-      .analytics-hero { align-items: flex-start; flex-direction: column; gap: 16px; padding: 22px 18px; }
+      .analytics-hero { align-items: flex-start; flex-direction: column; gap: 16px; padding: 24px 16px; }
       .hero-actions { width: 100%; justify-content: space-between; }
       .copy-btn { flex: 1; justify-content: center; }
-      .analytics-body { padding: 16px 18px 20px; }
+      .analytics-body { padding: 16px 16px 24px; }
       .stats-grid { grid-template-columns: minmax(0, 1fr); }
       .stat-card { padding: 16px; }
       .chart { height: 230px; }
-      .chart-card { padding: 16px 14px 10px; }
+      .chart-card { padding: 16px 16px 8px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .stat-bar i { transition: none; }
