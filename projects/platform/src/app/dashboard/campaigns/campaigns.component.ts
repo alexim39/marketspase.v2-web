@@ -706,9 +706,10 @@ export class CampaignsComponent implements OnInit {
   protected openAnalytics(campaign: GrowthCampaign): void {
     this.dialog.open(CampaignAnalyticsDialogComponent, {
       data: campaign,
-      width: '920px',
-      maxWidth: '94vw',
+      width: '1040px',
+      maxWidth: '96vw',
       maxHeight: '92vh',
+      panelClass: 'campaign-analytics-panel',
       restoreFocus: true,
     });
   }

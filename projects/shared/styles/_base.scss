@@ -576,6 +576,16 @@ mat-chip[style] .mdc-evolution-chip__text-label {
   border-radius: 14px;
   overflow: hidden;
 }
+/* Campaign analytics paints its own full-surface hero + canvas. */
+.campaign-analytics-panel {
+  max-width: 96vw;
+}
+.campaign-analytics-panel .mat-mdc-dialog-container,
+.campaign-analytics-panel .mat-mdc-dialog-surface {
+  padding: 0;
+  overflow: hidden;
+  background: var(--ms-canvas);
+}
 /* Handsets: bottom-sheet treatment, thumb-reachable and full-width. */
 @media (max-width: 600px) {
   .cdk-global-overlay-wrapper:has(.search-palette-panel) {
@@ -588,5 +598,16 @@ mat-chip[style] .mdc-evolution-chip__text-label {
   .search-palette-panel .mat-mdc-dialog-container,
   .search-palette-panel .mat-mdc-dialog-surface {
     border-radius: 14px 14px 0 0;
+  }
+  .cdk-global-overlay-wrapper:has(.campaign-analytics-panel) {
+    align-items: flex-end;
+  }
+  .campaign-analytics-panel {
+    max-width: 100vw;
+    width: 100vw;
+  }
+  .campaign-analytics-panel .mat-mdc-dialog-container,
+  .campaign-analytics-panel .mat-mdc-dialog-surface {
+    border-radius: 22px 22px 0 0;
   }
 }
