@@ -73,6 +73,11 @@ export interface CenterListResponse {
   stored: StoredNotificationItem[];
   derived: StoredNotificationItem[];
   hasMore: boolean;
+  summary?: {
+    total: number;
+    unread: number;
+    categories: Record<string, number>;
+  } | null;
 }
 
 export type CenterListEnvelope = ApiEnvelope<CenterListResponse>;

@@ -28,12 +28,13 @@ export class NotificationService {
 
   /** N1: unified stored + derived list. */
   list(
-    params: { unread?: boolean; q?: string; limit?: number } = {},
+    params: { unread?: boolean; q?: string; limit?: number; categories?: string[] } = {},
     headers?: HttpHeaders,
   ): Observable<CenterListEnvelope> {
     const qs = new URLSearchParams();
     if (params.unread) qs.set('unread', 'true');
     if (params.q?.trim()) qs.set('q', params.q.trim());
+    if (params.categories?.length) qs.set('categories', params.categories.join(','));
     if (params.limit) qs.set('limit', String(params.limit));
     const suffix = qs.size ? `?${qs.toString()}` : '';
     return this.api.get<CenterListEnvelope>(`v1/notifications/list${suffix}`, undefined, headers);

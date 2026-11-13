@@ -55,6 +55,17 @@ const GROUP_LABELS: Record<GroupKey, string> = {
   team: 'Team', commissions: 'Commissions', system: 'System',
 };
 
+/** Stored categories (and derived kinds) that belong to each UI group. */
+const GROUP_CATEGORIES: Record<GroupKey, string[]> = {
+  prospects: ['prospect', 'daily', 'followup', 'inactive', 'conversion'],
+  community: ['community', 'recognition', 'birthday', 'mention'],
+  training: ['training', 'progression'],
+  goals: ['goals'],
+  team: ['team', 'promotion'],
+  commissions: ['commission', 'release'],
+  system: ['system', 'marketing'],
+};
+
 /**
  * dp-status variant per kind — plain spans, no MDC internals. mat-chip
  * repaints its own container/label from theme tokens on inner elements,
@@ -69,6 +80,9 @@ const KIND_CLASS: Record<string, 'info' | 'warn' | 'ok' | 'purple' | 'bad' | 'ne
 };
 
 interface DayBucket { label: string; items: StoredNotificationItem[]; }
+
+/** Bound the rendered history; search and group filters reach older records. */
+const MAX_LOADED_STORED = 500;
 
 /**
  * @title Notification Center — the single standard surface.
@@ -125,8 +139,8 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
 
       @if (!loading() && all().length > 0) {
         <section class="summary-strip" aria-label="Notification summary">
-          <div class="summary-card"><span class="summary-icon"><mat-icon>notifications</mat-icon></span><div><strong>{{ all().length }}</strong><span>Total</span><small>All visible updates</small></div></div>
-          <div class="summary-card"><span class="summary-icon summary-icon--warn"><mat-icon>priority_high</mat-icon></span><div><strong>{{ unreadCount() }}</strong><span>Unread</span><small>Not opened yet</small></div></div>
+          <div class="summary-card"><span class="summary-icon"><mat-icon>notifications</mat-icon></span><div><strong>{{ totalCount() }}</strong><span>Total</span><small>All visible updates</small></div></div>
+          <div class="summary-card"><span class="summary-icon summary-icon--warn"><mat-icon>priority_high</mat-icon></span><div><strong>{{ unreadTotal() }}</strong><span>Unread</span><small>Not opened yet</small></div></div>
           <div class="summary-card"><span class="summary-icon summary-icon--bad"><mat-icon>bolt</mat-icon></span><div><strong>{{ urgentCount() }}</strong><span>Urgent</span><small>Needs action now</small></div></div>
           <div class="summary-card"><span class="summary-icon summary-icon--ok"><mat-icon>inbox</mat-icon></span><div><strong>{{ storedCount() }}</strong><span>Saved alerts</span><small>Can be archived or deleted</small></div></div>
         </section>
@@ -363,12 +377,14 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
             }
           </ul>
         }
-        @if (hasMore()) {
-          <button mat-button class="load-more" (click)="loadMore()" [disabled]="loadingMore() || loading()">
+        @if (loadCapReached()) {
+          <p class="load-cap" role="status"><mat-icon>info</mat-icon> Showing the latest {{ maxLoaded }} saved alerts. Use search or a group filter to reach older records.</p>
+        } @else if (hasMore()) {
+          <button mat-stroked-button class="load-more" type="button" (click)="loadMore()" [disabled]="loadingMore() || loading()">
             {{ loadingMore() ? 'Loading…' : 'Load older notifications' }}
           </button>
         }
-        <p class="muted">Showing {{ all().length }} notifications</p>
+        <p class="muted">Showing {{ stored().length }} loaded of {{ storedCount() }} saved alerts · {{ derived().length }} live items</p>
       } @else if (!loading() && !error()) {
         <div class="empty-card">
           <mat-icon>inbox</mat-icon>
@@ -467,6 +483,8 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
     .swipe-actions button { min-width: 76px; min-height: 100%; border-radius: 0; }
     .feed-item--swiped .swipe-actions { display: flex; }
     .load-more { align-self: center; min-height: 44px; margin-top: 0.5em; }
+    .load-cap { display: flex; align-items: center; gap: 6px; margin: 8px 0; padding: 10px 12px; border-radius: var(--ms-radius-md); background: var(--ms-canvas); color: var(--ms-text-muted); font-size: 0.75rem; }
+    .load-cap mat-icon { font-size: 16px; width: 16px; height: 16px; }
     .muted { color: var(--ms-text-muted); font-size: 0.85em; }
     .error { color: var(--ms-error); display: flex; align-items: center; gap: 0.5em; }
     .notice { color: var(--ms-success, #2e7d32); display: flex; align-items: center; gap: 0.5em; }
@@ -505,6 +523,7 @@ export class NotificationsCenterComponent implements OnInit {
   protected readonly cursor = signal<string | null>(null);
   protected readonly prefs = signal<NotificationPreferences | null>(null);
   protected readonly inbox = signal<ActionInbox | null>(null);
+  protected readonly summary = signal<{ total: number; unread: number; categories: Record<string, number> } | null>(null);
   protected readonly statsLine = signal<string | null>(null);
   protected readonly unreadOnly = signal(false);
   protected readonly groupFilter = signal<GroupKey | null>(null);
@@ -531,9 +550,18 @@ export class NotificationsCenterComponent implements OnInit {
   protected readonly groupCount = computed(() => {
     const counts = {} as Record<GroupKey, number>;
     for (const g of this.groupKeys) counts[g] = 0;
-    for (const i of [...this.stored(), ...this.derived()]) {
-      const g = GROUP_OF[i.kind];
-      if (g) counts[g] += 1;
+    const categories = this.summary()?.categories ?? {};
+    const categoryToGroup = new Map<string, GroupKey>();
+    for (const group of this.groupKeys) {
+      for (const category of GROUP_CATEGORIES[group]) categoryToGroup.set(category, group);
+    }
+    for (const [category, count] of Object.entries(categories)) {
+      const group = categoryToGroup.get(category);
+      if (group) counts[group] += Number(count) || 0;
+    }
+    for (const item of this.derived()) {
+      const group = GROUP_OF[item.kind];
+      if (group) counts[group] += 1;
     }
     return (g: GroupKey) => counts[g] ?? 0;
   });
@@ -541,7 +569,14 @@ export class NotificationsCenterComponent implements OnInit {
   protected readonly urgent = computed(() => this.all().filter((i) => i.urgency && !i.read));
   protected readonly urgentCount = computed(() => this.urgent().length);
   protected readonly unreadCount = computed(() => this.all().filter((i) => !i.read).length);
-  protected readonly storedCount = computed(() => this.stored().length);
+  protected readonly storedCount = computed(() => this.summary()?.total ?? this.stored().length);
+  protected readonly loadCapReached = computed(() => this.stored().length >= MAX_LOADED_STORED);
+  protected readonly maxLoaded = MAX_LOADED_STORED;
+  protected readonly totalCount = computed(() => this.storedCount() + this.derived().length);
+  protected readonly unreadTotal = computed(() => (
+    (this.summary()?.unread ?? this.stored().filter((item) => !item.read).length)
+    + this.derived().filter((item) => !item.read).length
+  ));
 
   protected readonly buckets = computed<DayBucket[]>(() => {
     const rest = this.all().filter((i) => !(i.urgency && !i.read));
@@ -590,6 +625,12 @@ export class NotificationsCenterComponent implements OnInit {
 
   protected setGroup(group: GroupKey | null): void {
     this.groupFilter.set(group);
+    this.reload();
+  }
+
+  private selectedCategories(): string[] {
+    const group = this.groupFilter();
+    return group ? GROUP_CATEGORIES[group] : [];
   }
 
   protected groupLabel(group: GroupKey): string {
@@ -632,9 +673,11 @@ export class NotificationsCenterComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.cursor.set(null);
-    const params: { unread?: boolean; q?: string; limit?: number } = { limit: 50 };
+    const params: { unread?: boolean; q?: string; limit?: number; categories?: string[] } = { limit: 50 };
     if (this.unreadOnly()) params.unread = true;
     if (this.search().trim()) params.q = this.search().trim();
+    const categories = this.selectedCategories();
+    if (categories.length > 0) params.categories = categories;
     forkJoin({ list: this.notifications.list(params), prefs: this.notifications.getPreferences() })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -645,6 +688,7 @@ export class NotificationsCenterComponent implements OnInit {
           this.hasMore.set(list.data?.hasMore ?? false);
           this.cursor.set(stored.length > 0 ? stored[stored.length - 1].id : null);
           this.prefs.set(prefs.data ?? null);
+          this.summary.set(list.data?.summary ?? null);
           this.loading.set(false);
         },
         error: (err: ApiError) => {
@@ -678,9 +722,16 @@ export class NotificationsCenterComponent implements OnInit {
     if (!cursor || this.loadingMore() || this.loading()) return;
     this.loadingMore.set(true);
     this.error.set(null);
-    const params: { unread?: boolean; q?: string; cursor?: string; limit?: number } = { limit: 50, cursor };
+    const params: { unread?: boolean; q?: string; cursor?: string; limit?: number; categories?: string[] } = { limit: 50, cursor };
     if (this.unreadOnly()) params.unread = true;
     if (this.search().trim()) params.q = this.search().trim();
+    const categories = this.selectedCategories();
+    if (categories.length > 0) params.categories = categories;
+    if (this.stored().length >= MAX_LOADED_STORED) {
+      this.loadingMore.set(false);
+      this.notice.set('Showing the latest 500 saved alerts. Use search or a group filter to narrow the list.');
+      return;
+    }
     this.notifications
       .list(params)
       .pipe(takeUntilDestroyed(this.destroyRef))
