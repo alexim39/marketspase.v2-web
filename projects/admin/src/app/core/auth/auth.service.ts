@@ -30,6 +30,8 @@ export class AuthService {
   private readonly api = inject(ApiClient);
 
   private static readonly TOKEN_KEY = 'ms_admin_session_token';
+  /** Must match `${TOKEN_KEY}_refresh` used by refreshSessionInterceptor. */
+  private static readonly REFRESH_KEY = 'ms_admin_session_token_refresh';
 
   private readonly userSignal = signal<AuthUser | null>(null);
   private hydrated = false;
@@ -82,10 +84,41 @@ export class AuthService {
     }
   }
 
+  /**
+   * Rotating refresh-token fallback (see class docs). Stored beside the
+   * access token under the key the refresh interceptor derives, so silent
+   * refresh survives third-party-cookie blocking. Never used for identity.
+   */
+  private setRefreshToken(token: string | null | undefined): void {
+    try {
+      if (token) localStorage.setItem(AuthService.REFRESH_KEY, token);
+      else localStorage.removeItem(AuthService.REFRESH_KEY);
+    } catch { /* private mode: cookie path still applies */ }
+  }
+
+  /** Current fallback refresh token for sign-out (null = cookie-only). */
+  refreshToken(): string | null {
+    try {
+      return localStorage.getItem(AuthService.REFRESH_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  /** Forget every local credential on this device. */
+  private clearSession(): void {
+    this.setToken(null);
+    this.setRefreshToken(null);
+    this.userSignal.set(null);
+    this.hydrated = false;
+    clearHttpCache();
+  }
+
   signin(credentials: SigninRequest): Observable<SigninResponse> {
     return this.api.post<SigninResponse>('v1/auth/signin', credentials).pipe(
       tap((res) => {
         this.setToken(res.data?.token ?? null);
+        this.setRefreshToken(res.data?.refreshToken ?? null);
         this.track(res.data?.user);
       }),
     );
@@ -114,13 +147,11 @@ export class AuthService {
   }
 
   signOut(): Observable<unknown> {
-    return this.api.post('v1/auth/signout', {}).pipe(
-      tap(() => {
-        this.setToken(null);
-        this.userSignal.set(null);
-        this.hydrated = false;
-        clearHttpCache();
-      }),
+    // Replay the fallback refresh token so the server can revoke the family
+    // even when the cross-site cookie was never sent.
+    const refreshToken = this.refreshToken();
+    return this.api.post('v1/auth/signout', refreshToken ? { refreshToken } : {}).pipe(
+      tap(() => this.clearSession()),
     );
   }
 
@@ -160,9 +191,7 @@ export class AuthService {
     return this.me().pipe(
       map(() => true),
       catchError(() => {
-        this.setToken(null);
-        this.userSignal.set(null);
-        this.hydrated = false;
+        this.clearSession();
         return of(false);
       }),
     );

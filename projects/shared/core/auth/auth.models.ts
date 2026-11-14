@@ -65,7 +65,16 @@ export interface ApiEnvelope<T = unknown> {
   code?: string;
 }
 
-export interface SigninResponse extends ApiEnvelope<{ user: AuthUser; token?: string }> {
+export interface SigninResponse extends ApiEnvelope<{
+  user: AuthUser;
+  token?: string;
+  /**
+   * Body fallback for the rotating refresh token. Primary transport is the
+   * httpOnly cookie; browsers that block cross-site cookies replay this on
+   * `/v1/auth/refresh`. Always clear it on sign-out.
+   */
+  refreshToken?: string | null;
+}> {
   message: string;
   success: boolean;
 }

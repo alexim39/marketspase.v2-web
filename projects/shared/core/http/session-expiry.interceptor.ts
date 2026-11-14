@@ -22,7 +22,7 @@ export const sessionExpiryInterceptor: HttpInterceptorFn = (req, next) => {
         ? error.status
         : Number((error as { status?: unknown })?.status ?? -1);
       const url = req.url.toLowerCase();
-      const onAuthCall = url.includes('/v1/auth/signin') || url.includes('/v1/auth/signup') || url.includes('/v1/auth/verify-email');
+      const onAuthCall = /\/v1\/auth\/(signin|signup|verify-email|reset-password|reset-password-request|refresh|signout)$/.test(url);
       const onSigninPage = typeof location !== 'undefined' && /signin|login/i.test(location.pathname);
 
       if (status === 401 && !onAuthCall && !onSigninPage) {
