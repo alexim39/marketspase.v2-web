@@ -62,291 +62,296 @@ const combineDateAndTime = (day: Date | null, clock: Date | null): string => {
       }
 
       @if (error(); as err) {
-        <p class="error" role="alert">
-          {{ err }}
-          <button mat-button (click)="reload()">Retry</button>
-        </p>
+        <div class="alert" role="alert"><mat-icon>error_outline</mat-icon><p>{{ err }}</p><button mat-stroked-button type="button" (click)="reload()">Retry</button></div>
       }
 
       @if (convertedNotice(); as converted) {
         <div class="code-banner" role="status">
-          <mat-icon>celebration</mat-icon>
-          <div>
-            <strong>{{ converted.name }}</strong> is marked converted. Share your open registration or referral link
-            so they can join.
-          </div>
-          <button mat-icon-button (click)="convertedNotice.set(null)" aria-label="Dismiss">
-            <mat-icon>close</mat-icon>
-          </button>
+          <span class="banner-icon"><mat-icon>celebration</mat-icon></span>
+          <div><strong>{{ converted.name }}</strong> is marked converted. Share your open registration or referral link so they can join.</div>
+          <button mat-icon-button (click)="convertedNotice.set(null)" aria-label="Dismiss"><mat-icon>close</mat-icon></button>
         </div>
       }
 
       @if (lead(); as prospect) {
-        <div class="detail-head">
-          <div>
-            <h2>{{ names() }}</h2>
-            <p class="subtitle">
-              {{ prospect.prospectPhone }} · {{ prospect.prospectEmail || 'no email' }} ·
-              via {{ prospect.prospectSource }}
-            </p>
+        <section class="prospect-hero">
+          <span class="hero-avatar" aria-hidden="true">{{ initials() }}</span>
+          <div class="hero-copy">
+            <p class="eyebrow">Prospect · {{ prospect.prospectSource || 'Pipeline' }}</p>
+            <h1>{{ names() }}</h1>
+            <p class="hero-meta">{{ prospect.prospectPhone }} · {{ prospect.prospectEmail || 'No email' }} · joined {{ prospect.createdAt | date:'mediumDate' }}</p>
+            <div class="hero-chips">
+              <span class="stage-pill {{ stageTone() }}">{{ chip().label }}</span>
+              @if (prospect.priority) { <span class="pill">{{ prospect.priority }} priority</span> }
+              @if (prospect.relationship) { <span class="pill">{{ prospect.relationship }}</span> }
+              <span class="pill">{{ prospect.consentToContact ? 'Contact agreed' : 'No contact consent' }}</span>
+            </div>
           </div>
-          <span class="dp-status {{ stageTone() }}">{{ chip().label }}</span>
-        </div>
+          <div class="hero-actions">
+            @if (next(); as nxt) {
+              <button mat-flat-button color="primary" type="button" (click)="advance(nxt)" [disabled]="acting()">Advance to {{ nxt }}</button>
+            }
+            @if (canConvert()) {
+              @if (confirming()) {
+                <button mat-flat-button color="accent" type="button" (click)="convert()" [disabled]="acting()">Confirm convert</button>
+                <button mat-button type="button" (click)="confirming.set(false)">Cancel</button>
+              } @else {
+                <button mat-stroked-button type="button" (click)="confirming.set(true)">Convert</button>
+              }
+            }
+            <button mat-stroked-button type="button" (click)="toggleLogForm()">{{ showLogForm() ? 'Close log' : 'Log activity' }}</button>
+            <a mat-icon-button [routerLink]="['/dashboard/prospects/edit', prospectId()]" title="Edit prospect" aria-label="Edit prospect"><mat-icon>edit</mat-icon></a>
+          </div>
+        </section>
 
         @if (isDownline()) {
           <div class="downline-banner" role="note">
             <mat-icon>support_agent</mat-icon>
-            <div>
-              <strong>Downline prospect — you're supporting this contact.</strong>
-              <span class="muted"> Log activity and advance the stage on their behalf. Enrolment credit stays with the owner.</span>
-            </div>
+            <div><strong>Downline prospect — you're supporting this contact.</strong><span> Log activity and advance the stage on their behalf. Enrolment credit stays with the owner.</span></div>
           </div>
         }
 
-        <div class="journey dp-card">
-          <div><strong>Journey:</strong> joined {{ prospect.createdAt | date:'mediumDate' }}</div>
-          <div [title]="daysInStage() + ' days in current stage'">{{ stuckDuration(daysInStage()) }} in current stage</div>
-          <div>{{ touchCount() }} logged touches</div>
-        </div>
+        <section class="summary-strip" aria-label="Prospect summary">
+          <div class="summary-card"><span class="summary-icon"><mat-icon>route</mat-icon></span><div><strong>{{ chip().label }}</strong><span>Current stage</span><small>{{ stuckDuration(daysInStage()) }} in stage</small></div></div>
+          <div class="summary-card"><span class="summary-icon summary-icon--info"><mat-icon>forum</mat-icon></span><div><strong>{{ touchCount() }}</strong><span>Logged touches</span><small>Conversations and notes</small></div></div>
+          <div class="summary-card"><span class="summary-icon summary-icon--warn"><mat-icon>schedule</mat-icon></span><div><strong>{{ daysInStage() }}d</strong><span>Days in stage</span><small>{{ stuckDuration(daysInStage()) }}</small></div></div>
+          <div class="summary-card"><span class="summary-icon summary-icon--ok"><mat-icon>event</mat-icon></span><div><strong>{{ prospect.createdAt | date:'MMM d' }}</strong><span>Joined pipeline</span><small>{{ prospect.createdAt | date:'yyyy' }}</small></div></div>
+        </section>
 
-        <div class="dp-card context-card" aria-label="Contact context">
-          <div class="context-head">
-            <strong>Contact context</strong>
-            <a mat-button [routerLink]="['/dashboard/prospects/edit', prospectId()]">Edit contact</a>
-          </div>
-          <dl class="facts">
-            <div><dt>Relationship</dt><dd>{{ prospect.relationship || '—' }}</dd></div>
-            <div><dt>Priority</dt><dd>{{ prospect.priority || '—' }}</dd></div>
-            <div><dt>Best time to call</dt><dd>{{ prospect.bestTimeToCall || '—' }}</dd></div>
-            <div><dt>Agreed to be contacted</dt><dd>{{ prospect.consentToContact ? 'Yes' : 'No' }}</dd></div>
-            <div><dt>Source</dt><dd>{{ prospect.prospectSource || '—' }}</dd></div>
-          </dl>
-          @if (prospect.notes) {
-            <p class="notes">{{ prospect.notes }}</p>
-          } @else {
-            <p class="muted">No notes yet — add context from Edit contact so your upline sees it here.</p>
-          }
-        </div>
-
-        <div class="detail-actions">
-          @if (next(); as nxt) {
-            <button mat-flat-button color="primary" (click)="advance(nxt)" [disabled]="acting()">
-              Advance to {{ nxt }}
-            </button>
-          }
-          @if (canClose()) {
-            <button mat-button (click)="advance('Closed')" [disabled]="acting()">Mark lost</button>
-          }
-          @if (canConvert()) {
-            @if (confirming()) {
-              <button mat-flat-button color="accent" (click)="convert()" [disabled]="acting()">Confirm convert?</button>
-              <button mat-button (click)="confirming.set(false)">Cancel</button>
-            } @else {
-              <button mat-flat-button color="accent" (click)="confirming.set(true)">Convert</button>
-            }
-          }
-          @if (isConverted()) {
-            <span class="muted">Enrolled ✓</span>
-          }
-          <a mat-icon-button [routerLink]="['/dashboard/prospects/edit', prospectId()]" title="Edit prospect" aria-label="Edit prospect">
-            <mat-icon>edit</mat-icon>
-          </a>
-          <button mat-button (click)="toggleLogForm()">{{ showLogForm() ? 'Cancel' : 'Log activity' }}</button>
-        </div>
-
-        @if (showLogForm()) {
-          <form class="log-form dp-card" [formGroup]="logForm" (ngSubmit)="saveLog()">
-            <div class="two-col">
-              <mat-form-field appearance="outline">
-                <mat-label>Type</mat-label>
-                <mat-select formControlName="type">
-                  @for (t of commTypes; track t) {
-                    <mat-option [value]="t">{{ t }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Interest</mat-label>
-                <mat-select formControlName="interestLevel">
-                  @for (level of interestLevels; track level) {
-                    <mat-option [value]="level">{{ level }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </div>
-            <div>
-              <span class="field-label" id="outcome-label">Outcome</span>
-              <div class="seg" role="radiogroup" aria-labelledby="outcome-label">
-                @for (o of commOutcomes; track o) {
-                  <button
-                    type="button"
-                    class="seg-btn"
-                    [class.seg-btn--active]="logForm.get('outcome')?.value === o"
-                    [attr.aria-pressed]="logForm.get('outcome')?.value === o"
-                    (click)="pickOutcome(o)"
-                  >{{ o }}</button>
-                }
+        <div class="detail-grid">
+          <div class="detail-main">
+            <section class="panel next-panel" aria-label="Next action">
+              <div class="panel-head">
+                <div><p class="eyebrow">Next move</p><h2>{{ next() ? 'Keep the conversation moving' : (isConverted() ? 'Converted prospect' : 'Choose the next step') }}</h2></div>
+                @if (canClose()) { <button mat-button color="warn" type="button" (click)="advance('Closed')" [disabled]="acting()">Mark lost</button> }
               </div>
-            </div>
-            <div class="two-col">
-              <mat-form-field appearance="outline">
-                <mat-label>Date</mat-label>
-                <input matInput [matDatepicker]="logDatePicker" formControlName="date" />
-                <mat-datepicker-toggle matSuffix [for]="logDatePicker" />
-                <mat-datepicker #logDatePicker />
-                @if (logForm.get('date')?.hasError('required') && logForm.get('date')?.touched) {
-                  <mat-error>Date is required</mat-error>
+              <p class="panel-copy">
+                @if (next(); as nxt) {
+                  The natural next stage is <strong>{{ nxt }}</strong>. Advance when the conversation has earned it, then log the touch.
+                } @else if (isConverted()) {
+                  This prospect is enrolled. Keep supporting their first steps.
+                } @else {
+                  This prospect is closed. Reopen by editing the stage when there is a new opening.
                 }
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Time</mat-label>
-                <input matInput [matTimepicker]="logTimePicker" formControlName="time" />
-                <mat-timepicker-toggle matSuffix [for]="logTimePicker" />
-                <mat-timepicker #logTimePicker interval="30m" />
-                @if (logForm.get('time')?.hasError('required') && logForm.get('time')?.touched) {
-                  <mat-error>Time is required</mat-error>
-                }
-              </mat-form-field>
-            </div>
-            <div class="two-col">
-              <mat-form-field appearance="outline">
-                <mat-label>Duration (min)</mat-label>
-                <input matInput type="number" min="0" formControlName="duration" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Follow up by</mat-label>
-                <input matInput [matDatepicker]="followUpPicker" formControlName="followUpDate" placeholder="Pick a date" />
-                <mat-datepicker-toggle matSuffix [for]="followUpPicker" />
-                <mat-datepicker #followUpPicker />
-                @if (logForm.get('followUpDate')?.hasError('required') && logForm.get('followUpDate')?.touched) {
-                  <mat-error>Pick when to follow up (not needed for Closed-lost).</mat-error>
-                }
-              </mat-form-field>
-            </div>
-            <mat-form-field appearance="outline">
-              <mat-label>What happened?</mat-label>
-              <textarea matInput rows="3" formControlName="description" maxlength="5000"></textarea>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Next action</mat-label>
-              <input matInput formControlName="followUpAction" maxlength="500" placeholder="e.g. Call Thursday with pricing" />
-            </mat-form-field>
-            <div class="form-actions">
-              <button mat-raised-button color="primary" type="submit" [disabled]="logForm.invalid || logging()">
-                {{ logging() ? 'Saving…' : 'Save activity' }}
-              </button>
-              @if (logError(); as err) {
-                <span class="error" role="alert">{{ err }}</span>
-              }
-            </div>
-          </form>
-        }
+              </p>
+              <div class="next-actions">
+                @if (next(); as nxt) { <button mat-flat-button color="primary" type="button" (click)="advance(nxt)" [disabled]="acting()">Advance to {{ nxt }}</button> }
+                @if (canConvert()) { <button mat-stroked-button type="button" (click)="confirming.set(true)">Convert prospect</button> }
+                <button mat-stroked-button type="button" (click)="toggleLogForm()">{{ showLogForm() ? 'Close activity form' : 'Log a touch' }}</button>
+              </div>
+            </section>
 
-        <h3>Activity timeline ({{ timeline().length }})</h3>
-        @if (timeline().length > 0) {
-          <ol class="timeline">
-            @for (row of timeline(); track (row.kind === 'comm' ? (row.comm.id ?? row.comm.date) : (row.move.id ?? row.move.at)) ?? $index) {
-              @if (row.kind === 'comm') {
-              <li class="timeline-item dp-card">
-                <mat-icon>{{ commIcon(row.comm.type) }}</mat-icon>
-                <div class="timeline-body">
-                  <div class="timeline-top">
-                    <strong>{{ row.comm.type }}</strong>
-                    @if (row.comm.interestLevel) {
-                      <span class="dp-status dp-status--info">{{ row.comm.interestLevel }}</span>
-                    }
-                    @if (row.comm.outcome) {
-                      <span class="dp-status {{ outcomeClass(row.comm.outcome) }}">{{ row.comm.outcome }}</span>
-                    }
-                    @if (authorLabel(row.comm, prospect.partnerId); as by) {
-                      <span class="dp-status {{ authorClass(row.comm, prospect.partnerId) }}">{{ by }}</span>
-                    }
-                    <span class="muted">{{ row.comm.date | date:'medium' }}</span>
-                  </div>
-                  @if (row.comm.description) {
-                    <p>{{ row.comm.description }}</p>
-                  }
-                  @if (row.comm.followUpAction || row.comm.followUpDate) {
-                    <p class="muted">
-                      Next: {{ row.comm.followUpAction || '—' }}@if (row.comm.followUpDate) { · by {{ row.comm.followUpDate | date:'mediumDate' }}}
-                      @if (followUpOverdue(row.comm)) {
-                        <span class="dp-status dp-status--warn">Overdue</span>
-                      }
-                    </p>
-                  }
+            @if (showLogForm()) {
+              <form class="log-form panel" [formGroup]="logForm" (ngSubmit)="saveLog()">
+                <div class="panel-head"><div><p class="eyebrow">Activity</p><h2>Log a touch</h2></div><button mat-icon-button type="button" (click)="toggleLogForm()" aria-label="Close activity form"><mat-icon>close</mat-icon></button></div>
+                <div class="two-col">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Type</mat-label>
+                    <mat-select formControlName="type">@for (t of commTypes; track t) { <mat-option [value]="t">{{ t }}</mat-option> }</mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Interest</mat-label>
+                    <mat-select formControlName="interestLevel">@for (level of interestLevels; track level) { <mat-option [value]="level">{{ level }}</mat-option> }</mat-select>
+                  </mat-form-field>
                 </div>
-              </li>
-              } @else {
-              <li class="timeline-item timeline-item--stage dp-card">
-                <mat-icon>trending_up</mat-icon>
-                <div class="timeline-body">
-                  <div class="timeline-top">
-                    <strong>Stage: {{ row.move.from || 'New' }} → {{ row.move.to }}</strong>
-                    @if (stageAuthorLabel(row.move, prospect.partnerId); as by) {
-                      <span class="dp-status {{ stageAuthorClass(row.move, prospect.partnerId) }}">{{ by }}</span>
+                <div>
+                  <span class="field-label" id="outcome-label">Outcome</span>
+                  <div class="seg" role="radiogroup" aria-labelledby="outcome-label">
+                    @for (o of commOutcomes; track o) {
+                      <button type="button" class="seg-btn" [class.seg-btn--active]="logForm.get('outcome')?.value === o" [attr.aria-pressed]="logForm.get('outcome')?.value === o" (click)="pickOutcome(o)">{{ o }}</button>
                     }
-                    <span class="muted">{{ row.move.at | date:'medium' }}</span>
                   </div>
                 </div>
-              </li>
-              }
+                <div class="two-col">
+                  <mat-form-field appearance="outline"><mat-label>Date</mat-label><input matInput [matDatepicker]="logDatePicker" formControlName="date" /><mat-datepicker-toggle matSuffix [for]="logDatePicker" /><mat-datepicker #logDatePicker />@if (logForm.get('date')?.hasError('required') && logForm.get('date')?.touched) { <mat-error>Date is required</mat-error> }</mat-form-field>
+                  <mat-form-field appearance="outline"><mat-label>Time</mat-label><input matInput [matTimepicker]="logTimePicker" formControlName="time" /><mat-timepicker-toggle matSuffix [for]="logTimePicker" /><mat-timepicker #logTimePicker interval="30m" />@if (logForm.get('time')?.hasError('required') && logForm.get('time')?.touched) { <mat-error>Time is required</mat-error> }</mat-form-field>
+                </div>
+                <div class="two-col">
+                  <mat-form-field appearance="outline"><mat-label>Duration (min)</mat-label><input matInput type="number" min="0" formControlName="duration" /></mat-form-field>
+                  <mat-form-field appearance="outline"><mat-label>Follow up by</mat-label><input matInput [matDatepicker]="followUpPicker" formControlName="followUpDate" placeholder="Pick a date" /><mat-datepicker-toggle matSuffix [for]="followUpPicker" /><mat-datepicker #followUpPicker />@if (logForm.get('followUpDate')?.hasError('required') && logForm.get('followUpDate')?.touched) { <mat-error>Pick when to follow up.</mat-error> }</mat-form-field>
+                </div>
+                <mat-form-field appearance="outline"><mat-label>What happened?</mat-label><textarea matInput rows="3" formControlName="description" maxlength="5000"></textarea></mat-form-field>
+                <mat-form-field appearance="outline"><mat-label>Next action</mat-label><input matInput formControlName="followUpAction" maxlength="500" placeholder="e.g. Call Thursday with pricing" /></mat-form-field>
+                <div class="form-actions">
+                  <button mat-flat-button color="primary" type="submit" [disabled]="logForm.invalid || logging()">{{ logging() ? 'Saving…' : 'Save activity' }}</button>
+                  @if (logError(); as err) { <span class="error" role="alert">{{ err }}</span> }
+                </div>
+              </form>
             }
-          </ol>
-        } @else {
-          <p class="empty">No touches logged yet — log the first one above.</p>
-        }
+
+            <section class="panel timeline-panel" aria-label="Activity timeline">
+              <div class="panel-head"><div><p class="eyebrow">History</p><h2>Activity timeline</h2></div><span class="pill">{{ timeline().length }}</span></div>
+              @if (timeline().length > 0) {
+                <ol class="timeline">
+                  @for (row of timeline(); track (row.kind === 'comm' ? (row.comm.id ?? row.comm.date) : (row.move.id ?? row.move.at)) ?? $index) {
+                    @if (row.kind === 'comm') {
+                      <li class="timeline-item">
+                        <span class="timeline-icon"><mat-icon>{{ commIcon(row.comm.type) }}</mat-icon></span>
+                        <div class="timeline-body">
+                          <div class="timeline-top">
+                            <strong>{{ row.comm.type }}</strong>
+                            @if (row.comm.interestLevel) { <span class="mini-pill">{{ row.comm.interestLevel }}</span> }
+                            @if (row.comm.outcome) { <span class="mini-pill mini-pill--info">{{ row.comm.outcome }}</span> }
+                            @if (authorLabel(row.comm, prospect.partnerId); as by) { <span class="mini-pill">{{ by }}</span> }
+                            <span class="muted">{{ row.comm.date | date:'medium' }}</span>
+                          </div>
+                          @if (row.comm.description) { <p>{{ row.comm.description }}</p> }
+                          @if (row.comm.followUpAction || row.comm.followUpDate) {
+                            <p class="muted">Next: {{ row.comm.followUpAction || '—' }}@if (row.comm.followUpDate) { · by {{ row.comm.followUpDate | date:'mediumDate' }}} @if (followUpOverdue(row.comm)) { <span class="overdue-pill">Overdue</span> }</p>
+                          }
+                        </div>
+                      </li>
+                    } @else {
+                      <li class="timeline-item timeline-item--stage">
+                        <span class="timeline-icon"><mat-icon>trending_up</mat-icon></span>
+                        <div class="timeline-body">
+                          <div class="timeline-top"><strong>{{ row.move.from || 'New' }} → {{ row.move.to }}</strong>@if (stageAuthorLabel(row.move, prospect.partnerId); as by) { <span class="mini-pill">{{ by }}</span> }<span class="muted">{{ row.move.at | date:'medium' }}</span></div>
+                        </div>
+                      </li>
+                    }
+                  }
+                </ol>
+              } @else {
+                <div class="empty"><mat-icon>forum</mat-icon><p>No touches logged yet — log the first one above.</p></div>
+              }
+            </section>
+          </div>
+
+          <aside class="detail-aside">
+            <section class="panel" aria-label="Contact context">
+              <div class="panel-head"><div><p class="eyebrow">Context</p><h2>Contact details</h2></div><a mat-stroked-button [routerLink]="['/dashboard/prospects/edit', prospectId()]">Edit</a></div>
+              <dl class="facts">
+                <div><dt>Phone</dt><dd>{{ prospect.prospectPhone }}</dd></div>
+                <div><dt>Email</dt><dd>{{ prospect.prospectEmail || '—' }}</dd></div>
+                <div><dt>Relationship</dt><dd>{{ prospect.relationship || '—' }}</dd></div>
+                <div><dt>Priority</dt><dd>{{ prospect.priority || '—' }}</dd></div>
+                <div><dt>Best time</dt><dd>{{ prospect.bestTimeToCall || '—' }}</dd></div>
+                <div><dt>Consent</dt><dd>{{ prospect.consentToContact ? 'Agreed' : 'No' }}</dd></div>
+              </dl>
+              @if (prospect.notes) { <p class="notes">{{ prospect.notes }}</p> } @else { <p class="fine">No notes yet — add context from Edit so your upline sees it here.</p> }
+            </section>
+
+            <section class="panel" aria-label="Journey">
+              <div class="panel-head"><div><p class="eyebrow">Journey</p><h2>Pipeline facts</h2></div></div>
+              <div class="fact-rows">
+                <div><span>Source</span><strong>{{ prospect.prospectSource || '—' }}</strong></div>
+                <div><span>Joined</span><strong>{{ prospect.createdAt | date:'mediumDate' }}</strong></div>
+                <div><span>Stage age</span><strong>{{ stuckDuration(daysInStage()) }}</strong></div>
+                <div><span>Touches</span><strong>{{ touchCount() }}</strong></div>
+                <div><span>Stage</span><strong>{{ chip().label }}</strong></div>
+              </div>
+            </section>
+
+            <section class="panel" aria-label="Actions">
+              <div class="panel-head"><div><p class="eyebrow">Actions</p><h2>Work this prospect</h2></div></div>
+              <div class="action-stack">
+                @if (next(); as nxt) { <button mat-stroked-button type="button" (click)="advance(nxt)" [disabled]="acting()"><mat-icon>arrow_forward</mat-icon> Advance to {{ nxt }}</button> }
+                @if (canConvert()) { <button mat-stroked-button type="button" (click)="confirming.set(true)"><mat-icon>verified</mat-icon> Convert</button> }
+                <button mat-stroked-button type="button" (click)="toggleLogForm()"><mat-icon>post_add</mat-icon> Log activity</button>
+                <a mat-stroked-button [routerLink]="['/dashboard/prospects/edit', prospectId()]"><mat-icon>edit</mat-icon> Edit contact</a>
+                <a mat-stroked-button routerLink="/dashboard/prospects/reminders"><mat-icon>notification_important</mat-icon> Reminders</a>
+              </div>
+            </section>
+          </aside>
+        </div>
       }
     </section>
-  `,
+`,
   styles: [`
-    .breadcrumb-wrapper { margin-bottom: 1em; }
+    .breadcrumb-wrapper { margin-bottom: 16px; }
     .breadcrumb a { text-decoration: none; }
-    .detail-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
-    .detail-page h3 { margin: 0.5em 0 0; }
-    .detail-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; flex-wrap: wrap; }
-    .detail-head h2 { margin: 0; text-transform: capitalize; }
-    .subtitle { margin: 0.25em 0 0; color: var(--ms-text-muted); }
-    .journey { display: flex; gap: 1.5em; flex-wrap: wrap; padding: 0.8em 1em; font-size: 0.9em; }
-    .downline-banner { display: flex; align-items: flex-start; gap: 0.6em; background: var(--ms-info-soft); border: 1px solid var(--ms-info); border-radius: 8px; padding: 0.75em 1em; font-size: 0.9em; }
-    html[data-theme='dark'] .downline-banner { color: #90caf9; }
-    .downline-banner mat-icon { flex: none; }
-    .downline-banner div { flex: 1; }
-    .context-card { padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.6em; }
-    .context-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6em; flex-wrap: wrap; }
-    .context-head a { min-height: 44px; }
-    .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5em 1em; margin: 0; }
+    .detail-page { display: flex; flex-direction: column; gap: 24px; max-width: 1160px; margin: 0 auto; padding-bottom: 32px; }
+    .eyebrow { margin: 0; color: var(--ms-primary-strong); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+
+    .prospect-hero { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 24px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: linear-gradient(135deg, var(--ms-surface), var(--ms-primary-soft)); box-shadow: var(--ms-shadow-sm); }
+    .hero-avatar { width: 64px; height: 64px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-family: var(--ms-font-display); font-size: 1.25rem; font-weight: 700; }
+    .hero-copy { flex: 1; min-width: 240px; }
+    .hero-copy h1 { margin: 4px 0; font-size: clamp(1.8rem, 3vw, 2.4rem); letter-spacing: -0.03em; text-transform: capitalize; }
+    .hero-meta { margin: 0; color: var(--ms-text-muted); font-size: 0.8125rem; overflow-wrap: anywhere; }
+    .hero-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .pill, .stage-pill { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; background: var(--ms-surface); border: 1px solid var(--ms-line); color: var(--ms-text-muted); font-size: 0.6875rem; font-weight: 700; text-transform: capitalize; white-space: nowrap; }
+    .stage-pill { border-color: transparent; background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
+    .hero-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .hero-actions button, .hero-actions a { min-height: 42px; }
+
+    .downline-banner { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; border-radius: var(--ms-radius-lg); background: var(--ms-info-soft); border: 1px solid var(--ms-info); color: var(--ms-text); font-size: 0.8125rem; line-height: 1.5; }
+    .downline-banner mat-icon { color: var(--ms-primary-strong); flex: none; }
+    .downline-banner span { color: var(--ms-text-muted); }
+
+    .summary-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 8px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-surface); }
+    .summary-card { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--ms-radius-md); }
+    .summary-icon { width: 40px; height: 40px; flex: none; border-radius: var(--ms-radius-md); display: grid; place-items: center; background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
+    .summary-icon--info { background: var(--ms-info-soft); color: var(--ms-primary-strong); }
+    .summary-icon--warn { background: var(--ms-warning-soft); color: var(--ms-warning); }
+    .summary-icon--ok { background: var(--ms-success-soft); color: var(--ms-success); }
+    .summary-icon mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    .summary-card > div { display: flex; flex-direction: column; gap: 1px; }
+    .summary-card strong { font-family: var(--ms-font-display); font-size: 1.25rem; line-height: 1.1; font-variant-numeric: tabular-nums; text-transform: capitalize; }
+    .summary-card span:last-of-type { color: var(--ms-text-muted); font-size: 0.75rem; font-weight: 600; }
+    .summary-card small { color: var(--ms-text-muted); font-size: 0.6875rem; }
+
+    .detail-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 0.75fr); gap: 24px; align-items: start; }
+    .detail-main { display: flex; flex-direction: column; gap: 16px; }
+    .detail-aside { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 96px; }
+    .panel { padding: 24px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-surface); }
+    .panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+    .panel-head h2 { margin: 4px 0 0; font-size: 1.125rem; }
+    .panel-copy { margin: 0; color: var(--ms-text-muted); font-size: 0.875rem; line-height: 1.6; }
+    .next-panel { border-color: var(--ms-primary); }
+    .next-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    .next-actions button { min-height: 44px; }
+
+    .log-form { display: flex; flex-direction: column; gap: 12px; }
+    .field-label { display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 700; }
+    .seg { display: flex; gap: 6px; flex-wrap: wrap; }
+    .seg-btn { min-height: 40px; padding: 6px 14px; border: 1px solid var(--ms-line); border-radius: 999px; background: var(--ms-surface); color: var(--ms-text); font: inherit; font-size: 0.8125rem; cursor: pointer; }
+    .seg-btn--active { border-color: var(--ms-primary); background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-weight: 700; }
+    .two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .two-col mat-form-field { width: 100%; }
+    .form-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .form-actions button, .panel-head a, .action-stack a, .action-stack button { min-height: 40px; }
+
+    .timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+    .timeline-item { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--ms-line); }
+    .timeline-item:first-child { border-top: 0; }
+    .timeline-icon { width: 32px; height: 32px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--ms-canvas); color: var(--ms-primary-strong); }
+    .timeline-icon mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    .timeline-item--stage { background: var(--ms-info-soft); border-radius: var(--ms-radius-md); padding: 12px; margin: 4px 0; border-top: 0; }
+    .timeline-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .timeline-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 0.8125rem; }
+    .timeline-top strong { text-transform: capitalize; }
+    .timeline-body p { margin: 2px 0 0; font-size: 0.8125rem; line-height: 1.55; white-space: pre-wrap; }
+    .mini-pill { padding: 3px 8px; border-radius: 999px; background: var(--ms-canvas); color: var(--ms-text-muted); font-size: 0.6875rem; font-weight: 700; text-transform: capitalize; }
+    .mini-pill--info { background: var(--ms-info-soft); color: var(--ms-primary-strong); }
+    .overdue-pill { padding: 2px 7px; border-radius: 999px; background: var(--ms-warning-soft); color: var(--ms-warning); font-size: 0.6875rem; font-weight: 700; }
+    .muted { color: var(--ms-text-muted); font-size: 0.75rem; }
+
+    .facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
     .facts div { min-width: 0; }
-    .facts dt { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ms-text-muted); }
-    .facts dd { margin: 0; font-size: 0.9rem; overflow-wrap: anywhere; text-transform: capitalize; }
-    .notes { margin: 0; font-size: 0.9rem; background: var(--ms-canvas); border: 1px solid var(--ms-line); border-radius: 8px; padding: 0.6em 0.8em; }
-    @media only screen and (max-width: 600px) {
-      .facts { grid-template-columns: 1fr 1fr; }
-    }
-    .detail-actions { display: flex; gap: 0.4em; flex-wrap: wrap; align-items: center; }
-    .log-form { padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
-    .field-label { font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 0.4em; }
-    .seg { display: flex; gap: 0.5em; flex-wrap: wrap; }
-    .seg-btn { display: inline-flex; align-items: center; gap: 0.35em; border: 1px solid var(--ms-line); border-radius: 999px; padding: 0.55em 1em; min-height: 44px; background: transparent; cursor: pointer; color: inherit; font: inherit; font-size: 0.9rem; }
-    .seg-btn--active { border: 2px solid var(--ms-primary); background: var(--ms-primary-soft); font-weight: 700; }
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
-    @media only screen and (max-width: 600px) {
-      .two-col { grid-template-columns: 1fr; }
-    }
-    .form-actions { display: flex; align-items: center; gap: 0.75em; }
-    .timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
-    .timeline-item { display: flex; gap: 0.8em; padding: 0.8em 1em; }
-    .timeline-item mat-icon { color: var(--ms-primary-strong); }
-    .timeline-item--stage { border-left: 4px solid var(--ms-info); }
-    .timeline-body { flex: 1; display: flex; flex-direction: column; gap: 0.25em; }
-    .timeline-body p { margin: 0; }
-    .timeline-top { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; text-transform: capitalize; }
-    .code-banner { display: flex; align-items: center; gap: 0.75em; background: var(--ms-success-soft); border: 1px solid var(--ms-success); border-radius: 8px; padding: 0.75em 1em; }
-    .code-banner code { font-size: 1.2em; font-weight: 700; letter-spacing: 0.1em; background: var(--ms-surface); padding: 0.1em 0.5em; border-radius: 4px; }
-    .code-banner div { flex: 1; }
-    .muted { color: var(--ms-text-muted); font-size: 0.85em; }
-    .error { color: var(--ms-error); display: flex; align-items: center; gap: 0.5em; }
-    .empty { color: var(--ms-text-muted); }
-  `],
+    .facts dt { color: var(--ms-text-muted); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .facts dd { margin: 2px 0 0; font-size: 0.8125rem; overflow-wrap: anywhere; text-transform: capitalize; }
+    .notes { margin: 12px 0 0; padding: 12px; border-radius: var(--ms-radius-md); background: var(--ms-canvas); font-size: 0.8125rem; line-height: 1.6; white-space: pre-wrap; }
+    .fine { margin: 12px 0 0; color: var(--ms-text-muted); font-size: 0.75rem; line-height: 1.5; }
+    .fact-rows { display: flex; flex-direction: column; }
+    .fact-rows div { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-top: 1px solid var(--ms-line); }
+    .fact-rows div:first-child { border-top: 0; }
+    .fact-rows span { color: var(--ms-text-muted); font-size: 0.75rem; }
+    .fact-rows strong { font-size: 0.8125rem; text-align: right; text-transform: capitalize; }
+    .action-stack { display: flex; flex-direction: column; gap: 8px; }
+    .action-stack button, .action-stack a { justify-content: flex-start; }
+    .action-stack mat-icon { font-size: 18px; width: 18px; height: 18px; margin-right: 4px; }
+    .empty { display: flex; align-items: center; gap: 8px; padding: 16px; border-radius: var(--ms-radius-md); background: var(--ms-canvas); color: var(--ms-text-muted); }
+    .empty mat-icon { color: var(--ms-success); }
+    .empty p { margin: 0; font-size: 0.8125rem; }
+    .code-banner { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--ms-radius-lg); background: var(--ms-success-soft); border: 1px solid var(--ms-success); flex-wrap: wrap; }
+    .banner-icon { width: 36px; height: 36px; flex: none; border-radius: var(--ms-radius-md); display: grid; place-items: center; background: var(--ms-surface); }
+    .code-banner > div { flex: 1; min-width: 220px; font-size: 0.8125rem; line-height: 1.5; }
+    .alert { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--ms-radius-lg); background: var(--ms-error-soft); color: var(--ms-error); }
+    .alert p { flex: 1; margin: 0; }
+    .error { color: var(--ms-error); }
+    @media (max-width: 1000px) { .detail-grid { grid-template-columns: minmax(0, 1fr); } .detail-aside { position: static; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); } .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 700px) { .panel { padding: 16px; } .detail-aside { grid-template-columns: minmax(0, 1fr); } .summary-strip { grid-template-columns: minmax(0, 1fr); } .two-col { grid-template-columns: minmax(0, 1fr); } .facts { grid-template-columns: minmax(0, 1fr); } .hero-actions { width: 100%; } .hero-actions button, .hero-actions a { flex: 1; justify-content: center; } }
+`],
 })
 export class ProspectDetailComponent implements OnInit {
   private readonly leads = inject(LeadPipelineService);
@@ -445,6 +450,15 @@ export class ProspectDetailComponent implements OnInit {
     const lead = this.lead();
     if (!lead) return 'Prospect';
     return this.leads.prospectName(lead);
+  }
+
+  protected initials(): string {
+    const lead = this.lead();
+    const parts = `${lead?.prospectName ?? ''} ${lead?.prospectSurname ?? ''}`.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return 'P';
+    const first = parts[0][0] ?? '';
+    const last = parts.length > 1 ? parts[parts.length - 1][0] ?? '' : '';
+    return `${first}${last}`.toUpperCase();
   }
 
   protected canConvert(): boolean {

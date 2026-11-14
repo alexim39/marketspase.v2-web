@@ -8,8 +8,9 @@ import {FormsModule} from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import templatesData from '../../../../../../../public/resource-templates/text/source.json';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { environment } from '../../../../../../environments/environment';
 
 interface TextTemplate {
   title: string;
@@ -175,7 +176,10 @@ export class TextDownloadComponent {
     }
 
     protected partnerLink(): string {
-      return `https://marketspase.com/lead/${this.partner?.username ?? ''}`;
+      const base = String(
+        (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://store.marketspase.com',
+      ).replace(/\/+$/, '');
+      return `${base}/lead/${encodeURIComponent(this.partner?.username ?? '')}`;
     }
 
     private fullContent(template: TextTemplate): string {
