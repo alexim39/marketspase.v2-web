@@ -5,7 +5,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
-import { environment } from '../../../environments/environment';
+import { publicLeadPageUrl } from '../../core/store/public-links';
 
 interface ReadinessCheck {
   key: string;
@@ -189,9 +189,7 @@ export class PromoteHubComponent {
 
   protected readonly publicUrl = computed(() => {
     const username = String(this.partner()?.['username'] ?? '').trim();
-    if (!username) return null;
-    const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://marketspase.com';
-    return `${String(base).replace(/\/+$/, '')}/lead/${username}`;
+    return username ? publicLeadPageUrl(username) : null;
   });
 
   protected readonly referralUrl = computed(() => {

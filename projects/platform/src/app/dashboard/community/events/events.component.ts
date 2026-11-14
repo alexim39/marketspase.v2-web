@@ -13,10 +13,10 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
-import { environment } from '../../../../environments/environment';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { forkJoin } from 'rxjs';
 import { EventService } from '../../../core/events/event.service';
+import { publicStorefrontUrl } from '../../../core/store/public-links';
 import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
@@ -1024,10 +1024,9 @@ export class CommunityEventsComponent implements OnInit {
   }
 
   protected personalLink(): string {
-    const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://marketspase.com';
     const me = this.auth.currentUser();
     const handle = String(me?.storeSlug ?? me?.username ?? '').trim().toLowerCase();
-    return `${String(base).replace(/\/+$/, '')}/${handle}`;
+    return publicStorefrontUrl(handle);
   }
 
   protected whenLabel(event: CommunityEvent): string {

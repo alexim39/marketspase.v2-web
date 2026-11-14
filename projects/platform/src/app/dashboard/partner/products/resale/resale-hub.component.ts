@@ -9,9 +9,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
-import { environment } from '../../../../../environments/environment';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { userError } from '../../../../core/http/api-error';
+import { publicStorefrontUrl } from '../../../../core/store/public-links';
 import { UiFeedbackService } from '../../../../core/ui/ui-feedback.service';
 import { GetProductService } from '../get-product.service';
 import {
@@ -87,10 +87,8 @@ export class ResaleHubComponent {
   ));
 
   protected readonly publicUrl = computed(() => {
-    const base = String((environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://marketspase.com')
-      .replace(/\/+$/, '');
     const handle = String(this.partner()?.storeSlug ?? this.partner()?.username ?? '').trim();
-    return handle ? `${base}/${handle}` : base;
+    return publicStorefrontUrl(handle);
   });
 
   protected readonly categories = computed(() => {

@@ -12,7 +12,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
-import { environment } from '../../../../../environments/environment';
+import { publicLeadPageUrl } from '../../../../core/store/public-links';
 import { ApiError, userError } from '../../../../core/http/api-error';
 import { LeadPipelineService } from './lead-pipeline.service';
 import {
@@ -677,10 +677,7 @@ export class LeadPipelineComponent implements OnInit {
 
   protected leadPageLink(): string | null {
     const username = String(this.auth.currentUser()?.username ?? '').trim();
-    if (!username) return null;
-    const base = String((environment as { publicSiteUrl?: string }).publicSiteUrl ?? '')
-      .replace(/\/+$/, '') || (typeof location !== 'undefined' ? location.origin : '');
-    return `${base}/lead/${encodeURIComponent(username)}`;
+    return username ? publicLeadPageUrl(username) : null;
   }
 
   protected copyLeadPageLink(): void {

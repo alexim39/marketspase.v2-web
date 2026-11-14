@@ -10,7 +10,7 @@ import templatesData from '../../../../../../../public/resource-templates/text/s
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { environment } from '../../../../../../environments/environment';
+import { publicLeadPageUrl } from '../../../../../core/store/public-links';
 
 interface TextTemplate {
   title: string;
@@ -176,10 +176,7 @@ export class TextDownloadComponent {
     }
 
     protected partnerLink(): string {
-      const base = String(
-        (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://store.marketspase.com',
-      ).replace(/\/+$/, '');
-      return `${base}/lead/${encodeURIComponent(this.partner?.username ?? '')}`;
+      return publicLeadPageUrl(String(this.partner?.username ?? ''));
     }
 
     private fullContent(template: TextTemplate): string {

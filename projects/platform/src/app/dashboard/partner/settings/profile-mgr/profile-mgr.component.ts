@@ -14,7 +14,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatTableModule } from '@angular/material/table';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
-import { environment } from '../../../../../environments/environment';
+import { publicLeadPageUrl } from '../../../../core/store/public-links';
 import { Subscription } from 'rxjs';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ProfileService } from '../../profile/profile.service';
@@ -404,9 +404,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
 
   protected publicPageUrl(): string | null {
     const username = String(this.profile()?.username ?? '').trim();
-    if (!username) return null;
-    const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://marketspase.com';
-    return `${String(base).replace(/\/+$/, '')}/lead/${username.toLowerCase()}`;
+    return username ? publicLeadPageUrl(username.toLowerCase()) : null;
   }
 
   /** Copy the public page link — same flow as the landing-page editor. */
@@ -522,14 +520,14 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
     this.dialog.open(HelpDialogComponent, {
       data: {help: `
         Make sure your username, which is part of your unique link, is meaningful and easy to remember.
-        For example, in marketspase.com/lead/business, "business" is a meaninful and easy to remember username.
+        For example, in store.marketspase.com/lead/business, "business" is a meaninful and easy to remember username.
 
         <p>Other examples of good unique link:
           <ul>
-            <li>marketspase.com/join</li>
-            <li>marketspase.com/connect</li>
-            <li>marketspase.com/link</li>
-            <li>marketspase.com/grow</li>
+            <li>store.marketspase.com/lead/join</li>
+            <li>store.marketspase.com/lead/connect</li>
+            <li>store.marketspase.com/lead/link</li>
+            <li>store.marketspase.com/lead/grow</li>
           </ul>
         </p>
 

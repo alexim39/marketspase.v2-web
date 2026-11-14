@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
-import { environment } from '../../../environments/environment';
+import { publicLeadPageUrl } from '../../core/store/public-links';
 
 /**
  * Legacy public lead links were shared as `marketspase.com/lead/<username>`.
@@ -32,8 +32,6 @@ export class PublicLeadRedirectComponent implements OnInit {
   ngOnInit(): void {
     const username = String(this.route.snapshot.paramMap.get('username') ?? '').trim();
     if (!username || typeof window === 'undefined') return;
-    const base = String((environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://store.marketspase.com')
-      .replace(/\/+$/, '');
-    window.location.replace(`${base}/lead/${encodeURIComponent(username)}`);
+    window.location.replace(publicLeadPageUrl(username));
   }
 }

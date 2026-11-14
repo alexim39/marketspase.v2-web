@@ -13,8 +13,8 @@ import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
 import { LandingPageService } from './landing-page.service';
-import { environment } from '../../../../../environments/environment';
 import { userError } from '../../../../core/http/api-error';
+import { publicLeadPageUrl } from '../../../../core/store/public-links';
 
 /**
  * @title Public page editor — everything that renders on /:partnerUsername.
@@ -273,10 +273,8 @@ export class LandingPageSettingComponent implements OnChanges, OnDestroy {
   protected publicUrl(): string | null {
     const u = this.partner?.username;
     if (!u) return null;
-    // Prod share domain is marketspase.com (public site), not
-    // marketspase.com (partner dashboard). Dev keeps localhost:4201.
-    const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://marketspase.com';
-    return `${String(base).replace(/\/+$/, '')}/lead/${u}`;
+    // Store app owns /lead/:username; the platform dashboard never serves it.
+    return publicLeadPageUrl(u);
   }
 
   protected copyLink(): void {

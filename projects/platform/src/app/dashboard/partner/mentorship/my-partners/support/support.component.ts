@@ -18,7 +18,7 @@ import { Journey, TRAINING_TRACK } from '../../../../../core/progression/progres
 import { GoalService } from '../../../../../core/goals/goal.service';
 import { Goal } from '../../../../../core/goals/goal.models';
 import { ViewAsService } from '../../../../../core/viewas/viewas.service';
-import { environment } from '../../../../../../environments/environment';
+import { publicStorefrontUrl } from '../../../../../core/store/public-links';
 import { PartnerBusinessKpiComponent } from './partner-business-kpi.component';
 import { ApiError, userError } from '../../../../../core/http/api-error';
 
@@ -122,13 +122,12 @@ export class MyPartnerSupportComponent implements OnInit, OnChanges {
   }
 
   protected publicLink(): string {
-    const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://marketspase.com';
     const handle = String(
       (this.myPartner as unknown as { storeSlug?: string })?.storeSlug
       ?? this.myPartner?.username
       ?? '',
     ).toLowerCase();
-    return `${String(base).replace(/\/+$/, '')}/${handle}`;
+    return publicStorefrontUrl(handle);
   }
 
   protected back(): void {

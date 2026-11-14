@@ -9,10 +9,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { finalize, switchMap } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ApiError, userError } from '../../../../core/http/api-error';
 import { StoreService } from '../../../../core/store/store.service';
+import { publicLeadPageUrl, publicStorefrontUrl } from '../../../../core/store/public-links';
 import {
   StoreCounts,
   StoreProduct,
@@ -111,18 +111,12 @@ export class MyStoreComponent implements OnInit {
 
   protected readonly storeUrl = computed(() => {
     const slug = this.store()?.slug ?? this.auth.currentUser()?.username ?? '';
-    if (!slug) return '';
-    const base = String((environment as { publicSiteUrl?: string }).publicSiteUrl ?? '')
-      .replace(/\/+$/, '');
-    return `${base}/${slug}`;
+    return slug ? publicStorefrontUrl(slug) : '';
   });
 
   protected readonly leadPageUrl = computed(() => {
     const username = String(this.auth.currentUser()?.username ?? '').trim();
-    if (!username) return '';
-    const base = String((environment as { publicSiteUrl?: string }).publicSiteUrl ?? '')
-      .replace(/\/+$/, '');
-    return `${base}/lead/${encodeURIComponent(username)}`;
+    return username ? publicLeadPageUrl(username) : '';
   });
 
   protected readonly readiness = computed(() => {
