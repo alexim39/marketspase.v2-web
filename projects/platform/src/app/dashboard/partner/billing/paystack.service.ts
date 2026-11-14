@@ -46,6 +46,8 @@ export interface WithdrawalRequest {
   accountNumber: string;
   amountNgn: number;
   saveAccount?: boolean;
+  /** Step-up confirmation for the signed-in account holder. */
+  password: string;
 }
 
 export interface WithdrawalResult {

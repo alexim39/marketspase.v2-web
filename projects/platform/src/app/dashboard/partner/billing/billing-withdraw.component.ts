@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, of } from 'rxjs';
 import { catchError, debounceTime, finalize, switchMap } from 'rxjs/operators';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -167,8 +167,32 @@ import { BankOption, PaystackService, ResolvedAccount, SavedWithdrawalAccount } 
               <div><dt>Amount</dt><dd>{{ money(amountValue()) }}</dd></div>
             </dl>
             <p class="muted">Your wallet is debited now and the payout is sent automatically. If Paystack cannot complete it, the full amount is refunded.</p>
+            <mat-form-field appearance="outline" class="confirm-password">
+              <mat-label>Account password</mat-label>
+              <input
+                matInput
+                [type]="showPassword() ? 'text' : 'password'"
+                [formControl]="passwordControl"
+                autocomplete="current-password"
+                maxlength="128"
+                (keydown.enter)="submit()"
+              />
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="showPassword.set(!showPassword())"
+                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+              >
+                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              <mat-hint>Required to prove it is you before the wallet is debited.</mat-hint>
+              @if (passwordControl.touched && passwordControl.hasError('required')) {
+                <mat-error>Enter your account password.</mat-error>
+              }
+            </mat-form-field>
             <div class="review-actions">
-              <button mat-stroked-button type="button" (click)="reviewing.set(false)" [disabled]="loading()">Back</button>
+              <button mat-stroked-button type="button" (click)="backToForm()" [disabled]="loading()">Back</button>
               <button mat-flat-button color="primary" type="button" (click)="submit()" [disabled]="loading()">
                 {{ loading() ? 'Submitting…' : 'Confirm withdrawal' }}
               </button>
@@ -207,6 +231,7 @@ import { BankOption, PaystackService, ResolvedAccount, SavedWithdrawalAccount } 
     .review dl div { display: flex; justify-content: space-between; gap: 1em; font-size: 0.9em; }
     .review dt { color: var(--ms-text-muted); }
     .review dd { margin: 0; font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+    .confirm-password { width: 100%; margin-top: 0.65em; }
     .review-actions { display: flex; gap: 0.5em; justify-content: flex-end; margin-top: 0.8em; }
     @media (max-width: 480px) {
       .withdraw-head, mat-dialog-content { padding-inline: 1em; }
@@ -228,6 +253,12 @@ export class BillingWithdrawComponent implements OnInit {
     accountNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
     amount: [null as number | null, [Validators.required, Validators.min(100), Validators.max(this.balance)]],
   });
+  /** Step-up confirmation; kept outside the destination form so review stays valid. */
+  protected readonly passwordControl = new FormControl('', {
+    nonNullable: true,
+    validators: [Validators.required, Validators.maxLength(128)],
+  });
+  protected readonly showPassword = signal(false);
 
   protected readonly banks = signal<BankOption[]>([]);
   protected readonly bankQuery = signal('');
@@ -387,13 +418,20 @@ export class BillingWithdrawComponent implements OnInit {
     const bank = this.selectedBank();
     const account = this.resolvedAccount();
     if (!bank || !account || this.loading()) return;
+    this.passwordControl.markAsTouched();
+    if (this.passwordControl.invalid) {
+      this.error.set('Enter your account password to confirm this withdrawal.');
+      return;
+    }
     this.loading.set(true);
+    this.error.set(null);
     this.paymentService.requestWithdrawal({
       bankCode: bank.code,
       bankName: bank.name,
       accountNumber: account.accountNumber,
       amountNgn: this.amountValue(),
       saveAccount: this.saveAccount(),
+      password: this.passwordControl.value,
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.loading.set(false);
@@ -410,8 +448,16 @@ export class BillingWithdrawComponent implements OnInit {
       error: (err) => {
         this.loading.set(false);
         this.error.set(userError(err));
+        this.passwordControl.reset('');
       },
     });
+  }
+
+  protected backToForm(): void {
+    this.reviewing.set(false);
+    this.passwordControl.reset('');
+    this.showPassword.set(false);
+    this.error.set(null);
   }
 
   protected close(): void {
