@@ -1,0 +1,133 @@
+<section class="reflections-page">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/dashboard/learn">Learn</a>
+    <span>/</span>
+    <a [routerLink]="['/dashboard/learn/video-of-the-week', videoId()]">Video of the week</a>
+    <span>/</span>
+    <span>Reflections</span>
+  </nav>
+
+  <header class="page-head">
+    <div class="head-copy">
+      <p class="eyebrow">Community</p>
+      <h1>Reflections from the team</h1>
+      @if (video()?.video; as current) {
+        <p class="muted">{{ current.title }} · {{ current.weekLabel }}</p>
+      }
+    </div>
+    <a mat-stroked-button [routerLink]="['/dashboard/learn/video-of-the-week', videoId()]">
+      <mat-icon>arrow_back</mat-icon>
+      Back to the video
+    </a>
+  </header>
+
+  @if (loading()) {
+    <async-page-skeleton layout="list" [rows]="4" label="reflections" [showHeader]="false" />
+  } @else if (error(); as err) {
+    <div class="state-card" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <h2>We could not load the reflections</h2>
+      <p>{{ err }}</p>
+      <a mat-flat-button color="primary" [routerLink]="['/dashboard/learn/video-of-the-week', videoId()]">Back to the video</a>
+    </div>
+  } @else if (!unlocked()) {
+    <div class="state-card locked">
+      <mat-icon>lock</mat-icon>
+      <h2>Reflections unlock after the watch</h2>
+      <p>Finish at least {{ video()?.engagement?.completionPercent ?? 90 }}% of this briefing to read what the team learned and add your own lesson.</p>
+      <a mat-flat-button color="primary" [routerLink]="['/dashboard/learn/video-of-the-week', videoId()]">Continue watching</a>
+    </div>
+  } @else {
+    <div class="toolbar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search reflections or teammates</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="searchControl" placeholder="Try a lesson, name or username" />
+        @if (searchControl.value) {
+          <button mat-icon-button matSuffix type="button" (click)="clearSearch()" aria-label="Clear search">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+      <span class="count-chip">{{ total() }} {{ total() === 1 ? 'reflection' : 'reflections' }}</span>
+    </div>
+
+    <div class="list-card">
+      @if (listLoading()) {
+        <mat-progress-bar mode="indeterminate" aria-label="Loading reflections" />
+      }
+
+      @if (listError(); as err) {
+        <div class="inline-state" role="alert">
+          <mat-icon>cloud_off</mat-icon>
+          <p>{{ err }}</p>
+          <button mat-stroked-button type="button" (click)="retry()">Try again</button>
+        </div>
+      } @else if (items().length === 0) {
+        <div class="inline-state">
+          <mat-icon>{{ search() ? 'search_off' : 'edit_note' }}</mat-icon>
+          <p>
+            @if (search()) {
+              No reflections match “{{ search() }}”. Try another word or clear the search.
+            } @else {
+              No reflections yet. Write the first one from the video page.
+            }
+          </p>
+          @if (search()) {
+            <button mat-stroked-button type="button" (click)="clearSearch()">Clear search</button>
+          } @else {
+            <a mat-stroked-button [routerLink]="['/dashboard/learn/video-of-the-week', videoId()]">Write a reflection</a>
+          }
+        </div>
+      } @else {
+        <div class="reflection-list">
+          @for (item of items(); track item.id) {
+            <article class="reflection-item" style="content-visibility:auto;contain-intrinsic-size:0 150px">
+              <async-avatar
+                [photo]="item.author?.profileImage"
+                [name]="authorName(item)"
+                size="md"
+                [presence]="presenceOf(item.author?.id)"
+              />
+              <div class="reflection-body">
+                <div class="reflection-meta">
+                  <strong>{{ authorName(item) }}</strong>
+                  @if (item.author?.commissionRank) {
+                    <span class="rank">{{ item.author?.commissionRank }}</span>
+                  }
+                  <time>{{ item.createdAt | date:'medium' }}</time>
+                </div>
+                <p>{{ item.body }}</p>
+              </div>
+            </article>
+          }
+        </div>
+
+        <footer class="pager">
+          <span class="muted small">Showing {{ rangeStart() }}–{{ rangeEnd() }} of {{ total() }}</span>
+          <div class="pager-actions">
+            <button mat-icon-button type="button" (click)="goToPage(page() - 1)" [disabled]="page() === 0 || listLoading()" aria-label="Previous page">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            @for (number of pageNumbers(); track number) {
+              <button
+                mat-button
+                type="button"
+                class="page-number"
+                [class.page-number--active]="number === page()"
+                (click)="goToPage(number)"
+                [disabled]="listLoading()"
+                [attr.aria-current]="number === page() ? 'page' : null"
+              >
+                {{ number + 1 }}
+              </button>
+            }
+            <button mat-icon-button type="button" (click)="goToPage(page() + 1)" [disabled]="page() >= pages() - 1 || listLoading()" aria-label="Next page">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </footer>
+      }
+    </div>
+  }
+</section>

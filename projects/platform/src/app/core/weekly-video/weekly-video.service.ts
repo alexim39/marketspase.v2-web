@@ -52,13 +52,15 @@ export class WeeklyVideoService {
 
   comments(
     id: string,
-    params: { limit?: number; cursor?: string | null; skip?: number } = {},
+    params: { limit?: number; cursor?: string | null; skip?: number; q?: string } = {},
   ): Observable<ApiEnvelope<WeeklyVideoComments>> {
     const query = new URLSearchParams({
       limit: String(params.limit ?? 20),
     });
     if (params.cursor) query.set('cursor', params.cursor);
     if (params.skip) query.set('skip', String(params.skip));
+    const search = String(params.q ?? '').trim();
+    if (search) query.set('q', search);
     return this.api.get<ApiEnvelope<WeeklyVideoComments>>(
       `v1/weekly-videos/${encodeURIComponent(id)}/comments?${query.toString()}`,
     );

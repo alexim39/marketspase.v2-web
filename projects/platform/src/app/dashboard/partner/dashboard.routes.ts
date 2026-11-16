@@ -67,6 +67,7 @@ export const dashboardRoutes: Routes = [
             { path: 'team/handoffs', loadComponent: () => import('./mentorship/handoffs/mentor-handoffs.component').then(m => m.MentorHandoffsComponent), title: "New member tasks - Mentor onboarding" },
             { path: 'team', loadComponent: () => import('./team/team-hub.component').then(m => m.TeamHubComponent), title: "Team - Who needs you today" },
             { path: 'learn/video-of-the-week', loadComponent: () => import('./learn/weekly-video/weekly-video.component').then(m => m.WeeklyVideoComponent), title: "Video of the Week - Weekly briefing" },
+            { path: 'learn/video-of-the-week/:id/reflections', loadComponent: () => import('./learn/weekly-video/reflections/reflections.component').then(m => m.WeeklyVideoReflectionsComponent), title: "Reflections from the team - Weekly briefing" },
             { path: 'learn/video-of-the-week/:id', loadComponent: () => import('./learn/weekly-video/weekly-video.component').then(m => m.WeeklyVideoComponent), title: "Video of the Week - Weekly briefing" },
             { path: 'learn', loadComponent: () => import('./learn/learn-hub.component').then(m => m.LearnHubComponent), title: "Learn - Your next step is clear" },
             { path: 'more', loadComponent: () => import('./more/more-hub.component').then(m => m.MoreHubComponent), title: "More - Account and utilities" }, 

@@ -54,7 +54,7 @@ const PLATFORM_ROUTES = [
   /^\/dashboard\/pipeline$/,
   /^\/dashboard\/team$/,
   /^\/dashboard\/team\/handoffs$/,
-  /^\/dashboard\/learn(?:\/video-of-the-week(?:\/[^/]+)?)?$/,
+  /^\/dashboard\/learn(?:\/video-of-the-week(?:\/[^/]+(?:\/reflections)?)?)?$/,
   /^\/dashboard\/more$/,
   /^\/dashboard\/checkout$/,
 ];

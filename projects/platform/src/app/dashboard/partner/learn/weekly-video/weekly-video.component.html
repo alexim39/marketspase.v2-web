@@ -208,25 +208,22 @@
           </div>
 
           @if (!progress()?.completed) {
-            <div class="locked-panel">
-              <mat-icon>forum</mat-icon>
+            <div class="locked-panel locked-panel--community">
+              <mat-icon>lock</mat-icon>
               <div>
                 <strong>{{ reflectionCountLabel() }} waiting after you finish</strong>
-                <p>Reflections are hidden until you complete the watch, so everyone writes their own lesson first.</p>
+                <p>Finish the briefing to read what the team learned. Reflections stay hidden until you watch, so everyone writes their own lesson first.</p>
               </div>
             </div>
           } @else if (commentsLoading()) {
             <mat-progress-bar mode="indeterminate" aria-label="Loading reflections" />
-          } @else if (commentsError() && comments().length === 0) {
-            <div class="empty-comments">
-              <mat-icon>cloud_off</mat-icon>
-              <p>{{ commentsError() }}</p>
-              <button mat-stroked-button type="button" (click)="loadComments(true)">Try again</button>
-            </div>
           } @else if (comments().length === 0) {
             <div class="empty-comments">
-              <mat-icon>edit_note</mat-icon>
-              <p>No reflections yet. Write the first one above.</p>
+              <mat-icon>{{ commentsError() ? 'cloud_off' : 'edit_note' }}</mat-icon>
+              <p>{{ commentsError() || 'No reflections yet. Write the first one above.' }}</p>
+              @if (commentsError()) {
+                <button mat-stroked-button type="button" (click)="loadComments(true)">Try again</button>
+              }
             </div>
           } @else {
             <div class="reflection-list">
@@ -249,18 +246,19 @@
                 </article>
               }
             </div>
-            <div class="comments-more" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--ms-line)">
+            <div class="comments-footer">
               @if (commentsError()) {
                 <span class="inline-error" role="alert">{{ commentsError() }}</span>
-                <button mat-button type="button" (click)="loadMoreComments()" [disabled]="commentsLoadingMore()">Retry</button>
-              } @else if (commentsHasMore()) {
-                <button mat-stroked-button type="button" (click)="loadMoreComments()" [disabled]="commentsLoadingMore()">
-                  <mat-icon>{{ commentsLoadingMore() ? 'hourglass_top' : 'expand_more' }}</mat-icon>
-                  {{ commentsLoadingMore() ? 'Loading…' : 'Load more reflections' }}
-                </button>
-                <span class="muted small">{{ comments().length }} of {{ commentsTotal() }} shown</span>
+                <button mat-button type="button" (click)="loadComments(true)">Retry</button>
+              } @else if (commentsTotal() > comments().length) {
+                <span class="muted small">Latest {{ comments().length }} of {{ commentsTotal() }}</span>
+                <a mat-stroked-button [routerLink]="['/dashboard/learn/video-of-the-week', v.id, 'reflections']">
+                  <mat-icon>forum</mat-icon>
+                  Read all {{ commentsTotal() }} reflections
+                </a>
               } @else {
-                <span class="muted small">All {{ commentsTotal() }} reflections loaded.</span>
+                <span class="muted small">All {{ commentsTotal() }} reflections shown.</span>
+                <a mat-button [routerLink]="['/dashboard/learn/video-of-the-week', v.id, 'reflections']">Open reflection view</a>
               }
             </div>
           }

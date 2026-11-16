@@ -256,6 +256,8 @@
 .reflection-meta { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; font-size: .78rem; }
 .reflection-meta time { color: var(--ms-text-muted); margin-left: auto; font-size: .72rem; }
 .reflection-body p { color: var(--ms-text); font-size: .9rem; }
+.comments-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding-top: 12px; margin-top: 4px; border-top: 1px solid var(--ms-line); }
+.comments-footer a { min-height: 40px; }
 
 .commitment-card {
   background:
