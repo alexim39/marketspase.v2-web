@@ -2,12 +2,14 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AdminService } from '../../../core/admin/admin.service';
 import { Member360 } from '../../../core/admin/admin.models';
 import { ApiError, userError } from '../../../core/http/api-error';
+import { AdminWalletCreditDialogComponent } from './wallet-credit.dialog';
 
 @Component({
   selector: 'async-admin-member-view',
@@ -19,20 +21,48 @@ import { ApiError, userError } from '../../../core/http/api-error';
 export class AdminMemberViewComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly admin = inject(AdminService);
+  private readonly dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly profile = signal<Member360 | null>(null);
+  private memberId = '';
 
   ngOnInit(): void {
-    const id = String(this.route.snapshot.paramMap.get('id') ?? '').trim();
-    if (!id) {
+    this.memberId = String(this.route.snapshot.paramMap.get('id') ?? '').trim();
+    if (!this.memberId) {
       this.error.set('Member not found');
       this.loading.set(false);
       return;
     }
-    this.admin.member360(id)
+    this.load();
+  }
+
+  protected creditWallet(): void {
+    const profile = this.profile();
+    if (!profile) return;
+    this.dialog.open<AdminWalletCreditDialogComponent, { id: string; name: string; balance: number }, boolean>(
+      AdminWalletCreditDialogComponent,
+      {
+        data: {
+          id: profile.identity.id,
+          name: profile.identity.name,
+          balance: profile.money.balance,
+        },
+        width: '520px',
+        autoFocus: 'dialog',
+        restoreFocus: true,
+      },
+    ).afterClosed().subscribe((credited) => {
+      if (credited) this.load();
+    });
+  }
+
+  private load(): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.admin.member360(this.memberId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

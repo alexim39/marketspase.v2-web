@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { ManageRolesComponent } from './roles/roles.component';
 import { AdminAutomationComponent } from './automation/job-health.component';
-import { AdminDepositsComponent } from './deposits/admin-deposits.component';
 import { AdminPartnerPipelineComponent } from './partner-pipeline/admin-partner-pipeline.component';
 import { AdminPagesComponent } from './pages/admin-pages.component';
 import { AdminOrdersComponent } from './orders/admin-orders.component';
@@ -100,11 +99,10 @@ export const AdminRoutes: Routes = [
     title: 'Automation - MarketSpase Admin',
   },
   {
-    path: 'deposits',
-    component: AdminDepositsComponent,
-    title: 'Manual deposits - MarketSpase Admin',
+    path: 'leads',
+    redirectTo: 'partner-pipeline',
+    pathMatch: 'full',
   },
-  { path: 'leads', redirectTo: 'partner-pipeline', pathMatch: 'full' },
   {
     path: 'partner-pipeline',
     component: AdminPartnerPipelineComponent,

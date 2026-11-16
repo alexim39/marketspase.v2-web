@@ -39,27 +39,6 @@ export interface DepositMethod {
   accounts?: Array<{ bank: string; number: string; name: string }>;
 }
 
-export interface ManualClaimRow {
-  reference: string;
-  amountNgn: number;
-  status: string;
-  claim: Record<string, unknown> | null;
-  decidedAt: string | null;
-  decisionNote: string | null;
-  creditedAt: string | null;
-  createdAt: string;
-  partner?: { name: string; email: string | null; phone: string | null; username: string | null } | null;
-}
-
-export interface LookupHit {
-  id: string;
-  name: string;
-  email: string | null;
-  phone: string | null;
-  username: string | null;
-  balance: number;
-}
-
 const num = (v: unknown): number => {
   const n = Number(v);
   return Number.isFinite(n) ? n : 0;
@@ -108,21 +87,6 @@ export class WalletService {
   /** Available deposit methods (Paystack, Opay, …). */
   depositMethods(): Observable<{ data: DepositMethod[] }> {
     return this.api.get<{ data: DepositMethod[] }>('v1/billing/deposit/methods');
-  }
-
-  /** Admin: manual-claim review queue (historical; new claims are disabled). */
-  manualQueue(status = 'awaiting-review'): Observable<{ data: ManualClaimRow[] }> {
-    return this.api.get<{ data: ManualClaimRow[] }>(`v1/billing/deposit/manual/queue?status=${encodeURIComponent(status)}`);
-  }
-
-  /** Admin: approve (credits once) or reject (reason required). */
-  decideManualDeposit(reference: string, decision: 'approve' | 'reject', note = ''): Observable<{ message: string; data: unknown }> {
-    return this.api.post(`v1/billing/deposit/manual/${encodeURIComponent(reference)}/decide`, { decision, note });
-  }
-
-  /** Admin: find a partner to credit (email/username). */
-  lookupPartner(q: string): Observable<{ data: { exact: LookupHit | null; matches: LookupHit[] } }> {
-    return this.api.get(`v1/billing/admin/wallet/lookup?q=${encodeURIComponent(q)}`);
   }
 
   /** Admin: direct wallet top-up (mandatory reason, audited). */

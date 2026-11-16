@@ -50,7 +50,6 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { label: 'Activation desk', link: '/activation', icon: 'verified_user' },
       { label: 'Compensation', link: '/compensation', icon: 'workspace_premium' },
       { label: 'Deposit & withdrawal ledger', link: '/finance/transactions', icon: 'receipt_long' },
-      { label: 'Manual deposits', link: '/deposits', icon: 'payments' },
     ],
   },
   {

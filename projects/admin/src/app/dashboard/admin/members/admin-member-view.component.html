@@ -11,7 +11,7 @@
     <div>
       <p class="eyebrow">People</p>
       <h1>Member 360.</h1>
-      <p class="subtitle">Identity, login, money and growth in one read-only view.</p>
+      <p class="subtitle">Identity, login, money and growth in one place.</p>
     </div>
     <a mat-stroked-button routerLink="/roles"><mat-icon>arrow_back</mat-icon> Back to roles</a>
   </header>
@@ -62,6 +62,9 @@
           <div class="detail-row"><mat-icon>trending_up</mat-icon><span>{{ p.money.in30d | currency:'₦':'symbol':'1.0-2' }} in 30 days</span></div>
         }
         <div class="detail-row"><mat-icon>receipt_long</mat-icon><span>{{ p.money.txCount ?? 0 }} transactions</span></div>
+        <button mat-stroked-button type="button" (click)="creditWallet()" class="credit-btn">
+          <mat-icon>add_card</mat-icon> Credit wallet
+        </button>
         @for (tx of p.money.recent.slice(0, 3); track $index) {
           <div class="mini-row"><span>{{ tx.kind }} · {{ tx.method }}</span><strong>{{ tx.amount | currency:'₦':'symbol':'1.0-0' }}</strong></div>
         }

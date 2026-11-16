@@ -34,6 +34,7 @@
 .detail-row mat-icon { width: 17px; height: 17px; font-size: 17px; color: var(--ms-primary-strong); flex: none; margin-top: 0.05em; }
 .mini-row { display: flex; justify-content: space-between; gap: 1em; padding: 0.35em 0 0; border-top: 1px solid var(--ms-line); font-size: 0.76em; color: var(--ms-text-muted); }
 .mini-row strong { color: var(--ms-text); white-space: nowrap; }
+.credit-btn { align-self: flex-start; min-height: 38px; margin: 0.2em 0 0.3em; font-size: 0.78em; }
 .suspended { margin: 0.3em 0 0; color: var(--ms-error); font-size: 0.8em; }
 .actions-panel { justify-content: space-between; }
 .actions { display: flex; flex-wrap: wrap; gap: 0.4em; margin-top: 0.4em; }
