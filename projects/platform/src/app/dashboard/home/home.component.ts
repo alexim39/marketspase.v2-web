@@ -19,6 +19,8 @@ import { OnboardingService } from '../../core/onboarding/onboarding.service';
 import { CampaignsService } from '../../core/campaigns/campaigns.service';
 import { TrainingService } from '../../core/training/training.service';
 import { Certificate } from '../../core/training/training.models';
+import { WeeklyVideoService } from '../../core/weekly-video/weekly-video.service';
+import { CurrentWeeklyVideo } from '../../core/weekly-video/weekly-video.models';
 import { OnboardingStatus } from '../../core/onboarding/onboarding.models';
 import { GrowthCampaign, MyAllocation } from '../../core/campaigns/campaigns.models';
 import { DailyAction, DashboardOverview } from '../../core/analytics/analytics.models';
@@ -158,6 +160,26 @@ interface ActivityItem {
             <a mat-button routerLink="/dashboard/compensation">Compensation</a>
           </div>
         </div>
+      }
+
+      <!-- Weekly briefing follow-up: visible until watched and reflected. -->
+      @if (weeklyVideo(); as weekly) {
+        @if (weekly.video; as video) {
+          @if (!weekly.progress?.completed || !weekly.reflection) {
+            <a class="weekly-video-callout dp-card" [routerLink]="['/dashboard/learn/video-of-the-week', video.id]">
+              <span class="wv-icon"><mat-icon>smart_display</mat-icon></span>
+              <span class="wv-copy">
+                <span class="eyebrow">Video of the week</span>
+                <strong>{{ weekly.progress?.completed ? 'Your reflection is pending' : 'Watch this week’s briefing' }}</strong>
+                <span class="muted">{{ video.title }} · {{ video.weekLabel }}</span>
+              </span>
+              <span class="wv-cta">
+                {{ weekly.progress?.completed ? 'Write reflection' : 'Watch now' }}
+                <mat-icon>arrow_forward</mat-icon>
+              </span>
+            </a>
+          }
+        }
       }
 
       <div class="cc-quick" aria-label="Quick actions">
@@ -509,6 +531,18 @@ interface ActivityItem {
     .tutorials-callout p { margin: 0; font-size: 0.875rem; }
     .tutorials-callout .spacer { flex: 1; }
     .tutorials-callout a { min-height: 44px; flex: none; }
+    .weekly-video-callout { display: flex; align-items: center; gap: 14px; padding: 14px 18px; text-decoration: none; color: inherit; border-left: 4px solid var(--ms-primary); }
+    .weekly-video-callout:hover { border-color: var(--ms-primary-strong); }
+    .wv-icon { width: 42px; height: 42px; flex: none; display: grid; place-items: center; border-radius: 12px; background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
+    .wv-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .wv-copy strong { font-size: 0.98rem; }
+    .wv-copy .muted { font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .wv-cta { display: inline-flex; align-items: center; gap: 4px; flex: none; font-size: 0.82rem; font-weight: 800; color: var(--ms-primary-strong); white-space: nowrap; }
+    @media (max-width: 640px) {
+      .weekly-video-callout { align-items: flex-start; flex-wrap: wrap; }
+      .wv-copy .muted { white-space: normal; }
+      .wv-cta { width: 100%; padding-left: 56px; }
+    }
     /* Growth engine card — activation → KYC → queue → placement. */
     .growth-card {
       display: flex;
@@ -560,6 +594,7 @@ export class HomeComponent implements OnInit {
   private readonly campaignsSvc = inject(CampaignsService);
   private readonly storeSvc = inject(StoreService);
   private readonly trainingSvc = inject(TrainingService);
+  private readonly weeklyVideos = inject(WeeklyVideoService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -585,6 +620,8 @@ export class HomeComponent implements OnInit {
   protected readonly growthLoaded = signal(false);
   /** Follow-up bucket counts for the momentum card. */
   protected readonly reminders = signal<{ overdue: number; today: number } | null>(null);
+  /** Current weekly briefing — dashboard follow-up when incomplete. */
+  protected readonly weeklyVideo = signal<CurrentWeeklyVideo | null>(null);
   /** Activity timeline inputs. */
   private readonly certificates = signal<Certificate[]>([]);
 
@@ -919,10 +956,11 @@ export class HomeComponent implements OnInit {
       storeEarnings: this.storeSvc.earnings().pipe(catchError(() => of(null))),
       reminders: this.leads.reminders().pipe(catchError(() => of(null))),
       certificates: this.trainingSvc.certificates().pipe(catchError(() => of(null))),
+      weekly: this.weeklyVideos.current().pipe(catchError(() => of(null))),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ overview, compensation, journey, feed, prospects, bonus, onboarding, allocation, campaignList, storeEarnings, reminders, certificates }) => {
+        next: ({ overview, compensation, journey, feed, prospects, bonus, onboarding, allocation, campaignList, storeEarnings, reminders, certificates, weekly }) => {
           this.overview.set(overview.data ?? null);
           this.compensation.set(compensation?.data ?? null);
           this.journey.set(journey?.data ?? null);
@@ -935,6 +973,7 @@ export class HomeComponent implements OnInit {
           this.storeEarnings.set(storeEarnings?.data ?? null);
           this.reminders.set(reminders?.data ? { overdue: reminders.data.overdue.length, today: reminders.data.today.length } : null);
           this.certificates.set(certificates?.data ?? []);
+          this.weeklyVideo.set(weekly?.data ?? null);
           this.growthLoaded.set(true);
           this.loading.set(false);
           const ids = (feed?.data?.items ?? []).map((p) => p.authorId);
