@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/auth/auth.service';
+import { InstallAppComponent } from '../../../core/pwa/install-app.component';
 
 interface MoreLink {
   label: string;
@@ -27,7 +28,7 @@ interface MoreGroup {
 @Component({
   selector: 'async-more-hub',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule, RouterModule],
+  imports: [MatButtonModule, MatIconModule, RouterModule, InstallAppComponent],
   template: `
     <section class="more-page">
       <header class="page-head">
@@ -60,6 +61,8 @@ interface MoreGroup {
           }
         </div>
       </div>
+
+      <async-install-app />
 
       <div class="groups">
         @for (group of groups; track group.key) {

@@ -25,6 +25,7 @@ import { PartnerInterface, PartnerService } from '../../_common/services/partner
 import { AuthService } from '../../core/auth/auth.service';
 import { ThemeTogglerService } from '../../_common/services/theme-toggler.service';
 import { NotificationStreamService } from '../../core/notifications/notification-stream.service';
+import { PwaInstallService } from '../../core/pwa/pwa-install.service';
 import { TopProgressService } from '../../core/loading/top-progress.service';
 import { ViewAsService } from '../../core/viewas/viewas.service';
 import { LeadPipelineService } from '../partner/prospects/lead-pipeline/lead-pipeline.service';
@@ -74,6 +75,7 @@ export class AppShellComponent {
   protected readonly stream = inject(NotificationStreamService);
   private readonly presence = inject(AuthService);
   protected readonly progress = inject(TopProgressService);
+  protected readonly install = inject(PwaInstallService);
   private readonly themes = inject(ThemeTogglerService);
   private readonly dialog = inject(MatDialog);
   protected readonly viewAs = inject(ViewAsService);
@@ -203,6 +205,10 @@ export class AppShellComponent {
       restoreFocus: true,
       panelClass: 'search-palette-panel',
     });
+  }
+
+  installApp(): void {
+    void this.install.promptInstall();
   }
 
   scrollToTop() {
