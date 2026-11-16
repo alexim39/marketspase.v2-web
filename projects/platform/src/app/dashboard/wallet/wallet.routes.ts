@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { WalletDashboardComponent } from './dashboard/wallet-dashboard.component';
+import { WalletDashboardIndexComponent } from './dashboard/index.component';
 import { WalletHistoryComponent } from './history/wallet-history.component';
 import { WalletDepositComponent } from './deposit/wallet-deposit.component';
 import { WalletDepositResultComponent } from './deposit/wallet-deposit-result.component';
@@ -7,7 +7,7 @@ import { WalletDepositResultComponent } from './deposit/wallet-deposit-result.co
 export const WalletRoutes: Routes = [
   {
     path: '',
-    component: WalletDashboardComponent,
+    component: WalletDashboardIndexComponent,
     title: 'Wallet - Balance, flows and doors',
   },
   {

@@ -1,0 +1,333 @@
+<section class="home-mobile">
+  @if (vm.activationNeeded()) {
+    <div class="banner is-activation" role="status">
+      <mat-icon aria-hidden="true">verified_user</mat-icon>
+      <div>
+        <strong>Your partner account is not activated yet</strong>
+        <p>Complete identity and activate with the starter product to unlock allocation and commissions.</p>
+      </div>
+      <a mat-flat-button color="primary" routerLink="/dashboard/activate">Activate</a>
+    </div>
+  }
+
+  @if (vm.profileIncomplete() && !vm.bannerDismissed()) {
+    <div class="banner is-profile" role="status">
+      <mat-icon aria-hidden="true">account_circle</mat-icon>
+      <p>Add your phone and location so your upline and prospects can reach you.</p>
+      <a mat-button routerLink="/dashboard/settings/profiles">Complete</a>
+      <button mat-icon-button type="button" (click)="vm.bannerDismissed.set(true)" aria-label="Dismiss profile reminder">
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+    </div>
+  }
+
+  @if (vm.bonus()?.campaign; as campaign) {
+    <div class="banner is-bonus" role="status">
+      <mat-icon aria-hidden="true">card_giftcard</mat-icon>
+      <div class="banner-copy">
+        <strong>{{ campaign.title }} — ₦{{ campaign.amountNgn | number }} waiting</strong>
+        <p>{{ campaign.message || 'Claim it into your wallet and put it to work.' }}</p>
+      </div>
+      <button mat-flat-button color="primary" type="button" (click)="vm.claimBonus()" [disabled]="vm.claimingBonus()">
+        {{ vm.claimingBonus() ? 'Claiming…' : 'Claim' }}
+      </button>
+    </div>
+  }
+
+  @if (vm.bonusNotice(); as note) {
+    <p class="notice" role="status">{{ note }}</p>
+  }
+
+  <header class="home-hero">
+    <p class="eyebrow">Command center · {{ vm.today | date:'fullDate' }}</p>
+    <h1>{{ vm.greeting() }}{{ vm.firstName() ? ', ' + vm.firstName() : '' }}</h1>
+    <p class="subtitle">{{ vm.headline() }}</p>
+    <div class="hero-chips">
+      <span class="chip"><mat-icon aria-hidden="true">workspace_premium</mat-icon>{{ vm.rankLabel() }}</span>
+      <span class="chip"><mat-icon aria-hidden="true">verified_user</mat-icon>{{ vm.growthStateLabel() }}</span>
+      <span class="chip"><mat-icon aria-hidden="true">badge</mat-icon>{{ vm.kycLabel() }}</span>
+    </div>
+    @if (vm.roleFocus(); as focus) {
+      <p class="focus"><mat-icon aria-hidden="true">flag</mat-icon> {{ focus }}</p>
+    }
+  </header>
+
+  @if (vm.error(); as err) {
+    <async-mobile-card>
+      <async-error-state [message]="err" context="your dashboard">
+        <button mat-stroked-button type="button" (click)="vm.reload()">Try again</button>
+      </async-error-state>
+    </async-mobile-card>
+  }
+
+  @if (vm.loading()) {
+    <async-page-skeleton layout="dashboard" [rows]="3" label="dashboard details" [showHeader]="false" />
+  }
+
+  @if (!vm.loading() && !vm.error()) {
+    @if (vm.nextAction(); as action) {
+      <async-mobile-card class="next-card">
+        <p class="eyebrow">Next best action</p>
+        <strong>{{ action.title }}</strong>
+        <p>{{ action.detail }}</p>
+        @if (action.link) {
+          <a mat-flat-button color="primary" [routerLink]="action.link">Take action</a>
+        }
+      </async-mobile-card>
+    } @else {
+      <async-mobile-card class="next-card is-clear">
+        <p class="eyebrow">Next best action</p>
+        <strong>You are all clear</strong>
+        <p>No urgent actions. Add a prospect or fund acquisition to keep momentum.</p>
+        <a mat-flat-button color="primary" routerLink="/dashboard/prospects/pipeline">Add a prospect</a>
+      </async-mobile-card>
+    }
+
+    @if (vm.growthLoaded()) {
+      <async-mobile-card class="growth-card">
+        <div class="growth-head">
+          <span
+            class="growth-pill"
+            [class.is-action]="vm.growthState() === 'member' || vm.growthState() === 'kyc'"
+            [class.is-live]="vm.growthState() === 'active'"
+          >{{ vm.growthStateLabel() }}</span>
+        </div>
+        <strong class="section-title">{{ vm.growthHeadline() }}</strong>
+        <p class="muted">{{ vm.growthDetail() }}</p>
+        <div class="growth-metrics">
+          <div><span>KYC</span><strong>{{ vm.kycLabel() }}</strong></div>
+          <div><span>Queue</span><strong>{{ vm.queueLabel() }}</strong></div>
+          <div><span>Campaigns</span><strong>{{ vm.activeCampaigns() }}</strong></div>
+          <div><span>Wallet</span><strong>₦{{ vm.walletBalance() | number }}</strong></div>
+        </div>
+        <div class="growth-actions">
+          @if (vm.growthState() === 'member') {
+            <a mat-flat-button color="primary" routerLink="/dashboard/activate">Activate now</a>
+          } @else if (vm.growthState() === 'kyc') {
+            <a mat-flat-button color="primary" routerLink="/dashboard/activate">Finish KYC</a>
+          } @else {
+            <a mat-stroked-button routerLink="/dashboard/campaigns">Partner acquisition</a>
+          }
+          <a mat-button routerLink="/dashboard/compensation">Compensation</a>
+        </div>
+      </async-mobile-card>
+    }
+
+    @if (vm.weeklyVideo(); as weekly) {
+      @if (weekly.video; as video) {
+        @if (!weekly.progress?.completed || !weekly.reflection) {
+          <a class="weekly-card" [routerLink]="['/dashboard/learn/video-of-the-week', video.id]">
+            <span class="weekly-icon"><mat-icon aria-hidden="true">smart_display</mat-icon></span>
+            <span class="weekly-copy">
+              <span class="eyebrow">Video of the week</span>
+              <strong>{{ weekly.progress?.completed ? 'Your reflection is pending' : 'Watch this week’s briefing' }}</strong>
+              <small>{{ video.title }} · {{ video.weekLabel }}</small>
+            </span>
+            <mat-icon class="weekly-chev" aria-hidden="true">chevron_right</mat-icon>
+          </a>
+        }
+      }
+    }
+
+    <div class="quick-grid" aria-label="Quick actions">
+      <a class="quick-action" routerLink="/dashboard/prospects/new">
+        <mat-icon aria-hidden="true">person_add</mat-icon><span>Add prospect</span>
+      </a>
+      @if (vm.storeActionCount() > 0) {
+        <a class="quick-action" routerLink="/dashboard/products/store-orders">
+          <mat-icon aria-hidden="true">local_shipping</mat-icon><span>Fulfil {{ vm.storeActionCount() }}</span>
+        </a>
+      }
+      <a class="quick-action" routerLink="/dashboard/campaigns">
+        <mat-icon aria-hidden="true">campaign</mat-icon><span>Fund acquisition</span>
+      </a>
+      <a class="quick-action" routerLink="/dashboard/messages">
+        <mat-icon aria-hidden="true">forum</mat-icon><span>Send message</span>
+      </a>
+      <a class="quick-action" routerLink="/dashboard/wallet/deposit">
+        <mat-icon aria-hidden="true">add_card</mat-icon><span>Deposit</span>
+      </a>
+      <a class="quick-action" routerLink="/dashboard/ora">
+        <mat-icon aria-hidden="true">smart_toy</mat-icon><span>Ask Ora</span>
+      </a>
+    </div>
+
+    <section class="section" aria-labelledby="glance-title">
+      <div class="section-head">
+        <h2 id="glance-title">At a glance</h2>
+      </div>
+      <div class="glance-grid">
+        <async-mobile-card class="glance-card">
+          <div class="glance-head"><mat-icon aria-hidden="true">account_balance_wallet</mat-icon><span>Wallet</span></div>
+          <strong>₦{{ vm.walletBalance() | number }}</strong>
+          <small>₦{{ vm.pendingCommissions() | number }} pending · ₦{{ vm.releasedCommissions() | number }} released</small>
+          <a routerLink="/dashboard/wallet">Open wallet</a>
+        </async-mobile-card>
+
+        <async-mobile-card class="glance-card">
+          <div class="glance-head"><mat-icon aria-hidden="true">storefront</mat-icon><span>Store</span></div>
+          <strong>₦{{ vm.storePendingEarnings() | number }}</strong>
+          <small>{{ vm.storeActionCount() }} to fulfil · ₦{{ vm.storeReleasedEarnings() | number }} released</small>
+          <a routerLink="/dashboard/products/store-orders">Open store orders</a>
+        </async-mobile-card>
+
+        <async-mobile-card class="glance-card">
+          <div class="glance-head"><mat-icon aria-hidden="true">campaign</mat-icon><span>Acquisition</span></div>
+          <strong>{{ vm.activeCampaigns() }}</strong>
+          <small>₦{{ vm.campaignSpend() | number }} spent · ₦{{ vm.campaignRemaining() | number }} left</small>
+          <a routerLink="/dashboard/campaigns">Manage</a>
+        </async-mobile-card>
+
+        <async-mobile-card class="glance-card">
+          <div class="glance-head"><mat-icon aria-hidden="true">groups</mat-icon><span>Team pulse</span></div>
+          <strong>{{ vm.overview()?.team?.downline?.total ?? 0 }}</strong>
+          <small>{{ vm.overview()?.team?.downline?.active ?? 0 }} active · {{ vm.overview()?.team?.recruits?.current ?? 0 }} new</small>
+          <a routerLink="/dashboard/team">View team</a>
+        </async-mobile-card>
+
+        <async-mobile-card class="glance-card">
+          <div class="glance-head"><mat-icon aria-hidden="true">event_available</mat-icon><span>Follow-ups</span></div>
+          <strong>{{ vm.followUpsDue() }}</strong>
+          <small>overdue + due today</small>
+          <a routerLink="/dashboard/prospects/reminders">Open reminders</a>
+        </async-mobile-card>
+
+        <async-mobile-card class="glance-card">
+          <div class="glance-head"><mat-icon aria-hidden="true">school</mat-icon><span>Rank &amp; training</span></div>
+          <strong>{{ vm.rankLabel() }}</strong>
+          <small>{{ vm.trainingSummary() }}</small>
+          <span class="mini-progress" aria-hidden="true"><span [style.width.%]="vm.trainingPercent()"></span></span>
+          <a routerLink="/dashboard/training">Continue learning</a>
+        </async-mobile-card>
+
+        <async-mobile-card class="glance-card is-wide">
+          <div class="glance-head"><mat-icon aria-hidden="true">flag</mat-icon><span>Goals</span></div>
+          <strong>{{ vm.overview()?.goals?.complete ?? 0 }}/{{ vm.overview()?.goals?.total ?? 0 }}</strong>
+          <small>
+            @if ((vm.overview()?.goals?.behind ?? 0) > 0) {
+              {{ vm.overview()?.goals?.behind }} behind
+            } @else {
+              on track
+            }
+          </small>
+          <a routerLink="/dashboard/goals">Review goals</a>
+        </async-mobile-card>
+      </div>
+    </section>
+
+    @if (vm.showStarter()) {
+      <async-mobile-card class="starter-card">
+        <div class="section-head">
+          <h2>Getting started</h2>
+          <span>{{ vm.starterDone() }} of 4 done</span>
+        </div>
+        <ol class="starter-list">
+          @for (item of vm.starterItems(); track item.key) {
+            <li [class.is-done]="item.done">
+              <mat-icon aria-hidden="true">{{ item.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              <span>{{ item.label }}</span>
+              @if (!item.done) {
+                <a [routerLink]="item.link">Start</a>
+              }
+            </li>
+          }
+        </ol>
+      </async-mobile-card>
+    }
+
+    <section class="section" aria-labelledby="plan-title">
+      <div class="section-head">
+        <h2 id="plan-title">Today’s plan</h2>
+        <span>{{ vm.topActions().length }}</span>
+      </div>
+      @if (vm.topActions().length > 0) {
+        <div class="plan-list">
+          @for (action of vm.topActions(); track action.id) {
+            <async-mobile-card class="plan-item" [class.is-urgent]="action.priority === 'high'">
+              <strong>{{ action.title }}</strong>
+              <p>{{ action.detail }}</p>
+              @if (action.link) {
+                <a [routerLink]="action.link">Take action <mat-icon aria-hidden="true">arrow_forward</mat-icon></a>
+              }
+            </async-mobile-card>
+          }
+        </div>
+      } @else {
+        <p class="empty">Nothing needs you right now. Momentum is yours to make.</p>
+      }
+    </section>
+
+    <section class="section" aria-labelledby="community-title">
+      <div class="section-head">
+        <h2 id="community-title">What’s happening</h2>
+        <a routerLink="/dashboard/community">Open</a>
+      </div>
+      @if (vm.communityPosts().length > 0) {
+        <div class="post-list">
+          @for (post of vm.communityPosts(); track post.id) {
+            <async-mobile-card class="post-card">
+              <div class="post-head">
+                <span class="byline">
+                  <async-avatar
+                    [photo]="post.author?.profileImage"
+                    [name]="post.author?.name ?? 'Teammate'"
+                    size="xs"
+                    [presence]="vm.presenceOf(post.authorId)"
+                  />
+                  {{ post.author?.name ?? 'Teammate' }}
+                </span>
+                <small>{{ post.likeCount ?? 0 }} likes · {{ post.commentCount ?? 0 }} comments</small>
+              </div>
+              @if (post.title) {
+                <strong>{{ post.title }}</strong>
+              }
+              <p>{{ vm.previewText(post.body) }}</p>
+            </async-mobile-card>
+          }
+        </div>
+      } @else {
+        <p class="empty">Quiet here — <a routerLink="/dashboard/community">be the first to post</a>.</p>
+      }
+    </section>
+
+    <section class="section" aria-labelledby="activity-title">
+      <div class="section-head">
+        <h2 id="activity-title">Recent activity</h2>
+      </div>
+      @if (vm.activity().length === 0) {
+        <p class="empty">No activity yet. Allocations, commissions and certificates will appear here.</p>
+      } @else {
+        <async-mobile-card [flush]="true">
+          <ul class="activity-list">
+            @for (item of vm.activity(); track item.id) {
+              <li>
+                <a class="activity-row" [routerLink]="item.link">
+                  <span class="activity-icon"><mat-icon aria-hidden="true">{{ item.icon }}</mat-icon></span>
+                  <span class="activity-copy">
+                    <strong>{{ item.title }}</strong>
+                    <small>{{ item.detail }}</small>
+                  </span>
+                  @if (item.at) {
+                    <span class="activity-date">{{ item.at | date:'MMM d' }}</span>
+                  }
+                  <mat-icon class="activity-chev" aria-hidden="true">chevron_right</mat-icon>
+                </a>
+              </li>
+            }
+          </ul>
+        </async-mobile-card>
+      }
+    </section>
+
+    @if (!vm.tutorialsDismissed()) {
+      <div class="tutorials-card">
+        <mat-icon aria-hidden="true">smart_display</mat-icon>
+        <p><strong>New:</strong> short videos show how each part of the app works.</p>
+        <a mat-button routerLink="/dashboard/training/tutorials">Watch</a>
+        <button mat-icon-button type="button" (click)="vm.tutorialsDismissed.set(true)" aria-label="Dismiss tutorials callout">
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      </div>
+    }
+  }
+</section>

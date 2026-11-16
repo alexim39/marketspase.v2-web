@@ -1,5 +1,5 @@
 import { Routes } from "@angular/router";
-import { HomeComponent } from "../home/home.component";
+import { HomeIndexComponent } from "../home/index.component";
 import { authGuard } from "../../core/auth/auth.guard";
 
 export const dashboardRoutes: Routes = [
@@ -10,7 +10,7 @@ export const dashboardRoutes: Routes = [
         children: [
             {
                 path: '',
-                component: HomeComponent,
+                component: HomeIndexComponent,
                 title: "Dashboard - Your business command center",
             },
             {

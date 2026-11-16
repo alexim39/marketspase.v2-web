@@ -222,8 +222,16 @@ import { FeatureEventsService } from '../../../core/analytics/feature-events.ser
       .path-aside { position: static; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 640px) {
-      .compact-card { align-items: flex-start; flex-wrap: wrap; padding: 16px; }
-      .compact-action { margin-left: 60px; }
+      .compact-card {
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr);
+        align-items: start;
+        gap: 6px 12px;
+        padding: 16px;
+      }
+      .compact-icon { grid-row: 1 / span 2; }
+      .compact-main { grid-column: 2; }
+      .compact-action { grid-column: 2; margin-left: 0; margin-top: 2px; }
       .path-aside { grid-template-columns: minmax(0, 1fr); }
       .milestone { padding: 12px; }
       .milestone-state { display: none; }

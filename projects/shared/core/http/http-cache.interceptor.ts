@@ -1,11 +1,15 @@
 import { HttpErrorResponse, HttpEvent, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, of, tap, throwError } from 'rxjs';
+import { Observable, catchError, finalize, of, tap, throwError } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 import { NetworkStatusService } from '../ui/network-status.service';
 
 const CACHE_PREFIX = 'ms_http_cache_v1:';
 const MAX_ENTRY_CHARS = 320_000;
 const MAX_ENTRIES = 45;
+
+/** Identical reads already on the wire — shared so one response serves all. */
+const IN_FLIGHT = new Map<string, Observable<HttpEvent<unknown>>>();
 
 /** Reads that must never be served from a stale copy. */
 const NEVER_CACHE = /\/v1\/auth|paystack|\/verify|\/refund|\/deposit|\/withdraw|\/send|\/sms|\/email/i;
@@ -35,7 +39,14 @@ export const httpCacheInterceptor: HttpInterceptorFn = (req, next) => {
     return of(new HttpResponse({ status: 200, statusText: 'OK (cached)', body: cached.body }));
   }
 
-  return next(req).pipe(
+  // Dashboard-style pages often request the same read from two components.
+  // Share the in-flight GET so both get one network response; the entry is
+  // removed as soon as the source completes or errors.
+  const inFlightKey = `${req.method} ${req.urlWithParams}`;
+  const pending = IN_FLIGHT.get(inFlightKey);
+  if (pending) return pending;
+
+  const request$ = next(req).pipe(
     tap((event: HttpEvent<unknown>) => {
       if (event instanceof HttpResponse) write(key, event.body);
     }),
@@ -47,7 +58,12 @@ export const httpCacheInterceptor: HttpInterceptorFn = (req, next) => {
       }
       return throwError(() => error);
     }),
+    finalize(() => IN_FLIGHT.delete(inFlightKey)),
+    shareReplay({ bufferSize: 1, refCount: false }),
   );
+
+  IN_FLIGHT.set(inFlightKey, request$);
+  return request$;
 };
 
 export function clearHttpCache(): void {

@@ -1,34 +1,35 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { catchError, forkJoin, of, switchMap } from 'rxjs';
-import { AuthService } from '../../../core/auth/auth.service';
-import { WalletService } from '../../../core/wallet/wallet.service';
-import { WalletTransaction } from '../../../core/wallet/wallet.models';
-import { CompensationService } from '../../../core/compensation/compensation.service';
-import { MyCompensation } from '../../../core/compensation/compensation.models';
-import { CampaignsService } from '../../../core/campaigns/campaigns.service';
-import { GrowthCampaign } from '../../../core/campaigns/campaigns.models';
 import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-state.component';
 import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
 import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-header.component';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
-import { ApiError } from '../../../core/http/api-error';
-import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/format/money';
+import { WalletTransaction } from '../../../../core/wallet/wallet.models';
+import { WalletDashboardFacade } from '../state/wallet-dashboard.facade';
 
 /**
- * Wallet dashboard — balance, cashflow, commissions and campaign budget held.
- * Read-only over existing records; money moves via deposit, withdrawals
- * (settings/billing) and product purchases.
+ * Wallet dashboard — desktop view.
+ *
+ * The template and layout are the original dashboard. All data and actions
+ * now come from the shared page facade so the mobile view cannot drift.
  */
 @Component({
-  selector: 'async-wallet-dashboard',
+  selector: 'async-wallet-dashboard-desktop',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, EmptyStateComponent, ErrorStateComponent, MatButtonModule, MatCardModule, MatIconModule, PageHeaderComponent, PageSkeletonComponent, RouterModule],
+  imports: [
+    DatePipe,
+    DecimalPipe,
+    EmptyStateComponent,
+    ErrorStateComponent,
+    MatButtonModule,
+    MatIconModule,
+    PageHeaderComponent,
+    PageSkeletonComponent,
+    RouterModule,
+  ],
   template: `
     <section class="wallet-page">
       <async-page-header
@@ -171,77 +172,42 @@ import { formatMoney, formatSignedMoney, isWalletCredit } from '../../../core/fo
     .tx-amount { flex: none; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ms-error); }
     .tx-amount.credit { color: var(--ms-success); }
     .muted { color: var(--ms-text-muted); }
-    .error { color: var(--ms-error); display: flex; align-items: center; gap: 8px; }
     @media (max-width: 800px) {
       .balance-hero { grid-template-columns: 1fr; }
     }
   `],
 })
-export class WalletDashboardComponent implements OnInit {
-  private readonly auth = inject(AuthService);
-  private readonly wallet = inject(WalletService);
-  private readonly compensationSvc = inject(CompensationService);
-  private readonly campaignsSvc = inject(CampaignsService);
-  private readonly destroyRef = inject(DestroyRef);
+export class WalletDashboardDesktopComponent implements OnInit {
+  private readonly facade = inject(WalletDashboardFacade);
 
-  protected readonly loading = signal(true);
-  protected readonly error = signal<string | null>(null);
-  protected readonly txs = signal<WalletTransaction[]>([]);
-  protected readonly compensation = signal<MyCompensation | null>(null);
-  protected readonly campaigns = signal<GrowthCampaign[]>([]);
-
-  protected readonly balance = computed(() => Number(this.auth.currentUser()?.['balance'] ?? 0));
-  protected readonly moneyIn = computed(() => this.txs().reduce((sum, t) => isWalletCredit(t) ? sum + Math.abs(Number(t.amount) || 0) : sum, 0));
-  protected readonly moneyOut = computed(() => this.txs().reduce((sum, t) => !isWalletCredit(t) ? sum + Math.abs(Number(t.amount) || 0) : sum, 0));
-  protected readonly txCount = computed(() => this.txs().length);
-  protected readonly pendingCommissions = computed(() => Number(this.compensation()?.summary?.pending ?? 0));
-  protected readonly releasedCommissions = computed(() => Number(this.compensation()?.summary?.released ?? 0));
-  protected readonly campaignHeld = computed(() => this.campaigns()
-    .filter((c) => c.status !== 'Ended' && c.status !== 'Cancelled')
-    .reduce((sum, c) => sum + Number(c.budget?.remaining ?? 0), 0));
-  protected readonly recent = computed(() => [...this.txs()]
-    .sort((a, b) => String(b.at ?? '').localeCompare(String(a.at ?? '')))
-    .slice(0, 6));
+  protected readonly loading = this.facade.loading;
+  protected readonly error = this.facade.error;
+  protected readonly balance = this.facade.balance;
+  protected readonly moneyIn = this.facade.moneyIn;
+  protected readonly moneyOut = this.facade.moneyOut;
+  protected readonly txCount = this.facade.txCount;
+  protected readonly pendingCommissions = this.facade.pendingCommissions;
+  protected readonly releasedCommissions = this.facade.releasedCommissions;
+  protected readonly campaignHeld = this.facade.campaignHeld;
+  protected readonly recent = this.facade.recent;
 
   ngOnInit(): void {
-    this.reload();
+    this.facade.ensureLoaded();
   }
 
   protected isCreditTx(tx: WalletTransaction): boolean {
-    return isWalletCredit(tx);
+    return this.facade.isCreditTx(tx);
   }
 
   protected money(value: number, decimals = 2): string {
-    return formatMoney(value, decimals);
+    return this.facade.money(value, decimals);
   }
 
   protected creditMoney(value: number, credit: boolean): string {
-    return formatSignedMoney(value, credit);
+    return this.facade.creditMoney(value, credit);
   }
 
   protected reload(): void {
-    this.loading.set(true);
-    this.error.set(null);
-    // Resolve the session first so WalletService can address the owner-scoped history.
-    this.auth.me().pipe(
-      catchError(() => of(null)),
-      switchMap(() => forkJoin({
-        txs: this.wallet.history().pipe(catchError(() => of([]))),
-        compensation: this.compensationSvc.me().pipe(catchError(() => of(null))),
-        campaigns: this.campaignsSvc.mine().pipe(catchError(() => of(null))),
-      })),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe({
-      next: ({ txs, compensation, campaigns }) => {
-        this.txs.set(txs ?? []);
-        this.compensation.set(compensation?.data ?? null);
-        this.campaigns.set(campaigns?.data ?? []);
-        this.loading.set(false);
-      },
-      error: (err: ApiError) => {
-        this.error.set(err.message);
-        this.loading.set(false);
-      },
-    });
+    this.facade.reload();
   }
 }
