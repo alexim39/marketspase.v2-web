@@ -4,6 +4,9 @@
     title="Command centre."
     subtitle="One view of the people, commerce, money and trust work that runs the platform."
   >
+    <a mat-flat-button color="primary" routerLink="/summaries/overview">
+      <mat-icon>insights</mat-icon> Platform summary
+    </a>
     <button mat-stroked-button type="button" (click)="reload()" [disabled]="loading()">
       <mat-icon>refresh</mat-icon> Refresh
     </button>
@@ -19,7 +22,48 @@
     <async-page-skeleton layout="dashboard" [rows]="4" label="command centre" [showHeader]="false" />
   } @else {
 
-  @if (stats(); as s) {
+  @if (overview(); as o) {
+    <section class="overview-kpis" aria-label="Platform overview">
+      @for (kpi of o.kpis; track kpi.key) {
+        <article [class]="'overview-kpi overview-kpi--' + (kpi.tone || 'neutral')">
+          <span class="overview-kpi-icon"><mat-icon>{{ kpiIcon(kpi) }}</mat-icon></span>
+          <div>
+            <span class="overview-kpi-label">{{ kpi.label }}</span>
+            <strong>{{ formatKpi(kpi) }}</strong>
+            @if (kpi.detail) { <small>{{ kpi.detail }}</small> }
+          </div>
+          @if (kpi.link) { <a [routerLink]="kpi.link" class="overview-kpi-link" aria-label="Open details"><mat-icon>arrow_forward</mat-icon></a> }
+        </article>
+      }
+    </section>
+
+    <div class="overview-charts">
+      @if (o.trends[0]; as trend) {
+        <section class="ms-card panel">
+          <div class="panel-head"><div><p class="ms-eyebrow">Trend</p><h2>{{ trend.title }}</h2></div><a routerLink="/summaries/overview" class="ms-text-link">Open full summary →</a></div>
+          <async-summary-trend [labels]="trend.labels" [series]="trend.series" [format]="trend.format || 'number'" />
+        </section>
+      }
+      @if (o.distributions[0]; as distribution) {
+        <section class="ms-card panel">
+          <div class="panel-head"><div><p class="ms-eyebrow">Distribution</p><h2>{{ distribution.title }}</h2></div></div>
+          <async-summary-distribution [items]="distribution.items" [kind]="distribution.type" [format]="distribution.format || 'number'" />
+        </section>
+      }
+    </div>
+
+    @if (o.alerts.length > 0) {
+      <section class="overview-alerts">
+        @for (alert of o.alerts.slice(0, 3); track alert.title) {
+          <article [class]="'overview-alert overview-alert--' + alert.tone">
+            <mat-icon>{{ alert.tone === 'danger' ? 'error' : alert.tone === 'warn' ? 'warning' : 'info' }}</mat-icon>
+            <div><strong>{{ alert.title }}</strong><p>{{ alert.detail }}</p></div>
+            @if (alert.link) { <a mat-button [routerLink]="alert.link">Review</a> }
+          </article>
+        }
+      </section>
+    }
+  } @else if (stats(); as s) {
     <section class="ms-stat-grid">
       <async-stat-card label="Total members" [value]="s.total | number" [meta]="(s.new7d | number) + ' joined in 7 days'" icon="groups" tone="brand" />
       <async-stat-card label="Admin accounts" [value]="s.roles.admin | number" [meta]="(s.roles.leader | number) + ' leaders'" icon="badge" tone="violet" />

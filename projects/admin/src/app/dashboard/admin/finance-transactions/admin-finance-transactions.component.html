@@ -1,0 +1,136 @@
+<section class="finance-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Finance · Ledger</p>
+      <h1>Deposits & withdrawals</h1>
+      <p class="subtitle">Every funding and payout request, with its partner, destination, status and settlement details.</p>
+    </div>
+    <button mat-stroked-button type="button" (click)="resetFilters()" [disabled]="loading()">
+      <mat-icon>restart_alt</mat-icon> Reset filters
+    </button>
+  </header>
+
+  <div class="toolbar">
+    <div class="segmented" role="group" aria-label="Transaction type">
+      @for (option of typeOptions; track option.value) {
+        <button type="button" [class.segmented-active]="type() === option.value" (click)="setType(option.value)">
+          {{ option.label }}
+        </button>
+      }
+    </div>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="status-filter">
+      <mat-label>Status</mat-label>
+      <mat-select [value]="status()" (selectionChange)="setStatus($event.value)">
+        @for (option of statusOptions; track option) {
+          <mat-option [value]="option">{{ option || 'All statuses' }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
+      <mat-label>Search</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [formControl]="searchControl" placeholder="Partner, reference, account name" />
+      @if (searchControl.value) {
+        <button mat-icon-button matSuffix type="button" (click)="clearSearch()" aria-label="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+
+    <div class="range-switch" role="group" aria-label="Date window">
+      @for (option of rangeOptions; track option.days) {
+        <button type="button" [class.range-active]="rangeDays() === option.days" (click)="setRange(option.days)">
+          {{ option.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <async-page-skeleton layout="list" [rows]="5" label="finance transactions" [showHeader]="false" />
+  } @else if (error(); as message) {
+    <div class="state-panel" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <h2>We could not load the ledger</h2>
+      <p>{{ message }}</p>
+      <button mat-flat-button color="primary" type="button" (click)="resetFilters()">Try again</button>
+    </div>
+  } @else if (data(); as list) {
+    <section class="summary-strip">
+      <div><span>Matching requests</span><strong>{{ list.totals.count | number }}</strong></div>
+      <div><span>Matching amount</span><strong>₦{{ list.totals.amount | number:'1.0-0' }}</strong></div>
+      <div><span>Showing</span><strong>{{ rangeStart() }}–{{ rangeEnd() }} of {{ list.total }}</strong></div>
+      <div><span>Type</span><strong>{{ type() === 'all' ? 'All ledger rows' : type() }}</strong></div>
+    </section>
+
+    @if (list.items.length === 0) {
+      <div class="state-panel">
+        <mat-icon>receipt_long</mat-icon>
+        <h2>No matching transactions</h2>
+        <p>Try a wider date range, another status, or clear the search.</p>
+        <button mat-stroked-button type="button" (click)="resetFilters()">Reset filters</button>
+      </div>
+    } @else {
+      <div class="ledger">
+        <div class="ledger-head" aria-hidden="true">
+          <span>Date</span><span>Partner</span><span>Type</span><span>Method</span><span>Amount</span><span>Status</span><span></span>
+        </div>
+        @for (item of list.items; track item.id) {
+          <article class="tx" [class.tx--open]="expanded() === item.id">
+            <button type="button" class="tx-row" (click)="toggle(item.id)" [attr.aria-expanded]="expanded() === item.id">
+              <span class="cell-date">{{ item.date || item.createdAt | date:'mediumDate' }}</span>
+              <span class="cell-partner">
+                <strong>{{ partnerLabel(item) }}</strong>
+                <small>{{ item.partnerEmail || item.partnerUsername || '—' }}</small>
+              </span>
+              <span class="cell-type"><span class="type-pill">{{ typeLabel(item) }}</span></span>
+              <span class="cell-method">{{ item.method || '—' }}</span>
+              <span class="cell-amount">₦{{ item.amount | number:'1.0-0' }}</span>
+              <span class="cell-status"><span [class]="'status-pill status-pill--' + statusTone(item.status)">{{ item.status || 'Unknown' }}</span></span>
+              <mat-icon class="chevron">{{ expanded() === item.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+
+            @if (expanded() === item.id) {
+              <div class="tx-details">
+                <dl>
+                  <div><dt>Reference</dt><dd>{{ item.reference || '—' }}</dd></div>
+                  <div><dt>Partner</dt><dd>{{ item.partnerName || '—' }} <span class="muted">@{{ item.partnerUsername || '—' }}</span></dd></div>
+                  <div><dt>Email</dt><dd>{{ item.partnerEmail || '—' }}</dd></div>
+                  <div><dt>Balance before</dt><dd>{{ item.balanceBefore === null ? '—' : '₦' + (item.balanceBefore | number:'1.0-2') }}</dd></div>
+                  <div><dt>Balance after</dt><dd>{{ item.balanceAfter === null ? '—' : '₦' + (item.balanceAfter | number:'1.0-2') }}</dd></div>
+                  <div><dt>Recorded</dt><dd>{{ item.createdAt | date:'medium' }}</dd></div>
+                  @if (isWithdrawal(item) || isRefund(item)) {
+                    <div><dt>Bank</dt><dd>{{ item.bank || '—' }} @if (item.bankCode) { <span class="muted">({{ item.bankCode }})</span> }</dd></div>
+                    <div><dt>Account name</dt><dd>{{ item.accountName || '—' }}</dd></div>
+                    <div><dt>Account number</dt><dd>•••• {{ item.accountLast4 || '—' }}</dd></div>
+                    <div><dt>Payout mode</dt><dd>{{ item.payoutMode || '—' }}</dd></div>
+                    <div><dt>Transfer status</dt><dd>{{ item.transferStatus || '—' }}</dd></div>
+                    @if (item.failureReason) {
+                      <div class="wide"><dt>Failure reason</dt><dd class="danger">{{ item.failureReason }}</dd></div>
+                    }
+                  }
+                </dl>
+              </div>
+            }
+          </article>
+        }
+      </div>
+
+      @if (pageCount() > 1) {
+        <footer class="pager">
+          <span>Page {{ page() + 1 }} of {{ pageCount() }}</span>
+          <div>
+            <button mat-stroked-button type="button" (click)="goPage(-1)" [disabled]="page() === 0 || loading()">
+              <mat-icon>chevron_left</mat-icon> Previous
+            </button>
+            <button mat-stroked-button type="button" (click)="goPage(1)" [disabled]="page() >= pageCount() - 1 || loading()">
+              Next <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </footer>
+      }
+    }
+  }
+</section>

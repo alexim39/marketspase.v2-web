@@ -24,6 +24,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     icon: 'space_dashboard',
     children: [
       { label: 'Command centre', link: '/dashboard', icon: 'space_dashboard' },
+      { label: 'Platform summary', link: '/summaries/overview', icon: 'insights' },
     ],
   },
   {
@@ -48,7 +49,8 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { label: 'Finance summary', link: '/summaries/finance', icon: 'insights' },
       { label: 'Activation desk', link: '/activation', icon: 'verified_user' },
       { label: 'Compensation', link: '/compensation', icon: 'workspace_premium' },
-      { label: 'Deposits & withdrawals', link: '/deposits', icon: 'payments' },
+      { label: 'Deposit & withdrawal ledger', link: '/finance/transactions', icon: 'receipt_long' },
+      { label: 'Manual deposits', link: '/deposits', icon: 'payments' },
     ],
   },
   {
