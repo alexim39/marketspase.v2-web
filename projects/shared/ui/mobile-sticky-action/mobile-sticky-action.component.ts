@@ -8,7 +8,12 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   selector: 'async-mobile-sticky-action',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="ms-mobile-sticky-action" role="region" [attr.aria-label]="ariaLabel()">
+    <div
+      class="ms-mobile-sticky-action"
+      [class.is-above-nav]="aboveBottomNav()"
+      role="region"
+      [attr.aria-label]="ariaLabel()"
+    >
       <ng-content />
     </div>
   `,
@@ -28,8 +33,14 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
       backdrop-filter: saturate(160%) blur(16px);
       box-sizing: border-box;
     }
+
+    .ms-mobile-sticky-action.is-above-nav {
+      bottom: calc(var(--ms-mobile-bottom-nav-height) + var(--ms-safe-bottom));
+      padding-bottom: 12px;
+    }
   `],
 })
 export class MobileStickyActionComponent {
   readonly ariaLabel = input('Page actions');
+  readonly aboveBottomNav = input(false);
 }

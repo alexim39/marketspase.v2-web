@@ -36,7 +36,7 @@ export const dashboardRoutes: Routes = [
             },
             {
                 path: 'compensation',
-                loadComponent: () => import('../compensation/compensation.component').then(r => r.CompensationComponent),
+                loadComponent: () => import('../compensation/index.component').then(r => r.CompensationIndexComponent),
                 title: "Compensation - Rank, commissions and mentor bonus",
             },
             { path: 'earnings', redirectTo: 'compensation', pathMatch: 'full' },
@@ -74,7 +74,7 @@ export const dashboardRoutes: Routes = [
                 
                  
             { path: 'checkout',
-                loadComponent: () => import('./products/checkout/checkout.component').then(r => r.CheckoutComponent),
+                loadComponent: () => import('./products/checkout/index.component').then(r => r.CheckoutIndexComponent),
                 title: "Checkout - Pay from your wallet",
             },
         ]

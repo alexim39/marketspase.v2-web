@@ -1,0 +1,117 @@
+<async-mobile-page-shell
+  [eyebrow]="vm.category().label"
+  [title]="vm.product()?.name ?? 'Product'"
+  backLink="/dashboard/products"
+  backLabel="Back to products"
+>
+  @if (vm.loading()) {
+    <async-page-skeleton layout="product" [rows]="3" label="product" [showHeader]="false" />
+  } @else if (vm.failed()) {
+    <div class="state-card">
+      <mat-icon aria-hidden="true">inventory_2</mat-icon>
+      <strong>This product could not be loaded</strong>
+      <p>Check your connection and try again.</p>
+      <button mat-flat-button color="primary" type="button" (click)="vm.retry()">Try again</button>
+      <a mat-stroked-button routerLink="/dashboard/products">Back to products</a>
+    </div>
+  } @else if (vm.product(); as item) {
+    <async-media-gallery [media]="vm.gallery()" [productName]="item.name" />
+
+    <section class="product-summary">
+      <span class="category">{{ vm.category().label }}</span>
+      <h1>{{ item.name }}</h1>
+      <p>{{ vm.summary() }}</p>
+      <div class="price-row">
+        @if (vm.priced()) {
+          <strong>{{ item.price | currency:'₦':'symbol':'1.0-0' }}</strong>
+        } @else {
+          <strong class="is-request">Price on request</strong>
+        }
+        <span class="stock" [class.is-out]="vm.outOfStock(item)">{{ vm.stock().label }}</span>
+      </div>
+    </section>
+
+    @if (vm.priced() && !vm.outOfStock(item)) {
+      <section class="buy-box" aria-label="Purchase options">
+        <div class="qty">
+          <span>Quantity</span>
+          <div class="qty-controls">
+            <button mat-icon-button type="button" (click)="vm.decrement()" [disabled]="vm.quantity() <= 1" aria-label="Reduce quantity">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <strong aria-live="polite">{{ vm.quantity() }}</strong>
+            <button mat-icon-button type="button" (click)="vm.increment()" [disabled]="vm.quantity() >= vm.maxQuantity()" aria-label="Increase quantity">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </div>
+        <button mat-flat-button color="primary" type="button" class="add" (click)="vm.addToCart()">
+          <mat-icon>add_shopping_cart</mat-icon> Add to cart
+        </button>
+        <button mat-stroked-button type="button" class="buy" (click)="vm.buyNow()">Buy now</button>
+        @if (vm.addedQuantity() > 0) {
+          <p class="cart-note">{{ vm.addedQuantity() }} already in your cart.</p>
+        }
+      </section>
+    } @else {
+      <section class="buy-box is-muted">
+        <p>{{ vm.outOfStock(item) ? 'This product is currently out of stock.' : 'This product is being repriced. Ask support for the current price before you order.' }}</p>
+        <a mat-stroked-button routerLink="/dashboard/support/ticket"><mat-icon>support_agent</mat-icon> Ask for price</a>
+      </section>
+    }
+
+    <div class="share-row">
+      <button mat-stroked-button type="button" (click)="vm.share()"><mat-icon>share</mat-icon> Share product</button>
+      <span class="muted">{{ vm.cartCount() }} in cart</span>
+    </div>
+
+    @if (vm.benefits().length > 0) {
+      <section class="section">
+        <h2>Why you’ll like it</h2>
+        <ul class="value-list">
+          @for (benefit of vm.benefits(); track benefit) {
+            <li><mat-icon aria-hidden="true">check_circle</mat-icon><span>{{ benefit }}</span></li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (vm.description()) {
+      <section class="section">
+        <h2>Description</h2>
+        <p class="body-copy">{{ vm.description() }}</p>
+      </section>
+    }
+
+    @if (vm.howToUse()) {
+      <section class="section">
+        <h2>How to use it</h2>
+        <p class="body-copy">{{ vm.howToUse() }}</p>
+      </section>
+    }
+
+    @if (vm.deliveryNote()) {
+      <section class="section">
+        <h2>Delivery &amp; support</h2>
+        <p class="body-copy">{{ vm.deliveryNote() }}</p>
+      </section>
+    }
+
+    @if (vm.related().length > 0) {
+      <section class="section">
+        <h2>You may also like</h2>
+        <div class="related-grid">
+          @for (related of vm.related(); track related._id) {
+            <a class="related-card" [routerLink]="['/dashboard/products', related._id]">
+              @if (vm.imageOf(related)) {
+                <img [src]="vm.imageOf(related)" [alt]="related.name" loading="lazy" (error)="vm.hideBrokenImage($event)" />
+              }
+              <strong>{{ related.name }}</strong>
+              <span>{{ vm.pricedItem(related) ? (related.price | currency:'₦':'symbol':'1.0-0') : 'Price on request' }}</span>
+            </a>
+          }
+        </div>
+      </section>
+    }
+  }
+</async-mobile-page-shell>

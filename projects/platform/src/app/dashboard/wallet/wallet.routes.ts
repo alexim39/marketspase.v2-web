@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 import { WalletDashboardIndexComponent } from './dashboard/index.component';
-import { WalletHistoryComponent } from './history/wallet-history.component';
-import { WalletDepositComponent } from './deposit/wallet-deposit.component';
-import { WalletDepositResultComponent } from './deposit/wallet-deposit-result.component';
+import { WalletHistoryIndexComponent } from './history/index.component';
+import { WalletDepositIndexComponent } from './deposit/index.component';
+import { WalletDepositResultIndexComponent } from './deposit/result/index.component';
 
 export const WalletRoutes: Routes = [
   {
@@ -12,17 +12,17 @@ export const WalletRoutes: Routes = [
   },
   {
     path: 'history',
-    component: WalletHistoryComponent,
+    component: WalletHistoryIndexComponent,
     title: 'Transaction History - Every naira',
   },
   {
     path: 'deposit',
-    component: WalletDepositComponent,
+    component: WalletDepositIndexComponent,
     title: 'Deposit Funds - Top up your wallet',
   },
   {
     path: 'deposit/result',
-    component: WalletDepositResultComponent,
+    component: WalletDepositResultIndexComponent,
     title: 'Deposit Result - Payment confirmation',
   },
 ];

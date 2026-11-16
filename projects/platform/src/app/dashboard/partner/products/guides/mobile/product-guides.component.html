@@ -1,0 +1,113 @@
+<section class="guides-page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Products · Guides</p>
+      <h1>Buy with confidence.</h1>
+      <p class="subtitle">
+        Everything you need to choose a product, pay from your wallet and follow your order
+        from confirmation to delivery.
+      </p>
+    </div>
+    <a mat-flat-button color="primary" routerLink="/dashboard/products">
+      <mat-icon>storefront</mat-icon> Go to shop
+    </a>
+  </header>
+
+  <section class="guide-grid" aria-label="Product guides">
+    <article class="dp-card guide-card">
+      <span class="guide-icon"><mat-icon>search</mat-icon></span>
+      <h2>Before you buy</h2>
+      <p class="muted">
+        Open a product to see what it is, who it is for and what is available.
+        Stock labels tell you whether an item is ready to order.
+      </p>
+      <ul>
+        <li>Read the short summary and the full description.</li>
+        <li>Check the price and stock label before adding to cart.</li>
+        <li>Ask support if anything is unclear.</li>
+      </ul>
+    </article>
+
+    <article class="dp-card guide-card">
+      <span class="guide-icon"><mat-icon>account_balance_wallet</mat-icon></span>
+      <h2>Pay and track</h2>
+      <p class="muted">
+        Product orders are paid from your MarketSpase wallet. No card details are
+        collected at checkout.
+      </p>
+      <ul>
+        <li>Add products to your cart and review the total.</li>
+        <li>Confirm the order from your wallet balance.</li>
+        <li>Follow status changes in My orders.</li>
+      </ul>
+    </article>
+
+    <article class="dp-card guide-card">
+      <span class="guide-icon"><mat-icon>spa</mat-icon></span>
+      <h2>Use and care</h2>
+      <p class="muted">
+        Follow the instructions on the pack. If you are unsure whether a product
+        is right for you, ask before ordering.
+      </p>
+      <ul>
+        <li>Keep the pack and its instructions.</li>
+        <li>Stop and seek advice if you react badly.</li>
+        <li>Contact support about a damaged or wrong item.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="dp-card flow-card">
+    <div>
+      <p class="eyebrow">The ordering loop</p>
+      <h2>Choose → cart → pay → track</h2>
+    </div>
+    <ol class="flow-list">
+      <li><span>1</span><div><strong>Choose a product</strong><p class="muted">Browse by category or search the shop.</p></div></li>
+      <li><span>2</span><div><strong>Review your cart</strong><p class="muted">Set quantities and check the total.</p></div></li>
+      <li><span>3</span><div><strong>Pay from wallet</strong><p class="muted">Confirm the order from your available balance.</p></div></li>
+      <li><span>4</span><div><strong>Follow delivery</strong><p class="muted">Track Pending, Fulfilled or Cancelled in My orders.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="dp-card detail-card">
+    <h2>Delivery, cancellations and refunds</h2>
+    <details open>
+      <summary><span>How delivery works</span><mat-icon>expand_more</mat-icon></summary>
+      <p>
+        Orders are processed after confirmation. Physical products are delivered to the
+        address on your profile; digital products and guides appear in your account.
+      </p>
+    </details>
+    <details>
+      <summary><span>Can I cancel an order?</span><mat-icon>expand_more</mat-icon></summary>
+      <p>
+        You can cancel while an order is still Pending. Once it is Fulfilled, contact support
+        to discuss a return. Cancelled orders are refunded to your wallet in full.
+      </p>
+    </details>
+    <details>
+      <summary><span>What if something is wrong?</span><mat-icon>expand_more</mat-icon></summary>
+      <p>
+        Open <a routerLink="/dashboard/products/order-history">My orders</a>, find the order and
+        contact support with the order details. Keep the product and packaging until the issue is resolved.
+      </p>
+    </details>
+  </section>
+
+  <section class="callout dp-card">
+    <div class="callout-icon"><mat-icon>storefront</mat-icon></div>
+    <div>
+      <p class="eyebrow">Buying for resale?</p>
+      <h2>Resale is live for partners.</h2>
+      <p class="muted">
+        Buy at partner price, choose your selling price and keep the difference. The Resell hub shows
+        your margin and gives you a share caption for each product.
+      </p>
+    </div>
+    <div class="callout-actions">
+      <a mat-flat-button color="primary" routerLink="/dashboard/products/resell">Open resell hub</a>
+      <a mat-stroked-button routerLink="/dashboard/support/ticket">Contact support</a>
+    </div>
+  </section>
+</section>
