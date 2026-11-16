@@ -1,35 +1,32 @@
 import { Component, DestroyRef, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { AsyncPipe, CommonModule } from '@angular/common';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Observable } from 'rxjs';
-import { filter, map, shareReplay } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { LogoComponent } from '../../_common/logo.component';
 import { ProfileComponent } from '../partner/profile/profile.component';
-import { NotificationBellComponent } from '../notifications/bell/notification-bell.component';
 import { OraWidgetComponent } from '../ora/ora-widget.component';
 import { SearchPaletteComponent } from '../search/search-palette.component';
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { ThemeTogglerService } from '../../_common/services/theme-toggler.service';
 import { NotificationStreamService } from '../../core/notifications/notification-stream.service';
-import { PwaInstallService } from '../../core/pwa/pwa-install.service';
 import { TopProgressService } from '../../core/loading/top-progress.service';
 import { ViewAsService } from '../../core/viewas/viewas.service';
 import { LeadPipelineService } from '../partner/prospects/lead-pipeline/lead-pipeline.service';
+import { DeviceService } from '@marketspase/shared/core/ui/device.service';
 import { NEW_NAV_PRIMARY, NavPrimary } from './nav.config';
+import { DesktopDashboardTopbarComponent } from './desktop/desktop-topbar.component';
+import { MobileDashboardTopbarComponent } from './mobile/mobile-topbar.component';
+import { MobileDashboardBottomNavComponent } from './mobile/mobile-bottom-nav.component';
 
 /**
  * The single MarketSpase application shell.
@@ -41,28 +38,26 @@ import { NEW_NAV_PRIMARY, NavPrimary } from './nav.config';
   imports: [
     CommonModule,
     RouterModule,
-    MatToolbarModule,
     MatButtonModule,
     MatSidenavModule,
     MatListModule,
     MatIconModule,
-    MatMenuModule,
-    MatBadgeModule,
     MatProgressBarModule,
     MatTooltipModule,
-    AsyncPipe,
     LogoComponent,
     ProfileComponent,
-    NotificationBellComponent,
     OraWidgetComponent,
+    DesktopDashboardTopbarComponent,
+    MobileDashboardTopbarComponent,
+    MobileDashboardBottomNavComponent,
   ],
   templateUrl: './app-shell.component.html',
   styleUrls: ['./app-shell.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class AppShellComponent {
-  private breakpointObserver = inject(BreakpointObserver);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly device = inject(DeviceService);
 
   protected readonly nav = NEW_NAV_PRIMARY;
   protected readonly adminUrl = environment.adminUrl;
@@ -75,7 +70,6 @@ export class AppShellComponent {
   protected readonly stream = inject(NotificationStreamService);
   private readonly presence = inject(AuthService);
   protected readonly progress = inject(TopProgressService);
-  protected readonly install = inject(PwaInstallService);
   private readonly themes = inject(ThemeTogglerService);
   private readonly dialog = inject(MatDialog);
   protected readonly viewAs = inject(ViewAsService);
@@ -84,16 +78,6 @@ export class AppShellComponent {
 
   protected readonly remindersDue = signal<number | null>(null);
   protected readonly unreadMessages = computed(() => this.stream.unreadCount());
-
-  /**
-   * Compact/mobile chrome below 768px. CDK's Handset includes landscape
-   * tablets up to 960px, which would wrongly collapse the rail there.
-   */
-  isHandset$: Observable<boolean> = this.breakpointObserver.observe('(max-width: 767.98px)')
-    .pipe(
-      map(result => result.matches),
-      shareReplay()
-    );
 
   constructor(
     private router: Router,
@@ -207,10 +191,6 @@ export class AppShellComponent {
     });
   }
 
-  installApp(): void {
-    void this.install.promptInstall();
-  }
-
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -228,7 +208,7 @@ export class AppShellComponent {
 
   onNavigate(drawer: any): void {
     this.scrollToTop();
-    if (this.breakpointObserver.isMatched('(max-width: 767.98px)')) {
+    if (this.device.isMobileView()) {
       try { drawer.close(); } catch { /* drawer may not be open */ }
     }
   }

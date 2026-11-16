@@ -1,0 +1,94 @@
+/* Shared mobile foundation for the platform and store apps.
+ *
+ * This file only emits mobile-scoped tokens/utilities. Desktop styles remain
+ * owned by each page/component, so importing it cannot reflow desktop.
+ */
+
+:root {
+  --ms-mobile-appbar-height: 56px;
+  --ms-mobile-bottom-nav-height: 64px;
+  --ms-touch-target: 44px;
+  --ms-mobile-gutter: 16px;
+  --ms-safe-top: env(safe-area-inset-top, 0px);
+  --ms-safe-right: env(safe-area-inset-right, 0px);
+  --ms-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --ms-safe-left: env(safe-area-inset-left, 0px);
+}
+
+@mixin ms-touch-target {
+  min-width: var(--ms-touch-target);
+  min-height: var(--ms-touch-target);
+}
+
+@mixin ms-safe-top {
+  padding-top: calc(var(--ms-safe-top) + var(--ms-mobile-appbar-height));
+}
+
+@mixin ms-safe-bottom($extra: 0px) {
+  padding-bottom: calc(var(--ms-safe-bottom) + #{$extra});
+}
+
+@mixin ms-mobile-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Opt-in helpers for projected content and shell chrome. */
+.ms-touch-target {
+  @include ms-touch-target;
+}
+
+.ms-sheet-open {
+  overflow: hidden;
+}
+
+.ms-mobile-sticky-action button,
+.ms-mobile-sticky-action a {
+  @include ms-touch-target;
+}
+
+/* Material overlay panels opened from the mobile app bar. */
+.ms-mobile-more-menu {
+  min-width: 240px;
+}
+
+.ms-mobile-more-menu .mat-mdc-menu-item {
+  min-height: 48px;
+}
+
+.ms-mobile-notif-menu {
+  width: min(360px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+}
+
+/* Store/public footers already collapse on small screens; this only protects
+ * the home-indicator area when the app is installed as a PWA. */
+.ms-footer,
+.site-footer {
+  padding-bottom: var(--ms-safe-bottom);
+}
+
+@media (max-width: 959.98px) {
+  .ms-desktop-only {
+    display: none !important;
+  }
+
+  .ms-mobile-only {
+    display: revert;
+  }
+
+  /* Native scroll feel on touch screens. */
+  .ms-mobile-scroll {
+    @include ms-mobile-scroll;
+  }
+}
+
+@media (min-width: 960px) {
+  .ms-mobile-only {
+    display: none !important;
+  }
+}

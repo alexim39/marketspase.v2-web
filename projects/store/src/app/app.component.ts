@@ -1,20 +1,26 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
+import { DeviceService } from '@marketspase/shared/core/ui/device.service';
 import { ConnectionBannerComponent } from '@marketspase/shared/ui/connection-banner/connection-banner.component';
 import { FooterComponent } from './footer/footer.component';
 import { CookieConsentComponent } from './cookie-consent.component';
 import { SiteHeaderComponent } from './_common/components/site-header.component';
+import { MobileStoreHeaderComponent } from './_common/components/mobile-store-header.component';
 import { scrollToSection } from './_common/utils/scroll-to-section';
 
 @Component({
     selector: 'async-root',
-    imports: [RouterModule, FooterComponent, CookieConsentComponent, SiteHeaderComponent, ConnectionBannerComponent],
+    imports: [RouterModule, FooterComponent, CookieConsentComponent, SiteHeaderComponent, MobileStoreHeaderComponent, ConnectionBannerComponent],
     template: `
     <div id="container">
       <async-connection-banner placement="top" />
       <a class="skip-link" href="#main" (click)="skipToContent($event)">Skip to content</a>
-      <async-site-header />
+      @if (device.isMobileView()) {
+        <async-mobile-store-header />
+      } @else {
+        <async-site-header />
+      }
       <main id="main">
         <router-outlet id="outlet" />
       </main>
@@ -59,6 +65,7 @@ import { scrollToSection } from './_common/utils/scroll-to-section';
 })
 export class AppComponent implements OnInit {
   private readonly themes = inject(ThemeService);
+  protected readonly device = inject(DeviceService);
 
   ngOnInit(): void {
     this.themes.init();

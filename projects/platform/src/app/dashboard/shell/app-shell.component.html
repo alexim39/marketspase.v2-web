@@ -1,8 +1,8 @@
 <mat-sidenav-container class="ms-shell">
   <mat-sidenav #drawer class="ms-sidenav" [class.is-collapsed]="collapsed()" fixedInViewport
-    [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
-    [mode]="(isHandset$ | async) ? 'over' : 'side'"
-    [opened]="(isHandset$ | async) === false"
+    [attr.role]="device.isMobileView() ? 'dialog' : 'navigation'"
+    [mode]="device.isMobileView() ? 'over' : 'side'"
+    [opened]="!device.isMobileView()"
     (keydown.escape)="drawer.close()">
 
     <div class="ms-brand">
@@ -98,48 +98,23 @@
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <mat-toolbar class="ms-topbar" role="banner">
-      @if (isHandset$ | async) {
-        <button type="button" aria-label="Open navigation" mat-icon-button (click)="drawer.toggle()">
-          <mat-icon aria-hidden="true">menu</mat-icon>
-        </button>
-        <span class="ms-logo"><async-logo link="/dashboard" [theme]="theme()" /></span>
-      } @else {
-        <span class="ms-page-title">{{ pageTitle() }}</span>
-      }
-
-      <span class="ms-spacer"></span>
-
-      <div class="ms-top-actions">
-        <button mat-icon-button (click)="openSearch()" title="Search (Ctrl+K)" aria-label="Search">
-          <mat-icon aria-hidden="true">search</mat-icon>
-        </button>
-
-        <button mat-icon-button [matMenuTriggerFor]="createMenu" title="Create" aria-label="Create">
-          <mat-icon aria-hidden="true">add</mat-icon>
-        </button>
-
-        @if (partner?.role === 'admin') {
-          <a mat-icon-button [href]="adminUrl" target="_blank" rel="noopener" title="Admin console" aria-label="Open the admin console">
-            <mat-icon aria-hidden="true">admin_panel_settings</mat-icon>
-          </a>
-        }
-
-        @if (install.canInstall()) {
-          <button mat-icon-button (click)="installApp()" title="Install MarketSpase app" aria-label="Install MarketSpase app">
-            <mat-icon aria-hidden="true">install_mobile</mat-icon>
-          </button>
-        }
-
-        <button mat-icon-button [matMenuTriggerFor]="notifMenu" title="Notifications" [attr.aria-label]="stream.unreadCount() ? 'Notifications, ' + stream.unreadCount() + ' unread' : 'Notifications'">
-          <mat-icon aria-hidden="false" [attr.aria-label]="stream.unreadCount() ? 'Notifications, ' + stream.unreadCount() + ' unread' : 'Notifications'" [matBadge]="stream.unreadCount()" [matBadgeHidden]="stream.unreadCount() === 0" matBadgeColor="warn" matBadgeDescription="unread notifications">notifications</mat-icon>
-        </button>
-
-        <button mat-icon-button (click)="signOut()" title="Sign out" aria-label="Sign out">
-          <mat-icon aria-hidden="true">power_settings_circle</mat-icon>
-        </button>
-      </div>
-    </mat-toolbar>
+    @if (device.isMobileView()) {
+      <async-mobile-dashboard-topbar
+        [isAdmin]="partner?.role === 'admin'"
+        [adminUrl]="adminUrl"
+        (menu)="drawer.toggle()"
+        (search)="openSearch()"
+        (signOut)="signOut()"
+      />
+    } @else {
+      <async-desktop-dashboard-topbar
+        [pageTitle]="pageTitle()"
+        [isAdmin]="partner?.role === 'admin'"
+        [adminUrl]="adminUrl"
+        (search)="openSearch()"
+        (signOut)="signOut()"
+      />
+    }
 
     @if (viewAs.viewingAs(); as viewed) {
       <div class="ms-viewas" role="status">
@@ -161,40 +136,11 @@
       <router-outlet />
     </main>
 
-    @if (isHandset$ | async) {
-      <nav class="ms-bottom-nav" aria-label="Primary">
-        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-          <mat-icon>home</mat-icon><span>Home</span>
-        </a>
-        <a routerLink="/dashboard/pipeline" routerLinkActive="active" (click)="scrollToTop()">
-          <mat-icon>person_search</mat-icon><span>Pipeline</span>
-        </a>
-        <a routerLink="/dashboard/products" routerLinkActive="active" (click)="scrollToTop()">
-          <mat-icon>storefront</mat-icon><span>Products</span>
-        </a>
-        <a routerLink="/dashboard/wallet" routerLinkActive="active" (click)="scrollToTop()">
-          <mat-icon>payments</mat-icon><span>Wallet</span>
-        </a>
-        <button type="button" (click)="drawer.toggle()" aria-label="More sections">
-          <mat-icon>more_horiz</mat-icon><span>More</span>
-        </button>
-      </nav>
+    @if (device.isMobileView()) {
+      <async-mobile-dashboard-bottom-nav (more)="drawer.toggle()" />
       <div class="ms-bottom-spacer"></div>
     }
   </mat-sidenav-content>
 </mat-sidenav-container>
-
-<mat-menu #createMenu="matMenu" class="ms-create-menu">
-  <a mat-menu-item routerLink="/dashboard/wallet/deposit"><mat-icon>add_card</mat-icon> Deposit funds</a>
-  <a mat-menu-item routerLink="/dashboard/settings/billing"><mat-icon>paid</mat-icon> Withdraw funds</a>
-  <a mat-menu-item routerLink="/dashboard/prospects/new"><mat-icon>person_add</mat-icon> Add prospect</a>
-  <a mat-menu-item routerLink="/dashboard/campaigns"><mat-icon>campaign</mat-icon> Start campaign</a>
-  <a mat-menu-item routerLink="/dashboard/messages"><mat-icon>forum</mat-icon> Send message</a>
-  <a mat-menu-item routerLink="/dashboard/ora"><mat-icon>smart_toy</mat-icon> Ask Ora</a>
-</mat-menu>
-
-<mat-menu #notifMenu="matMenu" panelClass="notif-menu-panel">
-  <async-notification-bell />
-</mat-menu>
 
 <async-ora-widget />

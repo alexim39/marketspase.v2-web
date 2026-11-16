@@ -372,54 +372,7 @@
 }
 
 /* ── Topbar ───────────────────────────────────────────────────────────── */
-.ms-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 64px;
-  padding: 0 24px;
-  background: color-mix(in srgb, var(--ms-surface) 88%, transparent);
-  backdrop-filter: saturate(160%) blur(14px);
-  color: var(--ms-text);
-  border-bottom: 1px solid var(--ms-line);
-}
-
-.ms-logo {
-  display: inline-flex;
-  align-items: center;
-}
-
-.ms-page-title {
-  font-size: 1.02em;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--ms-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .ms-spacer { flex: 1; }
-
-.ms-top-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.15em;
-}
-
-.ms-top-actions a { color: var(--ms-text); }
-
-/* Narrow phones: tighten chrome so the admin action set still fits at 360px. */
-@media (max-width: 420px) {
-  .ms-topbar {
-    padding: 0 8px;
-    gap: 4px;
-  }
-  .ms-top-actions { gap: 0; }
-}
 
 .ms-viewas {
   display: flex;
@@ -448,43 +401,30 @@
 }
 
 /* ── Mobile bottom nav ────────────────────────────────────────────────── */
-.ms-bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  display: flex;
-  background: color-mix(in srgb, var(--ms-surface) 92%, transparent);
-  backdrop-filter: blur(16px);
-  border-top: 1px solid var(--ms-line);
-  padding-bottom: env(safe-area-inset-bottom);
+.ms-bottom-spacer { height: 80px; }
 
-  a, button {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 8px 0;
-    min-height: 64px;
-    justify-content: center;
-    background: none;
-    border: none;
-    color: var(--ms-text-muted);
-    text-decoration: none;
-    font: inherit;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
+/* Mobile shell overrides — the chrome above 960px is untouched. */
+@media (max-width: 959.98px) {
+  .ms-sidenav {
+    width: min(86vw, 340px);
+    padding-top: var(--ms-safe-top);
+    padding-bottom: var(--ms-safe-bottom);
   }
 
-  mat-icon { font-size: 24px; height: 24px; width: 24px; }
+  .ms-rail-foot {
+    display: none;
+  }
 
-  .active {
-    color: var(--ms-primary-strong);
-    font-weight: 700;
+  .ms-content {
+    min-height: calc(100svh - var(--ms-mobile-appbar-height) - var(--ms-mobile-bottom-nav-height));
+    padding: 0 var(--ms-mobile-gutter) 32px;
+  }
+
+  .ms-loading {
+    top: calc(var(--ms-mobile-appbar-height) + var(--ms-safe-top));
+  }
+
+  .ms-bottom-spacer {
+    height: calc(80px + var(--ms-safe-bottom));
   }
 }
-
-.ms-bottom-spacer { height: 80px; }
