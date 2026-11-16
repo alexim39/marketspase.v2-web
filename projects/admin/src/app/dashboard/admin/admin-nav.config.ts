@@ -31,6 +31,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     label: 'Commerce',
     icon: 'shopping_bag',
     children: [
+      { label: 'Commerce summary', link: '/summaries/commerce', icon: 'insights' },
       { label: 'Partner stores', link: '/stores', icon: 'storefront' },
       { label: 'Store orders', link: '/store-orders', icon: 'receipt_long' },
       { label: 'Escrow & settlements', link: '/store-settlements', icon: 'account_balance_wallet' },
@@ -65,6 +66,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     label: 'Growth',
     icon: 'trending_up',
     children: [
+      { label: 'Growth summary', link: '/summaries/growth', icon: 'insights' },
       { label: 'Growth campaigns', link: '/growth', icon: 'hub' },
       { label: 'Feature adoption', link: '/feature-adoption', icon: 'insights' },
       { label: 'Recurring revenue', link: '/recurring-revenue', icon: 'repeat' },
@@ -77,6 +79,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     label: 'Communications',
     icon: 'campaign',
     children: [
+      { label: 'Communications summary', link: '/summaries/communications', icon: 'insights' },
       { label: 'Rank groups', link: '/rank-groups', icon: 'groups' },
       { label: 'Broadcast', link: '/broadcast', icon: 'campaign' },
       { label: 'Email list', link: '/subscriptions', icon: 'mail' },
@@ -87,6 +90,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     label: 'Support & trust',
     icon: 'support_agent',
     children: [
+      { label: 'Support summary', link: '/summaries/support', icon: 'insights' },
       { label: 'Support tickets', link: '/tickets', icon: 'support_agent' },
       { label: 'Moderation', link: '/moderation', icon: 'flag' },
       { label: 'Audit log', link: '/audit', icon: 'history' },
@@ -98,6 +102,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     label: 'Content & system',
     icon: 'settings',
     children: [
+      { label: 'Content summary', link: '/summaries/content', icon: 'insights' },
       { label: 'Training Studio', link: '/training-quizzes', icon: 'school' },
       { label: 'Weekly video', link: '/weekly-videos', icon: 'smart_display' },
       { label: 'Tutorials', link: '/tutorials', icon: 'smart_display' },

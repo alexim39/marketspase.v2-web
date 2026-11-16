@@ -42,6 +42,36 @@ export const AdminRoutes: Routes = [
     title: 'Finance summary - MarketSpase Admin',
   },
   {
+    path: 'summaries/commerce',
+    loadComponent: () => import('./summaries/admin-summary.component').then((m) => m.AdminSummaryComponent),
+    data: { domain: 'commerce' },
+    title: 'Commerce summary - MarketSpase Admin',
+  },
+  {
+    path: 'summaries/growth',
+    loadComponent: () => import('./summaries/admin-summary.component').then((m) => m.AdminSummaryComponent),
+    data: { domain: 'growth' },
+    title: 'Growth summary - MarketSpase Admin',
+  },
+  {
+    path: 'summaries/support',
+    loadComponent: () => import('./summaries/admin-summary.component').then((m) => m.AdminSummaryComponent),
+    data: { domain: 'support' },
+    title: 'Support summary - MarketSpase Admin',
+  },
+  {
+    path: 'summaries/content',
+    loadComponent: () => import('./summaries/admin-summary.component').then((m) => m.AdminSummaryComponent),
+    data: { domain: 'content' },
+    title: 'Content summary - MarketSpase Admin',
+  },
+  {
+    path: 'summaries/communications',
+    loadComponent: () => import('./summaries/admin-summary.component').then((m) => m.AdminSummaryComponent),
+    data: { domain: 'communications' },
+    title: 'Communications summary - MarketSpase Admin',
+  },
+  {
     path: 'roles',
     component: ManageRolesComponent,
     title: 'Manage roles - MarketSpase Admin',
