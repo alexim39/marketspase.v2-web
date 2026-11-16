@@ -225,18 +225,10 @@
 .locked-panel p { margin: 0; color: var(--ms-text-muted); font-size: .84rem; line-height: 1.45; }
 .own-reflection p, .reflection-body p { margin: 8px 0 0; line-height: 1.6; white-space: pre-line; }
 .reflection-author { display: flex; gap: 8px; align-items: center; }
-.avatar {
-  flex: none;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  background: var(--ms-primary-soft);
-  color: var(--ms-primary-strong);
-  font-size: .78rem;
-  font-weight: 800;
-}
+.reflection-author > span { display: flex; flex-direction: column; line-height: 1.25; }
+.reflection-author strong { font-size: .86rem; }
+.reflection-author small { color: var(--ms-text-muted); font-size: .72rem; }
+.reflection-author--composer { margin-bottom: 10px; }
 .reflection-form label { display: block; margin-bottom: 6px; font-size: .84rem; font-weight: 700; }
 .reflection-form textarea {
   width: 100%;

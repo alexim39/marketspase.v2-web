@@ -160,7 +160,7 @@
           } @else if (reflection() && !editingReflection()) {
             <article class="own-reflection">
               <div class="reflection-author">
-                <span class="avatar">{{ (reflection()?.author?.name || 'Y').slice(0, 1).toUpperCase() }}</span>
+                <async-avatar [photo]="me()?.profileImage" [name]="meName()" size="sm" presence="online" />
                 <span><strong>You</strong><small>{{ reflection()?.createdAt | date:'mediumDate' }}</small></span>
               </div>
               <p>{{ reflection()?.body }}</p>
@@ -169,6 +169,10 @@
             </article>
           } @else {
             <div class="reflection-form">
+              <div class="reflection-author reflection-author--composer">
+                <async-avatar [photo]="me()?.profileImage" [name]="meName()" size="sm" presence="online" />
+                <span><strong>{{ meName() }}</strong><small>Online now · writing your reflection</small></span>
+              </div>
               <label for="weekly-reflection">One lesson from this week’s video</label>
               <textarea
                 id="weekly-reflection"
@@ -228,7 +232,12 @@
             <div class="reflection-list">
               @for (item of comments(); track item.id) {
                 <article class="reflection-item" style="content-visibility:auto;contain-intrinsic-size:0 120px">
-                  <span class="avatar">{{ initials(item) }}</span>
+                  <async-avatar
+                    [photo]="item.author?.profileImage"
+                    [name]="authorName(item)"
+                    size="sm"
+                    [presence]="presenceOf(item.author?.id)"
+                  />
                   <div class="reflection-body">
                     <div class="reflection-meta">
                       <strong>{{ authorName(item) }}</strong>

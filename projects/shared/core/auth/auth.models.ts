@@ -35,6 +35,7 @@ export interface AuthUser {
   phone?: string;
   role?: UserRole | string;
   permissions?: string[];
+  profileImage?: string | null;
   emailVerified?: boolean;
   accountState?: 'member' | 'partner';
   kycStatus?: 'not_started' | 'pending' | 'verified' | 'rejected';

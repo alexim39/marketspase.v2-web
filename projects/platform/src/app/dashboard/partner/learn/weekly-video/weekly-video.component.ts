@@ -21,6 +21,9 @@ import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page
 import { YouTubeApiService } from '@marketspase/shared/core/youtube/youtube-api.service';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { ApiError, userError } from '../../../../core/http/api-error';
+import { AuthService } from '../../../../core/auth/auth.service';
+import { PresenceService, PresenceStatus } from '../../../../core/presence/presence.service';
+import { AvatarComponent } from '../../../../_common/avatar.component';
 import { WeeklyVideoService } from '../../../../core/weekly-video/weekly-video.service';
 import {
   CurrentWeeklyVideo,
@@ -44,6 +47,7 @@ type PlayerState = 'idle' | 'starting' | 'ready' | 'playing' | 'ended' | 'error'
     MatProgressBarModule,
     PageSkeletonComponent,
     RouterModule,
+    AvatarComponent,
   ],
   host: { '(document:visibilitychange)': 'onVisibilityChange()' },
   templateUrl: './weekly-video.component.html',
@@ -54,6 +58,8 @@ export class WeeklyVideoComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly videoApi = inject(WeeklyVideoService);
   private readonly youtube = inject(YouTubeApiService);
+  private readonly auth = inject(AuthService);
+  private readonly presence = inject(PresenceService);
   private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('playerHost') private playerHost?: ElementRef<HTMLElement>;
@@ -84,6 +90,7 @@ export class WeeklyVideoComponent implements OnInit, OnDestroy {
   protected readonly editingReflection = signal(false);
   protected readonly actionBusy = signal(false);
   protected readonly sessionId = signal<string | null>(null);
+  protected readonly presenceMap = signal<Record<string, string | null>>({});
 
   private player: any = null;
   private heartbeatTimer: number | null = null;
@@ -91,6 +98,13 @@ export class WeeklyVideoComponent implements OnInit, OnDestroy {
   private commentsLoadedFor: string | null = null;
   private readonly commentsPageSize = 20;
 
+  protected readonly me = computed(() => this.auth.currentUser());
+  protected readonly meName = computed(() => {
+    const user = this.me();
+    return [user?.name, user?.surname].filter(Boolean).join(' ').trim()
+      || String(user?.username ?? '').trim()
+      || 'You';
+  });
   protected readonly video = computed(() => this.data()?.video ?? null);
   protected readonly progress = computed(() => this.data()?.progress ?? null);
   protected readonly reflection = computed(() => this.data()?.reflection ?? null);
@@ -336,6 +350,7 @@ export class WeeklyVideoComponent implements OnInit, OnDestroy {
         this.commentsHasMore.set(data.hasMore);
         this.commentsCursor.set(data.nextCursor);
         this.commentsLoadedFor = video.id;
+        this.refreshPresence();
       }
     } catch {
       this.commentsError.set('Reflections could not be loaded. Please try again.');
@@ -383,6 +398,7 @@ export class WeeklyVideoComponent implements OnInit, OnDestroy {
         this.commentsTotal.set(data.total);
         this.commentsHasMore.set(data.hasMore);
         this.commentsCursor.set(data.nextCursor);
+        this.refreshPresence();
       }
     } catch {
       this.commentsError.set('More reflections could not be loaded. Please try again.');
@@ -474,8 +490,24 @@ export class WeeklyVideoComponent implements OnInit, OnDestroy {
     return reflection.author?.name || reflection.author?.username || 'Member';
   }
 
-  protected initials(reflection: WeeklyVideoReflection): string {
-    return this.authorName(reflection).slice(0, 1).toUpperCase();
+  /** Presence dot for a reflection author; the signed-in member is online. */
+  protected presenceOf(authorId: string | null | undefined): PresenceStatus {
+    if (!authorId) return null;
+    if (String(authorId) === String(this.me()?.id ?? '')) return 'online';
+    return this.presence.statusOf(this.presenceMap()[String(authorId)] ?? null);
+  }
+
+  /** One bulk presence lookup per loaded page of reflections. */
+  private refreshPresence(): void {
+    const ids = this.comments()
+      .map((item) => item.author?.id)
+      .filter((id): id is string => Boolean(id));
+    if (ids.length === 0) return;
+    this.presence.lookup(ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((map) => {
+        this.presenceMap.update((current) => ({ ...current, ...map }));
+      });
   }
 
   protected reflectionCountLabel(): string {
