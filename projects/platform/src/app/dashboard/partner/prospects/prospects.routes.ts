@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
-import { CustomerLeadsComponent } from './customer-leads/customer-leads.component';
-import { LeadPipelineComponent } from './lead-pipeline/lead-pipeline.component';
-import { PipelineBoardComponent } from './pipeline-board/board.component';
-import { RemindersComponent } from './reminders/reminders.component';
-import { ProspectDetailComponent } from './prospect-detail/detail.component';
-import { EditContactsContainerComponent } from '../contacts/edit/edit-contacts-container.component';
-import { ProspectCreateComponent } from './prospect-create.component';
+import { CustomerLeadsIndexComponent } from './customer-leads/index.component';
+import { LeadPipelineIndexComponent } from './lead-pipeline/index.component';
+import { PipelineBoardIndexComponent } from './pipeline-board/index.component';
+import { RemindersIndexComponent } from './reminders/index.component';
+import { ProspectDetailIndexComponent } from './prospect-detail/index.component';
+import { EditContactsIndexComponent } from '../contacts/edit/index.component';
+import { ProspectCreateIndexComponent } from './new/index.component';
 
 export const ProspectsRoutes: Routes = [
   {
@@ -21,7 +21,7 @@ export const ProspectsRoutes: Routes = [
         { path: 'booking/:id', redirectTo: 'pipeline', pathMatch: 'full' },
         {
             path: 'customer-leads',
-            component: CustomerLeadsComponent,
+            component: CustomerLeadsIndexComponent,
             title: "Customer Leads - People who checked out from your store",
         },
         {
@@ -31,32 +31,32 @@ export const ProspectsRoutes: Routes = [
         },
         {
             path: 'pipeline',
-            component: LeadPipelineComponent,
+            component: LeadPipelineIndexComponent,
             title: "Lead Pipeline - Track prospects through to conversion",
         },
         {
             path: 'new',
-            component: ProspectCreateComponent,
+            component: ProspectCreateIndexComponent,
             title: "Add prospect - New pipeline conversation",
         },
         {
             path: 'reminders',
-            component: RemindersComponent,
+            component: RemindersIndexComponent,
             title: "Reminders - Follow-up commitments due",
         },
         {
             path: 'board',
-            component: PipelineBoardComponent,
+            component: PipelineBoardIndexComponent,
             title: "Pipeline Board - Drag and drop your deals",
         },
         {
             path: 'detail/:id',
-            component: ProspectDetailComponent,
+            component: ProspectDetailIndexComponent,
             title: "Prospect Details - Timeline, activities and conversion",
         },
         {
             path: 'edit/:id',
-            component: EditContactsContainerComponent,
+            component: EditContactsIndexComponent,
             title: "Edit Contacts Details",
         },
     ],

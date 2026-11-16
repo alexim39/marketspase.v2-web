@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
-import { CreateTeamContainerComponent } from './team/create-team/create-team-container.component';
-import { ManageTeamContainerComponent } from './team/manage-team/manage-team-container.component';
-import { MyPartnersContainerComponent } from './my-partners/my-partners-container.component';
-import { TeamSupportContainerComponent } from './team/manage-team/support/support-container.component';
-import { EditTeamContainerComponent } from './team/edit-team/edit-team-container.component';
-import { MyPartnerSupportContainerComponent } from './my-partners/support/support-container.component';
-import { MyPartnersContactsContainerComponent } from './my-partners/contacts/contacts-container.component';
-import { MyPartnerContactsDetailContainerComponent } from './my-partners/contacts/details/contacts-detail-container.component';
+import { CreateTeamIndexComponent } from './team/create-team/index.component';
+import { ManageTeamIndexComponent } from './team/manage-team/index.component';
+import { MyPartnersIndexComponent } from './my-partners/index.component';
+import { TeamSupportIndexComponent } from './team/manage-team/support/index.component';
+import { EditTeamIndexComponent } from './team/edit-team/index.component';
+import { MyPartnerSupportIndexComponent } from './my-partners/support/index.component';
+import { MyPartnersContactsIndexComponent } from './my-partners/contacts/index.component';
+import { MyPartnerContactDetailIndexComponent } from './my-partners/contacts/details/index.component';
 
 export const MentorshipRoutes: Routes = [
   {
@@ -22,17 +22,17 @@ export const MentorshipRoutes: Routes = [
             children: [
                 {
                     path: 'new',
-                    component: CreateTeamContainerComponent,
+                    component: CreateTeamIndexComponent,
                     title: "Start a Team - Organize a purpose team",
                 },
                   {
                       path: 'members',
-                      component: ManageTeamContainerComponent,
+                      component: ManageTeamIndexComponent,
                       title: "My Teams - Purpose teams you created",
                   },
                   {
                       path: 'activation',
-                      loadComponent: () => import('./team/activation-board/activation-board.component').then(r => r.ActivationBoardComponent),
+                      loadComponent: () => import('./team/activation-board/index.component').then(r => r.ActivationBoardIndexComponent),
                       title: "Activation Board - Who needs you next",
                   },
                  {
@@ -43,13 +43,13 @@ export const MentorshipRoutes: Routes = [
 
                 {
                     path: 'member/:id',
-                    component: TeamSupportContainerComponent,
+                    component: TeamSupportIndexComponent,
                     title: "Team Support - Manage team members from partners",
                 },  
 
                 {
                     path: 'detail/:id',
-                    component: EditTeamContainerComponent,
+                    component: EditTeamIndexComponent,
                     title: "Edit Team Details",
                 },   
             ]
@@ -63,22 +63,22 @@ export const MentorshipRoutes: Routes = [
                     children: [
                         {
                             path: '',
-                            component: MyPartnersContainerComponent,
+                            component: MyPartnersIndexComponent,
                             title: "My Partners - Your direct partners",
                         },
                         {
                             path: 'contacts/:id',
-                            component: MyPartnersContactsContainerComponent,
+                            component: MyPartnersContactsIndexComponent,
                             title: "Partner Support - View details & support partner",
                         }, 
                         {
                             path: 'contact-detail/:id',
-                            component: MyPartnerContactsDetailContainerComponent,
+                            component: MyPartnerContactDetailIndexComponent,
                             title: "Partner Prospect Details - View and manage your partner prospect details",
                         },
                         {
                             path: 'detail/:id',
-                            component: MyPartnerSupportContainerComponent,
+                            component: MyPartnerSupportIndexComponent,
                             title: "My Partners Support - Manage partners listing",
                         },
                         {

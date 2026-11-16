@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { NetworkTreeComponent } from './tree/tree.component';
-import { OrgChartComponent } from './org/org.component';
-import { MemberViewComponent } from './view/member-view.component';
+import { NetworkTreeIndexComponent } from './tree/index.component';
+import { OrgChartIndexComponent } from './org/index.component';
+import { MemberViewIndexComponent } from './view/index.component';
 
 export const NetworkRoutes: Routes = [
   {
@@ -11,17 +11,17 @@ export const NetworkRoutes: Routes = [
   },
   {
     path: 'tree',
-    component: NetworkTreeComponent,
+    component: NetworkTreeIndexComponent,
     title: 'Network Tree - Visualize your downline',
   },
   {
     path: 'org',
-    component: OrgChartComponent,
+    component: OrgChartIndexComponent,
     title: 'Org Chart - Levels and span of control',
   },
   {
     path: 'view/:id',
-    component: MemberViewComponent,
+    component: MemberViewIndexComponent,
     title: 'Member View - Read-only member overview',
   },
 ];
