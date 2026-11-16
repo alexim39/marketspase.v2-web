@@ -27,9 +27,9 @@ const GUIDES: GuideDoc[] = [
     title: 'Pre-approach Document',
     icon: 'menu_book',
     when: 'Read before your first contact with any prospect.',
-    about: 'The framework for structuring your approach: who to talk to, what to say first, and how to earn the longer conversation.',
-    file: 'docs/pre-approach_tool_for_marketspase.pdf',
-    download: 'pre-approach-document.pdf',
+    about: 'A plain-English introduction to MarketSpase: how it works, what it costs, how people earn and what is expected of you.',
+    file: 'docs/MarketSpase-Pre-Approach-Document.pdf',
+    download: 'MarketSpase-Pre-Approach-Document.pdf',
   },
   {
     id: 'chat-responses',
@@ -37,8 +37,8 @@ const GUIDES: GuideDoc[] = [
     icon: 'forum',
     when: 'Keep open while chatting — answers to the questions prospects actually ask.',
     about: 'Tried replies to common objections and questions, so you never stall mid-conversation.',
-    file: 'docs/Sample-prospect-chat-responses.pdf',
-    download: 'Sample-prospect-chat-responses-document.pdf',
+    file: 'docs/MarketSpase-Prospect-Chat-Responses.pdf',
+    download: 'MarketSpase-Prospect-Chat-Responses.pdf',
   },
 ];
 
