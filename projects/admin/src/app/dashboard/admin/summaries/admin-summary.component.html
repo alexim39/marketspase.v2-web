@@ -1,0 +1,100 @@
+<section class="summary-page">
+  <header class="summary-head">
+    <div class="head-copy">
+      <p class="eyebrow">Admin · Decision summary</p>
+      <h1>{{ summary()?.title || 'Summary' }}</h1>
+      <p class="subtitle">{{ summary()?.description || 'Loading the latest operating picture…' }}</p>
+    </div>
+    <div class="head-actions">
+      <div class="window-switch" role="group" aria-label="Summary window">
+        @for (window of windows; track window.days) {
+          <button
+            type="button"
+            class="window-btn"
+            [class.window-btn--active]="days() === window.days"
+            (click)="setDays(window.days)">
+            {{ window.label }}
+          </button>
+        }
+      </div>
+      <button mat-stroked-button type="button" (click)="reload()" [disabled]="loading()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <async-page-skeleton layout="dashboard" [rows]="3" label="summary" [showHeader]="false" />
+  } @else if (error(); as err) {
+    <div class="state-panel" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <h2>We could not load this summary</h2>
+      <p>{{ err }}</p>
+      <button mat-flat-button color="primary" type="button" (click)="reload()">Try again</button>
+    </div>
+  } @else if (summary(); as data) {
+    @if (data.alerts.length > 0) {
+      <div class="alerts">
+        @for (alert of data.alerts; track alert.title) {
+          <article [class]="'alert alert--' + alert.tone">
+            <mat-icon>{{ alert.tone === 'danger' ? 'error' : alert.tone === 'warn' ? 'warning' : alert.tone === 'ok' ? 'check_circle' : 'info' }}</mat-icon>
+            <div>
+              <strong>{{ alert.title }}</strong>
+              <p>{{ alert.detail }}</p>
+            </div>
+            @if (alert.link) {
+              <a mat-button [routerLink]="alert.link">Review</a>
+            }
+          </article>
+        }
+      </div>
+    }
+
+    <section class="kpi-grid" aria-label="Key metrics">
+      @for (kpi of data.kpis; track kpi.key) {
+        <article [class]="'kpi kpi--' + (kpi.tone || 'neutral')">
+          <span class="kpi-icon"><mat-icon>{{ kpiIcon(kpi) }}</mat-icon></span>
+          <div class="kpi-copy">
+            <span class="kpi-label">{{ kpi.label }}</span>
+            <strong class="kpi-value">{{ formatKpi(kpi) }}</strong>
+            @if (kpi.detail) { <span class="kpi-detail">{{ kpi.detail }}</span> }
+          </div>
+          @if (kpi.link) {
+            <a class="kpi-link" [routerLink]="kpi.link" [attr.aria-label]="'Open ' + kpi.label">
+              <mat-icon>arrow_forward</mat-icon>
+            </a>
+          }
+        </article>
+      }
+    </section>
+
+    <div class="charts-grid">
+      @for (trend of data.trends; track trend.key) {
+        <section class="chart-panel chart-panel--wide">
+          <div class="panel-head">
+            <div><p class="eyebrow">Trend</p><h2>{{ trend.title }}</h2></div>
+          </div>
+          <async-summary-trend [labels]="trend.labels" [series]="trend.series" [format]="trend.format || 'number'" />
+        </section>
+      }
+
+      @for (distribution of data.distributions; track distribution.key) {
+        <section class="chart-panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">Distribution</p><h2>{{ distribution.title }}</h2></div>
+          </div>
+          <async-summary-distribution
+            [items]="distribution.items"
+            [kind]="distribution.type"
+            [format]="distribution.format || 'number'" />
+        </section>
+      }
+    </div>
+
+    <footer class="summary-foot">
+      <span>Window: {{ data.window.from | date:'mediumDate' }} – {{ data.window.to | date:'mediumDate' }}</span>
+      <span>Generated {{ data.generatedAt | date:'medium' }}</span>
+    </footer>
+  }
+</section>

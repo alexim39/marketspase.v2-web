@@ -64,6 +64,7 @@ const ADMIN_ROUTES = [
   /^\/signin$/,
   /^\/dashboard$/,
   /^\/(?:roles|automation|deposits|partner-pipeline|pages|orders|stores|store-orders|store-settlements|activation|growth|feature-adoption|recurring-revenue|compensation|training-quizzes|audit|recycle-bin|tickets|moderation|rank-groups|broadcast|subscriptions|bonuses|tutorials|weekly-videos|settings|products)$/,
+  /^\/summaries\/(?:people|finance)$/,
   /^\/members\/[^/]+$/,
   /^\/rank-groups\/[^/]+$/,
   /^\/(?:campaigns|reported-leads|leads|prolific-woman-leads|reservations|kits|oversight)$/,

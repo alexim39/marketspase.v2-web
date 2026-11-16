@@ -30,6 +30,18 @@ export const AdminRoutes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: AdminDashboardComponent, title: 'Command centre - MarketSpase Admin' },
   {
+    path: 'summaries/people',
+    loadComponent: () => import('./summaries/admin-summary.component').then((m) => m.AdminSummaryComponent),
+    data: { domain: 'people' },
+    title: 'People summary - MarketSpase Admin',
+  },
+  {
+    path: 'summaries/finance',
+    loadComponent: () => import('./summaries/admin-summary.component').then((m) => m.AdminSummaryComponent),
+    data: { domain: 'finance' },
+    title: 'Finance summary - MarketSpase Admin',
+  },
+  {
     path: 'roles',
     component: ManageRolesComponent,
     title: 'Manage roles - MarketSpase Admin',
