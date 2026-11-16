@@ -1,15 +1,12 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../core/auth/auth.service';
-import { ApiError } from '../../core/http/api-error';
-import { UiFeedbackService } from '../../core/ui/ui-feedback.service';
+import { RouterModule } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
+import { ResetPasswordFacade } from '../state/reset-password.facade';
 
 /**
  * @title Set a new password — consumes the emailed reset token.
@@ -19,7 +16,7 @@ import { UiFeedbackService } from '../../core/ui/ui-feedback.service';
  * Token-blind dark shells (no fixed-light panels), 44px targets, OnPush.
  */
 @Component({
-  selector: 'async-partner-reset-password',
+  selector: 'async-partner-reset-password-desktop',
   providers: [],
   imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, ReactiveFormsModule, RouterModule],
   template: `
@@ -132,67 +129,19 @@ import { UiFeedbackService } from '../../core/ui/ui-feedback.service';
     }
   `],
 })
-export class PartnerResetPasswordComponent implements OnInit {
-  private readonly fb = inject(FormBuilder);
-  private readonly routes = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
-  private readonly ui = inject(UiFeedbackService);
-  private readonly destroyRef = inject(DestroyRef);
+export class PartnerResetPasswordDesktopComponent {
+  private readonly facade = inject(ResetPasswordFacade);
 
-  protected readonly hide = signal(true);
-  protected readonly submitting = signal(false);
-  protected readonly token = signal<string | null>(null);
-
-  protected readonly form = this.fb.group(
-    {
-      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
-      confirm: ['', [Validators.required]],
-    },
-    {
-      validators: (group) =>
-        group.get('password')?.value === group.get('confirm')?.value ? null : { mismatch: true },
-    },
-  );
-
-  ngOnInit(): void {
-    this.routes.queryParamMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((params) => this.token.set(params.get('token')));
-  }
+  protected readonly hide = this.facade.hide;
+  protected readonly submitting = this.facade.submitting;
+  protected readonly token = this.facade.token;
+  protected readonly form = this.facade.form;
 
   protected scrollTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   protected onSubmit(): void {
-    this.form.markAllAsTouched();
-    const token = this.token();
-    if (this.form.invalid || !token || this.submitting()) return;
-    this.submitting.set(true);
-    this.authService
-      .confirmResetPassword({ token, newPassword: String(this.form.get('password')?.value ?? '') })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res: any) => {
-          this.submitting.set(false);
-          void this.ui.alert({
-            title: 'Password updated',
-            message: res?.message ?? 'Sign in with your new password.',
-            tone: 'success',
-            confirmText: 'Sign in now',
-          }).then(() => {
-            void this.router.navigateByUrl('/partner/signin');
-          });
-        },
-        error: (err: ApiError) => {
-          this.submitting.set(false);
-          void this.ui.alert({
-            title: 'Reset link problem',
-            message: err?.message ?? 'This link is invalid or expired — request a fresh one.',
-            tone: 'error',
-          });
-        },
-      });
+    this.facade.onSubmit();
   }
 }

@@ -8,7 +8,7 @@ import { RouterModule } from '@angular/router';
  * inventing traction claims or promising income.
  */
 @Component({
-  selector: 'async-about-page',
+  selector: 'async-about-page-desktop',
   imports: [MatButtonModule, MatIconModule, RouterModule],
   template: `
     <div class="mkt-page-hero">
@@ -194,4 +194,4 @@ import { RouterModule } from '@angular/router';
   `,
   changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class AboutPageComponent {}
+export class AboutPageDesktopComponent {}

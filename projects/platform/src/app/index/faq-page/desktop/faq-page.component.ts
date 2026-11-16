@@ -8,7 +8,7 @@ import { RouterModule } from '@angular/router';
  * the goal is informed signups, not pressure.
  */
 @Component({
-  selector: 'async-faq-page',
+  selector: 'async-faq-page-desktop',
   imports: [MatButtonModule, MatIconModule, RouterModule],
   template: `
     <div class="mkt-page-hero">
@@ -221,4 +221,4 @@ import { RouterModule } from '@angular/router';
   `,
   changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class FaqPageComponent {}
+export class FaqPageDesktopComponent {}

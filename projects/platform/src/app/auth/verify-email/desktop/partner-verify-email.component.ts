@@ -1,20 +1,15 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { AuthService } from '../../core/auth/auth.service';
-import { ApiEnvelope } from '../../core/auth/auth.models';
-import { toApiError } from '../../core/http/api-error';
-
-type VerifyState = 'verifying' | 'success' | 'error';
+import { ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { VerifyEmailFacade } from '../state/verify-email.facade';
 
 @Component({
-  selector: 'async-partner-verify-email',
+  selector: 'async-partner-verify-email-desktop',
   imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, ReactiveFormsModule, RouterModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -413,67 +408,21 @@ type VerifyState = 'verifying' | 'success' | 'error';
     }
   `],
 })
-export class PartnerVerifyEmailComponent implements OnInit {
-  private readonly route = inject(ActivatedRoute);
-  private readonly authService = inject(AuthService);
-  private readonly fb = inject(FormBuilder);
-  private readonly destroyRef = inject(DestroyRef);
+export class PartnerVerifyEmailDesktopComponent {
+  private readonly facade = inject(VerifyEmailFacade);
 
-  protected readonly state = signal<VerifyState>('verifying');
-  protected readonly message = signal('');
-  protected readonly isResending = signal(false);
-  protected readonly resendNotice = signal<string | null>(null);
-  protected readonly resendError = signal<string | null>(null);
-  protected readonly resendForm = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-  });
+  protected readonly state = this.facade.state;
+  protected readonly message = this.facade.message;
+  protected readonly isResending = this.facade.isResending;
+  protected readonly resendNotice = this.facade.resendNotice;
+  protected readonly resendError = this.facade.resendError;
+  protected readonly resendForm = this.facade.resendForm;
 
   protected get email() {
-    return this.resendForm.controls.email;
-  }
-
-  ngOnInit(): void {
-    const token = this.route.snapshot.queryParamMap.get('token') ?? '';
-    if (!token) {
-      this.state.set('error');
-      this.message.set('This verification link is incomplete. Request a new link below.');
-      return;
-    }
-    this.authService.verifyEmail(token)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.state.set('success');
-        },
-        error: (error) => {
-          this.state.set('error');
-          this.message.set(toApiError(error).message);
-        },
-      });
+    return this.facade.email;
   }
 
   protected resend(): void {
-    if (this.isResending()) return;
-    this.resendForm.markAllAsTouched();
-    if (this.resendForm.invalid) return;
-
-    const email = this.resendForm.getRawValue().email.trim().toLowerCase();
-    if (!email) return;
-
-    this.isResending.set(true);
-    this.resendNotice.set(null);
-    this.resendError.set(null);
-    this.authService.resendVerification(email)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res: ApiEnvelope) => {
-          this.isResending.set(false);
-          this.resendNotice.set(res.message ?? 'If that email needs verification, a new link is on its way.');
-        },
-        error: (error) => {
-          this.isResending.set(false);
-          this.resendError.set(toApiError(error).message);
-        },
-      });
+    this.facade.resend();
   }
 }

@@ -1,23 +1,20 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Router, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { AuthService } from '../../core/auth/auth.service';
-import { UiFeedbackService } from '../../core/ui/ui-feedback.service';
-
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { RouterModule } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
+import { ForgotPasswordFacade } from '../state/forgot-password.facade';
 
 /**
  * @title Partner password reset
  */
 @Component({
-selector: 'async-partner-forgot-password',
+selector: 'async-partner-forgot-password-desktop',
 providers: [],
 imports: [MatButtonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
   template: `
@@ -45,8 +42,8 @@ imports: [MatButtonModule, MatDividerModule, MatProgressBarModule, MatIconModule
         }
       </mat-form-field>
 
-      <button mat-flat-button color="primary" type="submit" [disabled]="sending">
-        {{ sending ? 'Sending…' : 'Send reset link' }}
+      <button mat-flat-button color="primary" type="submit" [disabled]="sending()">
+        {{ sending() ? 'Sending…' : 'Send reset link' }}
       </button>
 
     </form>
@@ -122,78 +119,17 @@ imports: [MatButtonModule, MatDividerModule, MatProgressBarModule, MatIconModule
 }
   `]
 })
-export class PartnerForgotPasswordComponent implements OnInit, OnDestroy {
-  private readonly ui = inject(UiFeedbackService);
+export class PartnerForgotPasswordDesktopComponent {
+  private readonly facade = inject(ForgotPasswordFacade);
 
-  signInForm: FormGroup = new FormGroup({}); // Assigning a default value
-  subscriptions: Array<Subscription> = [];
-  sending = false;
+  protected readonly sending = this.facade.sending;
+  protected readonly signInForm = this.facade.form;
 
-  constructor(
-    private router: Router,
-    private fb: FormBuilder,
-    private partnerSignInService: AuthService
-  ) { }
-
-  ngOnInit(): void {
-    this.signInForm = this.fb.group({
-      email: ['', [Validators.email, Validators.required]],
-    });
+  protected onSubmit(): void {
+    this.facade.onSubmit();
   }
 
-  onSubmit(): void {
-
-    // Mark all form controls as touched to trigger the display of error messages
-    this.markAllAsTouched();
-
-    if (this.signInForm.valid && !this.sending) {
-      // v1 request — always 200 (anti-enumeration)
-      const formData: { email: string } = this.signInForm.value;
-      this.sending = true;
-      this.subscriptions.push(
-        this.partnerSignInService.requestPasswordReset(formData.email).subscribe({
-          next: (res: any) => {
-            this.sending = false;
-            void this.ui.alert({
-              title: 'Check your email',
-              message: res?.message ?? 'If an account exists for that email, a reset link is on its way. It expires in 60 minutes.',
-              tone: 'success',
-            });
-            this.signInForm.reset();
-          },
-
-
-
-
-
-          error: (error: any) => {
-            this.sending = false;
-            const serverMessage: string | undefined = error?.error?.message;
-            this.ui.error(serverMessage ?? 'Could not send the reset link — check the email and try again.');
-          }
-        })
-      )
-    }
-  }
-
-  // Helper method to mark all form controls as touched
-  private markAllAsTouched() {
-    Object.keys(this.signInForm.controls).forEach(controlName => {
-      this.signInForm.get(controlName)?.markAsTouched();
-    });
-  }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
-  }
-
-  // Scroll to top when clicked
-  scrollToTop() {
+  protected scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
-
 }

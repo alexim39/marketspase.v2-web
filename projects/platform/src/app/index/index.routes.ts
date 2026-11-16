@@ -1,10 +1,16 @@
 import { Routes } from "@angular/router";
 import { IndexComponent } from "./index.component";
-import { PartnerSigninComponent } from "../auth/signin/partner-signin.component";
-import { PartnerSignupComponent } from "../auth/signup/partner-signup.component";
-import { IndexBodyComponent } from "./index-body.component";
-import { PartnerForgotPasswordComponent } from "../auth/forgot-password/partner-forgot-password.component";
-import { PartnerResetPasswordComponent } from "../auth/reset-password/partner-reset-password.component";
+import { PartnerSigninIndexComponent } from "../auth/signin/index.component";
+import { PartnerSignupIndexComponent } from "../auth/signup/index.component";
+import { LandingIndexComponent } from "./home/index.component";
+import { PartnerForgotPasswordIndexComponent } from "../auth/forgot-password/index.component";
+import { PartnerResetPasswordIndexComponent } from "../auth/reset-password/index.component";
+import { PartnerVerifyEmailIndexComponent } from "../auth/verify-email/index.component";
+import { JoinLandingIndexComponent } from "./join/index.component";
+import { HowItWorksIndexComponent } from "./how-it-works/index.component";
+import { OraPublicPageIndexComponent } from "./ora/index.component";
+import { AboutPageIndexComponent } from "./about/index.component";
+import { FaqPageIndexComponent } from "./faq-page/index.component";
 
 export const IndexRoutes: Routes = [
     {
@@ -13,31 +19,31 @@ export const IndexRoutes: Routes = [
         children: [
             {
                 path: '',
-                component: IndexBodyComponent
+                component: LandingIndexComponent
             },
             {
                 path: 'join',
-                loadComponent: () => import('./join/join-landing.component').then(c => c.JoinLandingComponent),
+                component: JoinLandingIndexComponent,
                 title: "Join MarketSpase - Start Your Online Business Without the Chase"
             },
             {
                 path: 'how-it-works',
-                loadComponent: () => import('./how-it-works/how-it-works.component').then(c => c.HowItWorksComponent),
+                component: HowItWorksIndexComponent,
                 title: "How Your Online Business Works - MarketSpase"
             },
             {
                 path: 'ora',
-                loadComponent: () => import('./ora/ora-page.component').then(c => c.OraPublicPageComponent),
+                component: OraPublicPageIndexComponent,
                 title: "Meet Ora - Your AI Business Partner | MarketSpase"
             },
             {
                 path: 'about',
-                loadComponent: () => import('./about/about-page.component').then(c => c.AboutPageComponent),
+                component: AboutPageIndexComponent,
                 title: "About MarketSpase - A Real Online Business Opportunity"
             },
             {
                 path: 'faq',
-                loadComponent: () => import('./faq-page/faq-page.component').then(c => c.FaqPageComponent),
+                component: FaqPageIndexComponent,
                 title: "Online Business Questions - MarketSpase FAQ"
             },
             {
@@ -50,27 +56,27 @@ export const IndexRoutes: Routes = [
                     },
                     {
                         path: 'signin',
-                        component: PartnerSigninComponent,
+                        component: PartnerSigninIndexComponent,
                         title: "Sign In - MarketSpase Partner Platform",
                     },
                     {
                         path: 'signup',
-                        component: PartnerSignupComponent,
+                        component: PartnerSignupIndexComponent,
                         title: "Create Your Free Account - MarketSpase"
                     },
                     {
                         path: 'verify-email',
-                        loadComponent: () => import('../auth/verify-email/partner-verify-email.component').then(c => c.PartnerVerifyEmailComponent),
+                        component: PartnerVerifyEmailIndexComponent,
                         title: "Verify Email - MarketSpase"
                     },
                     {
                         path: 'forgot-password',
-                        component: PartnerForgotPasswordComponent,
+                        component: PartnerForgotPasswordIndexComponent,
                         title: "Forgot Password - Partner reset password"
                     },
                     {
                         path: 'reset-password',
-                        component: PartnerResetPasswordComponent,
+                        component: PartnerResetPasswordIndexComponent,
                         title: "Reset Password - Choose a new password"
                     },
                 ]

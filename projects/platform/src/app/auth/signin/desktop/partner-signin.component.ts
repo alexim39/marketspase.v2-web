@@ -1,17 +1,13 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../../core/auth/auth.service';
-import { SigninRequest } from '../../core/auth/auth.models';
-import { ApiError } from '../../core/http/api-error';
-import { SessionRecoveryService } from '@marketspase/shared/core/ui/session-recovery.service';
+import { RouterModule } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
 import { StatePanelComponent } from '@marketspase/shared/ui/state-panel/state-panel.component';
+import { SignInFacade } from '../state/signin.facade';
 
 /**
  * @title Partner signin
@@ -22,7 +18,7 @@ import { StatePanelComponent } from '@marketspase/shared/ui/state-panel/state-pa
  * response object there, i.e. the string `"[object Object]"`).
  */
 @Component({
-  selector: 'async-partner-signin',
+  selector: 'async-partner-signin-desktop',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatProgressBarModule, ReactiveFormsModule, RouterModule, StatePanelComponent],
   template: `
@@ -227,46 +223,31 @@ import { StatePanelComponent } from '@marketspase/shared/ui/state-panel/state-pa
     .line { border-top: 1px solid var(--ms-line); margin: 1.25em 0 0; }
   `],
 })
-export class PartnerSigninComponent {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-  private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
-  private readonly recovery = inject(SessionRecoveryService);
-  private readonly destroyRef = inject(DestroyRef);
+export class PartnerSigninDesktopComponent {
+  private readonly facade = inject(SignInFacade);
 
-  protected readonly hide = signal(true);
+  protected readonly hide = this.facade.hide;
+  protected readonly isSubmitting = this.facade.isSubmitting;
+  protected readonly isResending = this.facade.isResending;
+  protected readonly serverError = this.facade.serverError;
+  protected readonly info = this.facade.info;
+  protected readonly needsVerification = this.facade.needsVerification;
+  protected readonly accessState = this.facade.accessState;
+  protected readonly signInForm = this.facade.form;
   protected readonly emailInput = viewChild<ElementRef<HTMLInputElement>>('emailInput');
-  protected readonly isSubmitting = signal(false);
-  protected readonly isResending = signal(false);
-  protected readonly serverError = signal<string | null>(null);
-  protected readonly info = signal<string | null>(null);
-  protected readonly needsVerification = signal(false);
-  protected readonly accessState = signal<'expired' | 'permission' | null>(
-    this.route.snapshot.queryParamMap.get('reason') === 'expired'
-      ? 'expired'
-      : this.route.snapshot.queryParamMap.get('reason') === 'forbidden' ? 'permission' : null,
-  );
-
-  protected readonly signInForm = this.fb.nonNullable.group({
-    email: ['', [Validators.email, Validators.required]],
-    password: ['', Validators.required],
-  });
 
   protected get email() {
-    return this.signInForm.get('email');
+    return this.facade.email;
   }
 
   protected get password() {
-    return this.signInForm.get('password');
+    return this.facade.password;
   }
 
   protected scrollTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  /** The user is already on the sign-in route; guide them to the form instead
-   *  of navigating to a protected page the auth guard would bounce back. */
   protected focusSignIn(): void {
     const input = this.emailInput()?.nativeElement;
     if (!input) return;
@@ -275,63 +256,10 @@ export class PartnerSigninComponent {
   }
 
   protected onSubmit(): void {
-    if (this.isSubmitting()) return;
-    this.signInForm.markAllAsTouched();
-    if (this.signInForm.invalid) return;
-
-    this.isSubmitting.set(true);
-    this.serverError.set(null);
-    this.info.set(null);
-    this.needsVerification.set(false);
-
-    const credentials = this.signInForm.getRawValue() as SigninRequest;
-    this.authService
-      .signin(credentials)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          const target = this.returnUrl();
-          this.recovery.clearNotice();
-          void this.router.navigateByUrl(target).then(() => this.recovery.restorePending());
-        },
-        error: (error: ApiError) => {
-          this.isSubmitting.set(false);
-          this.serverError.set(error.message);
-          if (error.code === 'EMAIL_NOT_VERIFIED') this.needsVerification.set(true);
-        },
-      });
-  }
-
-  private returnUrl(): string {
-    const target = String(this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard');
-    return target.startsWith('/') && !target.startsWith('//') ? target : '/dashboard';
+    this.facade.onSubmit();
   }
 
   protected resendVerification(): void {
-    if (this.isResending()) return;
-    const emailControl = this.email;
-    if (!emailControl || emailControl.invalid) {
-      emailControl?.markAsTouched();
-      return;
-    }
-    const email = String(emailControl.value ?? '').trim();
-    if (!email) return;
-
-    this.isResending.set(true);
-    this.serverError.set(null);
-    this.info.set(null);
-    this.authService
-      .resendVerification(email)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.isResending.set(false);
-          this.info.set(res.message ?? 'If that email needs verification, a new link has been sent.');
-        },
-        error: (error: ApiError) => {
-          this.isResending.set(false);
-          this.serverError.set(error.message);
-        },
-      });
+    this.facade.resendVerification();
   }
 }

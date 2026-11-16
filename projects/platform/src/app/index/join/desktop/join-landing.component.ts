@@ -1,19 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
+import { JoinLandingFacade } from '../state/join-landing.facade';
 
-const CAMPAIGN_KEY = 'ms_campaign';
-const REF_KEY = 'ms_ref';
-const LEAD_KEY = 'ms_lead';
-
-/**
- * Public acquisition landing — the destination for campaign tracking links
- * (`/join?campaign=gc_...`). Persists the code so signup can attribute the
- * account even if the visitor navigates before creating it.
- */
 @Component({
-  selector: 'async-join-landing',
+  selector: 'async-join-landing-desktop',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatButtonModule, MatIconModule, RouterModule],
@@ -184,7 +176,7 @@ const LEAD_KEY = 'ms_lead';
       font-weight: 800;
     }
     .join-steps strong { display: block; font-size: 0.94rem; line-height: 1.25; }
-    .join-steps span { display: block; margin-top: 2px; color: #676c7e; font-size: 0.83rem; line-height: 1.45; }
+    .join-steps div span { display: block; margin-top: 2px; color: #676c7e; font-size: 0.83rem; line-height: 1.45; }
     .join-more {
       display: inline-flex;
       align-items: center;
@@ -199,53 +191,14 @@ const LEAD_KEY = 'ms_lead';
     .join-more mat-icon { width: 17px; height: 17px; font-size: 17px; }
   `],
 })
-export class JoinLandingComponent implements OnInit {
-  private readonly route = inject(ActivatedRoute);
-  protected readonly campaign = signal<string | null>(null);
-  protected readonly referrer = signal<string | null>(null);
-  protected readonly lead = signal<string | null>(null);
+export class JoinLandingDesktopComponent {
+  private readonly facade = inject(JoinLandingFacade);
 
-  ngOnInit(): void {
-    const fromQuery = String(this.route.snapshot.queryParamMap.get('campaign') ?? '').trim();
-    let fromStore = '';
-    try { fromStore = localStorage.getItem(CAMPAIGN_KEY) ?? ''; } catch { /* private mode */ }
-    const code = fromQuery || fromStore;
-    if (code) {
-      this.campaign.set(code);
-      try { localStorage.setItem(CAMPAIGN_KEY, code); } catch { /* ignore */ }
-    }
-
-    const refQuery = String(this.route.snapshot.queryParamMap.get('ref') ?? '').trim();
-    const refStore = readKey(REF_KEY);
-    const ref = refQuery || refStore;
-    if (ref) {
-      const clean = ref.replace(/^@/, '');
-      this.referrer.set(clean);
-      try { localStorage.setItem(REF_KEY, clean); } catch { /* ignore */ }
-    }
-
-    const leadQuery = String(this.route.snapshot.queryParamMap.get('lead') ?? '').trim();
-    const leadStore = readKey(LEAD_KEY);
-    const lead = leadQuery || leadStore;
-    if (/^[a-fA-F0-9]{24}$/.test(lead)) {
-      this.lead.set(lead);
-      try { localStorage.setItem(LEAD_KEY, lead); } catch { /* ignore */ }
-    }
-  }
+  protected readonly campaign = this.facade.campaign;
+  protected readonly referrer = this.facade.referrer;
+  protected readonly lead = this.facade.lead;
 
   protected signupParams(): Record<string, string> {
-    return {
-      ...(this.campaign() ? { campaign: this.campaign()! } : {}),
-      ...(this.referrer() ? { ref: this.referrer()! } : {}),
-      ...(this.lead() ? { lead: this.lead()! } : {}),
-    };
-  }
-}
-
-function readKey(key: string): string {
-  try {
-    return localStorage.getItem(key) ?? '';
-  } catch {
-    return '';
+    return this.facade.signupParams();
   }
 }

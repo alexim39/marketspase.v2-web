@@ -1,16 +1,16 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { BannerComponent } from './banner/banner.component';
-import { IntroVideoComponent } from './intro-video/intro-video.component';
-import { WhyNowComponent } from './why-now/why-now.component';
-import { PillarsComponent } from './pillars/pillars.component';
-import { OraShowcaseComponent } from './ora-showcase/ora-showcase.component';
-import { PathwayComponent } from './pathway/pathway.component';
-import { WhyWeExistComponent } from './why-we-exist/why-we-exist.component';
-import { FaqComponent } from './faq/faq.component';
-import { BePartnerComponent } from './be-partner/be-partner.component';
+import { BannerComponent } from '../../banner/banner.component';
+import { IntroVideoComponent } from '../../intro-video/intro-video.component';
+import { WhyNowComponent } from '../../why-now/why-now.component';
+import { PillarsComponent } from '../../pillars/pillars.component';
+import { OraShowcaseComponent } from '../../ora-showcase/ora-showcase.component';
+import { PathwayComponent } from '../../pathway/pathway.component';
+import { WhyWeExistComponent } from '../../why-we-exist/why-we-exist.component';
+import { FaqComponent } from '../../faq/faq.component';
+import { BePartnerComponent } from '../../be-partner/be-partner.component';
 
 @Component({
-    selector: 'async-index-body',
+    selector: 'async-landing-desktop',
     imports: [
         BannerComponent,
         IntroVideoComponent,
@@ -36,4 +36,4 @@ import { BePartnerComponent } from './be-partner/be-partner.component';
     changeDetection: ChangeDetectionStrategy.Eager,
     styles: [``]
 })
-export class IndexBodyComponent {}
+export class LandingDesktopComponent {}

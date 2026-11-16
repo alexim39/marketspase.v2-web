@@ -9,7 +9,7 @@ import { RouterModule } from '@angular/router';
  * path built on activity — never on registration fees.
  */
 @Component({
-  selector: 'async-how-it-works',
+  selector: 'async-how-it-works-desktop',
   imports: [MatButtonModule, MatIconModule, RouterModule],
   template: `
     <div class="mkt-page-hero">
@@ -252,4 +252,4 @@ import { RouterModule } from '@angular/router';
   `,
   changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class HowItWorksComponent {}
+export class HowItWorksDesktopComponent {}
