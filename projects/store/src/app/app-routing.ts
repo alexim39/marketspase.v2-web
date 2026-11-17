@@ -1,50 +1,50 @@
 import { Routes } from '@angular/router';
 import { PageNotFoundComponent } from './page-not-found.component';
-import { StoreHomeComponent } from './store/home/store-home.component';
-import { StoreDirectoryComponent } from './store/directory/store-directory.component';
-import { StorefrontComponent } from './store/front/storefront.component';
-import { StoreProductComponent } from './store/product/store-product.component';
-import { StoreSupportComponent } from './store/support/store-support.component';
-import { StoreCartComponent } from './store/cart/cart.component';
-import { StoreCheckoutComponent } from './store/checkout/checkout.component';
-import { StoreCheckoutResultComponent } from './store/checkout/checkout-result.component';
-import { PersonalLeadPageComponent } from './store/lead-page/personal-lead-page.component';
-import { StoreOrderTrackComponent } from './store/order-track/order-track.component';
+import { StoreHomeIndexComponent } from './store/home/index.component';
+import { StoreDirectoryIndexComponent } from './store/directory/index.component';
+import { StorefrontIndexComponent } from './store/front/index.component';
+import { StoreProductIndexComponent } from './store/product/index.component';
+import { StoreSupportIndexComponent } from './store/support/index.component';
+import { StoreCartIndexComponent } from './store/cart/index.component';
+import { StoreCheckoutIndexComponent } from './store/checkout/checkout-index.component';
+import { StoreCheckoutResultIndexComponent } from './store/checkout/checkout-result-index.component';
+import { PersonalLeadPageIndexComponent } from './store/lead-page/index.component';
+import { StoreOrderTrackIndexComponent } from './store/order-track/index.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: StoreHomeComponent,
+    component: StoreHomeIndexComponent,
     title: 'MarketSpase Store | Shop independent partner stores',
   },
   {
     path: 'stores',
-    component: StoreDirectoryComponent,
+    component: StoreDirectoryIndexComponent,
     title: 'Find a store | MarketSpase Store',
   },
   {
     path: 'support',
-    component: StoreSupportComponent,
+    component: StoreSupportIndexComponent,
     title: 'Support | MarketSpase Store',
   },
   {
     path: 'cart',
-    component: StoreCartComponent,
+    component: StoreCartIndexComponent,
     title: 'Your cart | MarketSpase Store',
   },
   {
     path: 'checkout/result',
-    component: StoreCheckoutResultComponent,
+    component: StoreCheckoutResultIndexComponent,
     title: 'Payment result | MarketSpase Store',
   },
   {
     path: 'checkout',
-    component: StoreCheckoutComponent,
+    component: StoreCheckoutIndexComponent,
     title: 'Checkout | MarketSpase Store',
   },
   {
     path: 'order/:reference',
-    component: StoreOrderTrackComponent,
+    component: StoreOrderTrackIndexComponent,
     title: 'Track order | MarketSpase Store',
   },
   {
@@ -60,17 +60,17 @@ export const routes: Routes = [
 
   {
     path: 'lead/:username',
-    component: PersonalLeadPageComponent,
+    component: PersonalLeadPageIndexComponent,
     title: 'Connect | MarketSpase',
   },
   {
     path: ':username/product/:productId',
-    component: StoreProductComponent,
+    component: StoreProductIndexComponent,
     title: 'Product | MarketSpase Store',
   },
   {
     path: ':username',
-    component: StorefrontComponent,
+    component: StorefrontIndexComponent,
     title: 'Partner store | MarketSpase Store',
   },
 

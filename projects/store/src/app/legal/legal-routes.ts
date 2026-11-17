@@ -1,8 +1,8 @@
 ﻿import { Routes } from "@angular/router";
-import { LegalComponent } from "./legal.component";
-import { TermsComponent } from "./terms/terms.component";
-import { PrivacyComponent } from "./privacy/privacy.component";
-import { CookiesComponent } from "./cookies/cookies.component";
+import { LegalIndexComponent } from './index.component';
+import { TermsIndexComponent } from './terms/index.component';
+import { PrivacyIndexComponent } from './privacy/index.component';
+import { CookiesIndexComponent } from './cookies/index.component';
 
 export const legalRoutes: Routes = [
     { 
@@ -11,19 +11,19 @@ export const legalRoutes: Routes = [
 
         children: [
             { path: '',
-                component: LegalComponent,
+                component: LegalIndexComponent,
                 title: "MarketSpase Store Legal - Terms and conditions of website use",
                 children: [
                     { path: 'cookies', 
-                        component: CookiesComponent, 
+                        component: CookiesIndexComponent, 
                         title: "Legal - Cookies terms of use"
                     },
                     { path: 'terms', 
-                        component: TermsComponent, 
+                        component: TermsIndexComponent, 
                         title: "Legal - Terms of use"
                     },
                     { path: 'privacy',
-                        component: PrivacyComponent,
+                        component: PrivacyIndexComponent,
                         title: "Legal - Privacy terms of use"
                     },
                     { path: '', pathMatch: 'full', redirectTo: 'terms' },

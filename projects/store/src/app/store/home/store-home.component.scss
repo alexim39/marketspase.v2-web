@@ -1,5 +1,6 @@
 :host {
   display: block;
+  overflow-x: clip;
 }
 
 .store-home {
@@ -153,6 +154,7 @@
   background: var(--ms-surface);
   border-bottom: 1px solid var(--ms-line);
   padding: 16px 0;
+  overflow: hidden;
 }
 
 .category-band .ms-store-page {
@@ -170,6 +172,8 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
+  min-width: 0;
+  max-width: 100%;
   scrollbar-width: none;
 }
 
@@ -417,6 +421,36 @@
   background:
     radial-gradient(500px 220px at 100% 0%, var(--ms-primary-soft), transparent 70%),
     var(--ms-surface);
+}
+
+@media (max-width: 960px) {
+  .hero { padding: 64px 0 56px; }
+  .hero-inner { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .hero-copy h1 { max-width: 16ch; }
+  .hero-panel { justify-content: flex-start; }
+  .panel-card { width: 100%; max-width: 460px; }
+  .category-band .ms-store-page { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .category-row { width: 100%; }
+  .how-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 700px) {
+  .hero { padding: 40px 0; }
+  .hero-copy h1 { max-width: none; font-size: clamp(2.1rem, 10vw, 2.8rem); }
+  .hero-sub { font-size: 1rem; }
+  .hero-actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .hero-actions .btn { width: 100%; }
+  .hero-trust { gap: 10px 18px; margin-top: 24px; }
+  .panel-card { padding: 20px; }
+  .stores-section { padding: 40px 0 8px; }
+  .section-head { margin-bottom: 16px; }
+  .store-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .store-copy { padding: 22px 14px 14px; }
+  .how-section { padding: 40px 0; }
+  .partner-band { padding: 1.5em 0; }
+  .partner-inner { padding: 20px; }
+  .partner-inner .btn { width: 100%; }
+  .state-card { padding: 32px 18px; }
 }
 
 .partner-inner h2 {
