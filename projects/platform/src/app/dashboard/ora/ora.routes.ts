@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { OraPageComponent } from './ora-page.component';
+import { OraPageIndexComponent } from './index.component';
 
 export const OraRoutes: Routes = [
   {
     path: '',
-    component: OraPageComponent,
+    component: OraPageIndexComponent,
     title: 'Ora - Your AI Business Partner | MarketSpase',
   },
 ];

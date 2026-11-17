@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { ResourceDownloadContainerComponent } from './resource-download/resource-download-container.component';
-import { PreapproachDownloadContainerComponent } from './pre-approach-download/pre-approach-download-container.component';
+import { ResourceDownloadContainerIndexComponent } from './resource-download/index.component';
+import { PreapproachDownloadContainerIndexComponent } from './pre-approach-download/index.component';
 
 export const ResourcesRoutes: Routes = [
   {
@@ -12,11 +12,11 @@ export const ResourcesRoutes: Routes = [
     path: '',
     children: [
         { path: 'ads-contents',
-            component: ResourceDownloadContainerComponent,
+            component: ResourceDownloadContainerIndexComponent,
             title: "Content Library - Texts and images to share",
         },
         { path: 'prospecting-contents',
-            component: PreapproachDownloadContainerComponent,
+            component: PreapproachDownloadContainerIndexComponent,
             title: "Prospecting Guides - Framework and chat scripts",
         },
 

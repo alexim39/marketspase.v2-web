@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { SubmitTicketContainerComponent } from './submit-ticket/submit-ticket-container.component';
-import { AboutAppContainerComponent } from './about-app/about-app-container.component';
+import { SubmitTicketContainerIndexComponent } from './submit-ticket/index.component';
+import { AboutAppContainerIndexComponent } from './about-app/index.component';
 
 export const SupportRoutes: Routes = [
   {
@@ -14,13 +14,13 @@ export const SupportRoutes: Routes = [
              
         {
             path: 'ticket',
-            component: SubmitTicketContainerComponent,
+            component: SubmitTicketContainerIndexComponent,
             title: "Submit a Ticket - Reach out to administrator for support and feedback",
         },  
              
        /*  {
             path: 'app',
-            component: AboutAppContainerComponent,
+            component: AboutAppContainerIndexComponent,
             title: "About MarketSpase App - Know about Application",
         },  */ 
          {
@@ -34,7 +34,7 @@ export const SupportRoutes: Routes = [
             },  
              {
               path: 'app',
-              component: AboutAppContainerComponent,
+              component: AboutAppContainerIndexComponent,
               title: "About MarketSpase App - Know about Application",
             },  
           ]
