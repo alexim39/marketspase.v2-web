@@ -15,23 +15,23 @@ export const dashboardRoutes: Routes = [
             },
             {
                 path: 'activate',
-                loadComponent: () => import('../activation/activation.component').then(r => r.ActivationComponent),
+                loadComponent: () => import('../activation/index.component').then(r => r.ActivationIndexComponent),
                 title: "Activate your partner account",
             },
             {
                 path: 'path',
-                loadComponent: () => import('./launch-path/launch-path.component').then(r => r.LaunchPathComponent),
+                loadComponent: () => import('./launch-path/index.component').then(r => r.LaunchPathIndexComponent),
                 title: "My Launch Path - From signup to first commission",
             },
             {
                 path: 'campaigns',
-                loadComponent: () => import('../campaigns/campaigns.component').then(r => r.CampaignsComponent),
+                loadComponent: () => import('../campaigns/index.component').then(r => r.CampaignsIndexComponent),
                 title: "Partner acquisition - Fund central acquisition",
             },
             {
                 path: 'promote',
                 pathMatch: 'full',
-                loadComponent: () => import('../promote/promote-hub.component').then(r => r.PromoteHubComponent),
+                loadComponent: () => import('../promote/index.component').then(r => r.PromoteHubIndexComponent),
                 title: "Promote - Share your page, content and outreach",
             },
             {
@@ -66,11 +66,11 @@ export const dashboardRoutes: Routes = [
             { path: 'pipeline', loadComponent: () => import('./pipeline/pipeline-hub.component').then(m => m.PipelineHubComponent), title: "Pipeline - Who needs you today" },
             { path: 'team/handoffs', loadComponent: () => import('./mentorship/handoffs/index.component').then(m => m.MentorHandoffsIndexComponent), title: "New member tasks - Mentor onboarding" },
             { path: 'team', loadComponent: () => import('./team/index.component').then(m => m.TeamHubIndexComponent), title: "Team - Who needs you today" },
-            { path: 'learn/video-of-the-week', loadComponent: () => import('./learn/weekly-video/weekly-video.component').then(m => m.WeeklyVideoComponent), title: "Video of the Week - Weekly briefing" },
-            { path: 'learn/video-of-the-week/:id/reflections', loadComponent: () => import('./learn/weekly-video/reflections/reflections.component').then(m => m.WeeklyVideoReflectionsComponent), title: "Reflections from the team - Weekly briefing" },
-            { path: 'learn/video-of-the-week/:id', loadComponent: () => import('./learn/weekly-video/weekly-video.component').then(m => m.WeeklyVideoComponent), title: "Video of the Week - Weekly briefing" },
-            { path: 'learn', loadComponent: () => import('./learn/learn-hub.component').then(m => m.LearnHubComponent), title: "Learn - Your next step is clear" },
-            { path: 'more', loadComponent: () => import('./more/more-hub.component').then(m => m.MoreHubComponent), title: "More - Account and utilities" }, 
+            { path: 'learn/video-of-the-week', loadComponent: () => import('./learn/weekly-video/index.component').then(m => m.WeeklyVideoIndexComponent), title: "Video of the Week - Weekly briefing" },
+            { path: 'learn/video-of-the-week/:id/reflections', loadComponent: () => import('./learn/weekly-video/reflections/index.component').then(m => m.WeeklyVideoReflectionsIndexComponent), title: "Reflections from the team - Weekly briefing" },
+            { path: 'learn/video-of-the-week/:id', loadComponent: () => import('./learn/weekly-video/index.component').then(m => m.WeeklyVideoIndexComponent), title: "Video of the Week - Weekly briefing" },
+            { path: 'learn', loadComponent: () => import('./learn/index.component').then(m => m.LearnHubIndexComponent), title: "Learn - Your next step is clear" },
+            { path: 'more', loadComponent: () => import('./more/index.component').then(m => m.MoreHubIndexComponent), title: "More - Account and utilities" }, 
                 
                  
             { path: 'checkout',
