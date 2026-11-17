@@ -11,10 +11,10 @@ template: `
 <div class="mkt-hero">
   <div class="mkt-hero-inner">
     <div class="mkt-hero-copy">
-      <p class="mkt-eyebrow">Online business opportunity · Make money online without the chase</p>
-      <h1>Build a real online business <span class="mkt-accent">without chasing anyone.</span></h1>
+      <p class="mkt-eyebrow">Online business opportunity · No chasing, no cold calls</p>
+      <h1>Make money online <span class="mkt-accent">without chasing anyone.</span></h1>
       <p class="mkt-lede">
-        Start for <strong>₦38,000</strong> — no chasing. Ora plans your day; you approve the next move.
+        MarketSpase brings the interested customers, backs you with a real product, and lets Ora prepare the work. You approve the next move.
       </p>
       <div class="mkt-actions">
         <a mat-flat-button color="primary" routerLink="/partner/signup" (click)="scrollToTop()">Start your online business</a>

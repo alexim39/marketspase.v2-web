@@ -14,29 +14,29 @@ import { RouterModule } from '@angular/router';
     <section class="mkt-section mkt-section--band" aria-labelledby="intro-video-title">
       <div class="mkt-section-inner mkt-media-band">
         <div>
-          <p class="mkt-eyebrow">The problem with most online business opportunities</p>
-          <h2 class="mkt-h2" id="intro-video-title">You want to earn online. You don&rsquo;t want to chase people.</h2>
+          <p class="mkt-eyebrow">The problem</p>
+          <h2 class="mkt-h2" id="intro-video-title">You want extra income online. You don&rsquo;t want to chase people.</h2>
           <p class="mkt-lede">
-            Most opportunities ask you to find leads, make calls and pitch your friends.
-            MarketSpase flips it: the platform brings the interest, a real product backs the
-            business and Ora prepares the work for your approval.
+            The old way is calls, lead lists and pitching friends. MarketSpase flips it: the
+            platform brings the interest, a real product backs the business and Ora prepares the
+            work for your approval.
           </p>
           <div class="mkt-stat-strip">
             <div class="mkt-stat">
               <strong>No chasing</strong>
-              <span>MarketSpase runs the ads and routes the interest.</span>
+              <span>Interested customers come through the platform.</span>
             </div>
             <div class="mkt-stat">
-              <strong>Ora prepares</strong>
-              <span>Daily plans, follow-ups and campaign drafts.</span>
+              <strong>No cold calls</strong>
+              <span>Conversations are opt-in.</span>
             </div>
             <div class="mkt-stat">
-              <strong>You approve</strong>
-              <span>Yes, edit or skip. You stay in control.</span>
+              <strong>No guesswork</strong>
+              <span>Ora prepares the next move.</span>
             </div>
           </div>
           <a class="mkt-inline-link" routerLink="/how-it-works" (click)="scrollToTop()">
-            See how your online business works <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+            See the full journey <mat-icon aria-hidden="true">arrow_forward</mat-icon>
           </a>
         </div>
 

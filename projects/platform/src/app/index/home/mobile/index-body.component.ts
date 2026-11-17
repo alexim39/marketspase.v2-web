@@ -1,13 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { BannerComponent } from '../../banner/banner.component';
 import { IntroVideoComponent } from '../../intro-video/intro-video.component';
-import { WhyNowComponent } from '../../why-now/why-now.component';
-import { PillarsComponent } from '../../pillars/pillars.component';
 import { OraShowcaseComponent } from '../../ora-showcase/ora-showcase.component';
 import { PathwayComponent } from '../../pathway/pathway.component';
-import { WhyWeExistComponent } from '../../why-we-exist/why-we-exist.component';
 import { FaqComponent } from '../../faq/faq.component';
-import { BePartnerComponent } from '../../be-partner/be-partner.component';
+import { MoneyComponent } from '../../money/money.component';
 
 /**
  * Mobile landing composition. The shared marketing sections already collapse
@@ -19,24 +16,18 @@ import { BePartnerComponent } from '../../be-partner/be-partner.component';
   imports: [
     BannerComponent,
     IntroVideoComponent,
-    WhyNowComponent,
-    PillarsComponent,
     OraShowcaseComponent,
     PathwayComponent,
-    WhyWeExistComponent,
     FaqComponent,
-    BePartnerComponent,
+    MoneyComponent,
   ],
   template: `
     <async-banner></async-banner>
     <async-index-intro-video></async-index-intro-video>
-    <async-index-why-now></async-index-why-now>
-    <async-index-pillars></async-index-pillars>
-    <async-index-ora-showcase></async-index-ora-showcase>
     <async-index-pathway></async-index-pathway>
-    <async-index-why-we-exist></async-index-why-we-exist>
+    <async-index-ora-showcase></async-index-ora-showcase>
+    <async-index-money></async-index-money>
     <async-index-faq></async-index-faq>
-    <async-be-partner></async-be-partner>
   `,
 })
 export class LandingMobileComponent {}

@@ -26,7 +26,7 @@ import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
           <a mat-button routerLink="/about" routerLinkActive="active" (click)="scrollToTop()">About</a>
           <a mat-button routerLink="/faq" routerLinkActive="active" (click)="scrollToTop()">FAQ</a>
           <a mat-flat-button color="primary" routerLink="/partner/signin" routerLinkActive="active" (click)="scrollToTop()">Sign in</a>
-          <a mat-button routerLink="/partner/signup" routerLinkActive="active" (click)="scrollToTop()">Start your business</a>
+          <a mat-button routerLink="/partner/signup" routerLinkActive="active" (click)="scrollToTop()">Start your online business</a>
           <button
             class="theme-toggle"
             type="button"
@@ -69,7 +69,7 @@ import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
           <a routerLink="/ora" routerLinkActive="active" (click)="closeAndScroll()">Meet Ora</a>
           <a routerLink="/about" routerLinkActive="active" (click)="closeAndScroll()">About</a>
           <a routerLink="/faq" routerLinkActive="active" (click)="closeAndScroll()">FAQ</a>
-          <a routerLink="/partner/signup" routerLinkActive="active" (click)="closeAndScroll()">Start your business</a>
+          <a routerLink="/partner/signup" routerLinkActive="active" (click)="closeAndScroll()">Start your online business</a>
         </nav>
       }
     </header>

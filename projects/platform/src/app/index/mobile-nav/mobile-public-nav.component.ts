@@ -84,7 +84,7 @@ import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo
         <a routerLink="/ora" routerLinkActive="active" (click)="closeAndScroll()">Meet Ora</a>
         <a routerLink="/about" routerLinkActive="active" (click)="closeAndScroll()">About</a>
         <a routerLink="/faq" routerLinkActive="active" (click)="closeAndScroll()">FAQ</a>
-        <a class="cta" routerLink="/partner/signup" routerLinkActive="active" (click)="closeAndScroll()">Start your business</a>
+        <a class="cta" routerLink="/partner/signup" routerLinkActive="active" (click)="closeAndScroll()">Start your online business</a>
 
         <button type="button" class="theme-btn" (click)="toggleTheme()">
           <mat-icon aria-hidden="true">{{ theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>

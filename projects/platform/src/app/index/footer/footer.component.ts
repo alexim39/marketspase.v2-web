@@ -27,7 +27,7 @@ import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo
           <a routerLink="/">Home</a>
           <a routerLink="/how-it-works">How it works</a>
           <a routerLink="/ora">Meet Ora</a>
-          <a routerLink="/partner/signup">Start your business</a>
+          <a routerLink="/partner/signup">Start your online business</a>
           <a routerLink="/partner/signin">Partner sign in</a>
         </nav>
 
