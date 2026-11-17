@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { GoalsComponent } from './list/goals.component';
+import { GoalsIndexComponent } from './list/index.component';
 
 export const GoalsRoutes: Routes = [
   {
     path: '',
-    component: GoalsComponent,
+    component: GoalsIndexComponent,
     title: 'My Goals - Targets, progress and sales trends',
   },
 ];

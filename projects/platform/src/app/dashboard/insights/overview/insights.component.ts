@@ -278,7 +278,7 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
     .alert p { flex: 1; margin: 0; }
     .behind { color: var(--ms-error); }
     @media (max-width: 1000px) { .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } .insights-grid, .lower-grid { grid-template-columns: minmax(0, 1fr); } .health-layout { grid-template-columns: minmax(0, 1fr); } }
-    @media (max-width: 700px) { .panel { padding: 16px; } .summary-strip { grid-template-columns: minmax(0, 1fr); } .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .funnel-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 700px) { .panel { padding: 16px; } .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } .summary-card { padding: 10px 12px; gap: 10px; } .summary-icon { width: 34px; height: 34px; } .summary-card strong { font-size: 1.25rem; } .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .funnel-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 `],
 })
 export class InsightsOverviewComponent implements OnInit {

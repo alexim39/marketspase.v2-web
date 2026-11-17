@@ -500,9 +500,12 @@ const MAX_LOADED_STORED = 500;
     }
     @media (max-width: 640px) {
       .page-head h1 { font-size: 1.8rem; }
-      .summary-strip { grid-template-columns: minmax(0, 1fr); }
+      .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .summary-card { padding: 10px 12px; gap: 10px; }
+      .summary-icon { width: 34px; height: 34px; }
+      .summary-card strong { font-size: 1.25rem; }
       .head-actions { width: 100%; }
-      .head-actions button, .head-actions a { flex: 1; justify-content: center; }
+      .head-actions button, .head-actions a { flex: 1 1 calc(50% - 4px); justify-content: center; min-height: 44px; }
       .feed-item { padding: 0.8em 0.9em; }
       .feed-actions button, .feed-actions a { min-height: 48px; }
     }

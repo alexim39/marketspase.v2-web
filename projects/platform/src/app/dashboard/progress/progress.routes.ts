@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { ProgressComponent } from './progress.component';
+import { ProgressIndexComponent } from './index.component';
 
 export const ProgressRoutes: Routes = [
   {
     path: '',
-    component: ProgressComponent,
+    component: ProgressIndexComponent,
     title: 'My Progress - Partner, Builder, Leader, Ambassador',
   },
 ];

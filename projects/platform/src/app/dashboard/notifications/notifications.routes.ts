@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { NotificationsCenterComponent } from './center/center.component';
-import { NotificationPreferencesComponent } from './preferences/preferences.component';
+import { NotificationsCenterIndexComponent } from './center/index.component';
+import { NotificationPreferencesIndexComponent } from './preferences/index.component';
 
 export const NotificationsRoutes: Routes = [
   {
@@ -10,12 +10,12 @@ export const NotificationsRoutes: Routes = [
   },
   {
     path: 'center',
-    component: NotificationsCenterComponent,
+    component: NotificationsCenterIndexComponent,
     title: 'Notifications - Actionable updates and announcements',
   },
   {
     path: 'preferences',
-    component: NotificationPreferencesComponent,
+    component: NotificationPreferencesIndexComponent,
     title: 'Notifications - Settings',
   },
 ];
