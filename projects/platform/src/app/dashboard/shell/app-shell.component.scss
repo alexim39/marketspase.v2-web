@@ -3,6 +3,27 @@
   height: 100%;
 }
 
+.ms-skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 3000;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--ms-primary-strong);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform 120ms ease;
+}
+
+.ms-skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
 .ms-shell {
   height: 100%;
   background:
@@ -417,7 +438,7 @@
 
   .ms-content {
     min-height: calc(100svh - var(--ms-mobile-appbar-height) - var(--ms-mobile-bottom-nav-height));
-    padding: 0 var(--ms-mobile-gutter) 32px;
+    padding: 0 calc(var(--ms-mobile-gutter) + var(--ms-safe-right)) 32px calc(var(--ms-mobile-gutter) + var(--ms-safe-left));
   }
 
   .ms-loading {

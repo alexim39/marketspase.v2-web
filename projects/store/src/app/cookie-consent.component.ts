@@ -70,6 +70,9 @@ import { ConsentService } from './_common/services/consent.service';
       .cookie-banner {
         align-items: flex-start;
         padding: 1em;
+        padding-right: calc(1em + var(--ms-safe-right));
+        padding-bottom: calc(1em + var(--ms-safe-bottom));
+        padding-left: calc(1em + var(--ms-safe-left));
       }
       .cookie-actions {
         width: 100%;

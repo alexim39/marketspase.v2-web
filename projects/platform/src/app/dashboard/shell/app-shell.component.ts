@@ -1,5 +1,6 @@
 import { Component, DestroyRef, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
@@ -36,6 +37,7 @@ import { MobileDashboardBottomNavComponent } from './mobile/mobile-bottom-nav.co
   selector: 'app-shell',
   standalone: true,
   imports: [
+    A11yModule,
     CommonModule,
     RouterModule,
     MatButtonModule,
@@ -211,6 +213,24 @@ export class AppShellComponent {
     if (this.device.isMobileView()) {
       try { drawer.close(); } catch { /* drawer may not be open */ }
     }
+  }
+
+  /** Keep keyboard focus inside the open mobile drawer and restore it on close. */
+  onDrawerChange(opened: boolean): void {
+    if (!this.device.isMobileView() || typeof document === 'undefined') return;
+    setTimeout(() => {
+      const target = opened
+        ? document.querySelector<HTMLElement>('.ms-sidenav .ms-nav a, .ms-sidenav .ms-nav button')
+        : document.querySelector<HTMLElement>('.ms-mobile-dashboard-topbar .icon-btn[aria-label="Open navigation"]');
+      target?.focus({ preventScroll: true });
+    }, 0);
+  }
+
+  protected skipToContent(event: Event): void {
+    event.preventDefault();
+    const main = typeof document !== 'undefined' ? document.getElementById('ms-content') : null;
+    main?.focus({ preventScroll: true });
+    main?.scrollIntoView({ block: 'start' });
   }
 
   protected canSee(permission?: string): boolean {

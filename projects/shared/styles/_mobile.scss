@@ -85,6 +85,56 @@
   .ms-mobile-scroll {
     @include ms-mobile-scroll;
   }
+
+  /* Touch-first defaults. Material's 48px touch target is preserved; plain
+   * icon buttons that opted into 40px desktop sizing get a 44px minimum. */
+  button.mat-mdc-icon-button,
+  a.mat-mdc-icon-button,
+  .mat-mdc-icon-button {
+    min-width: var(--ms-touch-target);
+    min-height: var(--ms-touch-target);
+  }
+
+  .mat-mdc-button-base,
+  .mat-button-toggle-button,
+  .mat-mdc-fab,
+  .mat-mdc-mini-fab,
+  .filter-chip,
+  .category-chip {
+    min-height: var(--ms-touch-target);
+  }
+
+  body .mat-mdc-button-base,
+  body .mat-button-toggle-button,
+  body .mat-mdc-fab,
+  body .mat-mdc-mini-fab,
+  body .filter-chip.filter-chip,
+  body .category-chip.category-chip {
+    min-height: var(--ms-touch-target);
+  }
+
+  body .mat-mdc-button-base.mat-mdc-button-base.mat-mdc-button-base {
+    min-height: var(--ms-touch-target);
+  }
+
+  /* iOS zooms form fields below 16px; keep mobile forms stable. */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+
+  /* Focus should never land underneath the sticky app bar. */
+  :focus-visible {
+    scroll-margin-top: calc(var(--ms-mobile-appbar-height) + var(--ms-safe-top) + 16px);
+    scroll-margin-bottom: calc(var(--ms-mobile-bottom-nav-height) + var(--ms-safe-bottom) + 16px);
+  }
+
+  a,
+  button,
+  [role='button'] {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 @media (min-width: 960px) {

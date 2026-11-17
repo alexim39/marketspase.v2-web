@@ -14,6 +14,7 @@ import { ThemeService } from '@marketspase/shared/core/ui/theme.service';
 import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo.component';
 import { environment } from '../../../environments/environment';
 import { CartService } from '../../store/cart/cart.service';
+import { StorePwaInstallService } from '../services/store-pwa-install.service';
 
 /**
  * Native store header for phones and tablets. The desktop header/site nav is
@@ -112,6 +113,13 @@ import { CartService } from '../../store/cart/cart.service';
           <mat-icon aria-hidden="true">{{ theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
           {{ theme() === 'dark' ? 'Light mode' : 'Dark mode' }}
         </button>
+
+        @if (install.canInstall()) {
+          <button type="button" class="theme-btn install-btn" (click)="installApp()">
+            <mat-icon aria-hidden="true">install_mobile</mat-icon>
+            Install store app
+          </button>
+        }
       </nav>
     }
   `,
@@ -133,13 +141,15 @@ import { CartService } from '../../store/cart/cart.service';
       align-items: center;
       gap: 4px;
       min-height: 62px;
-      padding: 0 var(--ms-mobile-gutter);
+      padding-right: calc(var(--ms-mobile-gutter) + var(--ms-safe-right));
+      padding-left: calc(var(--ms-mobile-gutter) + var(--ms-safe-left));
     }
 
     .brand {
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      min-height: var(--ms-touch-target);
       margin-right: auto;
       color: var(--ms-text);
       text-decoration: none;
@@ -295,10 +305,17 @@ import { CartService } from '../../store/cart/cart.service';
       font-weight: 600;
       cursor: pointer;
     }
+
+    .install-btn {
+      border-color: transparent;
+      background: var(--ms-primary-strong);
+      color: #fff;
+    }
   `],
 })
 export class MobileStoreHeaderComponent implements OnDestroy {
   protected readonly cart = inject(CartService);
+  protected readonly install = inject(StorePwaInstallService);
   private readonly themes = inject(ThemeService);
   private readonly document = inject(DOCUMENT);
 
@@ -327,6 +344,11 @@ export class MobileStoreHeaderComponent implements OnDestroy {
 
   protected toggleTheme(): void {
     this.themes.toggle();
+  }
+
+  protected installApp(): void {
+    this.closeMenu();
+    void this.install.promptInstall();
   }
 
   @HostListener('document:keydown.escape')

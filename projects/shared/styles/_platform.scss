@@ -377,7 +377,14 @@ html[data-theme="dark"] {
   .messages-page .chat-main { display: none; }
   .messages-page .chat-shell.thread-open { max-height: none; }
   .messages-page .chat-shell.thread-open .chat-main { display: flex; min-height: 0; max-height: 100%; overflow: hidden; }
-  .messages-page .chat-head .back-btn { display: inline-flex; }
+  .messages-page .chat-head .back-btn { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; }
+  .messages-page .chat-head { padding-right: calc(8px + var(--ms-safe-right)); padding-left: calc(8px + var(--ms-safe-left)); }
+  .messages-page .page-head .head-actions button { min-height: 44px; }
+  .messages-page .find-bar button { width: 44px; height: 44px; }
+  .messages-page .mini-btn { width: 40px; height: 40px; line-height: 40px; }
+  .messages-page .msg-actions button { min-height: 44px; min-width: 44px; }
+  .messages-page .send-btn { min-width: 56px; min-height: 56px; }
+  .messages-page .composer { padding-right: calc(8px + var(--ms-safe-right)); padding-left: calc(8px + var(--ms-safe-left)); }
   .messages-page .bubble { max-width: 92%; }
   .messages-page .composer { padding-bottom: calc(0.6em + env(safe-area-inset-bottom, 0px)); }
   .messages-page .composer textarea { font-size: 16px; }

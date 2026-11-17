@@ -126,12 +126,14 @@ import { NotificationBellComponent } from '../../notifications/bell/notification
       align-items: center;
       gap: 2px;
       min-height: var(--ms-mobile-appbar-height);
-      padding: 0 8px;
+      padding-right: calc(8px + var(--ms-safe-right));
+      padding-left: calc(8px + var(--ms-safe-left));
     }
 
     .brand {
       display: inline-flex;
       align-items: center;
+      min-height: var(--ms-touch-target);
       margin: 0 6px;
       text-decoration: none;
     }

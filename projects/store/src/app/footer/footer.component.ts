@@ -64,6 +64,7 @@ import { environment } from '../../environments/environment';
       display: inline-flex;
       align-items: center;
       gap: 0.55em;
+      min-height: 44px;
       color: var(--ms-ink-text);
       text-decoration: none;
     }

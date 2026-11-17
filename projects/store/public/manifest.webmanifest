@@ -1,0 +1,57 @@
+{
+  "name": "MarketSpase Store",
+  "short_name": "MS Store",
+  "description": "Shop trusted products from independent MarketSpase partners. Every store is run by a real person.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#0e0c1d",
+  "theme_color": "#0e0c1d",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["shopping", "business"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/logo/pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo/pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo/pwa-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Find a store",
+      "short_name": "Stores",
+      "url": "/stores",
+      "icons": [{ "src": "/logo/pwa-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Your cart",
+      "short_name": "Cart",
+      "url": "/cart",
+      "icons": [{ "src": "/logo/pwa-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Support",
+      "short_name": "Support",
+      "url": "/support",
+      "icons": [{ "src": "/logo/pwa-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

@@ -1,8 +1,13 @@
+<a class="ms-skip-link" href="#ms-content" (click)="skipToContent($event)">Skip to main content</a>
 <mat-sidenav-container class="ms-shell">
   <mat-sidenav #drawer class="ms-sidenav" [class.is-collapsed]="collapsed()" fixedInViewport
     [attr.role]="device.isMobileView() ? 'dialog' : 'navigation'"
+    [attr.aria-modal]="device.isMobileView() ? 'true' : null"
+    aria-label="Primary navigation"
+    [cdkTrapFocus]="device.isMobileView()"
     [mode]="device.isMobileView() ? 'over' : 'side'"
     [opened]="!device.isMobileView()"
+    (openedChange)="onDrawerChange($event)"
     (keydown.escape)="drawer.close()">
 
     <div class="ms-brand">
@@ -132,7 +137,7 @@
       </div>
     }
 
-    <main class="ms-content">
+    <main id="ms-content" tabindex="-1" class="ms-content">
       <router-outlet />
     </main>
 

@@ -88,6 +88,7 @@ import { CartService } from '../../store/cart/cart.service';
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      min-height: 44px;
       color: var(--ms-text);
       text-decoration: none;
       flex: none;

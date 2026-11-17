@@ -32,3 +32,17 @@ bootstrapApplication(AppComponent, {
     ])),
   ]
 }).catch(err => console.error(err));
+
+// Store PWA shell: production only. Dev builds reuse chunk URLs, so a cached
+// dev shell can serve stale chunks; drop registrations in development.
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  if (environment.production) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/store-sw.js').catch(() => null);
+    });
+  } else {
+    navigator.serviceWorker.getRegistrations()
+      .then((regs) => regs.forEach((r) => r.unregister().catch(() => null)))
+      .catch(() => null);
+  }
+}

@@ -11,6 +11,12 @@
   <meta name="author" content="MarketSpase">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#0e0c1d">
+  <meta name="application-name" content="MarketSpase Store">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MS Store">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="/manifest.webmanifest">
   <link rel="canonical" href="https://store.marketspase.com/">
 
   <meta property="og:site_name" content="MarketSpase Store">
@@ -161,6 +167,16 @@
     "description": "MarketSpase Store is a marketplace of independent partner stores powered by MarketSpase.",
     "areaServed": "Nigeria"
   }
+  </script>
+  <script>
+    // Capture the browser install prompt before Angular boots so the store menu
+    // can offer a native install action.
+    window.__msStoreInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', function (event) {
+      event.preventDefault();
+      window.__msStoreInstallPrompt = event;
+      window.dispatchEvent(new Event('ms-store-installprompt-ready'));
+    });
   </script>
   <script>
     // Apply the stored (or OS) MarketSpase theme before Angular boots (no flash).

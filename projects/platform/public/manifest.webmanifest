@@ -42,6 +42,12 @@
       "icons": [{ "src": "/logo/pwa-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
+      "name": "Messages",
+      "short_name": "Messages",
+      "url": "/dashboard/messages",
+      "icons": [{ "src": "/logo/pwa-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
       "name": "Video of the week",
       "short_name": "Weekly video",
       "url": "/dashboard/learn/video-of-the-week",
