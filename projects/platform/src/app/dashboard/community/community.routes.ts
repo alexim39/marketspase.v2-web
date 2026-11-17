@@ -1,22 +1,22 @@
 import { Routes } from '@angular/router';
-import { CommunityFeedComponent } from './feed/community-feed.component';
-import { CommunityEventsComponent } from './events/events.component';
-import { CommunityHubComponent } from './hub/community-hub.component';
+import { CommunityFeedIndexComponent } from './feed/index.component';
+import { CommunityEventsIndexComponent } from './events/index.component';
+import { CommunityHubIndexComponent } from './hub/index.component';
 
 export const CommunityRoutes: Routes = [
   {
     path: '',
-    component: CommunityHubComponent,
+    component: CommunityHubIndexComponent,
     title: 'Community - Talk, meet and message',
   },
   {
     path: 'feed',
-    component: CommunityFeedComponent,
+    component: CommunityFeedIndexComponent,
     title: 'Community Feed - Team feed and recognition',
   },
   {
     path: 'events',
-    component: CommunityEventsComponent,
+    component: CommunityEventsIndexComponent,
     title: 'Community Events - Gatherings and RSVP',
   },
 ];

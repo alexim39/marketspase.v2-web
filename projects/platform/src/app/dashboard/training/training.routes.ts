@@ -1,14 +1,14 @@
 import { Routes } from '@angular/router';
-import { AcademyDashboardComponent } from './dashboard/academy-dashboard.component';
-import { TrainingAnalyticsComponent } from './analytics/training-analytics.component';
-import { TrainingListComponent } from './list/training-list.component';
-import { TrainingDetailComponent } from './detail/training-detail.component';
-import { TutorialsComponent } from './tutorials/tutorials.component';
+import { AcademyDashboardIndexComponent } from './dashboard/index.component';
+import { TrainingAnalyticsIndexComponent } from './analytics/index.component';
+import { TrainingListIndexComponent } from './list/index.component';
+import { TrainingDetailIndexComponent } from './detail/index.component';
+import { TutorialsIndexComponent } from './tutorials/index.component';
 
 export const TrainingRoutes: Routes = [
   {
     path: '',
-    component: AcademyDashboardComponent,
+    component: AcademyDashboardIndexComponent,
     title: 'Leadership Academy & Development Center - Your learning journey',
   },
   {
@@ -23,12 +23,12 @@ export const TrainingRoutes: Routes = [
   },
   {
     path: 'analytics',
-    component: TrainingAnalyticsComponent,
+    component: TrainingAnalyticsIndexComponent,
     title: 'Training Analytics - Completion and pipeline',
   },
   {
     path: 'tutorials',
-    component: TutorialsComponent,
+    component: TutorialsIndexComponent,
     title: 'Platform Tutorials - How-to videos by app area',
   },
   {
@@ -36,17 +36,17 @@ export const TrainingRoutes: Routes = [
     children: [
       {
         path: '',
-        component: TrainingListComponent,
+        component: TrainingListIndexComponent,
         title: 'Courses - IPO, QSG, SMO and Leadership',
       },
       {
         path: ':courseId/lessons/:lessonId',
-        component: TrainingDetailComponent,
+        component: TrainingDetailIndexComponent,
         title: 'Lesson - Watch, learn and complete',
       },
       {
         path: ':courseId',
-        component: TrainingDetailComponent,
+        component: TrainingDetailIndexComponent,
         title: 'Course - Lessons and certification',
       },
     ],
