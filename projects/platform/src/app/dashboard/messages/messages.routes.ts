@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { MessagesComponent } from './inbox/messages.component';
+import { MessagesIndexComponent } from './inbox/index.component';
 
 export const MessagesRoutes: Routes = [
   {
     path: '',
-    component: MessagesComponent,
+    component: MessagesIndexComponent,
     title: 'Messages - Inbox and team announcements',
   },
 ];

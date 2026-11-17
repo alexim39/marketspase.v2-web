@@ -63,7 +63,7 @@ export const dashboardRoutes: Routes = [
             { path: 'ora', loadChildren: () => import('../ora/ora.routes').then(r => r.OraRoutes) },
 
             // New IA landing pages
-            { path: 'pipeline', loadComponent: () => import('./pipeline/pipeline-hub.component').then(m => m.PipelineHubComponent), title: "Pipeline - Who needs you today" },
+            { path: 'pipeline', loadComponent: () => import('./pipeline/index.component').then(m => m.PipelineHubIndexComponent), title: "Pipeline - Who needs you today" },
             { path: 'team/handoffs', loadComponent: () => import('./mentorship/handoffs/index.component').then(m => m.MentorHandoffsIndexComponent), title: "New member tasks - Mentor onboarding" },
             { path: 'team', loadComponent: () => import('./team/index.component').then(m => m.TeamHubIndexComponent), title: "Team - Who needs you today" },
             { path: 'learn/video-of-the-week', loadComponent: () => import('./learn/weekly-video/index.component').then(m => m.WeeklyVideoIndexComponent), title: "Video of the Week - Weekly briefing" },
