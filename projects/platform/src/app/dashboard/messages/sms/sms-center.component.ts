@@ -496,6 +496,7 @@ export class SmsCenterComponent implements OnInit {
   private suggestTimer: ReturnType<typeof setTimeout> | null = null;
   private quoteTimer: ReturnType<typeof setTimeout> | null = null;
   private quoteRequest = 0;
+  private lastQuery = '';
 
   protected readonly filteredRecipients = computed(() => {
     const q = this.query().trim().toLowerCase();
@@ -564,10 +565,10 @@ export class SmsCenterComponent implements OnInit {
     this.loadRecipients();
   }
 
-  protected loadRecipients(preselectId = ''): void {
+  protected loadRecipients(preselectId = '', search = this.lastQuery): void {
     this.loadingRecipients.set(true);
     this.error.set(null);
-    this.sms.recipients(this.recipientType(), this.query())
+    this.sms.recipients(this.recipientType(), search)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -590,7 +591,16 @@ export class SmsCenterComponent implements OnInit {
 
   protected onSearch(value: string): void {
     this.query.set(value);
-    if (this.query().trim().length >= 2) this.loadRecipients();
+    const q = value.trim();
+    if (q.length >= 2) {
+      this.lastQuery = q;
+      this.loadRecipients('', q);
+    } else if (this.lastQuery) {
+      // A short/empty query must restore the full list, not search a stale
+      // server-side subset from the previous term.
+      this.lastQuery = '';
+      this.loadRecipients('', '');
+    }
   }
 
   protected isSelected(item: SmsRecipientItem): boolean {
