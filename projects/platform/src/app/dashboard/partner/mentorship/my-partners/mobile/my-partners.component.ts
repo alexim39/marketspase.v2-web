@@ -48,15 +48,15 @@ import { MyPartnersFacade } from '../state/my-partners.facade';
           <section class="summary-strip" aria-label="Direct team summary">
             <div class="summary-item">
               <span class="summary-icon"><mat-icon>groups</mat-icon></span>
-              <div><strong>{{ teamCount() }}</strong><span>Direct partners</span></div>
+              <div><strong>{{ teamCount() }}</strong><span>Direct downline</span></div>
             </div>
             <div class="summary-item">
               <span class="summary-icon summary-icon--ok"><mat-icon>verified</mat-icon></span>
-              <div><strong>{{ activatedCount() }}</strong><span>Fully activated</span></div>
+              <div><strong>{{ activatedCount() }}</strong><span>Partners</span></div>
             </div>
             <div class="summary-item">
               <span class="summary-icon summary-icon--warn"><mat-icon>school</mat-icon></span>
-              <div><strong>{{ needsSupportCount() }}</strong><span>Need training</span></div>
+              <div><strong>{{ needsSupportCount() }}</strong><span>Members</span></div>
             </div>
             <div class="summary-item">
               <span class="summary-icon summary-icon--bad"><mat-icon>pending_actions</mat-icon></span>
@@ -87,7 +87,10 @@ import { MyPartnersFacade } from '../state/my-partners.facade';
                       <strong>{{ element.name | titlecase }} {{ element.surname | titlecase }}</strong>
                       <span>&#64;{{ element.username }}</span>
                     </div>
-                    <span class="rank-chip">{{ element.commissionRank || 'Partner' }}</span>
+                    <span class="member-badge" [class.member-badge--partner]="isActivatedPartner(element)">{{ isActivatedPartner(element) ? 'Partner' : 'Member' }}</span>
+                    @if (isActivatedPartner(element) && element.commissionRank && element.commissionRank !== 'Partner') {
+                      <span class="rank-chip" title="Commission rank">{{ element.commissionRank }}</span>
+                    }
                   </div>
 
                   <div class="stamp-row" aria-label="Training stamps">
@@ -187,6 +190,8 @@ import { MyPartnersFacade } from '../state/my-partners.facade';
     .partner-identity { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
     .partner-identity strong { font-size: 1rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .partner-identity span { color: var(--ms-text-muted); font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .member-badge { flex: none; display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 9px; background: var(--ms-canvas); color: var(--ms-text-muted); font-size: 0.64rem; font-weight: 800; white-space: nowrap; }
+    .member-badge--partner { background: var(--ms-success-soft); color: var(--ms-success); }
     .rank-chip { flex: none; display: inline-flex; align-items: center; background: var(--ms-primary-soft); color: var(--ms-primary-strong); border-radius: 999px; padding: 4px 9px; font-size: 0.64rem; font-weight: 700; white-space: nowrap; }
     .stamp-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-height: 30px; }
     .mini-stamp { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--ms-line); color: var(--ms-text-muted); font-size: 0.7rem; font-weight: 600; }
@@ -236,6 +241,7 @@ export class MyPartnersMobileComponent {
   protected nextPage(): void { this.facade.nextPage(); }
   protected presenceStatus(id: string | null | undefined) { return this.facade.presenceStatus(id); }
   protected info(id: string) { return this.facade.info(id); }
+  protected isActivatedPartner(partner: PartnerInterface): boolean { return this.facade.isActivatedPartner(partner); }
   protected support(id: string): void { this.facade.support(id); }
   protected chat(partner: PartnerInterface): void { this.facade.chat(partner); }
   protected displayName(partner: PartnerInterface): string { return this.facade.displayName(partner); }

@@ -153,7 +153,6 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
       { label: 'Feed', link: '/dashboard/community/feed', title: 'Feed and recognition' },
       { label: 'Events', link: '/dashboard/community/events', title: 'Events' },
       { label: 'Messages', link: '/dashboard/messages', title: 'Messages' },
-      { label: 'SMS Center', link: '/dashboard/messages/sms', title: 'Send and manage direct SMS' },
     ],
   },
   {
@@ -172,6 +171,7 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
       { label: 'Trust & compliance', link: '/dashboard/settings/trust', title: 'Identity, consent, statements and data controls' },
       { label: 'Personal page', link: '/dashboard/settings/landing-page', title: 'Set up your public lead page' },
       { label: 'Notifications', link: '/dashboard/notifications/center', title: 'Alerts and notification settings' },
+      { label: 'SMS Center', link: '/dashboard/messages/sms', title: 'Send and manage direct SMS' },
       { label: 'Insights', link: '/dashboard/insights', title: 'Your business insights' },
       { label: 'Help & about', link: '/dashboard/support/ticket', title: 'Support and about' },
     ],

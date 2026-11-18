@@ -103,6 +103,9 @@ export interface ActivationBoardItem {
   member: { username: string; name: string } | null;
   level?: string;
   levelLabel?: string;
+  accountState?: 'member' | 'partner';
+  activatedAt?: string | null;
+  isActivated?: boolean;
   depth?: number;
   relation?: string;
   joinedAt?: string | null;

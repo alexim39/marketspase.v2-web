@@ -1,8 +1,10 @@
 import { ApiEnvelope } from '../auth/auth.models';
 
+export type SmsRecipientKind = 'prospect' | 'partner' | 'customer_lead';
+
 export interface SmsRecipientItem {
   id: string;
-  type: 'prospect' | 'partner';
+  type: SmsRecipientKind;
   name: string;
   username?: string;
   phoneMasked: string;
@@ -12,10 +14,14 @@ export interface SmsRecipientItem {
 }
 
 export interface SmsRecipientsData {
-  type: 'prospects' | 'partners';
+  type: 'prospects' | 'partners' | 'customer_leads';
   items: SmsRecipientItem[];
   walletBalance: number;
   actor: { name: string; storeLink: string; leadPage: string };
+  total: number;
+  limit: number;
+  skip: number;
+  hasMore: boolean;
 }
 
 export interface SmsSuggestion {
@@ -25,7 +31,7 @@ export interface SmsSuggestion {
 }
 
 export interface SmsSuggestData {
-  recipient: { id: string; type: 'prospect' | 'partner'; name: string };
+  recipient: { id: string; type: SmsRecipientKind; name: string };
   suggestions: SmsSuggestion[];
 }
 
@@ -64,7 +70,7 @@ export interface SmsCampaign {
 export interface SmsCampaignDetail extends SmsCampaign {
   recipients: Array<{
     id: string;
-    type: 'prospect' | 'partner';
+    type: SmsRecipientKind;
     recipientId: string;
     name: string;
     phoneMasked: string;

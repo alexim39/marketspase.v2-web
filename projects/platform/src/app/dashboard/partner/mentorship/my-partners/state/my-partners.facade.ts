@@ -10,6 +10,9 @@ import { MyPartnersService } from '../my-partners.service';
 export interface PartnerActivationInfo {
   levelLabel?: string;
   relation?: string;
+  accountState?: 'member' | 'partner';
+  activatedAt?: string | null;
+  isActivated?: boolean;
   ipoDone?: boolean;
   qsgDone?: boolean;
   smoDone?: boolean;
@@ -58,10 +61,7 @@ export class MyPartnersFacade {
 
   readonly isEmptyRecord = computed(() => this.partners().length === 0);
   readonly teamCount = computed(() => this.partners().length);
-  readonly activatedCount = computed(() => this.partners().filter((p) => {
-    const s = this.info(p._id);
-    return !!s && !!s.ipoDone && !!s.qsgDone && !!s.smoDone;
-  }).length);
+  readonly activatedCount = computed(() => this.partners().filter((p) => this.isActivatedPartner(p)).length);
   readonly needsSupportCount = computed(() => Math.max(0, this.teamCount() - this.activatedCount()));
   readonly pendingStampCount = computed(() => {
     let pending = 0;
@@ -110,6 +110,12 @@ export class MyPartnersFacade {
 
   info(id: string): PartnerActivationInfo | null {
     return this.supportMap()[String(id)] ?? null;
+  }
+
+  /** Registered member vs fully activated partner. */
+  isActivatedPartner(partner: PartnerInterface): boolean {
+    if (partner?.accountState === 'partner' || Boolean(partner?.activatedAt)) return true;
+    return this.supportMap()[String(partner?._id ?? '')]?.isActivated === true;
   }
 
   support(id: string): void {

@@ -7,6 +7,7 @@ import {
   SmsCampaignEnvelope,
   SmsHistoryEnvelope,
   SmsQuoteEnvelope,
+  SmsRecipientKind,
   SmsRecipientsEnvelope,
   SmsSuggestEnvelope,
   SmsSuppressionsEnvelope,
@@ -19,23 +20,30 @@ import {
 export class SmsService {
   private readonly api = inject(ApiClient);
 
-  recipients(type: 'prospects' | 'partners', q = ''): Observable<SmsRecipientsEnvelope> {
+  recipients(
+    type: 'prospects' | 'partners' | 'customer_leads',
+    q = '',
+    options: { limit?: number; skip?: number; id?: string } = {},
+  ): Observable<SmsRecipientsEnvelope> {
     let params = new HttpParams().set('type', type);
     if (q.trim()) params = params.set('q', q.trim());
+    if (options.limit) params = params.set('limit', String(options.limit));
+    if (options.skip) params = params.set('skip', String(options.skip));
+    if (options.id) params = params.set('id', options.id);
     return this.api.get<SmsRecipientsEnvelope>('v1/sms/recipients', params);
   }
 
-  suggest(type: 'prospect' | 'partner', id: string): Observable<SmsSuggestEnvelope> {
+  suggest(type: SmsRecipientKind, id: string): Observable<SmsSuggestEnvelope> {
     return this.api.post<SmsSuggestEnvelope>('v1/sms/suggest', { type, id });
   }
 
-  quote(recipients: Array<{ type: 'prospect' | 'partner'; id: string }>, body: string): Observable<SmsQuoteEnvelope> {
+  quote(recipients: Array<{ type: SmsRecipientKind; id: string }>, body: string): Observable<SmsQuoteEnvelope> {
     return this.api.post<SmsQuoteEnvelope>('v1/sms/quote', { recipients, body });
   }
 
   send(payload: {
     idempotencyKey: string;
-    recipients: Array<{ type: 'prospect' | 'partner'; id: string }>;
+    recipients: Array<{ type: SmsRecipientKind; id: string }>;
     body: string;
     scheduledAt?: string | null;
   }): Observable<SmsCampaignEnvelope> {

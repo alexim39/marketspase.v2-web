@@ -23,7 +23,7 @@
         @if (myPartner?.createdAt) { · joined {{ myPartner.createdAt | date:'mediumDate' }} }
       </p>
       <div class="hero-chips">
-        <span class="pill">{{ myPartner?.accountState === 'partner' ? 'Activated partner' : 'Member' }}</span>
+        <span class="pill">{{ (myPartner?.accountState === 'partner' || myPartner?.activatedAt) ? 'Activated partner' : 'Member' }}</span>
         <span class="pill">KYC {{ myPartner?.kycStatus || 'not started' }}</span>
         @if (supportInfo()?.playbook; as p) {
           <span class="pill" [class.pill--warn]="p.atRisk">{{ p.atRisk ? 'At risk' : 'On track' }}</span>

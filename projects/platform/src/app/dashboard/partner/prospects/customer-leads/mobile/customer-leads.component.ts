@@ -153,6 +153,9 @@ import { CustomerLeadsFacade } from '../state/customer-leads.facade';
                   <td data-label="Actions" class="actions">
                     <button mat-icon-button type="button" (click)="select(row)" aria-label="Open customer"><mat-icon>open_in_new</mat-icon></button>
                     @if (row.consentToContact && row.phone) {
+                      <a mat-icon-button [routerLink]="['/dashboard/messages/sms']" [queryParams]="{ customerLead: row.id }" aria-label="Send SMS to customer"><mat-icon>sms</mat-icon></a>
+                    }
+                    @if (row.consentToContact && row.phone) {
                       <a mat-icon-button [href]="whatsapp(row.phone, row.name)" target="_blank" rel="noopener" aria-label="WhatsApp customer" (click)="recordOutreach(row, 'whatsapp')"><mat-icon>chat</mat-icon></a>
                     }
                     @if (row.phone) {
@@ -200,6 +203,7 @@ import { CustomerLeadsFacade } from '../state/customer-leads.facade';
 
           <div class="outreach-row">
             @if (customer.consentToContact && customer.phone) {
+              <a mat-stroked-button [routerLink]="['/dashboard/messages/sms']" [queryParams]="{ customerLead: customer.id }"><mat-icon>sms</mat-icon> Send SMS</a>
               <a mat-stroked-button [href]="whatsapp(customer.phone, customer.name, reorderMessage(customer))" target="_blank" rel="noopener" (click)="recordOutreach(customer, 'whatsapp')"><mat-icon>chat</mat-icon> WhatsApp check-in</a>
             }
             @if (customer.email) {

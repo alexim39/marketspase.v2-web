@@ -23,15 +23,15 @@
     <section class="summary-strip" role="status" aria-label="Direct team summary">
       <div class="summary-item">
         <span class="summary-icon"><mat-icon>groups</mat-icon></span>
-        <div><strong>{{ teamCount }}</strong><span>Direct partners</span></div>
+        <div><strong>{{ teamCount }}</strong><span>Direct downline</span></div>
       </div>
       <div class="summary-item">
         <span class="summary-icon summary-icon--ok"><mat-icon>verified</mat-icon></span>
-        <div><strong>{{ activatedCount }}</strong><span>Fully activated</span></div>
+        <div><strong>{{ activatedCount }}</strong><span>Partners</span></div>
       </div>
       <div class="summary-item">
         <span class="summary-icon summary-icon--warn"><mat-icon>school</mat-icon></span>
-        <div><strong>{{ needsSupportCount }}</strong><span>Need training</span></div>
+        <div><strong>{{ needsSupportCount }}</strong><span>Members</span></div>
       </div>
       <div class="summary-item">
         <span class="summary-icon summary-icon--bad"><mat-icon>pending_actions</mat-icon></span>
@@ -62,7 +62,10 @@
                 <strong>{{ element.name | titlecase }} {{ element.surname | titlecase }}</strong>
                 <span>&#64;{{ element.username }}</span>
               </div>
-              <span class="rank-chip">{{ element.commissionRank || 'Partner' }}</span>
+              <span class="member-badge" [class.member-badge--partner]="isActivatedPartner(element)">{{ isActivatedPartner(element) ? 'Partner' : 'Member' }}</span>
+              @if (isActivatedPartner(element) && element.commissionRank && element.commissionRank !== 'Partner') {
+                <span class="rank-chip" title="Commission rank">{{ element.commissionRank }}</span>
+              }
             </div>
 
             <div class="stamp-row" aria-label="Training stamps">

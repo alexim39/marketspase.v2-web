@@ -29,9 +29,9 @@ export class ActivationBoardFacade {
     const q = this.query().trim().toLowerCase();
     const f = this.filter();
     return this.items().filter((m) => {
-      const done = this.isDone(m);
-      if (f === 'needs' && done) return false;
-      if (f === 'done' && !done) return false;
+      const activated = this.isActivated(m);
+      if (f === 'needs' && activated) return false;
+      if (f === 'done' && !activated) return false;
       if (!q) return true;
       return `${m.member?.name ?? ''} ${m.member?.username ?? ''}`.toLowerCase().includes(q);
     });
@@ -44,8 +44,8 @@ export class ActivationBoardFacade {
     return this.filtered().slice(p * PAGE_SIZE, p * PAGE_SIZE + PAGE_SIZE);
   });
 
-  readonly needWorkCount = computed(() => this.items().filter((m) => !this.isDone(m)).length);
-  readonly completedCount = computed(() => this.items().filter((m) => this.isDone(m)).length);
+  readonly needWorkCount = computed(() => this.items().filter((m) => !this.isActivated(m)).length);
+  readonly completedCount = computed(() => this.items().filter((m) => this.isActivated(m)).length);
   readonly atRiskCount = computed(() => this.items().filter((m) => m.playbook?.atRisk).length);
 
   readonly completionRate = computed(() => {
@@ -78,6 +78,13 @@ export class ActivationBoardFacade {
 
   isDone(m: ActivationBoardItem): boolean {
     return m.ipoDone && m.qsgDone && m.smoDone;
+  }
+
+  /** True registered/activated membership; training completion is separate. */
+  isActivated(m: ActivationBoardItem): boolean {
+    if (typeof m.isActivated === 'boolean') return m.isActivated;
+    if (m.accountState) return m.accountState === 'partner';
+    return this.isDone(m);
   }
 
   toneClass(tone: ActivationBoardItem['nextTone']): string {

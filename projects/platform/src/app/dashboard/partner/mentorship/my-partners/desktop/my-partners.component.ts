@@ -46,6 +46,8 @@ styles: [`
 .partner-identity { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .partner-identity strong { font-size: 1rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .partner-identity span { color: var(--ms-text-muted); font-size: 0.8125rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.member-badge { flex: none; display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 10px; background: var(--ms-canvas); color: var(--ms-text-muted); font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.03em; white-space: nowrap; }
+.member-badge--partner { background: var(--ms-success-soft); color: var(--ms-success); }
 .rank-chip { flex: none; display: inline-flex; align-items: center; background: var(--ms-primary-soft); color: var(--ms-primary-strong); border-radius: 999px; padding: 4px 10px; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.03em; white-space: nowrap; }
 
 .stamp-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 32px; }
@@ -115,6 +117,7 @@ export class MyPartnersDesktopComponent {
   protected onPage(event: PageEvent): void { this.facade.setPage(event.pageIndex); }
   protected presenceStatus(id: string | null | undefined) { return this.facade.presenceStatus(id); }
   protected info(id: string) { return this.facade.info(id); }
+  protected isActivatedPartner(partner: PartnerInterface): boolean { return this.facade.isActivatedPartner(partner); }
   protected support(id: string): void { this.facade.support(id); }
   protected chat(partner: PartnerInterface): void { this.facade.chat(partner); }
   protected displayName(partner: PartnerInterface): string { return this.facade.displayName(partner); }

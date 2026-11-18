@@ -50,31 +50,31 @@ import { ActivationBoardFacade } from '../state/activation-board.facade';
       @if (!loading() && !error() && items().length > 0) {
         <section class="hero-card">
           <div class="hero-main">
-            <span class="hero-label">Training coverage</span>
+            <span class="hero-label">Activation coverage</span>
             <div class="hero-figure">
               <strong>{{ completionRate() }}%</strong>
-              <span>of this board fully activated</span>
+              <span>of this board are activated partners</span>
             </div>
-            <div class="hero-track" role="progressbar" [attr.aria-valuenow]="completionRate()" aria-valuemin="0" aria-valuemax="100" aria-label="Team training coverage">
+            <div class="hero-track" role="progressbar" [attr.aria-valuenow]="completionRate()" aria-valuemin="0" aria-valuemax="100" aria-label="Team activation coverage">
               <span [style.width.%]="completionRate()"></span>
             </div>
-            <p>IPO, QSG and SMO must all be confirmed before a member is counted as activated. Focus on the members below with pending stamps.</p>
+            <p>Members are registered accounts still on the activation journey. Partners are fully activated. Training stamps show who still needs your help.</p>
           </div>
           <div class="hero-stats" role="status">
             <div class="hero-stat">
-              <span>Members</span>
+              <span>Downline</span>
               <strong>{{ totalMembers() || items().length }}</strong>
-              <small>in your downline</small>
+              <small>people in your team</small>
             </div>
             <div class="hero-stat">
-              <span>Need training</span>
+              <span>Members</span>
               <strong>{{ needWorkCount() }}</strong>
-              <small>with pending stamps</small>
+              <small>registered, not activated</small>
             </div>
             <div class="hero-stat">
-              <span>Activated</span>
+              <span>Partners</span>
               <strong>{{ completedCount() }}</strong>
-              <small>all stamps confirmed</small>
+              <small>activated accounts</small>
             </div>
             <div class="hero-stat">
               <span>At risk</span>
@@ -95,10 +95,10 @@ import { ActivationBoardFacade } from '../state/activation-board.facade';
               All <span>{{ items().length }}</span>
             </button>
             <button type="button" class="filter-btn" [class.filter-btn--active]="filter() === 'needs'" [attr.aria-pressed]="filter() === 'needs'" (click)="filter.set('needs'); page.set(0)">
-              Needs training <span>{{ needWorkCount() }}</span>
+              Members <span>{{ needWorkCount() }}</span>
             </button>
             <button type="button" class="filter-btn" [class.filter-btn--active]="filter() === 'done'" [attr.aria-pressed]="filter() === 'done'" (click)="filter.set('done'); page.set(0)">
-              Activated <span>{{ completedCount() }}</span>
+              Partners <span>{{ completedCount() }}</span>
             </button>
           </div>
         </div>
@@ -113,13 +113,14 @@ import { ActivationBoardFacade } from '../state/activation-board.facade';
         </div>
         <ul class="member-list">
           @for (m of paged(); track m.partnerId) {
-            <li class="member-card" [class.member-card--done]="isDone(m)">
+            <li class="member-card" [class.member-card--done]="isActivated(m)">
               <div class="member-head">
                 <span class="avatar" aria-hidden="true">{{ initials(m.member?.name) }}</span>
                 <div class="member-identity">
                   <strong>{{ m.member?.name ?? 'Team member' }}</strong>
-                  <span class="member-meta">&#64;{{ m.member?.username ?? '—' }} · {{ m.relation || 'Direct' }} · {{ m.levelLabel || 'Partner' }}</span>
+                  <span class="member-meta">&#64;{{ m.member?.username ?? '—' }} · {{ m.relation || 'Direct' }}</span>
                 </div>
+                <span class="member-badge" [class.member-badge--partner]="isActivated(m)">{{ isActivated(m) ? 'Partner' : 'Member' }}</span>
                 <span class="status-pill {{ toneClass(m.nextTone) }}">{{ m.nextAction }}</span>
               </div>
 
@@ -262,6 +263,8 @@ import { ActivationBoardFacade } from '../state/activation-board.facade';
     .member-identity { flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 2px; }
     .member-identity strong { font-size: 1.0625rem; font-weight: 600; }
     .member-meta { color: var(--ms-text-muted); font-size: 0.8125rem; overflow-wrap: anywhere; }
+    .member-badge { display: inline-flex; align-items: center; padding: 5px 11px; border-radius: 999px; background: var(--ms-canvas); color: var(--ms-text-muted); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.02em; white-space: nowrap; }
+    .member-badge--partner { background: var(--ms-success-soft); color: var(--ms-success); }
     .status-pill { border-radius: 999px; padding: 6px 14px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
     .stamps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .stamp { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-canvas); color: var(--ms-text-muted); }
@@ -354,6 +357,7 @@ export class ActivationBoardMobileComponent {
   protected progressPct(m: Parameters<ActivationBoardFacade['progressPct']>[0]): number { return this.facade.progressPct(m); }
   protected initials(name?: string | null): string { return this.facade.initials(name); }
   protected isDone(m: Parameters<ActivationBoardFacade['isDone']>[0]): boolean { return this.facade.isDone(m); }
+  protected isActivated(m: Parameters<ActivationBoardFacade['isActivated']>[0]): boolean { return this.facade.isActivated(m); }
   protected toneClass(tone: Parameters<ActivationBoardFacade['toneClass']>[0]): string { return this.facade.toneClass(tone); }
   protected prev(): void { this.facade.prev(); }
   protected next(): void { this.facade.next(); }

@@ -24,9 +24,10 @@ import {
 } from '../../../core/sms/sms.models';
 
 type Tab = 'compose' | 'history' | 'templates' | 'optouts';
-type RecipientType = 'prospects' | 'partners';
+type RecipientType = 'prospects' | 'partners' | 'customer_leads';
 
 const PRICE_PER_PAGE = 10;
+const RECIPIENT_PAGE_SIZE = 50;
 
 @Component({
   selector: 'async-sms-center',
@@ -49,7 +50,7 @@ const PRICE_PER_PAGE = 10;
         <div>
           <p class="eyebrow">MESSAGES · DIRECT OUTREACH</p>
           <h1>SMS Center</h1>
-          <p class="subtitle">Send a personal text to a prospect or your direct team. Ora drafts it from their current activity; you review and send.</p>
+          <p class="subtitle">Send a personal text to a prospect, store customer, or your direct team. Ora drafts it from their current activity; you review and send.</p>
         </div>
         <div class="wallet-chip">
           <span>Wallet</span>
@@ -78,11 +79,12 @@ const PRICE_PER_PAGE = 10;
             <div class="type-toggle" role="group" aria-label="Recipient type">
               <button type="button" [class.active]="recipientType() === 'prospects'" [attr.aria-pressed]="recipientType() === 'prospects'" (click)="setType('prospects')">Prospects</button>
               <button type="button" [class.active]="recipientType() === 'partners'" [attr.aria-pressed]="recipientType() === 'partners'" (click)="setType('partners')">Partners</button>
+              <button type="button" [class.active]="recipientType() === 'customer_leads'" [attr.aria-pressed]="recipientType() === 'customer_leads'" (click)="setType('customer_leads')">Customers</button>
             </div>
 
             <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search">
               <mat-icon matPrefix>search</mat-icon>
-              <mat-label>Search name or username</mat-label>
+              <mat-label>Search name, username or phone</mat-label>
               <input matInput type="search" [value]="query()" (input)="onSearch($any($event.target).value)" />
             </mat-form-field>
 
@@ -93,8 +95,10 @@ const PRICE_PER_PAGE = 10;
               <p class="error" role="alert">{{ err }} <button mat-button type="button" (click)="loadRecipients()">Retry</button></p>
             }
 
+            <p class="results-meta" role="status">Showing {{ recipients().length }} of {{ recipientTotal() }} {{ typeNoun() }}</p>
+
             <ul class="recipient-list">
-              @for (item of filteredRecipients(); track item.id) {
+              @for (item of visibleRecipients(); track item.type + item.id) {
                 <li class="recipient" [class.disabled]="!item.eligible">
                   <mat-checkbox
                     [checked]="isSelected(item)"
@@ -106,12 +110,22 @@ const PRICE_PER_PAGE = 10;
                     <span>{{ item.phoneMasked }} @if (item.username) { · &#64;{{ item.username }} }</span>
                     @if (!item.eligible) { <small class="reason">{{ item.reason }}</small> }
                   </div>
-                  <span class="type-pill">{{ item.type }}</span>
+                  <span class="type-pill">{{ typeLabel(item.type) }}</span>
                 </li>
               } @empty {
-                <li class="empty-row">No {{ recipientType() }} found.</li>
+                <li class="empty-row">No {{ typeNoun() }} found.</li>
               }
             </ul>
+
+            @if (recipientHasMore()) {
+              <div class="load-more">
+                @if (loadingMore()) { <mat-progress-bar mode="indeterminate" aria-label="Loading more recipients" /> }
+                <button mat-stroked-button type="button" (click)="loadMore()" [disabled]="loadingMore()">
+                  <mat-icon aria-hidden="true">expand_more</mat-icon>
+                  {{ loadingMore() ? 'Loading…' : 'Load more' }}
+                </button>
+              </div>
+            }
 
             @if (selected().length > 0) {
               <div class="selected-tray">
@@ -348,10 +362,11 @@ const PRICE_PER_PAGE = 10;
     .panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
     .panel-head h2, .panel-head h3 { margin: 2px 0 0; font-size: 1.1rem; }
     .count-chip, .type-pill { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-size: 0.68rem; font-weight: 800; text-transform: capitalize; white-space: nowrap; }
-    .type-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; border: 1px solid var(--ms-line); border-radius: 999px; background: var(--ms-canvas); margin-bottom: 10px; }
+    .type-toggle { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 3px; border: 1px solid var(--ms-line); border-radius: 999px; background: var(--ms-canvas); margin-bottom: 10px; }
     .type-toggle button { min-height: 40px; border: 0; border-radius: 999px; background: transparent; color: var(--ms-text-muted); font: inherit; font-weight: 700; cursor: pointer; }
     .type-toggle button.active { background: var(--ms-surface); color: var(--ms-primary-strong); box-shadow: var(--ms-shadow-sm); }
     .search { width: 100%; }
+    .results-meta { margin: 2px 0 0; color: var(--ms-text-muted); font-size: 0.72rem; }
     .recipient-list { list-style: none; margin: 8px 0 0; padding: 0; max-height: 390px; overflow-y: auto; display: flex; flex-direction: column; }
     .recipient { display: flex; align-items: center; gap: 8px; padding: 9px 2px; border-top: 1px solid var(--ms-line); min-width: 0; }
     .recipient:first-child { border-top: none; }
@@ -361,7 +376,10 @@ const PRICE_PER_PAGE = 10;
     .recipient-copy strong { font-size: 0.9rem; }
     .recipient-copy span, .recipient-copy small { color: var(--ms-text-muted); font-size: 0.75rem; }
     .recipient-copy .reason { color: var(--ms-warning); }
-    .selected-tray { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; }
+    .selected-tray { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; max-height: 120px; overflow-y: auto; }
+    .load-more { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+    .load-more button { min-height: 44px; width: 100%; }
+    .load-more button mat-icon { margin-right: 4px; }
     .selected-chip { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 0 8px; border: 1px solid var(--ms-line); border-radius: 999px; background: var(--ms-canvas); color: var(--ms-text); font: inherit; font-size: 0.74rem; font-weight: 700; cursor: pointer; }
     .selected-chip mat-icon { font-size: 14px; width: 14px; height: 14px; }
     .suggestions { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid var(--ms-primary); border-radius: var(--ms-radius-lg); background: var(--ms-primary-soft); margin-bottom: 10px; }
@@ -469,7 +487,10 @@ export class SmsCenterComponent implements OnInit {
   protected readonly recipients = signal<SmsRecipientItem[]>([]);
   protected readonly selected = signal<SmsRecipientItem[]>([]);
   protected readonly loadingRecipients = signal(false);
+  protected readonly loadingMore = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly recipientTotal = signal(0);
+  protected readonly recipientHasMore = signal(false);
   protected readonly walletBalance = signal(0);
   protected readonly suggestions = signal<SmsSuggestion[]>([]);
   protected readonly suggestionName = signal('this contact');
@@ -495,14 +516,11 @@ export class SmsCenterComponent implements OnInit {
   protected readonly templateBody = signal('');
   private suggestTimer: ReturnType<typeof setTimeout> | null = null;
   private quoteTimer: ReturnType<typeof setTimeout> | null = null;
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
   private quoteRequest = 0;
   private lastQuery = '';
 
-  protected readonly filteredRecipients = computed(() => {
-    const q = this.query().trim().toLowerCase();
-    if (!q) return this.recipients();
-    return this.recipients().filter((row) => `${row.name} ${row.username ?? ''}`.toLowerCase().includes(q));
-  });
+  protected readonly visibleRecipients = computed(() => this.recipients());
   protected readonly pages = computed(() => this.quote()?.pages ?? Math.max(1, Math.ceil(this.body().trim().length / 160)));
   protected readonly estimatedCost = computed(() => {
     if (this.body().trim().length < 3) return 0;
@@ -539,7 +557,11 @@ export class SmsCenterComponent implements OnInit {
     this.loadHistory();
     const prospect = String(this.route.snapshot.queryParamMap.get('prospect') ?? '').trim();
     const partner = String(this.route.snapshot.queryParamMap.get('partner') ?? '').trim();
-    if (partner) {
+    const customerLead = String(this.route.snapshot.queryParamMap.get('customerLead') ?? '').trim();
+    if (customerLead) {
+      this.recipientType.set('customer_leads');
+      this.loadRecipients(customerLead);
+    } else if (partner) {
       this.recipientType.set('partners');
       this.loadRecipients(partner);
     } else if (prospect) {
@@ -561,46 +583,105 @@ export class SmsCenterComponent implements OnInit {
     this.recipientType.set(type);
     this.selected.set([]);
     this.suggestions.set([]);
+    this.query.set('');
+    this.lastQuery = '';
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+      this.searchTimer = null;
+    }
     this.scheduleQuote();
     this.loadRecipients();
   }
 
-  protected loadRecipients(preselectId = '', search = this.lastQuery): void {
-    this.loadingRecipients.set(true);
+  protected loadRecipients(preselectId = '', append = false): void {
+    const skip = append ? this.recipients().length : 0;
+    if (append) this.loadingMore.set(true);
+    else this.loadingRecipients.set(true);
     this.error.set(null);
-    this.sms.recipients(this.recipientType(), search)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.sms.recipients(this.recipientType(), this.lastQuery, {
+      limit: RECIPIENT_PAGE_SIZE,
+      skip,
+    }).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          this.recipients.set(res.data?.items ?? []);
-          this.walletBalance.set(Number(res.data?.walletBalance ?? 0));
+          const items = res.data?.items ?? [];
+          if (append) {
+            this.recipients.update((rows) => {
+              const seen = new Set(rows.map((row) => `${row.type}:${row.id}`));
+              return [...rows, ...items.filter((row) => !seen.has(`${row.type}:${row.id}`))];
+            });
+          } else {
+            this.recipients.set(items);
+          }
+          this.recipientTotal.set(Number(res.data?.total ?? items.length));
+          this.recipientHasMore.set(Boolean(res.data?.hasMore));
+          this.walletBalance.set(Number(res.data?.walletBalance ?? this.walletBalance()));
           if (preselectId) {
-            const found = (res.data?.items ?? []).find((row) => row.id === preselectId);
-            if (found?.eligible) this.selected.set([found]);
-            this.loadSuggestions();
-            this.scheduleQuote();
+            const found = items.find((row) => row.id === preselectId);
+            if (found?.eligible) {
+              this.selected.set([found]);
+              this.loadSuggestions();
+              this.scheduleQuote();
+            } else if (found) {
+              this.error.set(found.reason ?? 'This contact cannot receive SMS.');
+            } else {
+              this.loadRecipientById(preselectId);
+            }
           }
           this.loadingRecipients.set(false);
+          this.loadingMore.set(false);
         },
         error: (err: ApiError) => {
           this.loadingRecipients.set(false);
+          this.loadingMore.set(false);
           this.error.set(userError(err));
         },
       });
   }
 
+  protected loadMore(): void {
+    if (this.loadingMore() || !this.recipientHasMore()) return;
+    this.loadRecipients('', true);
+  }
+
+  protected loadRecipientById(id: string): void {
+    this.sms.recipients(this.recipientType(), '', { limit: 1, id })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const item = res.data?.items?.[0];
+          if (item?.eligible) {
+            this.selected.set([item]);
+            this.loadSuggestions();
+            this.scheduleQuote();
+          } else if (item) {
+            this.error.set(item.reason ?? 'This contact cannot receive SMS.');
+          }
+        },
+        error: (err: ApiError) => this.error.set(userError(err)),
+      });
+  }
+
   protected onSearch(value: string): void {
     this.query.set(value);
-    const q = value.trim();
-    if (q.length >= 2) {
-      this.lastQuery = q;
-      this.loadRecipients('', q);
-    } else if (this.lastQuery) {
-      // A short/empty query must restore the full list, not search a stale
-      // server-side subset from the previous term.
-      this.lastQuery = '';
-      this.loadRecipients('', '');
-    }
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      const q = value.trim();
+      this.lastQuery = q.length >= 2 ? q : '';
+      this.loadRecipients();
+    }, 300);
+  }
+
+  protected typeLabel(type: SmsRecipientItem['type']): string {
+    if (type === 'partner') return 'Partner';
+    if (type === 'customer_lead') return 'Customer';
+    return 'Prospect';
+  }
+
+  protected typeNoun(): string {
+    if (this.recipientType() === 'partners') return 'partners';
+    if (this.recipientType() === 'customer_leads') return 'customers';
+    return 'prospects';
   }
 
   protected isSelected(item: SmsRecipientItem): boolean {
