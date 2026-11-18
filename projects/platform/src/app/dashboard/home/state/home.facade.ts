@@ -390,7 +390,11 @@ export class HomeFacade {
       .subscribe({
         next: (res) => {
           this.claimingBonus.set(false);
-          this.bonusNotice.set(res.message ?? `₦${Number(campaign.amountNgn).toLocaleString()} added to your wallet.`);
+          this.bonusNotice.set(
+            res.message
+              ? `${res.message} Platform use only — not withdrawable.`
+              : `₦${Number(campaign.amountNgn).toLocaleString()} added as platform credit. Use it for SMS, campaigns and other services; it cannot be withdrawn.`,
+          );
           this.bonus.set(null);
         },
         error: (err: ApiError) => {

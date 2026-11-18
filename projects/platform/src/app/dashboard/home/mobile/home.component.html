@@ -27,6 +27,7 @@
       <div class="banner-copy">
         <strong>{{ campaign.title }} — ₦{{ campaign.amountNgn | number }} waiting</strong>
         <p>{{ campaign.message || 'Claim it into your wallet and put it to work.' }}</p>
+        <p class="bonus-use-note">Platform-use only: SMS, campaigns and other services. It cannot be withdrawn.</p>
       </div>
       <button mat-flat-button color="primary" type="button" (click)="vm.claimBonus()" [disabled]="vm.claimingBonus()">
         {{ vm.claimingBonus() ? 'Claiming…' : 'Claim' }}

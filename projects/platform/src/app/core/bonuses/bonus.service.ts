@@ -38,6 +38,8 @@ export interface EligibleEnvelope extends ApiEnvelope<EligibleBonus> {
 export interface ClaimResult {
   amountNgn: number;
   balance: number | null;
+  bonusBalance?: number;
+  withdrawableBalance?: number;
   reference: string;
   transactionId: string;
 }

@@ -55,6 +55,8 @@ export interface WithdrawalResult {
   amountNgn: number;
   status: string;
   balance: number | null;
+  bonusBalance?: number | null;
+  withdrawableBalance?: number | null;
   bank: string;
   bankCode: string;
   accountNumber: string;

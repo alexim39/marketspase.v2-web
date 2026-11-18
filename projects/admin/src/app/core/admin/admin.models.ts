@@ -11,6 +11,8 @@ export interface ManagedPartner {
   profileImage?: string | null;
   role: UserRole;
   permissions?: string[];
+  accountState?: 'member' | 'partner';
+  activatedAt?: string | null;
   suspended?: boolean;
   suspendReason?: string | null;
   subscription?: { plan?: string; status?: string };
@@ -77,6 +79,8 @@ export interface PlatformStats {
   new7d: number;
   new30d: number;
   roles: { user: number; leader: number; admin: number };
+  members?: number;
+  partners?: number;
   suspended: number;
   levels?: Record<string, number>;
   unranked?: number;

@@ -13,6 +13,12 @@
       <span class="balance-label">Available to withdraw</span>
       <strong>{{ currentBalance | currency:'₦':'symbol':'1.2-2' }}</strong>
       <p>Withdrawals are sent to your verified Nigerian bank account. The full amount is held safely until the payout settles.</p>
+      @if (bonusBalance > 0) {
+        <p class="bonus-note">
+          <mat-icon aria-hidden="true">info</mat-icon>
+          <span>{{ bonusBalance | currency:'₦':'symbol':'1.2-2' }} is platform bonus. Use it for SMS, campaigns and other platform services. It cannot be withdrawn.</span>
+        </p>
+      }
     </div>
     <div class="balance-actions">
       <button mat-flat-button color="primary" type="button" (click)="withdrawFund()">

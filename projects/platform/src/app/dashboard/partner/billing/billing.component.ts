@@ -43,7 +43,8 @@ export class BillingComponent implements OnInit, AfterViewInit {
   @Input() transactions!: TransactionInterface;  
   readonly dialog = inject(MatDialog);  
 
-  currentBalance!: number | undefined; // Initial balance  
+  currentBalance!: number | undefined; // Initial withdrawable balance
+  bonusBalance = 0;
   filterText: string = '';  
   displayedColumns: string[] = ['transactionId', 'dateOfPayment', 'amount', 'paymentMethod', 'paymentStatus', 'transactionType', 'action'];  
   dataSource = new MatTableDataSource<any>([]);  
@@ -54,7 +55,11 @@ export class BillingComponent implements OnInit, AfterViewInit {
   constructor(private paystackService: PaystackService) {}  
 
   ngOnInit() {  
-    this.currentBalance = this.partner ? this.partner.balance : 0;  
+    this.bonusBalance = Math.max(0, Number(this.partner?.bonusBalance ?? 0));
+    this.currentBalance = this.partner
+      ? Math.max(0, Number(this.partner.withdrawableBalance
+        ?? (Number(this.partner.balance ?? 0) - this.bonusBalance)))
+      : 0;
 
    /*  if (this.transactions && this.transactions.data) {
 
@@ -88,10 +93,16 @@ export class BillingComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
-      if (typeof result.balance === 'number') {
-        this.currentBalance = result.balance;
-        if (this.partner) this.partner.balance = result.balance;
+      if (typeof result.withdrawableBalance === 'number') {
+        this.currentBalance = result.withdrawableBalance;
+      } else if (typeof result.balance === 'number') {
+        this.currentBalance = Math.max(0, result.balance - this.bonusBalance);
       }
+      if (typeof result.balance === 'number' && this.partner) {
+        this.partner.balance = result.balance;
+        this.partner.withdrawableBalance = this.currentBalance;
+      }
+      if (typeof result.bonusBalance === 'number') this.bonusBalance = result.bonusBalance;
     });
   }
 

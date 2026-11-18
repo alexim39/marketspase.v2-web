@@ -52,6 +52,7 @@ import { HomeFacade } from '../state/home.facade';
           <div class="bonus-body">
             <strong>{{ campaign.title }} — ₦{{ campaign.amountNgn | number }} waiting</strong>
             <p>{{ campaign.message || 'Claim it into your wallet and put it to work.' }}</p>
+            <p class="bonus-use-note">Platform-use only: SMS, campaigns and other services. It cannot be withdrawn.</p>
             @if (bonusNotice(); as note) {
               <p class="notice">{{ note }}</p>
             }
@@ -444,6 +445,7 @@ import { HomeFacade } from '../state/home.facade';
     .bonus-banner mat-icon { color: var(--ms-primary-strong); flex: none; }
     .bonus-body { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
     .bonus-body p { margin: 0; font-size: 0.875rem; }
+.bonus-body .bonus-use-note { color: var(--ms-primary-strong); font-size: 0.75rem; font-weight: 600; }
     .bonus-body .notice { color: var(--ms-success); font-weight: 600; }
     .bonus-banner button { flex: none; min-height: 44px; }
   .profile-banner mat-icon { color: var(--ms-info); flex: none; }

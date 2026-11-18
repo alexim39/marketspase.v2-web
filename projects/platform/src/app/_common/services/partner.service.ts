@@ -25,6 +25,8 @@ export interface PartnerInterface {
   visits?: number;
   dobDatePicker?: Date;
   balance?: number;
+  bonusBalance?: number;
+  withdrawableBalance?: number;
   role: string;
   profileImage?: string;
   jobTitle?: string;

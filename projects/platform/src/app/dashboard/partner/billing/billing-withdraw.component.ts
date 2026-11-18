@@ -54,9 +54,14 @@ import { BankOption, PaystackService, ResolvedAccount, SavedWithdrawalAccount } 
 
       <mat-dialog-content>
         <div class="balance-row">
-          <span>Available balance</span>
+          <span>Available to withdraw</span>
           <strong>{{ money(balance) }}</strong>
         </div>
+        @if (bonusBalance > 0) {
+          <p class="bonus-note">
+            <strong>{{ money(bonusBalance) }}</strong> is platform bonus. It can be used for SMS, campaigns and other platform services but cannot be withdrawn.
+          </p>
+        }
 
         <form [formGroup]="form" (ngSubmit)="review()" novalidate>
           <mat-form-field appearance="outline">
@@ -211,6 +216,7 @@ import { BankOption, PaystackService, ResolvedAccount, SavedWithdrawalAccount } 
     mat-dialog-content { padding: 0.8em 1.4em 1.4em; max-height: 72vh; }
     .balance-row { display: flex; justify-content: space-between; align-items: center; gap: 1em; padding: 0.8em 0.9em; margin-bottom: 1em; border-radius: 12px; background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
     .balance-row strong { font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+    .bonus-note { margin: -0.4em 0 1em; padding: 0.65em 0.8em; border: 1px solid var(--ms-warning); border-radius: 10px; background: var(--ms-warning-soft); color: var(--ms-warning); font-size: 0.8rem; line-height: 1.5; }
     form { display: flex; flex-direction: column; gap: 0.35em; }
     mat-form-field { width: 100%; }
     .lookup { display: flex; align-items: center; gap: 0.6em; margin: 0.2em 0 0.8em; color: var(--ms-text-muted); font-size: 0.86em; }
@@ -248,7 +254,9 @@ export class BillingWithdrawComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly partner = inject<PartnerInterface>(MAT_DIALOG_DATA);
 
-  protected readonly balance = Number(this.partner?.balance ?? 0);
+  protected readonly balance = Math.max(0, Number(this.partner?.withdrawableBalance
+    ?? (Number(this.partner?.balance ?? 0) - Number(this.partner?.bonusBalance ?? 0))));
+  protected readonly bonusBalance = Math.max(0, Number(this.partner?.bonusBalance ?? 0));
   protected readonly form: FormGroup = this.fb.group({
     accountNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
     amount: [null as number | null, [Validators.required, Validators.min(100), Validators.max(this.balance)]],

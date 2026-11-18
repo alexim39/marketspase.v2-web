@@ -107,7 +107,8 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
           <div class="dp-card stat"><span class="stat-value">{{ s.total | number }}</span><span class="muted">Total</span></div>
           <div class="dp-card stat"><span class="stat-value">+{{ s.new7d | number }}</span><span class="muted">New 7d</span></div>
           <div class="dp-card stat"><span class="stat-value">+{{ s.new30d | number }}</span><span class="muted">New 30d</span></div>
-          <div class="dp-card stat"><span class="stat-value">{{ s.roles.user | number }}</span><span class="muted">Members</span></div>
+          <div class="dp-card stat"><span class="stat-value">{{ (s.partners ?? 0) | number }}</span><span class="muted">Partners</span></div>
+          <div class="dp-card stat"><span class="stat-value">{{ (s.members ?? 0) | number }}</span><span class="muted">Members</span></div>
           <div class="dp-card stat"><span class="stat-value">{{ s.roles.leader | number }}</span><span class="muted">Leaders</span></div>
           <div class="dp-card stat"><span class="stat-value">{{ s.roles.admin | number }}</span><span class="muted">Admins</span></div>
         </div>
@@ -167,6 +168,14 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
                 @if (row.suspended) {
                   <span class="dp-status dp-status--bad" [matTooltip]="row.suspendReason || 'Suspended'">Suspended</span>
                 }
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="account">
+              <th mat-header-cell *matHeaderCellDef>Activation</th>
+              <td mat-cell *matCellDef="let row">
+                <span class="dp-status" [class.dp-status--ok]="isActivated(row)" [class.dp-status--warn]="!isActivated(row)">
+                  {{ isActivated(row) ? 'Partner' : 'Member' }}
+                </span>
               </td>
             </ng-container>
             <ng-container matColumnDef="plan">
@@ -336,7 +345,7 @@ export class ManageRolesComponent implements OnInit {
   protected readonly uplineId = signal<string | null>(null);
   protected readonly uplineUsername = signal('');
 
-  protected readonly displayedColumns = ['name', 'contact', 'login', 'role', 'plan', 'action'];
+  protected readonly displayedColumns = ['name', 'contact', 'login', 'role', 'account', 'plan', 'action'];
 
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -415,6 +424,10 @@ export class ManageRolesComponent implements OnInit {
     if (key === 'leader') return 'dp-status dp-status--info';
     if (key === 'admin') return 'dp-status dp-status--warn';
     return 'dp-status dp-status--neutral';
+  }
+
+  protected isActivated(row: ManagedPartner): boolean {
+    return row.accountState === 'partner' || Boolean(row.activatedAt);
   }
 
   protected displayName(row: ManagedPartner): string {
