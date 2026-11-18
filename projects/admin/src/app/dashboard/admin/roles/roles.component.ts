@@ -173,7 +173,8 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
             <ng-container matColumnDef="account">
               <th mat-header-cell *matHeaderCellDef>Activation</th>
               <td mat-cell *matCellDef="let row">
-                <span class="dp-status" [class.dp-status--ok]="isActivated(row)" [class.dp-status--warn]="!isActivated(row)">
+                <span class="dp-status" [class.dp-status--ok]="isActivated(row)" [class.dp-status--warn]="!isActivated(row)"
+                  [matTooltip]="isActivated(row) ? 'Activated account (partner)' : 'Signed up but not activated (member)'">
                   {{ isActivated(row) ? 'Partner' : 'Member' }}
                 </span>
               </td>
