@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRadioModule } from '@angular/material/radio';
@@ -12,7 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
 import {
-  AdminBroadcastService, AudienceEstimate, BroadcastRow, CampaignAudience, CampaignPayload,
+  AdminBroadcastService, AudienceEstimate, BroadcastRow, CampaignAudience, CampaignPayload, BroadcastDraft,
 } from './admin-broadcast.service';
 import { ApiError, userError } from '../../../core/http/api-error';
 
@@ -31,7 +32,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe, DecimalPipe, FormsModule, MatButtonModule, MatCheckboxModule,
-    MatFormFieldModule, MatInputModule, MatProgressBarModule, MatRadioModule,
+    MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, MatRadioModule,
     MatSelectModule, MatTableModule, RouterModule,
   ],
   template: `
@@ -103,64 +104,92 @@ import { ApiError, userError } from '../../../core/http/api-error';
           <mat-radio-button value="marketing">Marketing (announcements, newsletters — opt-outs honored)</mat-radio-button>
         </mat-radio-group>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Audience</mat-label>
-          <mat-select [(ngModel)]="audienceMode">
-            <mat-option value="all">All members</mat-option>
-            <mat-option value="segment">Segment (filters)</mat-option>
-            <mat-option value="picked">Hand-picked members</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        @if (audienceMode === 'segment') {
-          <div class="compose-row">
+        <div class="compose-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Audience source</mat-label>
+            <mat-select [value]="audienceSource" (selectionChange)="onAudienceSourceChange($event.value)">
+              <mat-option value="platform">Platform users</mat-option>
+              <mat-option value="customers">Store customers (consented)</mat-option>
+            </mat-select>
+          </mat-form-field>
+          @if (audienceSource === 'platform') {
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
-              <mat-label>Role contains (optional)</mat-label>
-              <input matInput [(ngModel)]="segRole" maxlength="40" placeholder="User" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
-              <mat-label>Account status</mat-label>
-              <mat-select [(ngModel)]="segActive">
-                <mat-option [value]="">Any</mat-option>
-                <mat-option [value]="true">Active only</mat-option>
-                <mat-option [value]="false">Inactive only</mat-option>
+              <mat-label>Activation</mat-label>
+              <mat-select [(ngModel)]="accountStateFilter">
+                <mat-option value="all">All accounts</mat-option>
+                <mat-option value="member">Members only</mat-option>
+                <mat-option value="partner">Partners only</mat-option>
               </mat-select>
             </mat-form-field>
-          </div>
-        }
+          }
+        </div>
 
-        @if (audienceMode === 'picked') {
+        @if (audienceSource === 'platform') {
           <mat-form-field appearance="outline">
-            <mat-label>Find member (email or username)</mat-label>
-            <input matInput [(ngModel)]="lookup" (keyup.enter)="searchMember()" minlength="2" />
+            <mat-label>Audience</mat-label>
+            <mat-select [(ngModel)]="audienceMode">
+              <mat-option value="all">All selected accounts</mat-option>
+              <mat-option value="segment">Segment (filters)</mat-option>
+              <mat-option value="picked">Hand-picked members</mat-option>
+            </mat-select>
           </mat-form-field>
-          <div class="compose-row">
-            <button mat-button (click)="searchMember()" [disabled]="lookup.trim().length < 2 || searching()">Search</button>
-          </div>
-          @if (searchError(); as serr) {
-            <p class="error" role="alert">{{ serr }}</p>
-          }
-          @if (candidates().length > 0) {
-            <div class="hits">
-              @for (h of candidates(); track h.id) {
-                <button mat-button (click)="pick(h)">{{ h.name }} · {{ h.username ?? h.email }}</button>
-              }
+
+          @if (audienceMode === 'segment') {
+            <div class="compose-row">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Role contains (optional)</mat-label>
+                <input matInput [(ngModel)]="segRole" maxlength="40" placeholder="User" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Account status</mat-label>
+                <mat-select [(ngModel)]="segActive">
+                  <mat-option [value]="">Any</mat-option>
+                  <mat-option [value]="true">Active only</mat-option>
+                  <mat-option [value]="false">Inactive only</mat-option>
+                </mat-select>
+              </mat-form-field>
             </div>
           }
-          @if (picked().length > 0) {
-            <div class="hits">
-              @for (h of picked(); track h.id) {
-                <button mat-button class="active" (click)="unpick(h)">{{ h.name }} ✕</button>
-              }
+
+          @if (audienceMode === 'picked') {
+            <mat-form-field appearance="outline">
+              <mat-label>Find member (email or username)</mat-label>
+              <input matInput [(ngModel)]="lookup" (keyup.enter)="searchMember()" minlength="2" />
+            </mat-form-field>
+            <div class="compose-row">
+              <button mat-button (click)="searchMember()" [disabled]="lookup.trim().length < 2 || searching()">Search</button>
             </div>
+            @if (searchError(); as serr) {
+              <p class="error" role="alert">{{ serr }}</p>
+            }
+            @if (candidates().length > 0) {
+              <div class="hits">
+                @for (h of candidates(); track h.id) {
+                  <button mat-button (click)="pick(h)">{{ h.name }} · {{ h.username ?? h.email }}</button>
+                }
+              </div>
+            }
+            @if (picked().length > 0) {
+              <div class="hits">
+                @for (h of picked(); track h.id) {
+                  <button mat-button class="active" (click)="unpick(h)">{{ h.name }} ✕</button>
+                }
+              </div>
+            }
           }
+        } @else {
+          <p class="muted customer-audience-note">
+            All store customers who opted in to contact. Customer campaigns are email/SMS only and always honour their consent choice.
+          </p>
         }
 
         <p class="form-section-label">Step 2 · How it travels (pick at least one)</p>
         <div class="compose-row channels">
-          <mat-checkbox [(ngModel)]="chInApp">App inbox <span class="muted">free · appears in the notification bell</span></mat-checkbox>
-          <mat-checkbox [(ngModel)]="chEmail">Email <span class="muted">free · needs the member's email address</span></mat-checkbox>
-          <mat-checkbox [(ngModel)]="chSms">SMS <span class="muted">gateway credit · needs the member's phone number</span></mat-checkbox>
+          @if (audienceSource === 'platform') {
+            <mat-checkbox [(ngModel)]="chInApp">App inbox <span class="muted">free · appears in the notification bell</span></mat-checkbox>
+          }
+          <mat-checkbox [(ngModel)]="chEmail">Email <span class="muted">free · needs an email address</span></mat-checkbox>
+          <mat-checkbox [(ngModel)]="chSms">SMS <span class="muted">gateway credit · needs a phone number</span></mat-checkbox>
         </div>
 
         <p class="form-section-label">Step 3 · What it says</p>
@@ -181,6 +210,48 @@ import { ApiError, userError } from '../../../core/http/api-error';
           </mat-form-field>
         }
 
+        <div class="dp-card ora-draft">
+          <div class="panel-head">
+            <div><p class="eyebrow">Copy assistant</p><h4>Draft with Ora</h4></div>
+            <button mat-button type="button" (click)="draftWithOra()" [disabled]="drafting()">
+              <mat-icon>auto_awesome</mat-icon>
+              {{ drafting() ? 'Drafting…' : 'Draft copy' }}
+            </button>
+          </div>
+          <div class="compose-row">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Purpose</mat-label>
+              <mat-select [(ngModel)]="draftPurpose">
+                <mat-option value="announcement">Announcement</mat-option>
+                <mat-option value="promotion">Promotion</mat-option>
+                <mat-option value="reminder">Reminder</mat-option>
+                <mat-option value="welcome">Welcome</mat-option>
+                <mat-option value="update">Update</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Tone</mat-label>
+              <mat-select [(ngModel)]="draftTone">
+                <mat-option value="friendly">Friendly</mat-option>
+                <mat-option value="professional">Professional</mat-option>
+                <mat-option value="urgent">Urgent</mat-option>
+                <mat-option value="celebratory">Celebratory</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          @if (draftError(); as derr) {
+            <p class="error" role="alert">{{ derr }}</p>
+          }
+          @if (draftResult(); as draft) {
+            <div class="draft-preview" role="status">
+              <strong>{{ draft.subject }}</strong>
+              <p>{{ draft.body }}</p>
+              <p class="muted">SMS: {{ draft.smsBody }}</p>
+              <button mat-flat-button color="primary" type="button" (click)="useDraft()">Use this draft</button>
+            </div>
+          }
+        </div>
+
         <p class="form-section-label">Step 4 · When it goes out</p>
 
         <mat-form-field appearance="outline">
@@ -199,7 +270,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
 
         @if (estimate(); as est) {
           <div class="dp-card estimate" role="status">
-            <div><strong>{{ est.total | number }}</strong> members{{ est.capped ? ' (capped at 5,000)' : '' }}</div>
+            <div><strong>{{ est.total | number }}</strong> {{ audienceSource === 'customers' ? 'customers' : 'members' }}{{ est.capped ? ' (capped at 5,000)' : '' }}</div>
             <div class="muted">App inbox {{ est.inApp | number }} · Email {{ est.email | number }} · SMS {{ est.sms | number }} ({{ est.smsPages }} page{{ est.smsPages === 1 ? '' : 's' }})</div>
             @if (chSms) {
               <div><strong>≈ ₦{{ est.estimatedSmsSpend | number:'1.0-2' }}</strong> gateway credit for SMS</div>
@@ -245,6 +316,31 @@ import { ApiError, userError } from '../../../core/http/api-error';
             <mat-option value="">System + marketing</mat-option>
             <mat-option value="system">System</mat-option>
             <mat-option value="marketing">Marketing</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Channel</mat-label>
+          <mat-select [value]="histChannel()" (selectionChange)="histChannel.set($event.value); skip.set(0); reload()">
+            <mat-option value="">All channels</mat-option>
+            <mat-option value="sms">SMS</mat-option>
+            <mat-option value="email">Email</mat-option>
+            <mat-option value="inApp">App inbox</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Audience</mat-label>
+          <mat-select [value]="histSource()" (selectionChange)="histSource.set($event.value); skip.set(0); reload()">
+            <mat-option value="">All audiences</mat-option>
+            <mat-option value="platform">Platform users</mat-option>
+            <mat-option value="customers">Store customers</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Activation</mat-label>
+          <mat-select [value]="histAccountState()" (selectionChange)="histAccountState.set($event.value); skip.set(0); reload()">
+            <mat-option value="">All accounts</mat-option>
+            <mat-option value="member">Members only</mat-option>
+            <mat-option value="partner">Partners only</mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
@@ -304,6 +400,14 @@ import { ApiError, userError } from '../../../core/http/api-error';
                 } @else {
                   <span class="dp-status dp-status--info">app</span>
                 }
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="audience">
+              <th mat-header-cell *matHeaderCellDef>Audience</th>
+              <td mat-cell *matCellDef="let row">
+                <span class="dp-status dp-status--info">{{ row.source === 'customers' ? 'customers' : 'platform' }}</span>
+                @if (row.accountState === 'member') { <span class="dp-status dp-status--warn">members</span> }
+                @if (row.accountState === 'partner') { <span class="dp-status dp-status--ok">partners</span> }
               </td>
             </ng-container>
             <ng-container matColumnDef="recipients">
@@ -403,6 +507,13 @@ import { ApiError, userError } from '../../../core/http/api-error';
     .hits { display: flex; gap: 0.5em; flex-wrap: wrap; }
     .hits button.active { border: 1px solid var(--ms-primary); font-weight: 700; }
     .estimate { padding: 0.8em; display: flex; flex-direction: column; gap: 0.4em; }
+    .customer-audience-note { margin: 0; padding: 0.7em 0.85em; border-radius: 10px; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-size: 0.82rem; }
+    .ora-draft { padding: 0.85em; display: flex; flex-direction: column; gap: 0.6em; border: 1px dashed var(--ms-primary); background: var(--ms-primary-soft); }
+    .ora-draft .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6em; flex-wrap: wrap; }
+    .ora-draft h4 { margin: 0.1em 0 0; }
+    .draft-preview { display: flex; flex-direction: column; gap: 0.4em; padding: 0.75em; border-radius: 10px; background: var(--ms-surface); }
+    .draft-preview p { margin: 0; line-height: 1.5; }
+    .draft-preview button { align-self: flex-start; }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
     .toolbar { display: flex; gap: 0.75em; align-items: center; flex-wrap: wrap; }
@@ -435,6 +546,9 @@ export class AdminBroadcastComponent implements OnInit {
   protected readonly skip = signal(0);
   protected readonly histStatus = signal('');
   protected readonly histKind = signal('');
+  protected readonly histChannel = signal('');
+  protected readonly histSource = signal('');
+  protected readonly histAccountState = signal('');
   protected histQuery = '';
   protected readonly title = signal('');
   protected readonly body = signal('');
@@ -445,6 +559,8 @@ export class AdminBroadcastComponent implements OnInit {
 
   // Campaign composer state (plain fields — template-driven, matches page style).
   protected kind: 'system' | 'marketing' = 'system';
+  protected audienceSource: 'platform' | 'customers' = 'platform';
+  protected accountStateFilter: 'all' | 'member' | 'partner' = 'all';
   protected audienceMode: 'all' | 'segment' | 'picked' = 'all';
   protected segRole = '';
   protected segActive: '' | boolean = '';
@@ -457,6 +573,11 @@ export class AdminBroadcastComponent implements OnInit {
   protected sendAt = '';
   protected confirmSpend = false;
   protected lookup = '';
+  protected draftPurpose = 'announcement';
+  protected draftTone = 'friendly';
+  protected readonly drafting = signal(false);
+  protected readonly draftResult = signal<BroadcastDraft | null>(null);
+  protected readonly draftError = signal<string | null>(null);
   protected readonly searching = signal(false);
   protected readonly searchError = signal<string | null>(null);
   protected readonly candidates = signal<Array<{ id: string; name: string; username: string | null; email: string | null }>>([]);
@@ -466,7 +587,7 @@ export class AdminBroadcastComponent implements OnInit {
   protected readonly queuing = signal(false);
   protected readonly campaignError = signal<string | null>(null);
 
-  protected readonly displayedColumns = ['notice', 'recipients', 'channels', 'priority', 'manage'];
+  protected readonly displayedColumns = ['notice', 'recipients', 'channels', 'audience', 'priority', 'manage'];
   protected readonly expandedId = signal<string | null>(null);
   protected readonly detailCache = signal<Record<string, Record<string, unknown>>>({});
   protected readonly acting = signal(false);
@@ -496,6 +617,9 @@ export class AdminBroadcastComponent implements OnInit {
         skip: this.skip(),
         ...(this.histStatus() ? { status: this.histStatus() } : {}),
         ...(this.histKind() ? { kind: this.histKind() } : {}),
+        ...(this.histChannel() ? { channel: this.histChannel() as 'sms' | 'email' | 'inApp' } : {}),
+        ...(this.histSource() ? { source: this.histSource() as 'platform' | 'customers' } : {}),
+        ...(this.histAccountState() ? { accountState: this.histAccountState() as 'member' | 'partner' } : {}),
         ...(this.histQuery.trim() ? { q: this.histQuery.trim() } : {}),
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -552,16 +676,32 @@ export class AdminBroadcastComponent implements OnInit {
     return Math.max(1, Math.ceil(String(text ?? '').length / 160));
   }
 
+  protected onAudienceSourceChange(source: 'platform' | 'customers'): void {
+    this.audienceSource = source;
+    this.draftResult.set(null);
+    this.estimate.set(null);
+    this.confirmSpend = false;
+    if (source === 'customers') {
+      this.audienceMode = 'all';
+      this.chInApp = false;
+      if (!this.chEmail && !this.chSms) this.chEmail = true;
+      this.picked.set([]);
+    } else if (!this.chInApp && !this.chEmail && !this.chSms) {
+      this.chInApp = true;
+    }
+  }
+
   protected sendSummary(): string {
     const chans: string[] = [];
     if (this.chInApp) chans.push('app inbox');
     if (this.chEmail) chans.push('email');
     if (this.chSms) chans.push('SMS');
+    const audienceName = this.audienceSource === 'customers' ? 'consented customers' : 'members';
     const who = this.audienceMode === 'all'
-      ? 'all members'
+      ? `all ${audienceName}`
       : this.audienceMode === 'segment'
         ? 'the filtered segment'
-        : `${this.picked().length} picked member${this.picked().length === 1 ? '' : 's'}`;
+        : `${this.picked().length} picked ${audienceName}`;
     const est = this.estimate();
     const reach = est
       ? ` — reach ~${est.total} (${est.inApp} app, ${est.email} mail, ${est.sms} sms${this.chSms ? `, ≈₦${est.estimatedSmsSpend.toFixed(2)}` : ''})`
@@ -570,12 +710,19 @@ export class AdminBroadcastComponent implements OnInit {
   }
 
   protected audience(): CampaignAudience {
+    const source = this.audienceSource;
+    const accountState = this.accountStateFilter;
+    if (source === 'customers') {
+      return { mode: 'all', source: 'customers', accountState: 'all' };
+    }
     if (this.audienceMode === 'picked') {
-      return { mode: 'picked', ids: this.picked().map((p) => p.id) };
+      return { mode: 'picked', source, accountState, ids: this.picked().map((p) => p.id) };
     }
     if (this.audienceMode === 'segment') {
       return {
         mode: 'segment',
+        source,
+        accountState,
         segment: {
           ...(this.segRole.trim() ? { role: this.segRole.trim() } : {}),
           ...(this.segActive === '' ? {} : { active: this.segActive }),
@@ -583,7 +730,7 @@ export class AdminBroadcastComponent implements OnInit {
         },
       };
     }
-    return { mode: 'all' };
+    return { mode: 'all', source, accountState };
   }
 
   protected campaignPayload(): CampaignPayload {
@@ -594,7 +741,11 @@ export class AdminBroadcastComponent implements OnInit {
       priority: this.priority(),
       ...(this.subject.trim() ? { subject: this.subject.trim() } : {}),
       ...(this.smsBody.trim() ? { smsBody: this.smsBody.trim() } : {}),
-      channels: { inApp: this.chInApp, email: this.chEmail, sms: this.chSms },
+      channels: {
+        inApp: this.audienceSource === 'customers' ? false : this.chInApp,
+        email: this.chEmail,
+        sms: this.chSms,
+      },
       kind: this.kind,
       audience: this.audience(),
       ...(this.when === 'later' && this.sendAt ? { sendAt: new Date(this.sendAt).toISOString() } : {}),
@@ -603,13 +754,56 @@ export class AdminBroadcastComponent implements OnInit {
 
   protected canQueue(): boolean {
     if (!this.canSend()) return false;
-    if (!this.chInApp && !this.chEmail && !this.chSms) return false;
-    if (this.audienceMode === 'picked' && this.picked().length === 0) return false;
+    if (this.audienceSource === 'customers') {
+      if (!this.chEmail && !this.chSms) return false;
+    } else if (!this.chInApp && !this.chEmail && !this.chSms) {
+      return false;
+    }
+    if (this.audienceSource === 'platform' && this.audienceMode === 'picked' && this.picked().length === 0) return false;
     if (this.when === 'later') {
       const at = new Date(this.sendAt).getTime();
       if (!Number.isFinite(at) || at <= Date.now()) return false;
     }
     return true;
+  }
+
+  protected draftWithOra(): void {
+    if (this.drafting()) return;
+    this.drafting.set(true);
+    this.draftError.set(null);
+    this.draftResult.set(null);
+    this.cast.draft({
+      purpose: this.draftPurpose,
+      tone: this.draftTone,
+      kind: this.kind,
+      audience: this.audience(),
+      channels: {
+        inApp: this.audienceSource === 'customers' ? false : this.chInApp,
+        email: this.chEmail,
+        sms: this.chSms,
+      },
+      current: { title: this.title().trim(), body: this.body().trim() },
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (res) => {
+        this.draftResult.set(res.data ?? null);
+        this.drafting.set(false);
+      },
+      error: (err: ApiError) => {
+        this.drafting.set(false);
+        this.draftError.set(userError(err));
+      },
+    });
+  }
+
+  protected useDraft(): void {
+    const draft = this.draftResult();
+    if (!draft) return;
+    this.title.set(draft.subject);
+    this.body.set(draft.body);
+    this.subject = draft.subject;
+    this.smsBody = draft.smsBody;
+    this.draftResult.set(null);
+    this.estimate.set(null);
   }
 
   protected preview(): void {
@@ -696,17 +890,27 @@ export class AdminBroadcastComponent implements OnInit {
   }
 
   protected audienceLabel(audience: unknown): string {
-    const a = (audience ?? {}) as { mode?: string; segment?: Record<string, unknown>; ids?: string[] };
-    if (a.mode === 'picked') return `hand-picked (${(a.ids ?? []).length} members)`;
+    const a = (audience ?? {}) as {
+      mode?: string;
+      source?: string;
+      accountState?: string;
+      segment?: Record<string, unknown>;
+      ids?: string[];
+    };
+    const source = a.source === 'customers' ? 'customers' : 'members';
+    const state = a.accountState === 'member'
+      ? ' · members only'
+      : a.accountState === 'partner' ? ' · partners only' : '';
+    if (a.mode === 'picked') return `hand-picked (${(a.ids ?? []).length} ${source})${state}`;
     if (a.mode === 'segment') {
       const seg = a.segment ?? {};
       const bits: string[] = [];
       if (seg['role']) bits.push(`role ${seg['role']}`);
       if (seg['active'] === true) bits.push('active');
       if (seg['active'] === false) bits.push('inactive');
-      return `segment${bits.length ? ': ' + bits.join(', ') : ''}`;
+      return `segment: ${source}${state}${bits.length ? ' · ' + bits.join(', ') : ''}`;
     }
-    return 'all members';
+    return `all ${source}${state}`;
   }
 
   protected str(detail: Record<string, unknown>, key: string): string {

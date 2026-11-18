@@ -19,6 +19,8 @@ export interface BroadcastRow {
   stats?: {
     total: number;
     capped: boolean;
+    source?: 'platform' | 'customers';
+    accountState?: 'all' | 'member' | 'partner';
     inApp: { sent: number; failed: number };
     email: { sent: number; failed: number };
     sms: { sent: number; failed: number };
@@ -26,10 +28,15 @@ export interface BroadcastRow {
   } | null;
   sendAt?: string | null;
   estimatedSmsSpend?: number | null;
+  audience?: CampaignAudience | null;
+  source?: 'platform' | 'customers';
+  accountState?: 'all' | 'member' | 'partner';
 }
 
 export interface CampaignAudience {
   mode: 'all' | 'segment' | 'picked';
+  source?: 'platform' | 'customers';
+  accountState?: 'all' | 'member' | 'partner';
   segment?: { role?: string; active?: boolean; excludeSuspended?: boolean; joinedAfter?: string; joinedBefore?: string };
   ids?: string[];
 }
@@ -51,11 +58,19 @@ export interface CampaignPayload {
 export interface AudienceEstimate {
   total: number;
   capped: boolean;
+  source?: 'platform' | 'customers';
   inApp: number;
   email: number;
   sms: number;
   smsPages: number;
   estimatedSmsSpend: number;
+}
+
+export interface BroadcastDraft {
+  subject: string;
+  body: string;
+  smsBody: string;
+  provider: string;
 }
 
 export interface BroadcastListEnvelope extends ApiEnvelope<{ items: BroadcastRow[]; total: number; limit: number; skip: number }> {
@@ -75,15 +90,38 @@ export interface BroadcastResult {
 export class AdminBroadcastService {
   private readonly api = inject(ApiClient);
 
-  history(params: { limit?: number; skip?: number; status?: string; kind?: string; q?: string } = {}): Observable<BroadcastListEnvelope> {
+  history(params: {
+    limit?: number;
+    skip?: number;
+    status?: string;
+    kind?: string;
+    channel?: 'sms' | 'email' | 'inApp';
+    source?: 'platform' | 'customers';
+    accountState?: 'member' | 'partner';
+    q?: string;
+  } = {}): Observable<BroadcastListEnvelope> {
     const query = new URLSearchParams({
       limit: String(params.limit ?? 25),
       skip: String(params.skip ?? 0),
     });
     if (params.status) query.set('status', params.status);
     if (params.kind) query.set('kind', params.kind);
+    if (params.channel) query.set('channel', params.channel);
+    if (params.source) query.set('source', params.source);
+    if (params.accountState) query.set('accountState', params.accountState);
     if (params.q?.trim()) query.set('q', params.q.trim());
     return this.api.get<BroadcastListEnvelope>(`v1/admin/broadcast?${query.toString()}`);
+  }
+
+  draft(payload: {
+    purpose?: string;
+    tone?: string;
+    kind?: 'system' | 'marketing';
+    audience?: CampaignAudience;
+    channels?: { inApp?: boolean; email?: boolean; sms?: boolean };
+    current?: { title?: string; body?: string };
+  }): Observable<ApiEnvelope<BroadcastDraft>> {
+    return this.api.post<ApiEnvelope<BroadcastDraft>>('v1/admin/broadcast/draft', payload);
   }
 
   send(payload: { title: string; body: string; link?: string; priority?: 'high' | 'medium' }): Observable<ApiEnvelope<BroadcastResult>> {

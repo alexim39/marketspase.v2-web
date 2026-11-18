@@ -83,6 +83,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { label: 'Communications summary', link: '/summaries/communications', icon: 'insights' },
       { label: 'Rank groups', link: '/rank-groups', icon: 'groups' },
       { label: 'Broadcast', link: '/broadcast', icon: 'campaign' },
+      { label: 'Ora monitor', link: '/ora', icon: 'forum' },
       { label: 'Email list', link: '/subscriptions', icon: 'mail' },
     ],
   },

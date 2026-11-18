@@ -9,6 +9,7 @@ import { AdminAuditComponent } from './audit/admin-audit.component';
 import { AdminTicketsComponent } from './tickets/admin-tickets.component';
 import { AdminModerationComponent } from './moderation/admin-moderation.component';
 import { AdminBroadcastComponent } from './broadcast/admin-broadcast.component';
+import { AdminOraComponent } from './ora/admin-ora.component';
 import { AdminSubscriptionsComponent } from './subscriptions/admin-subscriptions.component';
 import { AdminBonusesComponent } from './bonuses/admin-bonuses.component';
 import { AdminTutorialsComponent } from './tutorials/admin-tutorials.component';
@@ -199,6 +200,11 @@ export const AdminRoutes: Routes = [
     path: 'broadcast',
     component: AdminBroadcastComponent,
     title: 'Broadcast - MarketSpase Admin',
+  },
+  {
+    path: 'ora',
+    component: AdminOraComponent,
+    title: 'Ora monitor - MarketSpase Admin',
   },
   {
     path: 'subscriptions',
