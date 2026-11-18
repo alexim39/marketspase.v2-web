@@ -19,6 +19,7 @@ import {
   AdminFinanceTransactionList,
 } from '../../../core/finance/admin-finance.models';
 import { ApiError, userError } from '../../../core/http/api-error';
+import { AdminFinanceSnapshotComponent } from './admin-finance-snapshot.component';
 
 type Tone = 'ok' | 'warn' | 'danger' | 'neutral' | 'info';
 
@@ -38,6 +39,7 @@ type Tone = 'ok' | 'warn' | 'danger' | 'neutral' | 'info';
     MatProgressBarModule,
     MatSelectModule,
     PageSkeletonComponent,
+    AdminFinanceSnapshotComponent,
   ],
 })
 export class AdminFinanceTransactionsComponent implements OnInit {

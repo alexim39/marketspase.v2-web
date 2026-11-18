@@ -14,6 +14,7 @@ import { EmptyStateComponent } from '@marketspase/shared/ui/empty-state/empty-st
 import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { LeadPipelineFacade } from '../state/lead-pipeline.facade';
+import { PipelineFunnelComponent } from '../funnel/pipeline-funnel.component';
 
 @Component({
   selector: 'async-lead-pipeline-mobile',
@@ -22,6 +23,7 @@ import { LeadPipelineFacade } from '../state/lead-pipeline.facade';
     MatTableModule, MatChipsModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatPaginatorModule, MatTooltipModule,
     MatSnackBarModule, EmptyStateComponent, ErrorStateComponent, PageSkeletonComponent, RouterModule, DatePipe,
+    PipelineFunnelComponent,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -69,6 +71,8 @@ import { LeadPipelineFacade } from '../state/lead-pipeline.facade';
           <div><span>4</span><strong>Join your team</strong><small>Share their personal signup link</small></div>
         </div>
       </header>
+
+      <async-pipeline-funnel [funnel]="funnel()" />
 
       @if (convertedNotice(); as converted) {
         <div class="code-banner" role="status">
@@ -428,6 +432,7 @@ export class LeadPipelineMobileComponent implements OnInit {
   protected readonly pageIndex = this.facade.pageIndex;
   protected readonly stuckDays = this.facade.stuckDays;
   protected readonly signupRows = this.facade.signupRows;
+  protected readonly funnel = this.facade.funnel;
   protected readonly actingId = this.facade.actingId;
   protected readonly confirmId = this.facade.confirmId;
   protected readonly convertedNotice = this.facade.convertedNotice;

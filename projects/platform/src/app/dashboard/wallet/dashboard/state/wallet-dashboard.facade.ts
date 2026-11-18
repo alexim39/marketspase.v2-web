@@ -1,6 +1,6 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, forkJoin, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { WalletService } from '../../../../core/wallet/wallet.service';
 import { WalletTransaction } from '../../../../core/wallet/wallet.models';
@@ -83,7 +83,10 @@ export class WalletDashboardFacade {
     this.auth.me().pipe(
       catchError(() => of(null)),
       switchMap(() => forkJoin({
-        txs: this.wallet.history().pipe(catchError(() => of([]))),
+        txs: this.wallet.historyPage({ limit: 200, skip: 0 }).pipe(
+          map((res) => res.data),
+          catchError(() => of([])),
+        ),
         compensation: this.compensationSvc.me().pipe(catchError(() => of(null))),
         campaigns: this.campaignsSvc.mine().pipe(catchError(() => of(null))),
       })),

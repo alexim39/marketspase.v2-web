@@ -5,6 +5,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { forkJoin, map, of, switchMap } from 'rxjs';
 import { AuthService } from '../../../../../core/auth/auth.service';
+import { AnalyticsService } from '../../../../../core/analytics/analytics.service';
+import { Funnel } from '../../../../../core/analytics/analytics.models';
 import { publicLeadPageUrl } from '../../../../../core/store/public-links';
 import { ApiError, userError } from '../../../../../core/http/api-error';
 import { LeadPipelineService } from '../lead-pipeline.service';
@@ -29,6 +31,7 @@ import { RateLeadDialogComponent } from '../rate-lead-dialog.component';
 export class LeadPipelineFacade {
   private readonly leads = inject(LeadPipelineService);
   private readonly auth = inject(AuthService);
+  private readonly analytics = inject(AnalyticsService);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly snack = inject(MatSnackBar);
@@ -45,6 +48,7 @@ export class LeadPipelineFacade {
   readonly pageIndex = signal(0);
   readonly stuckDays = signal<Record<string, StuckEntry>>({});
   readonly signupRows = signal<ReferralMember[]>([]);
+  readonly funnel = signal<Funnel | null>(null);
   readonly actingId = signal<string | null>(null);
   readonly confirmId = signal<string | null>(null);
   readonly deleteConfirmId = signal<string | null>(null);
@@ -78,6 +82,7 @@ export class LeadPipelineFacade {
     if (this.started) return;
     this.started = true;
     this.reload();
+    this.loadFunnel();
   }
 
   remove(lead: ProspectLead): void {
@@ -148,6 +153,15 @@ export class LeadPipelineFacade {
           this.error.set(userError(err));
           this.loading.set(false);
         },
+      });
+  }
+
+  private loadFunnel(): void {
+    this.analytics.funnel(30)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.funnel.set(res.data ?? null),
+        error: () => this.funnel.set(null),
       });
   }
 

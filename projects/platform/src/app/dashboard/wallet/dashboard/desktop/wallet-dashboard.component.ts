@@ -9,6 +9,7 @@ import { PageHeaderComponent } from '@marketspase/shared/ui/page-header/page-hea
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { WalletTransaction } from '../../../../core/wallet/wallet.models';
 import { WalletDashboardFacade } from '../state/wallet-dashboard.facade';
+import { WalletCashflowChartComponent } from '../cashflow/wallet-cashflow-chart.component';
 
 /**
  * Wallet dashboard — desktop view.
@@ -29,6 +30,7 @@ import { WalletDashboardFacade } from '../state/wallet-dashboard.facade';
     PageHeaderComponent,
     PageSkeletonComponent,
     RouterModule,
+    WalletCashflowChartComponent,
   ],
   template: `
     <section class="wallet-page">
@@ -103,6 +105,8 @@ import { WalletDashboardFacade } from '../state/wallet-dashboard.facade';
           <strong>{{ txCount() | number }}</strong>
         </div>
       </div>
+
+      <async-wallet-cashflow-chart />
 
       <!-- Recent activity -->
       <div class="dp-card recent-card">

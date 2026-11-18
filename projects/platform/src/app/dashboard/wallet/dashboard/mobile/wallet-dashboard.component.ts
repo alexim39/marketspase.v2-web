@@ -9,6 +9,7 @@ import { MobileCardComponent } from '@marketspase/shared/ui/mobile-card/mobile-c
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { WalletTransaction } from '../../../../core/wallet/wallet.models';
 import { WalletDashboardFacade } from '../state/wallet-dashboard.facade';
+import { WalletCashflowChartComponent } from '../cashflow/wallet-cashflow-chart.component';
 
 /**
  * Wallet dashboard — native mobile view.
@@ -29,6 +30,7 @@ import { WalletDashboardFacade } from '../state/wallet-dashboard.facade';
     MobileCardComponent,
     PageSkeletonComponent,
     RouterModule,
+    WalletCashflowChartComponent,
   ],
   templateUrl: './wallet-dashboard.component.html',
   styleUrls: ['./wallet-dashboard.component.scss'],

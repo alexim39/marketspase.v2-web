@@ -5,11 +5,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { TeamHubFacade } from '../state/team-hub.facade';
+import { TeamPulseChartComponent } from '../pulse/team-pulse-chart.component';
 
 @Component({
   selector: 'async-team-hub-mobile',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, MatButtonModule, MatIconModule, PageSkeletonComponent, RouterModule],
+  imports: [DecimalPipe, MatButtonModule, MatIconModule, PageSkeletonComponent, RouterModule, TeamPulseChartComponent],
   template: `
     <section class="team-page">
       <header class="page-head">
@@ -53,6 +54,8 @@ import { TeamHubFacade } from '../state/team-hub.facade';
             <span class="metric-note">Last 30 days</span>
           </div>
         </div>
+
+        <async-team-pulse-chart />
 
         <section class="panel">
           <div class="panel-head">
