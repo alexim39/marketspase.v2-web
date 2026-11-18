@@ -422,6 +422,8 @@ export class OraChatComponent implements OnInit {
       const result = (a.result ?? {}) as Record<string, unknown>;
       if (result['channel']) return `Sent via ${result['channel'] === 'sms' ? 'SMS' : 'email'}.`;
       if (result['sent'] !== undefined) return `Sent ${result['sent']} of ${result['total']}.`;
+      if (result['target'] === 'mentor') return 'Your mentor has been asked to reach out.';
+      if (result['target'] === 'support') return 'Support has your request and will follow up.';
       if (result['dateKey']) return 'Plan saved.';
       if (result['followUpDate']) return 'Follow-up scheduled.';
       if (result['stage']) return `Moved to ${result['stage']}.`;

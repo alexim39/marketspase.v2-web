@@ -2,6 +2,8 @@ import { ApiEnvelope } from '../../core/auth/auth.models';
 
 export interface OraContext {
   displayName: string;
+  accountState?: 'member' | 'partner';
+  journeyStage?: string;
   level: string;
   levelLabel: string;
   next: string | null;
@@ -40,7 +42,7 @@ export type OraPlanEnvelope = ApiEnvelope<OraPlan>;
 
 export interface OraAction {
   id?: string | null;
-  type?: 'open_page' | 'schedule_followup' | 'advance_stage' | 'save_daily_plan' | 'send_followup';
+  type?: 'open_page' | 'schedule_followup' | 'advance_stage' | 'save_daily_plan' | 'send_followup' | 'request_handoff';
   label: string;
   link?: string;
   title?: string;
