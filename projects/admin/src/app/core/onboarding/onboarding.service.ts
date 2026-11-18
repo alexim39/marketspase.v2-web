@@ -5,6 +5,7 @@ import {
   ActivationOrdersEnvelope,
   AdminActivationOrder,
   AdminActivationOrdersEnvelope,
+  AdminActivationSummaryEnvelope,
   AdminKycEnvelope,
   AdminKycSubmission,
   CreateActivationOrderEnvelope,
@@ -37,6 +38,10 @@ export class OnboardingService {
 
   orders(): Observable<ActivationOrdersEnvelope> {
     return this.api.get<ActivationOrdersEnvelope>('v1/onboarding/orders');
+  }
+
+  summary(): Observable<AdminActivationSummaryEnvelope> {
+    return this.api.get<AdminActivationSummaryEnvelope>('v1/admin/onboarding/summary');
   }
 
   adminOrders(params: { status?: string; page?: number; limit?: number } = {}): Observable<AdminActivationOrdersEnvelope> {

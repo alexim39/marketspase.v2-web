@@ -73,6 +73,24 @@ export interface BroadcastDraft {
   provider: string;
 }
 
+export interface BroadcastSummary {
+  windowDays: number;
+  campaigns: number;
+  status: { sent: number; scheduled: number; sending: number; failed: number; cancelled: number };
+  delivery: {
+    inApp: { sent: number; failed: number };
+    email: { sent: number; failed: number };
+    sms: { sent: number; failed: number };
+  };
+  smsSpend: number;
+  audiences: { platform: number; customers: number };
+  activation: { members: number; partners: number };
+}
+
+export interface BroadcastSummaryEnvelope extends ApiEnvelope<BroadcastSummary> {
+  data: BroadcastSummary;
+}
+
 export interface BroadcastListEnvelope extends ApiEnvelope<{ items: BroadcastRow[]; total: number; limit: number; skip: number }> {
   data: { items: BroadcastRow[]; total: number; limit: number; skip: number };
 }
@@ -89,6 +107,10 @@ export interface BroadcastResult {
 @Injectable({ providedIn: 'root' })
 export class AdminBroadcastService {
   private readonly api = inject(ApiClient);
+
+  summary(days = 30): Observable<BroadcastSummaryEnvelope> {
+    return this.api.get<BroadcastSummaryEnvelope>(`v1/admin/broadcast/summary?days=${days}`);
+  }
 
   history(params: {
     limit?: number;

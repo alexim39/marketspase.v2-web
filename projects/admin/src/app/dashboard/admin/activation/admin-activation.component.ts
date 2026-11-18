@@ -11,9 +11,11 @@ import { finalize } from 'rxjs';
 import { OnboardingService } from '../../../core/onboarding/onboarding.service';
 import {
   AdminActivationOrder,
+  AdminActivationSummary,
   AdminKycSubmission,
 } from '../../../core/onboarding/onboarding.models';
 import { ApiError, userError } from '../../../core/http/api-error';
+import { AdminActivationSummaryComponent } from './admin-activation-summary.component';
 
 type Tab = 'orders' | 'kyc';
 
@@ -30,6 +32,7 @@ type Tab = 'orders' | 'kyc';
     MatInputModule,
     MatProgressBarModule,
     MatSnackBarModule,
+    AdminActivationSummaryComponent,
   ],
   template: `
     <section class="admin-activation">
@@ -44,6 +47,8 @@ type Tab = 'orders' | 'kyc';
           Refresh
         </button>
       </div>
+
+      <async-admin-activation-summary [summary]="summary()" [loading]="summaryLoading()" />
 
       <div class="tabs" role="tablist">
         <button type="button" [class.active]="tab() === 'orders'" (click)="setTab('orders')" role="tab">
@@ -240,6 +245,8 @@ export class AdminActivationComponent implements OnInit {
   protected readonly ordersLoading = signal(false);
   protected readonly kycLoading = signal(false);
   protected readonly loading = signal(false);
+  protected readonly summary = signal<AdminActivationSummary | null>(null);
+  protected readonly summaryLoading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly busyId = signal<string | null>(null);
   protected readonly orderStatus = signal('');
@@ -285,6 +292,7 @@ export class AdminActivationComponent implements OnInit {
 
   protected reload(): void {
     this.loading.set(true);
+    this.loadSummary();
     this.loadOrders();
     this.loadKyc();
   }
@@ -308,6 +316,7 @@ export class AdminActivationComponent implements OnInit {
           this.snack.open('Order marked fulfilled', 'Close', { duration: 3000 });
         }
         this.loadOrders();
+        this.loadSummary();
       },
       error: (err: ApiError) => this.error.set(userError(err)),
     });
@@ -335,6 +344,7 @@ export class AdminActivationComponent implements OnInit {
         this.cancelRefund();
         this.loadOrders();
         this.loadKyc();
+        this.loadSummary();
       },
       error: (err: ApiError) => this.error.set(userError(err)),
     });
@@ -347,6 +357,7 @@ export class AdminActivationComponent implements OnInit {
       next: () => {
         this.snack.open('Identity verified', 'Close', { duration: 3000 });
         this.loadKyc();
+        this.loadSummary();
       },
       error: (err: ApiError) => this.error.set(userError(err)),
     });
@@ -373,6 +384,7 @@ export class AdminActivationComponent implements OnInit {
         this.snack.open('Identity submission rejected', 'Close', { duration: 3000 });
         this.cancelReject();
         this.loadKyc();
+        this.loadSummary();
       },
       error: (err: ApiError) => this.error.set(userError(err)),
     });
@@ -390,6 +402,16 @@ export class AdminActivationComponent implements OnInit {
 
   protected initials(name: string): string {
     return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join('') || 'M';
+  }
+
+  private loadSummary(): void {
+    this.summaryLoading.set(true);
+    this.onboarding.summary().pipe(
+      finalize(() => this.summaryLoading.set(false)),
+    ).subscribe({
+      next: (response) => this.summary.set(response.data ?? null),
+      error: () => this.summary.set(null),
+    });
   }
 
   private loadOrders(): void {

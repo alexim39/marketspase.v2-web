@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { ErrorStateComponent } from '@marketspase/shared/ui/error-state/error-state.component';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { StoreOrdersFacade } from '../state/store-orders.facade';
+import { StoreOrdersInsightComponent } from '../insight/store-orders-insight.component';
 
 @Component({
   selector: 'async-store-orders-desktop',
@@ -24,6 +25,7 @@ import { StoreOrdersFacade } from '../state/store-orders.facade';
     PageSkeletonComponent,
     ErrorStateComponent,
     RouterModule,
+    StoreOrdersInsightComponent,
   ],
 })
 export class StoreOrdersDesktopComponent implements OnInit {

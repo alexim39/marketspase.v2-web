@@ -144,6 +144,26 @@ export interface ActivationOrdersEnvelope extends ApiEnvelope<ActivationOrder[]>
   data: ActivationOrder[];
 }
 
+export interface AdminActivationSummary {
+  generatedAt: string;
+  accounts: { total: number; members: number; partners: number };
+  kyc: { pending: number; verified: number; rejected: number };
+  orders: { paid: number; fulfilled: number };
+  queue: { queued: number; allocated: number };
+  aging: {
+    queueOver3Days: number;
+    queueOver7Days: number;
+    queueOver14Days: number;
+    paidOver3Days: number;
+    paidOver7Days: number;
+  };
+  funnel: Array<{ stage: string; count: number }>;
+}
+
+export interface AdminActivationSummaryEnvelope extends ApiEnvelope<AdminActivationSummary> {
+  data: AdminActivationSummary;
+}
+
 export interface AdminActivationOrder extends ActivationOrder {
   partner: { id: string; name: string };
   fulfilledBy: string | null;

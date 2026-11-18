@@ -16,6 +16,7 @@ import {
   AdminBroadcastService, AudienceEstimate, BroadcastRow, CampaignAudience, CampaignPayload, BroadcastDraft,
 } from './admin-broadcast.service';
 import { ApiError, userError } from '../../../core/http/api-error';
+import { AdminBroadcastSummaryComponent } from './admin-broadcast-summary.component';
 
 /**
  * @title Broadcast desk — notices, campaigns and receipts.
@@ -34,6 +35,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
     DatePipe, DecimalPipe, FormsModule, MatButtonModule, MatCheckboxModule,
     MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, MatRadioModule,
     MatSelectModule, MatTableModule, RouterModule,
+    AdminBroadcastSummaryComponent,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -51,6 +53,8 @@ import { ApiError, userError } from '../../../core/http/api-error';
           <p class="subtitle">Reach members where they are — app inbox, email, SMS. Use sparingly; every send is audited.</p>
         </div>
       </div>
+
+      <async-admin-broadcast-summary />
 
       @if (notice(); as note) {
         <p class="notice" role="status">{{ note }}</p>
