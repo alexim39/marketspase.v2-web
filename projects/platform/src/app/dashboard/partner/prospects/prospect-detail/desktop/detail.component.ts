@@ -73,6 +73,7 @@ import { ProspectDetailFacade } from '../state/prospect-detail.facade';
               }
             }
             <button mat-stroked-button type="button" (click)="toggleLogForm()">{{ showLogForm() ? 'Close log' : 'Log activity' }}</button>
+            <a mat-stroked-button [routerLink]="['/dashboard/messages/sms']" [queryParams]="{ prospect: prospectId() }"><mat-icon>sms</mat-icon> Send SMS</a>
             <a mat-icon-button [routerLink]="['/dashboard/prospects/edit', prospectId()]" title="Edit prospect" aria-label="Edit prospect"><mat-icon>edit</mat-icon></a>
           </div>
         </section>

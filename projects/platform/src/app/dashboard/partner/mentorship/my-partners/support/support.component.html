@@ -32,6 +32,7 @@
     </div>
     <div class="hero-actions">
       <button mat-flat-button color="primary" type="button" (click)="chat()"><mat-icon>chat</mat-icon> Message</button>
+      <a mat-stroked-button [routerLink]="['/dashboard/messages/sms']" [queryParams]="{ partner: memberId() }"><mat-icon>sms</mat-icon> Send SMS</a>
       <button mat-stroked-button type="button" (click)="viewAs.open(memberId())"><mat-icon>visibility</mat-icon> View as member</button>
       @if (canViewContact()) {
         <button mat-stroked-button type="button" (click)="viewContactList()"><mat-icon>person_search</mat-icon> Prospects</button>

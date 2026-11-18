@@ -153,6 +153,7 @@ export const NEW_NAV_PRIMARY: NavPrimary[] = [
       { label: 'Feed', link: '/dashboard/community/feed', title: 'Feed and recognition' },
       { label: 'Events', link: '/dashboard/community/events', title: 'Events' },
       { label: 'Messages', link: '/dashboard/messages', title: 'Messages' },
+      { label: 'SMS Center', link: '/dashboard/messages/sms', title: 'Send and manage direct SMS' },
     ],
   },
   {

@@ -44,7 +44,7 @@ const PLATFORM_ROUTES = [
   /^\/dashboard\/notifications(?:\/(?:center|preferences))?$/,
   /^\/dashboard\/goals$/,
   /^\/dashboard\/insights(?:\/(?:my-business|downloads))?$/,
-  /^\/dashboard\/messages$/,
+  /^\/dashboard\/messages(?:\/sms)?$/,
   /^\/dashboard\/progress$/,
   /^\/dashboard\/training(?:\/(?:paths|library|analytics|tutorials|courses(?:\/[^/]+(?:\/lessons\/[^/]+)?)?|[^/]+))?$/,
   /^\/dashboard\/wallet(?:\/(?:history|deposit|deposit\/result))?$/,

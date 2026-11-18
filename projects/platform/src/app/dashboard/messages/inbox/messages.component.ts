@@ -83,6 +83,7 @@ const TYPING_CLEAR_MS = 3500;
           <button mat-button [class.active-tab]="view() === 'chats'" (click)="switchView('chats')">Chats</button>
           <button mat-button [class.active-tab]="view() === 'groups'" (click)="switchView('groups')">Groups</button>
           <button mat-button [class.active-tab]="view() === 'channels'" (click)="switchView('channels')">Channels</button>
+          <a mat-stroked-button routerLink="/dashboard/messages/sms"><mat-icon aria-hidden="true">sms</mat-icon> SMS</a>
         </div>
       </div>
 
