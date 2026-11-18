@@ -73,6 +73,30 @@ import {
             }
           </section>
         }
+
+        @if (o.daily.length > 0) {
+          <section class="daily-card" aria-labelledby="ora-daily-title">
+            <div class="daily-head">
+              <div>
+                <p class="eyebrow">Daily activity</p>
+                <h2 id="ora-daily-title">Conversations per day</h2>
+              </div>
+              <span>Last {{ o.windowDays }} days</span>
+            </div>
+            <div class="sparkline" role="img" aria-label="Daily Ora conversation volume">
+              @for (day of o.daily; track day.date) {
+                <span
+                  class="spark-bar"
+                  [style.height.%]="barHeight(day.count, dailyMax())"
+                  [title]="day.date + ': ' + day.count + ' conversations'"></span>
+              }
+            </div>
+            <div class="spark-axis">
+              <span>{{ o.daily[0].date }}</span>
+              <span>{{ o.daily[o.daily.length - 1].date }}</span>
+            </div>
+          </section>
+        }
       }
 
       @if (error(); as err) {
@@ -303,6 +327,14 @@ import {
     .topic-strip { display: flex; gap: 6px; flex-wrap: wrap; }
     .topic-chip { padding: 5px 9px; border-radius: 999px; background: var(--ms-canvas); color: var(--ms-text-muted); font-size: 0.74rem; }
     .topic-chip strong { color: var(--ms-primary-strong); margin-left: 3px; }
+    .daily-card { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-surface); }
+    .daily-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+    .daily-head h2 { margin: 2px 0 0; font-size: 0.95rem; }
+    .daily-head > span { color: var(--ms-text-muted); font-size: 0.68rem; }
+    .sparkline { display: flex; align-items: flex-end; justify-content: center; gap: 3px; height: 64px; padding-top: 4px; }
+    .spark-bar { flex: 0 1 26px; min-width: 3px; border-radius: 3px 3px 0 0; background: linear-gradient(180deg, var(--ms-primary), color-mix(in srgb, var(--ms-primary) 58%, transparent)); transition: height 240ms ease; }
+    .spark-bar:hover { filter: brightness(1.15); }
+    .spark-axis { display: flex; justify-content: space-between; color: var(--ms-text-muted); font-size: 0.62rem; }
     .alert { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: var(--ms-radius-md); background: var(--ms-error-soft); color: var(--ms-error); }
     .toolbar-card { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 12px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-surface); }
     .search-field { flex: 1 1 260px; }
@@ -361,6 +393,8 @@ export class AdminOraComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly overview = signal<AdminOraOverview | null>(null);
+  protected readonly dailyMax = computed(() =>
+    Math.max(1, ...(this.overview()?.daily ?? []).map((day) => Number(day.count) || 0)));
   protected readonly rows = signal<AdminOraConversationSummary[]>([]);
   protected readonly total = signal(0);
   protected readonly limit = signal(25);
@@ -393,6 +427,10 @@ export class AdminOraComponent implements OnInit {
   protected refreshAll(): void {
     this.loadOverview();
     this.reload();
+  }
+
+  protected barHeight(count: number, max: number): number {
+    return Math.max(4, (Math.max(0, Number(count) || 0) / Math.max(1, Number(max) || 1)) * 100);
   }
 
   protected loadOverview(): void {

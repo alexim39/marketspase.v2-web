@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -54,6 +54,33 @@ import { ApiError, userError } from '../../../core/http/api-error';
 
       @if (error(); as err) {
         <div class="alert" role="alert"><mat-icon>error_outline</mat-icon><p>{{ err }}</p><button mat-icon-button type="button" (click)="error.set(null)" aria-label="Dismiss"><mat-icon>close</mat-icon></button></div>
+      }
+
+      @if (budgetSummary(); as summary) {
+        @if (summary.count > 0) {
+          <section class="budget-strip" aria-labelledby="growth-budget-title">
+            <div class="budget-copy">
+              <p class="eyebrow">Active campaigns</p>
+              <h2 id="growth-budget-title">Budget health</h2>
+              <p>{{ summary.count }} active campaign{{ summary.count === 1 ? '' : 's' }} — spend and partner fill at a glance.</p>
+            </div>
+            <div class="budget-metrics">
+              <div><span>Budget</span><strong>₦{{ summary.total | number: '1.0-0' }}</strong></div>
+              <div><span>Spent</span><strong>₦{{ summary.spent | number: '1.0-0' }}</strong></div>
+              <div><span>Remaining</span><strong>₦{{ summary.remaining | number: '1.0-0' }}</strong></div>
+            </div>
+            <div class="budget-bars">
+              <div class="budget-bar">
+                <div class="budget-bar-head"><span>Spend</span><strong>{{ summary.spendPct | number: '1.0-0' }}%</strong></div>
+                <div class="budget-track"><i [style.width.%]="summary.spendPct"></i></div>
+              </div>
+              <div class="budget-bar">
+                <div class="budget-bar-head"><span>Partner fill</span><strong>{{ summary.fillPct | number: '1.0-0' }}%</strong></div>
+                <div class="budget-track budget-track--fill"><i [style.width.%]="summary.fillPct"></i></div>
+              </div>
+            </div>
+          </section>
+        }
       }
 
       <div class="filters">
@@ -274,6 +301,19 @@ import { ApiError, userError } from '../../../core/http/api-error';
     .small { font-size: 0.875rem; }
     .head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .budget-strip { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(250px, 0.85fr); gap: 20px; align-items: center; padding: 16px 18px; margin-bottom: 16px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: radial-gradient(320px 160px at 100% 0%, color-mix(in srgb, var(--ms-primary-soft) 62%, transparent), transparent 70%), var(--ms-surface); box-shadow: var(--ms-shadow-sm); }
+    .budget-copy h2 { margin: 3px 0 3px; font-size: 1.05rem; }
+    .budget-copy p { margin: 0; color: var(--ms-text-muted); font-size: 0.78rem; line-height: 1.45; }
+    .budget-metrics { display: flex; gap: 18px; flex-wrap: wrap; }
+    .budget-metrics div { display: flex; flex-direction: column; gap: 1px; }
+    .budget-metrics span { color: var(--ms-text-muted); font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .budget-metrics strong { font-size: 0.86rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .budget-bars { display: flex; flex-direction: column; gap: 7px; }
+    .budget-bar-head { display: flex; justify-content: space-between; gap: 10px; color: var(--ms-text-muted); font-size: 0.66rem; }
+    .budget-bar-head strong { color: var(--ms-text); font-variant-numeric: tabular-nums; }
+    .budget-track { height: 7px; border-radius: 999px; background: var(--ms-canvas); overflow: hidden; }
+    .budget-track i { display: block; height: 100%; min-width: 2px; border-radius: inherit; background: var(--ms-primary); }
+    .budget-track--fill i { background: var(--ms-success); }
     .filters button { border: 1px solid var(--ms-line); background: var(--ms-surface); color: var(--ms-text); border-radius: 999px; padding: 8px 16px; font: inherit; font-size: 0.8125rem; font-weight: 500; cursor: pointer; }
     .filters button.active { border-color: var(--ms-primary); background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
     .layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 24px; align-items: start; }
@@ -331,8 +371,8 @@ import { ApiError, userError } from '../../../core/http/api-error';
     .action-panel h3 { margin: 4px 0 8px; }
     .action-panel p { margin: 0; line-height: 1.5; }
     .end-fields { display: grid; grid-template-columns: 192px minmax(0, 1fr); gap: 16px; }
-    @media (max-width: 900px) { .admin-growth { padding: 16px; } .page-head { flex-direction: column; } .layout { grid-template-columns: minmax(0, 1fr); } }
-    @media (max-width: 560px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .end-fields { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 900px) { .admin-growth { padding: 16px; } .page-head { flex-direction: column; } .layout { grid-template-columns: minmax(0, 1fr); } .budget-strip { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 560px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .end-fields { grid-template-columns: minmax(0, 1fr); } .budget-metrics { gap: 12px; } }
   `],
 })
 export class AdminGrowthComponent implements OnInit {
@@ -372,6 +412,23 @@ export class AdminGrowthComponent implements OnInit {
   protected readonly endTarget = signal<AdminGrowthCampaign | null>(null);
   protected readonly spentAmount = signal(0);
   protected readonly endNote = signal('');
+
+  protected readonly budgetSummary = computed(() => {
+    const rows = this.activeCampaignList();
+    const total = rows.reduce((sum, campaign) => sum + Number(campaign.budget.total ?? 0), 0);
+    const spent = rows.reduce((sum, campaign) => sum + Number(campaign.budget.spent ?? 0), 0);
+    const remaining = rows.reduce((sum, campaign) => sum + Number(campaign.budget.remaining ?? 0), 0);
+    const allocated = rows.reduce((sum, campaign) => sum + Number(campaign.capacity.allocated ?? 0), 0);
+    const capacity = rows.reduce((sum, campaign) => sum + Number(campaign.capacity.total ?? 0), 0);
+    return {
+      count: rows.length,
+      total,
+      spent,
+      remaining,
+      spendPct: total > 0 ? Math.min(100, Math.max(0, (spent / total) * 100)) : 0,
+      fillPct: capacity > 0 ? Math.min(100, Math.max(0, (allocated / capacity) * 100)) : 0,
+    };
+  });
 
   ngOnInit(): void {
     this.reload();
