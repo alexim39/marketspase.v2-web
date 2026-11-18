@@ -58,6 +58,7 @@ export interface SmsCampaign {
   completedAt: string | null;
   createdAt: string | null;
   error: string | null;
+  ineligible?: Array<{ type: string; id: string; name: string; reason: string }>;
 }
 
 export interface SmsCampaignDetail extends SmsCampaign {

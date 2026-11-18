@@ -746,9 +746,13 @@ export class SmsCenterComponent implements OnInit {
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.sending.set(false);
-        this.notice.set(res.data?.status === 'scheduled'
+        const skipped = res.data?.ineligible?.length ?? 0;
+        const skippedNote = skipped
+          ? ` ${skipped} selected contact${skipped === 1 ? ' was' : 's were'} skipped because they are no longer eligible.`
+          : '';
+        this.notice.set((res.data?.status === 'scheduled'
           ? 'SMS scheduled. You can cancel it from History until it starts sending.'
-          : 'SMS queued. Delivery results will appear in History.');
+          : 'SMS queued. Delivery results will appear in History.') + skippedNote);
         this.body.set('');
         this.selected.set([]);
         this.suggestions.set([]);
