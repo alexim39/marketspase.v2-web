@@ -8,6 +8,7 @@ import { MobileCardComponent } from '@marketspase/shared/ui/mobile-card/mobile-c
 import { MobilePageShellComponent } from '@marketspase/shared/ui/mobile-page-shell/mobile-page-shell.component';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { CompensationFacade } from '../state/compensation.facade';
+import { CompensationMapComponent } from '../map/compensation-map.component';
 
 @Component({
   selector: 'async-compensation-mobile',
@@ -22,6 +23,7 @@ import { CompensationFacade } from '../state/compensation.facade';
     MobilePageShellComponent,
     PageSkeletonComponent,
     RouterModule,
+    CompensationMapComponent,
   ],
   template: `
     <async-mobile-page-shell
@@ -98,6 +100,8 @@ import { CompensationFacade } from '../state/compensation.facade';
               </async-mobile-card>
             </div>
           </section>
+
+          <async-compensation-map />
 
           <async-mobile-card class="sim-card">
             <p class="eyebrow">Plan simulator</p>

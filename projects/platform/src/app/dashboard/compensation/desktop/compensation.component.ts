@@ -5,11 +5,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { CompensationFacade } from '../state/compensation.facade';
+import { CompensationMapComponent } from '../map/compensation-map.component';
 
 @Component({
   selector: 'async-compensation-desktop',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, MatButtonModule, MatIconModule, PageSkeletonComponent, RouterModule],
+  imports: [DatePipe, DecimalPipe, MatButtonModule, MatIconModule, PageSkeletonComponent, RouterModule, CompensationMapComponent],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -104,6 +105,8 @@ import { CompensationFacade } from '../state/compensation.facade';
               <span class="stream-pending">{{ money(storeEarnings()?.pending ?? 0) }} pending</span>
             </article>
           </section>
+
+          <async-compensation-map />
 
           <div class="earnings-grid">
             <section class="panel simulator">
