@@ -210,10 +210,10 @@ interface ChatMsg extends OraMessage {
         @if (usage(); as u) {
           <div class="ora-usage" [class.limit-reached]="u.remaining === 0">
             <div class="usage-copy">
-              <span><strong>{{ u.used }}</strong> of {{ u.limit }} messages today</span>
-              <span class="muted">{{ u.remaining === 0 ? 'Resets tomorrow' : u.remaining + ' left' }}</span>
+              <span><strong>{{ u.used }}</strong> of {{ u.limit }} messages in 24h</span>
+              <span class="muted">{{ u.remaining === 0 ? resetLabel(u) : u.remaining + ' left' }}</span>
             </div>
-            <div class="usage-bar" role="progressbar" [attr.aria-valuenow]="u.used" aria-valuemin="0" [attr.aria-valuemax]="u.limit" aria-label="Ora daily usage">
+            <div class="usage-bar" role="progressbar" [attr.aria-valuenow]="u.used" aria-valuemin="0" [attr.aria-valuemax]="u.limit" aria-label="Ora 24-hour usage">
               <span [style.width.%]="usagePercent(u)"></span>
             </div>
           </div>
@@ -223,7 +223,7 @@ interface ChatMsg extends OraMessage {
           <input
             name="ora-input"
             [(ngModel)]="draft"
-            [placeholder]="usage()?.remaining === 0 ? 'Daily limit reached - resets tomorrow' : 'Ask Ora anything…'"
+            [placeholder]="usage()?.remaining === 0 ? '24-hour limit reached - resets when the window ends' : 'Ask Ora anything…'"
             aria-label="Message Ora"
             maxlength="2000"
             autocomplete="off"
@@ -338,6 +338,12 @@ export class OraChatComponent implements OnInit {
   protected usagePercent(u: OraUsage): number {
     if (!u || u.limit <= 0) return 100;
     return Math.min(100, Math.max(0, Math.round((u.used / u.limit) * 100)));
+  }
+
+  protected resetLabel(u: OraUsage): string {
+    const at = new Date(u.resetsAt);
+    if (Number.isNaN(at.getTime())) return 'Resets soon';
+    return `Resets ${at.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
   }
 
   protected newChat(): void {
@@ -487,7 +493,7 @@ export class OraChatComponent implements OnInit {
     const text = this.draft().trim();
     if (!text || this.sending()) return;
     if (this.usage()?.remaining === 0) {
-      this.error.set('Daily Ora limit reached — it resets tomorrow.');
+      this.error.set('24-hour Ora limit reached - try again when your window resets.');
       return;
     }
     this.draft.set('');

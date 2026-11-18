@@ -21,6 +21,7 @@ export interface OraUsage {
   used: number;
   remaining: number;
   resetsAt: string;
+  windowHours?: number;
 }
 
 export type OraUsageEnvelope = ApiEnvelope<OraUsage>;
