@@ -8,22 +8,137 @@
     </a>
 
     <div class="rail-scroll">
-      <nav class="rail-nav">
-        @for (group of nav; track group.key) {
-          <section class="rail-group">
-            <p class="rail-label"><mat-icon aria-hidden="true">{{ group.icon }}</mat-icon>{{ group.label }}</p>
-            @for (item of group.children; track item.link) {
-              <a
-                class="rail-item"
-                [routerLink]="item.link"
-                routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: item.link === '/dashboard' }"
-                (click)="close()"
-                [title]="item.label">
-                <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
-                <span>{{ item.label }}</span>
-              </a>
+      <div class="nav-search">
+        <mat-icon aria-hidden="true">search</mat-icon>
+        <input
+          #navSearch
+          type="search"
+          [value]="query()"
+          (input)="query.set($any($event.target).value)"
+          placeholder="Search menu"
+          aria-label="Search admin menu"
+          autocomplete="off"
+        />
+        @if (query()) {
+          <button class="nav-search-clear" type="button" (click)="clearSearch()" aria-label="Clear menu search">
+            <mat-icon aria-hidden="true">close</mat-icon>
+          </button>
+        } @else {
+          <kbd aria-hidden="true">Ctrl K</kbd>
+        }
+      </div>
+
+      <nav class="rail-nav" aria-label="Admin sections">
+        @if (query().trim() && filteredGroups().length === 0) {
+          <p class="rail-empty">No menu items match “{{ query() }}”.</p>
+        }
+
+        @if (!query().trim() && favoriteItems().length > 0) {
+          <section class="rail-group rail-shortcuts" aria-label="Pinned pages">
+            <p class="rail-label rail-label--static">
+              <mat-icon aria-hidden="true">star</mat-icon>
+              <span>Pinned</span>
+            </p>
+            @for (item of favoriteItems(); track item.link) {
+              <div class="rail-row">
+                <a
+                  class="rail-item"
+                  [routerLink]="item.link"
+                  [class.active]="isActive(item.link)"
+                  [attr.aria-current]="isActive(item.link) ? 'page' : null"
+                  (click)="close()"
+                  [title]="item.label">
+                  <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+                  <span>{{ item.label }}</span>
+                </a>
+                <button
+                  class="fav-btn fav-btn--on"
+                  type="button"
+                  (click)="toggleFavorite(item.link, $event)"
+                  [attr.aria-label]="'Unpin ' + item.label"
+                  aria-pressed="true"
+                  title="Unpin from top">
+                  <mat-icon aria-hidden="true">star</mat-icon>
+                </button>
+              </div>
             }
+          </section>
+        }
+
+        @if (!query().trim() && recentItems().length > 0) {
+          <section class="rail-group rail-shortcuts" aria-label="Recent pages">
+            <p class="rail-label rail-label--static">
+              <mat-icon aria-hidden="true">history</mat-icon>
+              <span>Recent</span>
+            </p>
+            @for (item of recentItems(); track item.link) {
+              <div class="rail-row">
+                <a
+                  class="rail-item"
+                  [routerLink]="item.link"
+                  [class.active]="isActive(item.link)"
+                  [attr.aria-current]="isActive(item.link) ? 'page' : null"
+                  (click)="close()"
+                  [title]="item.label">
+                  <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+                  <span>{{ item.label }}</span>
+                </a>
+                <button
+                  class="fav-btn"
+                  type="button"
+                  (click)="toggleFavorite(item.link, $event)"
+                  [attr.aria-label]="'Pin ' + item.label"
+                  aria-pressed="false"
+                  title="Pin to top">
+                  <mat-icon aria-hidden="true">star_border</mat-icon>
+                </button>
+              </div>
+            }
+          </section>
+        }
+
+        @for (group of filteredGroups(); track group.key) {
+          <section class="rail-group">
+            <button
+              class="rail-label"
+              type="button"
+              (click)="toggleGroup(group)"
+              [attr.aria-expanded]="isGroupOpen(group)"
+              [attr.aria-controls]="'nav-group-' + group.key">
+              <mat-icon aria-hidden="true">{{ group.icon }}</mat-icon>
+              <span>{{ group.label }}</span>
+              @if (groupHasActive(group) && !isGroupOpen(group)) {
+                <span class="rail-dot" aria-hidden="true"></span>
+              }
+              <mat-icon class="rail-chevron" aria-hidden="true">{{ isGroupOpen(group) ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+
+            <div class="rail-items" [id]="'nav-group-' + group.key" [hidden]="!isGroupOpen(group)">
+              @for (item of group.children; track item.link) {
+                <div class="rail-row">
+                  <a
+                    class="rail-item"
+                    [routerLink]="item.link"
+                    [class.active]="isActive(item.link)"
+                    [attr.aria-current]="isActive(item.link) ? 'page' : null"
+                    (click)="close()"
+                    [title]="item.label">
+                    <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+                    <span>{{ item.label }}</span>
+                  </a>
+                  <button
+                    class="fav-btn"
+                    [class.fav-btn--on]="isFavorite(item.link)"
+                    type="button"
+                    (click)="toggleFavorite(item.link, $event)"
+                    [attr.aria-label]="(isFavorite(item.link) ? 'Unpin ' : 'Pin ') + item.label"
+                    [attr.aria-pressed]="isFavorite(item.link)"
+                    [title]="isFavorite(item.link) ? 'Unpin from top' : 'Pin to top'">
+                    <mat-icon aria-hidden="true">{{ isFavorite(item.link) ? 'star' : 'star_border' }}</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
           </section>
         }
       </nav>
@@ -50,7 +165,7 @@
 
   <div class="main">
     <header class="topbar">
-      <button class="menu-btn" type="button" (click)="menuOpen.set(!menuOpen())" [attr.aria-expanded]="menuOpen()" aria-label="Open admin navigation">
+      <button class="menu-btn" type="button" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen()" aria-label="Open admin navigation">
         <mat-icon aria-hidden="true">{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
       </button>
       <div class="topbar-title">

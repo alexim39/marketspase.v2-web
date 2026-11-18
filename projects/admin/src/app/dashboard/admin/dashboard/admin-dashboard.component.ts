@@ -39,7 +39,7 @@ export class AdminDashboardComponent implements OnInit {
     { label: 'Partner stores', detail: 'Directory, publishing and suspensions', link: '/stores', icon: 'storefront' },
     { label: 'Store orders', detail: 'Every customer order across partner stores', link: '/store-orders', icon: 'receipt_long' },
     { label: 'Escrow & settlements', detail: 'Held earnings, releases and payment fees', link: '/store-settlements', icon: 'account_balance_wallet' },
-    { label: 'Activation desk', detail: 'Starter orders and identity checks', link: '/activation', icon: 'verified_user' },
+    { label: 'Partner activation', detail: 'Starter orders and identity checks', link: '/activation', icon: 'verified_user' },
     { label: 'Compensation', detail: 'Commissions, ranks and mentor bonuses', link: '/compensation', icon: 'workspace_premium' },
     { label: 'Growth campaigns', detail: 'Budgets, allocation and close-out', link: '/growth', icon: 'hub' },
     { label: 'Support tickets', detail: 'Member requests and issue resolution', link: '/tickets', icon: 'support_agent' },

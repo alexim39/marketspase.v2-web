@@ -1,7 +1,7 @@
 <section class="summary-page">
   <header class="summary-head">
     <div class="head-copy">
-      <p class="eyebrow">Admin · Decision summary</p>
+      <p class="eyebrow">Admin · Decision summaries</p>
       <h1>{{ summary()?.title || 'Summary' }}</h1>
       <p class="subtitle">{{ summary()?.description || 'Loading the latest operating picture…' }}</p>
     </div>
@@ -23,6 +23,20 @@
       </button>
     </div>
   </header>
+
+  <nav class="summary-tabs" aria-label="Decision summaries">
+    @for (tab of summaryDomains; track tab.key) {
+      <a
+        class="summary-tab"
+        [routerLink]="tab.link"
+        routerLinkActive="summary-tab--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        #tabLink="routerLinkActive"
+        [attr.aria-current]="tabLink.isActive ? 'page' : null">
+        {{ tab.label }}
+      </a>
+    }
+  </nav>
 
   @if (loading()) {
     <async-page-skeleton layout="dashboard" [rows]="3" label="summary" [showHeader]="false" />

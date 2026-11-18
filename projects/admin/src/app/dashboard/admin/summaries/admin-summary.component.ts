@@ -77,6 +77,16 @@ export class AdminSummaryComponent implements OnInit {
     { days: 90, label: '90 days' },
     { days: 365, label: '1 year' },
   ];
+  protected readonly summaryDomains = [
+    { key: 'overview', label: 'Overview', link: '/summaries/overview' },
+    { key: 'people', label: 'People', link: '/summaries/people' },
+    { key: 'commerce', label: 'Commerce', link: '/summaries/commerce' },
+    { key: 'finance', label: 'Finance', link: '/summaries/finance' },
+    { key: 'growth', label: 'Growth', link: '/summaries/growth' },
+    { key: 'communications', label: 'Communications', link: '/summaries/communications' },
+    { key: 'support', label: 'Support', link: '/summaries/support' },
+    { key: 'content', label: 'Content', link: '/summaries/content' },
+  ];
   protected readonly days = signal(30);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);

@@ -60,10 +60,88 @@
   scrollbar-color: var(--ms-nav-line) transparent;
 }
 
+.nav-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  margin: 0 0 12px;
+  padding: 0 8px;
+  border: 1px solid var(--ms-nav-line);
+  border-radius: 10px;
+  background: var(--ms-nav-hover);
+}
+
+.nav-search > mat-icon {
+  flex: none;
+  width: 17px;
+  height: 17px;
+  font-size: 17px;
+  color: var(--ms-nav-muted);
+}
+
+.nav-search input {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ms-nav-text);
+  font: inherit;
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.nav-search input::placeholder {
+  color: var(--ms-nav-muted);
+}
+
+.nav-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.nav-search kbd {
+  flex: none;
+  padding: 2px 5px;
+  border: 1px solid var(--ms-nav-line);
+  border-radius: 5px;
+  color: var(--ms-nav-muted);
+  font: inherit;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.nav-search-clear {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ms-nav-muted);
+  cursor: pointer;
+}
+
+.nav-search-clear:hover {
+  color: var(--ms-nav-text);
+  background: var(--ms-nav-active-bg);
+}
+
+.nav-search-clear mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
 .rail-nav {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .rail-group {
@@ -72,17 +150,39 @@
   gap: 2px;
 }
 
+.rail-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rail-items[hidden] {
+  display: none;
+}
+
 .rail-label {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 0 0 4px;
-  padding: 0 8px;
+  width: 100%;
+  margin: 0;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
   color: var(--ms-nav-muted);
+  font: inherit;
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.12em;
+  text-align: left;
   text-transform: uppercase;
+  cursor: pointer;
+}
+
+.rail-label:hover {
+  color: var(--ms-nav-text);
+  background: var(--ms-nav-hover);
 }
 
 .rail-label mat-icon {
@@ -91,18 +191,67 @@
   font-size: 14px;
 }
 
+.rail-label .rail-chevron {
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+.rail-dot {
+  width: 6px;
+  height: 6px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: var(--ms-nav-active-icon);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ms-nav-active-icon) 22%, transparent);
+}
+
+.rail-dot + .rail-chevron {
+  margin-left: 4px;
+}
+
+.rail-label--static,
+.rail-label--static:hover {
+  background: transparent;
+  color: var(--ms-nav-muted);
+  cursor: default;
+}
+
+.rail-empty {
+  margin: 4px 8px;
+  padding: 12px;
+  border: 1px dashed var(--ms-nav-line);
+  border-radius: 10px;
+  color: var(--ms-nav-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.rail-row {
+  position: relative;
+}
+
 .rail-item {
   display: flex;
   align-items: center;
   gap: 8px;
   min-height: 40px;
-  padding: 0 8px;
+  padding: 0 30px 0 8px;
   border-radius: var(--ms-radius-md);
   color: var(--ms-nav-muted);
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
   transition: background 140ms ease, color 140ms ease;
+}
+
+.rail-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .rail-item mat-icon {
@@ -126,6 +275,53 @@
 
 .rail-item.active mat-icon {
   color: var(--ms-nav-active-icon);
+}
+
+.fav-btn {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ms-nav-muted);
+  opacity: 0;
+  transform: translateY(-50%);
+  cursor: pointer;
+  transition: opacity 120ms ease, color 120ms ease, background 120ms ease;
+}
+
+.rail-row:hover .fav-btn,
+.rail-item.active + .fav-btn,
+.fav-btn:focus-visible,
+.fav-btn--on {
+  opacity: 1;
+}
+
+.fav-btn:hover {
+  color: var(--ms-nav-text);
+  background: var(--ms-nav-hover);
+}
+
+.fav-btn--on {
+  color: var(--ms-nav-active-icon);
+}
+
+.fav-btn mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+@media (hover: none) {
+  .fav-btn {
+    opacity: 0.65;
+  }
 }
 
 .side-foot {
