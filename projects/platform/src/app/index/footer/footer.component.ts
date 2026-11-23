@@ -41,8 +41,8 @@ import { BrandLogoComponent } from '@marketspase/shared/ui/brand-logo/brand-logo
 
         <nav class="footer-col" aria-label="Legal">
           <h2>Legal</h2>
-          <a href="https://marketspase.com/legal/terms" target="_blank" rel="noopener">Terms of Service</a>
-          <a href="https://marketspase.com/legal/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+          <a href="https://store.marketspase.com/legal/terms" target="_blank" rel="noopener">Terms of Service</a>
+          <a href="https://store.marketspase.com/legal/privacy" target="_blank" rel="noopener">Privacy Policy</a>
           <a routerLink="/faq">Common questions</a>
         </nav>
       </div>

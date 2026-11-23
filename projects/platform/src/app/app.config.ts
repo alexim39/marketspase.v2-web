@@ -21,6 +21,7 @@ import { provideEchartsCore } from 'ngx-echarts';
 import { echarts } from './core/charts/echarts-setup';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import { provideClientHydration } from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -49,5 +50,6 @@ export const appConfig: ApplicationConfig = {
     ])),
     // ECharts core once (treeshaken); chart components use NgxEchartsDirective.
     provideEchartsCore({ echarts }),
+    provideClientHydration(),
   ]
 };

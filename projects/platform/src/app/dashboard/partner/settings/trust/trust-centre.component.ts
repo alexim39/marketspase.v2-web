@@ -133,8 +133,8 @@ import { FeatureEventsService } from '../../../../core/analytics/feature-events.
             <section class="panel">
               <div class="panel-head"><div><p class="eyebrow">Legal</p><h2>Policies and escalation</h2></div></div>
               <div class="link-list">
-                <a href="https://marketspase.com/legal/terms" target="_blank" rel="noopener"><mat-icon>description</mat-icon>Terms of Service</a>
-                <a href="https://marketspase.com/legal/privacy" target="_blank" rel="noopener"><mat-icon>privacy_tip</mat-icon>Privacy Policy</a>
+                <a href="https://store.marketspase.com/legal/terms" target="_blank" rel="noopener"><mat-icon>description</mat-icon>Terms of Service</a>
+                <a href="https://store.marketspase.com/legal/privacy" target="_blank" rel="noopener"><mat-icon>privacy_tip</mat-icon>Privacy Policy</a>
                 <a routerLink="/dashboard/support/ticket"><mat-icon>support_agent</mat-icon>Raise a complaint or support ticket</a>
                 <a href="mailto:contacts@marketspase.com"><mat-icon>mail</mat-icon>Email the team</a>
               </div>

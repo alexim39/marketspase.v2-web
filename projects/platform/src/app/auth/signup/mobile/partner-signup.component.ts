@@ -124,9 +124,9 @@ import { SignUpFacade } from '../state/signup.facade';
       </p>
       <p authFooter class="legal">
         By creating an account, you agree to our
-        <a href="https://marketspase.com/legal/terms" target="_blank" rel="noopener">Terms</a>
+        <a href="https://store.marketspase.com/legal/terms" target="_blank" rel="noopener">Terms</a>
         and
-        <a href="https://marketspase.com/legal/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
+        <a href="https://store.marketspase.com/legal/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
       </p>
     </async-mobile-auth-shell>
   `,
