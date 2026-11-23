@@ -19,6 +19,7 @@
     "test:admin": "ng test admin --watch=false",
     "check:legacy-endpoints": "node scripts/check-legacy-endpoints.mjs",
     "check:internal-links": "node scripts/check-internal-links.mjs",
+    "check:seo": "node scripts/check-seo-readiness.mjs",
     "ci": "npm run check:legacy-endpoints && npm run check:internal-links && npm run build && npm run test:store && npm run test:admin"
   },
   "private": true,
