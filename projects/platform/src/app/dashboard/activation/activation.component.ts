@@ -209,11 +209,11 @@ import { States } from '../../_common/services/countries';
         } @else {
           <header class="activation-hero">
             <div class="hero-copy">
-              <p class="eyebrow">Partner activation</p>
-              <h2>Choose your plan. Start your business.</h2>
+              <p class="eyebrow">Activation steps</p>
+              <h2>Three steps. One partner account.</h2>
               <p class="lede">
-                Both plans unlock the same partner rights, commission table and rank path.
-                Pick the clothing set you want delivered, then complete the short checkout.
+                Verify your identity, choose the clothing set you want and pay from your wallet.
+                Delivery is included, and both plans carry the same partner rights.
               </p>
             </div>
 
@@ -579,12 +579,12 @@ import { States } from '../../_common/services/countries';
     .plan-note { color: var(--ms-text-muted); font-size: 0.8125rem; line-height: 1.5; }
     .plan-check { color: var(--ms-primary); flex: none; }
     .activation-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 0.75fr); gap: 24px; align-items: center; padding: 24px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-xl); background: linear-gradient(120deg, color-mix(in srgb, var(--ms-primary-soft) 55%, var(--ms-surface)), var(--ms-surface)); }
-    .hero-copy h2 { margin: 6px 0 8px; font-size: clamp(1.6rem, 3vw, 2.3rem); letter-spacing: -0.03em; line-height: 1.1; }
+    .hero-copy h2 { margin: 6px 0 8px; font-size: clamp(1.25rem, 2vw, 1.6rem); letter-spacing: -0.02em; line-height: 1.2; }
     .hero-copy .lede { max-width: 640px; margin: 0; line-height: 1.6; }
     .activation-hero .stepper { margin: 0; }
     .activation-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.7fr); gap: 24px; align-items: start; margin-top: 8px; }
     .main-column { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
-    .checkout-column { position: sticky; top: 96px; min-width: 0; }
+    .checkout-column { position: sticky; top: 96px; min-width: 0; max-height: calc(100vh - 120px); overflow-y: auto; }
     .identity-strip { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 16px 0; flex-wrap: wrap; }
     .identity-main { display: flex; align-items: center; gap: 14px; min-width: 0; }
     .identity-main h3 { margin: 0 0 2px; font-size: 1rem; }
@@ -593,8 +593,8 @@ import { States } from '../../_common/services/countries';
     .showcase-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
     .showcase-head h3 { margin: 4px 0 0; font-size: 1.2rem; }
     .showcase-gallery { display: flex; flex-direction: column; gap: 12px; }
-    .showcase-art { position: relative; width: 100%; aspect-ratio: 4 / 5; max-height: 600px; padding: 0; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); overflow: hidden; background: var(--ms-canvas); cursor: zoom-in; }
-    .showcase-art img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.25s ease; }
+    .showcase-art { position: relative; width: 100%; aspect-ratio: 4 / 5; max-height: 600px; padding: 0; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); overflow: hidden; background: linear-gradient(160deg, #f8f7ff, #ece9ff 58%, #e1dcff); cursor: zoom-in; }
+    .showcase-art img { width: 100%; height: 100%; object-fit: contain; padding: 8px; transition: transform 0.25s ease; }
     .showcase-art.is-zooming img { transform: scale(1.7); }
     .image-count { position: absolute; right: 12px; bottom: 12px; padding: 4px 9px; border-radius: 999px; background: rgba(9, 9, 11, 0.6); color: #fff; font-size: 0.75rem; }
     .showcase-desc { margin: 16px 0 0; line-height: 1.6; color: var(--ms-text-muted); }
@@ -766,7 +766,7 @@ import { States } from '../../_common/services/countries';
     @media (max-width: 1100px) {
       .activation-hero { grid-template-columns: minmax(0, 1fr); }
       .activation-layout { grid-template-columns: minmax(0, 1fr); }
-      .checkout-column { position: static; order: 2; }
+      .checkout-column { position: static; order: 2; max-height: none; overflow: visible; }
       .main-column { order: 1; }
     }
     @media (max-width: 720px) {
