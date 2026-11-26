@@ -148,7 +148,7 @@ export class HomeFacade {
 
   growthDetail(): string {
     switch (this.growthState()) {
-      case 'member': return 'Buy the MarketSpase starter product to enter the allocation queue and unlock commissions.';
+      case 'member': return 'Choose the Essential or Signature activation plan to enter the allocation queue and unlock commissions.';
       case 'kyc': return 'Your activation order is paid — complete KYC so the allocation engine can place you.';
       case 'queued': return 'We will place you as soon as an eligible funded campaign has capacity. You can fund partner acquisition while you wait.';
       case 'placed': return 'Your mentor handoff is active. Keep your team supported and your commissions accruing.';

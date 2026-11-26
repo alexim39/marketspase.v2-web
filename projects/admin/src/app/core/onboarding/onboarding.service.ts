@@ -44,11 +44,19 @@ export class OnboardingService {
     return this.api.get<AdminActivationSummaryEnvelope>('v1/admin/onboarding/summary');
   }
 
-  adminOrders(params: { status?: string; page?: number; limit?: number } = {}): Observable<AdminActivationOrdersEnvelope> {
+  adminOrders(params: {
+    status?: string;
+    tier?: string;
+    kind?: string;
+    page?: number;
+    limit?: number;
+  } = {}): Observable<AdminActivationOrdersEnvelope> {
     const query = new URLSearchParams({
       page: String(params.page ?? 1),
       limit: String(params.limit ?? 25),
       ...(params.status ? { status: params.status } : {}),
+      ...(params.tier ? { tier: params.tier } : {}),
+      ...(params.kind ? { kind: params.kind } : {}),
     });
     return this.api.get<AdminActivationOrdersEnvelope>(`v1/admin/onboarding/orders?${query.toString()}`);
   }

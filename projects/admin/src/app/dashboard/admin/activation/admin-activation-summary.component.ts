@@ -63,6 +63,26 @@ import type { AdminActivationSummary } from '../../../core/onboarding/onboarding
                 <span><small>Over 7 days</small><strong>{{ data.aging.paidOver7Days }}</strong></span>
               </div>
             </div>
+            <div class="side-block">
+              <h3>Activation plans</h3>
+              <div class="aging-grid">
+                <span>
+                  <small>Essential</small>
+                  <strong>{{ data.plans?.essential?.orders ?? 0 }}</strong>
+                  <small>₦{{ (data.plans?.essential?.revenue ?? 0) | number }}</small>
+                </span>
+                <span>
+                  <small>Signature</small>
+                  <strong>{{ data.plans?.signature?.orders ?? 0 }}</strong>
+                  <small>₦{{ (data.plans?.signature?.revenue ?? 0) | number }}</small>
+                </span>
+                <span>
+                  <small>Upgrades</small>
+                  <strong>{{ data.plans?.upgrades?.orders ?? 0 }}</strong>
+                  <small>₦{{ (data.plans?.upgrades?.revenue ?? 0) | number }}</small>
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       }

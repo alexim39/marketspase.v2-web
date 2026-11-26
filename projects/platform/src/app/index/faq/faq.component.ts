@@ -21,9 +21,10 @@ import { RouterModule } from '@angular/router';
           <details open>
             <summary>What does it cost to start?</summary>
             <p>
-              Creating an account is free. Activation is a <strong>₦38,000</strong> product
-              purchase — the MarketSpase Signature Clothing Set, shipped to you. There is no
-              separate joining fee. Resale stock is optional.
+              Creating an account is free. Activation is a real product purchase: <strong>₦12,500</strong>
+              for the Essential Clothing Set or <strong>₦38,000</strong> for the Signature Clothing Set,
+              shipped to you. Both give full partner rights, and you can upgrade from Essential to
+              Signature at any time. There is no separate joining fee. Resale stock is optional.
             </p>
           </details>
           <details>

@@ -56,7 +56,7 @@ export class LaunchPathService {
       const milestones: LaunchMilestone[] = [
         basic('verified', 'Verify your account', 'Confirm your email so your account and notifications are secure.', 'mark_email_read', '/dashboard/settings/profiles', 'Open profile', !!partner?.emailVerified),
         basic('profile', 'Complete your profile', 'Add your phone, location and a short bio so your mentor and prospects can reach you.', 'person', '/dashboard/settings/profiles', 'Complete profile', profileDone),
-        basic('activation', 'Activate your partner business', 'Get your starter product and unlock commissions, allocation and the partner toolkit.', 'verified_user', '/dashboard/activate', 'Open activation', activated),
+        basic('activation', 'Activate your partner business', 'Choose the Essential or Signature plan and unlock commissions, allocation and the partner toolkit.', 'verified_user', '/dashboard/activate', 'Open activation', activated),
         basic('prospect', 'Add your first prospect', 'Start the pipeline with one real person you can help this week.', 'person_add', '/dashboard/prospects/new', 'Add a prospect', firstProspect),
         basic('customer', 'Make your first customer sale', 'Share your store and turn a product into your first real customer order.', 'storefront', '/dashboard/products/my-store', 'Open my store', firstCustomer),
         basic('commission', 'Earn your first commission', 'Your first product or mentor commission proves the engine is working.', 'payments', '/dashboard/compensation', 'View earnings', firstCommission),

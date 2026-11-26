@@ -14,7 +14,7 @@ import { environment } from '../../environments/environment';
             <async-brand-logo class="brand-logo" variant="full-white" height="34px" alt="" />
             <span class="brand-store" aria-hidden="true">Store</span>
           </a>
-          <p>Independent partner stores. Real people. Secure checkout.</p>
+          <p>Independent partner stores. Real people. Secure checkout. Activation from ₦12,500.</p>
           <a class="partner-cta" [href]="platformUrl + '/partner/signup'">Open your own store →</a>
         </div>
 

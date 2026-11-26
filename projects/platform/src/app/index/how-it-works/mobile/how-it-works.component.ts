@@ -90,7 +90,7 @@ import { RouterModule } from '@angular/router';
             <span class="mkt-step-num">2</span>
             <h3>Activate your online business</h3>
             <p>
-              Buy the MarketSpase starter product at the price shown before you pay. It ships
+              Choose the ₦12,500 Essential set or the ₦38,000 Signature set before you pay. It ships
               to your address. Complete KYC and join the allocation queue.
             </p>
           </li>

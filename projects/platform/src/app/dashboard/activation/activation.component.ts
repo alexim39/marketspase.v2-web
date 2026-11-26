@@ -26,6 +26,7 @@ import { ApiError, userError } from '../../core/http/api-error';
 import { OnboardingService } from '../../core/onboarding/onboarding.service';
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
 import {
+  ActivationTier,
   MentorContactPreference,
   OnboardingStatus,
   ShippingInput,
@@ -58,8 +59,8 @@ import { States } from '../../_common/services/countries';
           <h1>{{ isPartner() ? 'You are activated.' : 'Turn your account into a partner business.' }}</h1>
           <p class="muted lede">
             {{ isPartner()
-              ? 'Your starter product is being prepared and your place in the allocation queue is secured.'
-              : 'Complete the identity step, activate with the MarketSpase starter product, then receive qualified prospects from platform campaigns.' }}
+              ? 'Your activation product is being prepared and your place in the allocation queue is secured.'
+              : 'Complete the identity step, choose the Essential or Signature plan, then receive qualified prospects from platform campaigns.' }}
           </p>
         </div>
         <a mat-stroked-button routerLink="/dashboard">
@@ -86,17 +87,33 @@ import { States } from '../../_common/services/countries';
             <div class="success-mark"><mat-icon>verified</mat-icon></div>
             <div>
               <p class="eyebrow">Account status</p>
-              <h2>{{ justActivated() ? 'Activation complete' : 'Activated partner' }}</h2>
+              <h2>{{ justUpgraded() ? 'Upgrade complete' : justActivated() ? 'Activation complete' : 'Activated partner' }}</h2>
               @if (partner()?.activatedAt; as activatedAt) {
                 <p class="muted">Activated {{ activatedAt | date: 'mediumDate' }}</p>
               }
               <div class="success-facts">
                 <span><strong>{{ order()?.orderNumber ?? 'Order processing' }}</strong>Order</span>
-                <span><strong>{{ order()?.amount | number: '1.0-0' }}</strong>Wallet paid (₦)</span>
+                <span><strong>{{ planLabel(order()?.tier) }}</strong>Plan</span>
+                <span><strong>₦{{ order()?.amount | number: '1.0-0' }}</strong>Wallet paid</span>
                 <span><strong>{{ order()?.status ?? 'Paid' }}</strong>Product status</span>
               </div>
             </div>
           </div>
+
+          @if (upgrade()?.eligible) {
+            <div class="upgrade-card">
+              <div>
+                <p class="eyebrow">Signature upgrade</p>
+                <h3>Add the Signature set for ₦{{ upgrade()?.price | number: '1.0-0' }}</h3>
+                <p class="muted">
+                  Your ₦{{ upgrade()?.credit | number: '1.0-0' }} activation payment is credited, plus
+                  ₦{{ upgrade()?.handlingFee | number: '1.0-0' }} handling and second delivery. No deadline.
+                  You keep your Essential set and earn the ₦1,200 mentor rate.
+                </p>
+              </div>
+              <button mat-flat-button color="primary" type="button" (click)="openUpgrade()">Upgrade</button>
+            </div>
+          }
 
           <div class="content-grid">
             <div class="panel">
@@ -110,7 +127,7 @@ import { States } from '../../_common/services/countries';
                 </div>
                 <p class="queue-copy">{{ sp.name }} referred you. They are your sponsor, mentor and commission upline — no campaign allocation is needed.</p>
                 <div class="next-list">
-                  <div><mat-icon>inventory_2</mat-icon><p>Your starter product is packed and dispatched to the delivery address on your order.</p></div>
+                  <div><mat-icon>inventory_2</mat-icon><p>Your activation product is packed and dispatched to the delivery address on your order.</p></div>
                   <div><mat-icon>handshake</mat-icon><p>{{ sp.name }} is your onboarding mentor. Reach out through Chat for your first steps.</p></div>
                   <div><mat-icon>trending_up</mat-icon><p>Your Level 1 commission starts when allocated prospects convert; your sponsor earns the activation mentor bonus.</p></div>
                 </div>
@@ -132,7 +149,7 @@ import { States } from '../../_common/services/countries';
                   </div>
                 }
                 <div class="next-list">
-                  <div><mat-icon>inventory_2</mat-icon><p>Your starter product is packed and dispatched to the delivery address on your order.</p></div>
+                  <div><mat-icon>inventory_2</mat-icon><p>Your activation product is packed and dispatched to the delivery address on your order.</p></div>
                   <div><mat-icon>hub</mat-icon><p>When an eligible campaign has capacity, you are placed with a campaign owner and mentor.</p></div>
                   <div><mat-icon>trending_up</mat-icon><p>Your Level 1 commission starts when allocated prospects convert; your mentor earns the separate activation mentor bonus.</p></div>
                 </div>
@@ -146,7 +163,7 @@ import { States } from '../../_common/services/countries';
                 <li><mat-icon>check_circle</mat-icon>Campaign-funded prospect allocation</li>
                 <li><mat-icon>check_circle</mat-icon>Five-level, rank-depth-capped partner commission plan</li>
                 <li><mat-icon>check_circle</mat-icon>Mentorship and activation support</li>
-                <li><mat-icon>check_circle</mat-icon>Starter product for your own retail sales</li>
+                <li><mat-icon>check_circle</mat-icon>Activation product for your own retail sales</li>
               </ul>
               <div class="actions">
                 <a mat-flat-button color="primary" routerLink="/dashboard/campaigns">Fund a growth campaign</a>
@@ -157,6 +174,38 @@ import { States } from '../../_common/services/countries';
               </div>
             </div>
           </div>
+
+          @if (upgradeOpen()) {
+            <div class="panel upgrade-panel">
+              <div class="panel-head">
+                <div>
+                  <p class="eyebrow">Signature upgrade</p>
+                  <h3>Confirm your upgrade</h3>
+                </div>
+                <button mat-icon-button type="button" aria-label="Close upgrade" (click)="closeUpgrade()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+              <p>
+                You pay ₦{{ upgrade()?.price | number: '1.0-0' }}. Bonus credit can be used for this
+                upgrade; the Signature set ships to the address on your account.
+              </p>
+              @if (upgradeShortfall() > 0) {
+                <div class="notice">
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  <p>Fund ₦{{ upgradeShortfall() | number: '1.0-0' }} more to complete the upgrade.</p>
+                </div>
+              }
+              <div class="form-actions">
+                <button mat-flat-button color="primary" type="button"
+                  [disabled]="!upgradeReady() || busy() !== null"
+                  (click)="confirmUpgrade()">
+                  {{ busy() === 'upgrade' ? 'Upgrading…' : 'Confirm upgrade' }}
+                </button>
+                <a mat-button routerLink="/dashboard/wallet">Fund wallet</a>
+              </div>
+            </div>
+          }
         } @else {
           <ol class="stepper" aria-label="Activation progress">
             <li class="done">
@@ -169,9 +218,39 @@ import { States } from '../../_common/services/countries';
             </li>
             <li [class.done]="walletReady()" [class.active]="kycSubmitted() && !walletReady()">
               <span class="step-dot">{{ walletReady() ? '✓' : '3' }}</span>
-              <span><strong>Starter product</strong><small>{{ walletReady() ? 'Wallet ready' : 'Fund your wallet' }}</small></span>
+              <span><strong>Activation plan</strong><small>{{ walletReady() ? 'Funded' : 'Fund your wallet' }}</small></span>
             </li>
           </ol>
+
+          <div class="plan-picker" role="group" aria-label="Choose your activation plan">
+            @for (plan of products(); track plan.id) {
+              <button
+                type="button"
+                class="plan-card"
+                [class.selected]="selectedTier() === plan.tier"
+                [attr.aria-pressed]="selectedTier() === plan.tier"
+                (click)="selectPlan(plan.tier)">
+                <span class="plan-badge">{{ plan.tier === 'essential' ? 'Start here' : 'Premium' }}</span>
+                <span class="plan-name">{{ plan.name }}</span>
+                <span class="plan-price">₦{{ plan.price | number: '1.0-0' }}</span>
+                <span class="plan-note">
+                  {{ plan.tier === 'essential'
+                    ? 'Full partner rights. Upgrade any time.'
+                    : 'Signature set and the higher mentor rate.' }}
+                </span>
+              </button>
+            }
+          </div>
+
+          @if (bonusLocked() > 0) {
+            <div class="notice">
+              <mat-icon>lock</mat-icon>
+              <p>
+                ₦{{ bonusLocked() | number: '1.0-0' }} of your wallet is bonus credit.
+                Bonus unlocks after activation and cannot pay for a first activation.
+              </p>
+            </div>
+          }
 
           <div class="content-grid">
             <div class="panel">
@@ -208,7 +287,11 @@ import { States } from '../../_common/services/countries';
               <div class="panel-head">
                 <div>
                   <p class="eyebrow">Step 3</p>
-                  <h3>Activate with the starter product</h3>
+                  <h3>
+                    {{ product()?.tier === 'essential'
+                      ? 'Activate with the Essential plan'
+                      : 'Activate with the Signature plan' }}
+                  </h3>
                 </div>
                 @if (product(); as p) {
                   <span class="price">₦{{ p.price | number: '1.0-0' }}</span>
@@ -225,18 +308,18 @@ import { States } from '../../_common/services/countries';
                       (mousemove)="onZoomMove($event)"
                       (mouseleave)="onZoomLeave()"
                       (click)="openLightbox()"
-                      [attr.aria-label]="'View larger image: ' + gallery[activeImage()].alt">
+                      [attr.aria-label]="'View larger image: ' + gallery()[activeImage()].alt">
                       <img
-                        [src]="gallery[activeImage()].src"
-                        [alt]="gallery[activeImage()].alt"
+                        [src]="gallery()[activeImage()].src"
+                        [alt]="gallery()[activeImage()].alt"
                         [style.transform-origin]="zoomOrigin()" />
                       <span class="zoom-hint">
                         <mat-icon aria-hidden="true">zoom_in</mat-icon>
                         Hover to zoom · tap to expand
                       </span>
                     </button>
-                    <div class="thumbs" role="group" aria-label="Hoodie views">
-                      @for (image of gallery; track image.src; let i = $index) {
+                    <div class="thumbs" role="group" aria-label="Product views">
+                      @for (image of gallery(); track image.src; let i = $index) {
                         <button
                           type="button"
                           class="thumb"
@@ -253,9 +336,16 @@ import { States } from '../../_common/services/countries';
                     <h4>{{ p.name }}</h4>
                     <p class="muted">{{ p.description }}</p>
                     <ul class="mini-list">
-                      <li>Premium clothing set — two hoodie looks to choose from</li>
-                      <li>Nationwide delivery included</li>
-                      <li>Activation and onboarding access</li>
+                      @if (p.tier === 'essential') {
+                        <li>Complete everyday clothing set — five looks to choose from</li>
+                        <li>Nationwide delivery included</li>
+                        <li>Full partner rights, campaigns, store and five-level commissions</li>
+                        <li>Upgrade to Signature any time</li>
+                      } @else {
+                        <li>Premium Signature clothing set — two hoodie looks to choose from</li>
+                        <li>Nationwide delivery included</li>
+                        <li>Full partner rights and the higher mentor rate</li>
+                      }
                     </ul>
                   </div>
                 </div>
@@ -348,8 +438,13 @@ import { States } from '../../_common/services/countries';
 
                 <div class="wallet-box">
                   <div>
-                    <span class="muted small">Wallet balance</span>
-                    <strong>₦{{ wallet() | number: '1.0-0' }}</strong>
+                    <span class="muted small">Available for activation (cash)</span>
+                    <strong>₦{{ cashAvailable() | number: '1.0-0' }}</strong>
+                    @if (bonusLocked() > 0) {
+                      <small class="muted">
+                        ₦{{ bonusLocked() | number: '1.0-0' }} bonus unlocks after activation
+                      </small>
+                    }
                   </div>
                   @if (shortfall(); as gap) {
                     <div class="shortfall">
@@ -385,7 +480,7 @@ import { States } from '../../_common/services/countries';
               } @else {
                 <div class="notice">
                   <mat-icon>inventory_2</mat-icon>
-                  <p>The starter product is not available right now. Contact support so we can open activation for you.</p>
+                  <p>Activation plans are not available right now. Contact support so we can open activation for you.</p>
                 </div>
               }
             </div>
@@ -394,14 +489,14 @@ import { States } from '../../_common/services/countries';
       }
 
       @if (lightboxOpen()) {
-        <div class="lightbox" role="dialog" aria-modal="true" aria-label="Hoodie image preview" (click)="closeLightbox()">
+        <div class="lightbox" role="dialog" aria-modal="true" aria-label="Product image preview" (click)="closeLightbox()">
           <button type="button" class="lightbox-close" aria-label="Close image preview" (click)="closeLightbox(); $event.stopPropagation()">
             <mat-icon aria-hidden="true">close</mat-icon>
           </button>
           <div class="lightbox-inner" (click)="$event.stopPropagation()">
-            <img [src]="gallery[activeImage()].src" [alt]="gallery[activeImage()].alt" />
-            <div class="lightbox-thumbs" role="group" aria-label="Hoodie views">
-              @for (image of gallery; track image.src; let i = $index) {
+            <img [src]="gallery()[activeImage()].src" [alt]="gallery()[activeImage()].alt" />
+            <div class="lightbox-thumbs" role="group" aria-label="Product views">
+              @for (image of gallery(); track image.src; let i = $index) {
                 <button
                   type="button"
                   class="thumb"
@@ -430,6 +525,18 @@ import { States } from '../../_common/services/countries';
     .panel { background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-xl); padding: 24px; box-shadow: var(--ms-shadow-sm); }
     .loading-panel { display: grid; gap: 16px; place-items: center; padding: 48px; }
     .content-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 24px; align-items: start; }
+    .plan-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
+    .plan-card { position: relative; display: grid; gap: 6px; text-align: left; padding: 20px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-surface); cursor: pointer; transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease; }
+    .plan-card:hover { border-color: var(--ms-primary); transform: translateY(-1px); }
+    .plan-card.selected { border-color: var(--ms-primary); box-shadow: 0 0 0 3px var(--ms-primary-soft); }
+    .plan-badge { justify-self: start; padding: 2px 8px; border-radius: 999px; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .plan-name { font-weight: 700; }
+    .plan-price { color: var(--ms-primary-strong); font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .plan-note { color: var(--ms-text-muted); font-size: 0.8125rem; line-height: 1.5; }
+    .upgrade-card { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 0 0 24px; padding: 24px; border: 1px solid var(--ms-primary); border-radius: var(--ms-radius-xl); background: var(--ms-primary-soft); }
+    .upgrade-card h3 { margin: 4px 0 6px; }
+    .upgrade-card p { margin: 0; max-width: 640px; line-height: 1.6; }
+    .upgrade-panel { margin-top: 24px; }
     .panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
     .panel-head h3 { margin: 4px 0 0; font-size: 1.125rem; }
     .stepper { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0 0 16px; }
@@ -602,6 +709,8 @@ import { States } from '../../_common/services/countries';
       .span-2 { grid-column: span 1; }
       .product { grid-template-columns: minmax(0, 1fr); }
       .product-art { aspect-ratio: 1 / 1; }
+      .plan-picker { grid-template-columns: minmax(0, 1fr); }
+      .upgrade-card { flex-direction: column; align-items: flex-start; }
       .lightbox { padding: 16px; }
       .lightbox-close { top: 12px; right: 12px; }
       .success-hero { align-items: flex-start; padding: 24px; }
@@ -616,48 +725,74 @@ export class ActivationComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
-  private readonly checkoutKey = globalThis.crypto?.randomUUID?.()
-    ?? `activation-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  private checkoutKey = this.newCheckoutKey();
+  private upgradeKey = this.newUpgradeKey();
   private identityAutoCompleteRequested = false;
 
   protected readonly loading = signal(true);
-  protected readonly busy = signal<'kyc' | 'order' | null>(null);
+  protected readonly busy = signal<'kyc' | 'order' | 'upgrade' | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly status = signal<OnboardingStatus | null>(null);
   protected readonly products = signal<StarterProduct[]>([]);
   protected readonly justActivated = signal(false);
+  protected readonly justUpgraded = signal(false);
+  protected readonly upgradeOpen = signal(false);
   protected readonly activeImage = signal(0);
   protected readonly zooming = signal(false);
   protected readonly zoomOrigin = signal('50% 50%');
   protected readonly lightboxOpen = signal(false);
-  protected readonly gallery = [
-    {
-      src: '/img/activation-hoodi.jpeg',
-      alt: 'MarketSpase activation hoodie — look one',
-    },
-    {
-      src: '/img/activation-hoodi2.jpeg',
-      alt: 'MarketSpase activation hoodie — look two',
-    },
-  ];
+  protected readonly selectedTier = signal<ActivationTier>('essential');
 
   protected readonly partner = computed(() => this.status()?.partner ?? null);
   protected readonly sponsor = computed(() => this.status()?.sponsor ?? null);
   protected readonly order = computed(() => this.status()?.activationOrder ?? null);
+  protected readonly upgrade = computed(() => this.status()?.upgrade ?? null);
   protected readonly queue = computed(() => this.status()?.queue ?? null);
-  protected readonly product = computed(() => this.products()[0] ?? null);
+  protected readonly product = computed(() => {
+    const products = this.products();
+    return products.find((plan) => plan.tier === this.selectedTier())
+      ?? products[0]
+      ?? null;
+  });
+  protected readonly gallery = computed(() => {
+    const product = this.product();
+    if (!product) return [];
+    const images = product.images?.length
+      ? product.images
+      : [{ url: product.imageUrl, alt: product.name }];
+    return images.map((image) => ({ src: image.url, alt: image.alt || product.name }));
+  });
   protected readonly wallet = computed(() => this.partner()?.balance ?? 0);
+  /** Cash only: bonus credit cannot fund a first activation. */
+  protected readonly cashAvailable = computed(() => {
+    const partner = this.partner();
+    if (!partner) return 0;
+    return typeof partner.withdrawableBalance === 'number'
+      ? partner.withdrawableBalance
+      : Math.max(partner.balance - (partner.bonusBalance ?? 0), 0);
+  });
+  protected readonly bonusLocked = computed(() => (
+    Math.max(this.wallet() - this.cashAvailable(), 0)
+  ));
   protected readonly isPartner = computed(() => this.partner()?.accountState === 'partner');
   protected readonly kycStatus = computed(() => this.partner()?.kycStatus ?? 'not_started');
   protected readonly kycSubmitted = computed(() => this.kycStatus() === 'verified');
   protected readonly walletReady = computed(() => {
     const product = this.product();
-    return !!product && this.wallet() >= product.price;
+    return !!product && this.cashAvailable() >= product.price;
   });
   protected readonly shortfall = computed(() => {
     const product = this.product();
     if (!product) return 0;
-    return Math.max(0, product.price - this.wallet());
+    return Math.max(0, product.price - this.cashAvailable());
+  });
+  protected readonly upgradeReady = computed(() => {
+    const quote = this.upgrade();
+    return !!quote?.eligible && quote.price !== null && this.wallet() >= quote.price;
+  });
+  protected readonly upgradeShortfall = computed(() => {
+    const price = this.upgrade()?.price ?? 0;
+    return Math.max(0, price - this.wallet());
   });
   protected readonly queueCopy = computed(() => {
     const entry = this.queue();
@@ -701,6 +836,30 @@ export class ActivationComponent implements OnInit {
   @HostListener('document:keydown.escape')
   protected onEscape(): void {
     this.closeLightbox();
+    this.closeUpgrade();
+  }
+
+  private newCheckoutKey(): string {
+    return globalThis.crypto?.randomUUID?.()
+      ?? `activation-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+
+  private newUpgradeKey(): string {
+    return globalThis.crypto?.randomUUID?.()
+      ?? `upgrade-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+
+  protected selectPlan(tier: ActivationTier): void {
+    if (this.isPartner() || this.selectedTier() === tier) return;
+    this.selectedTier.set(tier);
+    this.activeImage.set(0);
+    this.closeLightbox();
+    // A different product must not replay the previous plan's order.
+    this.checkoutKey = this.newCheckoutKey();
+  }
+
+  protected planLabel(tier: ActivationTier | undefined): string {
+    return tier === 'essential' ? 'Essential' : 'Signature';
   }
 
   protected selectImage(index: number): void {
@@ -794,8 +953,10 @@ export class ActivationComponent implements OnInit {
       this.error.set('Add a phone number before choosing WhatsApp or phone.');
       return;
     }
-    if (partner.balance < product.price) {
-      this.error.set('Your wallet balance is too low. Fund your wallet and try again.');
+    if (this.cashAvailable() < product.price) {
+      this.error.set(
+        'Your cash balance is too low. Activation is paid from cash only; bonus credit unlocks after activation.',
+      );
       return;
     }
 
@@ -819,8 +980,60 @@ export class ActivationComponent implements OnInit {
           activationOrder: order,
           queue,
         } : current);
+        this.selectedTier.set(order.tier ?? product.tier);
         this.justActivated.set(!response.data.repeated);
         this.auth.me().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ error: () => undefined });
+        this.refreshSharedPartner();
+        // Reload the live upgrade quote for the new partner.
+        this.refresh();
+      },
+      error: (err: ApiError) => this.error.set(userError(err)),
+    });
+  }
+
+  protected openUpgrade(): void {
+    this.upgradeKey = this.newUpgradeKey();
+    this.error.set(null);
+    this.upgradeOpen.set(true);
+  }
+
+  protected closeUpgrade(): void {
+    this.upgradeOpen.set(false);
+  }
+
+  protected confirmUpgrade(): void {
+    const quote = this.upgrade();
+    if (!quote?.eligible || this.busy()) return;
+    if (this.shippingForm.invalid) {
+      this.shippingForm.markAllAsTouched();
+      this.error.set('Complete the delivery address before upgrading.');
+      return;
+    }
+    if (this.wallet() < (quote.price ?? 0)) {
+      this.error.set('Fund your wallet with the upgrade amount and try again.');
+      return;
+    }
+
+    this.busy.set('upgrade');
+    this.error.set(null);
+    this.onboarding.upgrade({
+      shipping: this.shippingForm.getRawValue() as ShippingInput,
+      idempotencyKey: this.upgradeKey,
+    }).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.busy.set(null)),
+    ).subscribe({
+      next: (response) => {
+        const { order, partner: updated } = response.data;
+        this.status.update((current) => current ? {
+          ...current,
+          partner: updated ?? { ...current.partner, activationTier: 'signature' },
+          activationOrder: order,
+          upgrade: { ...current.upgrade, eligible: false, reason: 'already_signature' },
+        } : current);
+        this.selectedTier.set('signature');
+        this.justUpgraded.set(!response.data.repeated);
+        this.upgradeOpen.set(false);
         this.refreshSharedPartner();
       },
       error: (err: ApiError) => this.error.set(userError(err)),
@@ -859,6 +1072,15 @@ export class ActivationComponent implements OnInit {
       next: ({ status, products }) => {
         this.status.set(status.data);
         this.products.set(products.data);
+        if (status.data.partner.accountState === 'partner') {
+          this.selectedTier.set(
+            status.data.activationOrder?.tier
+              ?? status.data.partner.activationTier
+              ?? 'signature',
+          );
+        } else {
+          this.selectedTier.set('essential');
+        }
         this.prefill(status.data);
         this.autoCompleteIdentity(status.data);
       },

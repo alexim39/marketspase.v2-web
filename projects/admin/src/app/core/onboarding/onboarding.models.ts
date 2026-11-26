@@ -4,6 +4,8 @@ export type AccountState = 'member' | 'partner';
 export type KycStatus = 'not_started' | 'pending' | 'verified' | 'rejected';
 export type IdType = 'nin' | 'drivers_license' | 'passport' | 'voters_card';
 export type ActivationOrderStatus = 'Paid' | 'Fulfilled' | 'Refunded' | 'Cancelled';
+export type ActivationTier = 'essential' | 'signature';
+export type ActivationOrderKind = 'activation' | 'upgrade';
 
 export interface OnboardingPartner {
   id: string;
@@ -64,6 +66,8 @@ export interface ActivationOrder {
   orderNumber: string;
   productName: string;
   sku: string;
+  tier: ActivationTier;
+  kind: ActivationOrderKind;
   amount: number;
   currency: string;
   status: ActivationOrderStatus;
@@ -149,6 +153,11 @@ export interface AdminActivationSummary {
   accounts: { total: number; members: number; partners: number };
   kyc: { pending: number; verified: number; rejected: number };
   orders: { paid: number; fulfilled: number };
+  plans: {
+    essential: { orders: number; revenue: number; margin: number };
+    signature: { orders: number; revenue: number; margin: number };
+    upgrades: { orders: number; revenue: number; margin: number };
+  };
   queue: { queued: number; allocated: number };
   aging: {
     queueOver3Days: number;

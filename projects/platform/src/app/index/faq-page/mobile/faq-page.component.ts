@@ -102,8 +102,10 @@ import { RouterModule } from '@angular/router';
           <details>
             <summary>What am I buying when I activate?</summary>
             <p>
-              A real MarketSpase starter product, shipped to the address you provide. The product
-              and exact price are shown before you pay. It is not a recruitment fee.
+              A real MarketSpase clothing set, shipped to the address you provide. The Essential
+              set is ₦12,500 and the Signature set is ₦38,000. Both give full partner rights, and
+              you can upgrade from Essential to Signature at any time. The exact price is shown
+              before you pay. It is not a recruitment fee.
             </p>
           </details>
           <details>

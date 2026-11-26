@@ -26,7 +26,7 @@ import { RouterModule } from '@angular/router';
           <li class="mkt-step mkt-step--accent">
             <span class="mkt-step-num">2</span>
             <h3>Activate with a real product</h3>
-            <p>Complete KYC and order the ₦38,000 MarketSpase starter product. It ships to you.</p>
+            <p>Complete KYC and choose the ₦12,500 Essential or ₦38,000 Signature activation product. It ships to you.</p>
           </li>
           <li class="mkt-step">
             <span class="mkt-step-num">3</span>
