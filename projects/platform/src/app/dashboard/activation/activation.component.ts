@@ -207,20 +207,31 @@ import { States } from '../../_common/services/countries';
             </div>
           }
         } @else {
-          <ol class="stepper" aria-label="Activation progress">
-            <li class="done">
-              <span class="step-dot"><mat-icon>check</mat-icon></span>
-              <span><strong>Email verified</strong><small>{{ partner()?.email }}</small></span>
-            </li>
-            <li [class.done]="kycSubmitted()" [class.active]="!kycSubmitted()">
-              <span class="step-dot">{{ kycSubmitted() ? '✓' : '2' }}</span>
-              <span><strong>Identity check</strong><small>{{ kycStatusText() }}</small></span>
-            </li>
-            <li [class.done]="walletReady()" [class.active]="kycSubmitted() && !walletReady()">
-              <span class="step-dot">{{ walletReady() ? '✓' : '3' }}</span>
-              <span><strong>Activation plan</strong><small>{{ walletReady() ? 'Funded' : 'Fund your wallet' }}</small></span>
-            </li>
-          </ol>
+          <header class="activation-hero">
+            <div class="hero-copy">
+              <p class="eyebrow">Activation steps</p>
+              <h2>Three steps. One partner account.</h2>
+              <p class="lede">
+                Verify your identity, choose the clothing set you want and pay from your wallet.
+                Delivery is included, and both plans carry the same partner rights.
+              </p>
+            </div>
+
+            <ol class="stepper" aria-label="Activation progress">
+              <li class="done">
+                <span class="step-dot"><mat-icon>check</mat-icon></span>
+                <span><strong>Email verified</strong><small>{{ partner()?.email }}</small></span>
+              </li>
+              <li [class.done]="kycSubmitted()" [class.active]="!kycSubmitted()">
+                <span class="step-dot">{{ kycSubmitted() ? '✓' : '2' }}</span>
+                <span><strong>Identity check</strong><small>{{ kycStatusText() }}</small></span>
+              </li>
+              <li [class.done]="walletReady()" [class.active]="kycSubmitted() && !walletReady()">
+                <span class="step-dot">{{ walletReady() ? '✓' : '3' }}</span>
+                <span><strong>Payment</strong><small>{{ walletReady() ? 'Ready' : 'Fund wallet' }}</small></span>
+              </li>
+            </ol>
+          </header>
 
           <div class="plan-picker" role="group" aria-label="Choose your activation plan">
             @for (plan of products(); track plan.id) {
@@ -230,20 +241,28 @@ import { States } from '../../_common/services/countries';
                 [class.selected]="selectedTier() === plan.tier"
                 [attr.aria-pressed]="selectedTier() === plan.tier"
                 (click)="selectPlan(plan.tier)">
-                <span class="plan-badge">{{ plan.tier === 'essential' ? 'Start here' : 'Premium' }}</span>
-                <span class="plan-name">{{ plan.name }}</span>
-                <span class="plan-price">₦{{ plan.price | number: '1.0-0' }}</span>
-                <span class="plan-note">
-                  {{ plan.tier === 'essential'
-                    ? 'Full partner rights. Upgrade any time.'
-                    : 'Signature set and the higher mentor rate.' }}
+                <img class="plan-thumb" [src]="plan.imageUrl" [alt]="plan.name" />
+                <span class="plan-body">
+                  <span class="plan-top">
+                    <span class="plan-badge">{{ plan.tier === 'essential' ? 'Start here' : 'Premium' }}</span>
+                    <span class="plan-price">₦{{ plan.price | number: '1.0-0' }}</span>
+                  </span>
+                  <span class="plan-name">{{ plan.name }}</span>
+                  <span class="plan-note">
+                    {{ plan.tier === 'essential'
+                      ? 'Full partner rights. Upgrade any time.'
+                      : 'Signature set and the higher mentor rate.' }}
+                  </span>
                 </span>
+                <mat-icon class="plan-check" aria-hidden="true">
+                  {{ selectedTier() === plan.tier ? 'check_circle' : 'radio_button_unchecked' }}
+                </mat-icon>
               </button>
             }
           </div>
 
           @if (bonusLocked() > 0) {
-            <div class="notice">
+            <div class="notice bonus-note">
               <mat-icon>lock</mat-icon>
               <p>
                 ₦{{ bonusLocked() | number: '1.0-0' }} of your wallet is bonus credit.
@@ -252,58 +271,43 @@ import { States } from '../../_common/services/countries';
             </div>
           }
 
-          <div class="content-grid">
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <p class="eyebrow">Step 2</p>
-                  <h3>Identity check</h3>
-                </div>
-                <span class="status-pill" [class.verified]="kycSubmitted()">
-                  {{ kycStatusText() }}
-                </span>
+          <section class="panel identity-strip" aria-labelledby="identity-title">
+            <div class="identity-main">
+              <span class="status-pill" [class.verified]="kycSubmitted()">{{ kycStatusText() }}</span>
+              <div>
+                <h3 id="identity-title">Identity check</h3>
+                <p class="muted small">
+                  @if (kycSubmitted()) {
+                    Identity check complete. No documents are needed right now.
+                  } @else {
+                    No documents are needed right now. This step completes automatically so you can activate.
+                  }
+                </p>
               </div>
-
-              @if (kycSubmitted()) {
-                <div class="notice success">
-                  <mat-icon>verified_user</mat-icon>
-                  <p>Identity check complete. No documents or address details are needed right now.</p>
-                </div>
-              } @else {
-                <div class="notice">
-                  <mat-icon>badge</mat-icon>
-                  <p>No identity documents are needed right now. This step completes automatically so you can activate.</p>
-                </div>
-                <div class="form-actions">
-                  <button mat-flat-button color="primary" type="button" [disabled]="busy() !== null" (click)="submitKyc()">
-                    {{ busy() === 'kyc' ? 'Completing automatically…' : 'Complete identity step' }}
-                  </button>
-                  <span class="muted small">This is recorded automatically. Document verification can be added later when it is reintroduced.</span>
-                </div>
-              }
             </div>
+            @if (!kycSubmitted()) {
+              <button mat-flat-button color="primary" type="button" [disabled]="busy() !== null" (click)="submitKyc()">
+                {{ busy() === 'kyc' ? 'Completing…' : 'Complete identity step' }}
+              </button>
+            }
+          </section>
 
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <p class="eyebrow">Step 3</p>
-                  <h3>
-                    {{ product()?.tier === 'essential'
-                      ? 'Activate with the Essential plan'
-                      : 'Activate with the Signature plan' }}
-                  </h3>
-                </div>
-                @if (product(); as p) {
-                  <span class="price">₦{{ p.price | number: '1.0-0' }}</span>
-                }
-              </div>
+          @if (product(); as p) {
+            <div class="activation-layout">
+              <div class="main-column">
+                <section class="panel showcase" aria-labelledby="showcase-title">
+                  <div class="showcase-head">
+                    <div>
+                      <p class="eyebrow">{{ p.tier === 'essential' ? 'Essential plan' : 'Signature plan' }}</p>
+                      <h3 id="showcase-title">{{ p.name }}</h3>
+                    </div>
+                    <span class="price">₦{{ p.price | number: '1.0-0' }}</span>
+                  </div>
 
-              @if (product(); as p) {
-                <div class="product">
-                  <div class="product-gallery">
+                  <div class="showcase-gallery">
                     <button
                       type="button"
-                      class="product-art zoom-frame"
+                      class="showcase-art zoom-frame"
                       [class.is-zooming]="zooming()"
                       (mousemove)="onZoomMove($event)"
                       (mouseleave)="onZoomLeave()"
@@ -317,6 +321,7 @@ import { States } from '../../_common/services/countries';
                         <mat-icon aria-hidden="true">zoom_in</mat-icon>
                         Hover to zoom · tap to expand
                       </span>
+                      <span class="image-count">{{ activeImage() + 1 }} / {{ gallery().length }}</span>
                     </button>
                     <div class="thumbs" role="group" aria-label="Product views">
                       @for (image of gallery(); track image.src; let i = $index) {
@@ -332,32 +337,108 @@ import { States } from '../../_common/services/countries';
                       }
                     </div>
                   </div>
-                  <div>
-                    <h4>{{ p.name }}</h4>
-                    <p class="muted">{{ p.description }}</p>
-                    <ul class="mini-list">
-                      @if (p.tier === 'essential') {
-                        <li>Complete everyday clothing set — five looks to choose from</li>
-                        <li>Nationwide delivery included</li>
-                        <li>Full partner rights, campaigns, store and five-level commissions</li>
-                        <li>Upgrade to Signature any time</li>
-                      } @else {
-                        <li>Premium Signature clothing set — two hoodie looks to choose from</li>
-                        <li>Nationwide delivery included</li>
-                        <li>Full partner rights and the higher mentor rate</li>
-                      }
-                    </ul>
-                  </div>
-                </div>
 
-                <div class="mentor-contact">
-                  <div class="mentor-contact-head">
+                  <p class="showcase-desc">{{ p.description }}</p>
+
+                  <ul class="benefit-list">
+                    @if (p.tier === 'essential') {
+                      <li><mat-icon>check_circle</mat-icon>Complete everyday clothing set — five looks</li>
+                      <li><mat-icon>check_circle</mat-icon>Nationwide delivery included</li>
+                      <li><mat-icon>check_circle</mat-icon>Full partner rights, campaigns and store</li>
+                      <li><mat-icon>check_circle</mat-icon>Upgrade to Signature any time</li>
+                    } @else {
+                      <li><mat-icon>check_circle</mat-icon>Premium Signature set — two hoodie looks</li>
+                      <li><mat-icon>check_circle</mat-icon>Nationwide delivery included</li>
+                      <li><mat-icon>check_circle</mat-icon>Full partner rights and the higher mentor rate</li>
+                      <li><mat-icon>check_circle</mat-icon>Five-level commission eligibility</li>
+                    }
+                  </ul>
+
+                  <div class="assurance-row">
+                    <span><mat-icon>local_shipping</mat-icon>Nationwide delivery</span>
+                    <span><mat-icon>verified_user</mat-icon>Secure wallet payment</span>
+                    <span><mat-icon>autorenew</mat-icon>Upgrade any time</span>
+                  </div>
+                </section>
+
+                <section class="panel delivery-panel" aria-labelledby="delivery-title">
+                  <div class="panel-head">
                     <div>
-                      <h4>How should your mentor contact you?</h4>
-                      <p class="muted small">Your direct mentor uses this only for onboarding support. You can change it later.</p>
+                      <p class="eyebrow">Step 3</p>
+                      <h3 id="delivery-title">Delivery details</h3>
+                    </div>
+                    <span class="muted small">Ships to your address</span>
+                  </div>
+
+                  <form [formGroup]="shippingForm" (ngSubmit)="pay()" class="form-grid shipping-grid">
+                    <mat-form-field appearance="outline" class="span-2">
+                      <mat-label>Full name</mat-label>
+                      <input matInput formControlName="fullName" autocomplete="name" />
+                      @if (shippingForm.get('fullName')?.touched && shippingForm.get('fullName')?.hasError('required')) {
+                        <mat-error>Full name is required.</mat-error>
+                      }
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Phone</mat-label>
+                      <input matInput formControlName="phone" autocomplete="tel" />
+                      @if (shippingForm.get('phone')?.touched && shippingForm.get('phone')?.hasError('required')) {
+                        <mat-error>Phone number is required.</mat-error>
+                      }
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>State</mat-label>
+                      <mat-select formControlName="state">
+                        @for (state of states; track state) {
+                          <mat-option [value]="state">{{ state }}</mat-option>
+                        }
+                      </mat-select>
+                      @if (shippingForm.get('state')?.touched && shippingForm.get('state')?.hasError('required')) {
+                        <mat-error>State is required.</mat-error>
+                      }
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="span-2">
+                      <mat-label>Street address</mat-label>
+                      <input matInput formControlName="street" autocomplete="street-address" />
+                      @if (shippingForm.get('street')?.touched) {
+                        @if (shippingForm.get('street')?.hasError('required')) {
+                          <mat-error>Street address is required.</mat-error>
+                        } @else if (shippingForm.get('street')?.hasError('minlength')) {
+                          <mat-error>Enter at least 3 characters.</mat-error>
+                        }
+                      }
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>City</mat-label>
+                      <input matInput formControlName="city" autocomplete="address-level2" />
+                      @if (shippingForm.get('city')?.touched && shippingForm.get('city')?.hasError('required')) {
+                        <mat-error>City is required.</mat-error>
+                      }
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Country</mat-label>
+                      <input matInput formControlName="country" autocomplete="country-name" />
+                      @if (shippingForm.get('country')?.touched && shippingForm.get('country')?.hasError('required')) {
+                        <mat-error>Country is required.</mat-error>
+                      }
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="span-2">
+                      <mat-label>Delivery note (optional)</mat-label>
+                      <textarea matInput rows="2" formControlName="notes"></textarea>
+                    </mat-form-field>
+                  </form>
+
+                  <p class="muted small">This delivery address is saved back to your profile and used for shipping.</p>
+                </section>
+
+                <section class="panel mentor-panel" aria-labelledby="mentor-title">
+                  <div class="panel-head">
+                    <div>
+                      <p class="eyebrow">Step 4</p>
+                      <h3 id="mentor-title">Mentor contact</h3>
                     </div>
                     <mat-icon aria-hidden="true">support_agent</mat-icon>
                   </div>
+                  <p class="muted small">Your direct mentor uses this only for onboarding support. You can change it later.</p>
                   <div [formGroup]="mentorForm" class="mentor-form">
                     <mat-radio-group formControlName="preference" aria-label="Mentor contact preference">
                       <mat-radio-button value="in_app">In-app chat</mat-radio-button>
@@ -375,116 +456,76 @@ import { States } from '../../_common/services/countries';
                       <p class="muted small">No direct mentor outreach will be made. You can change this later if you want support.</p>
                     }
                   </div>
-                </div>
+                </section>
+              </div>
 
-                <form [formGroup]="shippingForm" (ngSubmit)="pay()" class="form-grid shipping-grid">
-                  <mat-form-field appearance="outline" class="span-2">
-                    <mat-label>Full name</mat-label>
-                    <input matInput formControlName="fullName" autocomplete="name" />
-                    @if (shippingForm.get('fullName')?.touched && shippingForm.get('fullName')?.hasError('required')) {
-                      <mat-error>Full name is required.</mat-error>
-                    }
-                  </mat-form-field>
-                  <mat-form-field appearance="outline">
-                    <mat-label>Phone</mat-label>
-                    <input matInput formControlName="phone" autocomplete="tel" />
-                    @if (shippingForm.get('phone')?.touched && shippingForm.get('phone')?.hasError('required')) {
-                      <mat-error>Phone number is required.</mat-error>
-                    }
-                  </mat-form-field>
-                  <mat-form-field appearance="outline">
-                    <mat-label>State</mat-label>
-                    <mat-select formControlName="state">
-                      @for (state of states; track state) {
-                        <mat-option [value]="state">{{ state }}</mat-option>
-                      }
-                    </mat-select>
-                    @if (shippingForm.get('state')?.touched && shippingForm.get('state')?.hasError('required')) {
-                      <mat-error>State is required.</mat-error>
-                    }
-                  </mat-form-field>
-                  <mat-form-field appearance="outline" class="span-2">
-                    <mat-label>Street address</mat-label>
-                    <input matInput formControlName="street" autocomplete="street-address" />
-                    @if (shippingForm.get('street')?.touched) {
-                      @if (shippingForm.get('street')?.hasError('required')) {
-                        <mat-error>Street address is required.</mat-error>
-                      } @else if (shippingForm.get('street')?.hasError('minlength')) {
-                        <mat-error>Enter at least 3 characters.</mat-error>
-                      }
-                    }
-                  </mat-form-field>
-                  <mat-form-field appearance="outline">
-                    <mat-label>City</mat-label>
-                    <input matInput formControlName="city" autocomplete="address-level2" />
-                    @if (shippingForm.get('city')?.touched && shippingForm.get('city')?.hasError('required')) {
-                      <mat-error>City is required.</mat-error>
-                    }
-                  </mat-form-field>
-                  <mat-form-field appearance="outline">
-                    <mat-label>Country</mat-label>
-                    <input matInput formControlName="country" autocomplete="country-name" />
-                    @if (shippingForm.get('country')?.touched && shippingForm.get('country')?.hasError('required')) {
-                      <mat-error>Country is required.</mat-error>
-                    }
-                  </mat-form-field>
-                  <mat-form-field appearance="outline" class="span-2">
-                    <mat-label>Delivery note (optional)</mat-label>
-                    <textarea matInput rows="2" formControlName="notes"></textarea>
-                  </mat-form-field>
-                </form>
-
-                <p class="muted small centre">This delivery address is saved back to your profile and used for shipping.</p>
-
-                <div class="wallet-box">
-                  <div>
-                    <span class="muted small">Available for activation (cash)</span>
-                    <strong>₦{{ cashAvailable() | number: '1.0-0' }}</strong>
-                    @if (bonusLocked() > 0) {
-                      <small class="muted">
-                        ₦{{ bonusLocked() | number: '1.0-0' }} bonus unlocks after activation
-                      </small>
-                    }
-                  </div>
-                  @if (shortfall(); as gap) {
-                    <div class="shortfall">
-                      <span>You need ₦{{ gap | number: '1.0-0' }} more</span>
-                      <a mat-stroked-button routerLink="/dashboard/wallet/deposit">Fund wallet</a>
+              <aside class="checkout-column">
+                <section class="panel checkout-card" aria-labelledby="checkout-title">
+                  <div class="panel-head">
+                    <div>
+                      <p class="eyebrow">Payment</p>
+                      <h3 id="checkout-title">Order summary</h3>
                     </div>
-                  } @else {
-                    <span class="ready"><mat-icon>check_circle</mat-icon>Ready to activate</span>
-                  }
-                </div>
-
-                @if (!kycSubmitted()) {
-                  <div class="notice">
-                    <mat-icon>info</mat-icon>
-                    <p>Submit your identity check first, then pay from your wallet.</p>
+                    <span class="price">₦{{ p.price | number: '1.0-0' }}</span>
                   </div>
-                }
 
-                <button
-                  mat-flat-button
-                  color="primary"
-                  type="button"
-                  class="pay-btn"
-                  [disabled]="!canPay() || busy() !== null"
-                  (click)="pay()">
-                  @if (busy() === 'order') {
-                    Activating…
-                  } @else {
-                    Activate and pay ₦{{ p.price | number: '1.0-0' }}
+                  <div class="order-summary">
+                    <div class="summary-row"><span>{{ p.name }}</span><strong>₦{{ p.price | number: '1.0-0' }}</strong></div>
+                    <div class="summary-row"><span>Delivery</span><strong>Included</strong></div>
+                    <div class="summary-row"><span>Activation</span><strong>Full partner rights</strong></div>
+                    <div class="summary-row total"><span>Total</span><strong>₦{{ p.price | number: '1.0-0' }}</strong></div>
+                  </div>
+
+                  <div class="wallet-box">
+                    <div>
+                      <span class="muted small">Available for activation (cash)</span>
+                      <strong>₦{{ cashAvailable() | number: '1.0-0' }}</strong>
+                      @if (bonusLocked() > 0) {
+                        <small class="muted">₦{{ bonusLocked() | number: '1.0-0' }} bonus unlocks after activation</small>
+                      }
+                    </div>
+                    @if (shortfall(); as gap) {
+                      <div class="shortfall">
+                        <span>You need ₦{{ gap | number: '1.0-0' }} more</span>
+                        <a mat-stroked-button routerLink="/dashboard/wallet/deposit">Fund wallet</a>
+                      </div>
+                    } @else {
+                      <span class="ready"><mat-icon>check_circle</mat-icon>Ready to activate</span>
+                    }
+                  </div>
+
+                  @if (!kycSubmitted()) {
+                    <div class="notice">
+                      <mat-icon>info</mat-icon>
+                      <p>Submit your identity check first, then pay from your wallet.</p>
+                    </div>
                   }
-                </button>
-                <p class="muted small centre">Your order is idempotent: retrying a failed response never charges you twice.</p>
-              } @else {
-                <div class="notice">
-                  <mat-icon>inventory_2</mat-icon>
-                  <p>Activation plans are not available right now. Contact support so we can open activation for you.</p>
-                </div>
-              }
+
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    type="button"
+                    class="pay-btn"
+                    [disabled]="!canPay() || busy() !== null"
+                    (click)="pay()">
+                    @if (busy() === 'order') {
+                      Activating…
+                    } @else {
+                      Activate and pay ₦{{ p.price | number: '1.0-0' }}
+                    }
+                  </button>
+                  <p class="muted small centre">Retrying a failed response never charges you twice.</p>
+                </section>
+              </aside>
             </div>
-          </div>
+          } @else {
+            <div class="panel">
+              <div class="notice">
+                <mat-icon>inventory_2</mat-icon>
+                <p>Activation plans are not available right now. Contact support so we can open activation for you.</p>
+              </div>
+            </div>
+          }
         }
       }
 
@@ -514,7 +555,7 @@ import { States } from '../../_common/services/countries';
     </section>
   `,
   styles: [`
-    .activation-page { max-width: 1120px; margin: 0 auto; padding: 32px; }
+    .activation-page { max-width: 1280px; margin: 0 auto; padding: 32px; }
     .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
     .page-head h1 { margin: 4px 0 8px; font-size: clamp(1.75rem, 3vw, 2.5rem); letter-spacing: -0.03em; line-height: 1.1; }
     .lede { max-width: 680px; margin: 0; line-height: 1.6; }
@@ -525,14 +566,51 @@ import { States } from '../../_common/services/countries';
     .panel { background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-xl); padding: 24px; box-shadow: var(--ms-shadow-sm); }
     .loading-panel { display: grid; gap: 16px; place-items: center; padding: 48px; }
     .content-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 24px; align-items: start; }
-    .plan-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
-    .plan-card { position: relative; display: grid; gap: 6px; text-align: left; padding: 20px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-surface); cursor: pointer; transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease; }
+    .plan-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 20px 0; }
+    .plan-card { position: relative; display: flex; align-items: center; gap: 16px; text-align: left; padding: 14px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-surface); cursor: pointer; transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease; }
     .plan-card:hover { border-color: var(--ms-primary); transform: translateY(-1px); }
     .plan-card.selected { border-color: var(--ms-primary); box-shadow: 0 0 0 3px var(--ms-primary-soft); }
+    .plan-thumb { flex: none; width: 76px; height: 96px; object-fit: cover; border-radius: 10px; border: 1px solid var(--ms-line); background: var(--ms-canvas); }
+    .plan-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+    .plan-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .plan-badge { justify-self: start; padding: 2px 8px; border-radius: 999px; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
     .plan-name { font-weight: 700; }
-    .plan-price { color: var(--ms-primary-strong); font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .plan-price { color: var(--ms-primary-strong); font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums; }
     .plan-note { color: var(--ms-text-muted); font-size: 0.8125rem; line-height: 1.5; }
+    .plan-check { color: var(--ms-primary); flex: none; }
+    .activation-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 0.75fr); gap: 24px; align-items: center; padding: 24px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-xl); background: linear-gradient(120deg, color-mix(in srgb, var(--ms-primary-soft) 55%, var(--ms-surface)), var(--ms-surface)); }
+    .hero-copy h2 { margin: 6px 0 8px; font-size: clamp(1.25rem, 2vw, 1.6rem); letter-spacing: -0.02em; line-height: 1.2; }
+    .hero-copy .lede { max-width: 640px; margin: 0; line-height: 1.6; }
+    .activation-hero .stepper { margin: 0; }
+    .activation-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.7fr); gap: 24px; align-items: start; margin-top: 8px; }
+    .main-column { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+    .checkout-column { position: sticky; top: 96px; min-width: 0; max-height: calc(100vh - 120px); overflow-y: auto; }
+    .identity-strip { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 16px 0; flex-wrap: wrap; }
+    .identity-main { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .identity-main h3 { margin: 0 0 2px; font-size: 1rem; }
+    .identity-main p { margin: 0; }
+    .showcase { padding: 24px; }
+    .showcase-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
+    .showcase-head h3 { margin: 4px 0 0; font-size: 1.2rem; }
+    .showcase-gallery { display: flex; flex-direction: column; gap: 12px; }
+    .showcase-art { position: relative; width: 100%; aspect-ratio: 4 / 5; max-height: 600px; padding: 0; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); overflow: hidden; background: linear-gradient(160deg, #f8f7ff, #ece9ff 58%, #e1dcff); cursor: zoom-in; }
+    .showcase-art img { width: 100%; height: 100%; object-fit: contain; padding: 8px; transition: transform 0.25s ease; }
+    .showcase-art.is-zooming img { transform: scale(1.7); }
+    .image-count { position: absolute; right: 12px; bottom: 12px; padding: 4px 9px; border-radius: 999px; background: rgba(9, 9, 11, 0.6); color: #fff; font-size: 0.75rem; }
+    .showcase-desc { margin: 16px 0 0; line-height: 1.6; color: var(--ms-text-muted); }
+    .benefit-list { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; }
+    .benefit-list li { display: flex; align-items: flex-start; gap: 8px; font-size: 0.875rem; line-height: 1.45; }
+    .benefit-list mat-icon { color: var(--ms-success); font-size: 18px; width: 18px; height: 18px; flex: none; margin-top: 1px; }
+    .assurance-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--ms-line); color: var(--ms-text-muted); font-size: 0.8rem; }
+    .assurance-row span { display: inline-flex; align-items: center; gap: 6px; }
+    .assurance-row mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--ms-primary-strong); }
+    .delivery-panel, .mentor-panel { padding: 24px; }
+    .checkout-card { display: flex; flex-direction: column; gap: 16px; }
+    .order-summary { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--ms-line); border-radius: 12px; background: var(--ms-canvas); }
+    .summary-row { display: flex; justify-content: space-between; gap: 12px; font-size: 0.875rem; }
+    .summary-row span { color: var(--ms-text-muted); }
+    .summary-row.total { padding-top: 8px; border-top: 1px solid var(--ms-line); font-size: 1rem; }
+    .bonus-note { margin: 0 0 16px; }
     .upgrade-card { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 0 0 24px; padding: 24px; border: 1px solid var(--ms-primary); border-radius: var(--ms-radius-xl); background: var(--ms-primary-soft); }
     .upgrade-card h3 { margin: 4px 0 6px; }
     .upgrade-card p { margin: 0; max-width: 640px; line-height: 1.6; }
@@ -560,32 +638,7 @@ import { States } from '../../_common/services/countries';
     .status-pill { align-self: center; padding: 4px 12px; border-radius: 999px; background: var(--ms-canvas); color: var(--ms-text-muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
     .status-pill.verified, .status-pill.queued { background: var(--ms-success-soft); color: var(--ms-success); }
     .price { color: var(--ms-primary-strong); font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .product { display: grid; grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); gap: 24px; margin-bottom: 24px; align-items: start; }
-    .product h4 { margin: 0 0 8px; font-size: 1.125rem; }
-    .product p { margin: 0 0 16px; line-height: 1.6; }
-    .product-gallery { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-    .product-art {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 4 / 5;
-      padding: 0;
-      border: 1px solid var(--ms-line);
-      border-radius: var(--ms-radius-xl);
-      background: linear-gradient(160deg, #f8f7ff, #ece9ff 58%, #e1dcff);
-      overflow: hidden;
-      cursor: zoom-in;
-      display: block;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-    }
-    .product-art img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      padding: 8px;
-      transition: transform 0.12s linear;
-      will-change: transform;
-    }
-    .zoom-frame.is-zooming img { transform: scale(2.1); }
+    .zoom-frame.is-zooming img { transform: scale(1.7); }
     .zoom-hint {
       position: absolute;
       left: 8px;
@@ -608,8 +661,8 @@ import { States } from '../../_common/services/countries';
       transition: opacity 0.18s ease, transform 0.18s ease;
       pointer-events: none;
     }
-    .product-art:hover .zoom-hint,
-    .product-art:focus-visible .zoom-hint { opacity: 1; transform: translateY(0); }
+    .showcase-art:hover .zoom-hint,
+    .showcase-art:focus-visible .zoom-hint { opacity: 1; transform: translateY(0); }
     .zoom-hint mat-icon { font-size: 14px; width: 14px; height: 14px; }
     .thumbs { display: flex; gap: 8px; }
     .thumb {
@@ -659,15 +712,10 @@ import { States } from '../../_common/services/countries';
     }
     .lightbox-close:hover { background: rgba(255, 255, 255, 0.22); }
     @keyframes lightbox-in { from { opacity: 0; } to { opacity: 1; } }
-    .mini-list, .check-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-    .mini-list li { color: var(--ms-text-muted); font-size: 0.875rem; }
-    .mini-list li::before { content: '•'; color: var(--ms-primary); margin-right: 8px; }
+    .check-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
     .check-list li { display: flex; align-items: center; gap: 8px; }
     .check-list mat-icon { color: var(--ms-success); font-size: 18px; width: 18px; height: 18px; }
     .shipping-grid { margin-top: 8px; }
-    .mentor-contact { margin: 16px 0; padding: 16px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-canvas); display: grid; gap: 12px; }
-    .mentor-contact-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-    .mentor-contact-head h4 { margin: 0 0 4px; font-size: 1rem; }
     .mentor-form { display: grid; gap: 12px; }
     .mentor-form mat-radio-group { display: grid; gap: 8px; }
     .mentor-form mat-checkbox { margin-top: 4px; }
@@ -707,8 +755,6 @@ import { States } from '../../_common/services/countries';
     @media (max-width: 560px) {
       .form-grid { grid-template-columns: minmax(0, 1fr); }
       .span-2 { grid-column: span 1; }
-      .product { grid-template-columns: minmax(0, 1fr); }
-      .product-art { aspect-ratio: 1 / 1; }
       .plan-picker { grid-template-columns: minmax(0, 1fr); }
       .upgrade-card { flex-direction: column; align-items: flex-start; }
       .lightbox { padding: 16px; }
@@ -716,6 +762,22 @@ import { States } from '../../_common/services/countries';
       .success-hero { align-items: flex-start; padding: 24px; }
       .success-facts { gap: 16px; }
       .form-actions { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 1100px) {
+      .activation-hero { grid-template-columns: minmax(0, 1fr); }
+      .activation-layout { grid-template-columns: minmax(0, 1fr); }
+      .checkout-column { position: static; order: 2; max-height: none; overflow: visible; }
+      .main-column { order: 1; }
+    }
+    @media (max-width: 720px) {
+      .activation-page { padding: 16px; }
+      .plan-picker { grid-template-columns: minmax(0, 1fr); }
+      .plan-thumb { width: 64px; height: 82px; }
+      .benefit-list { grid-template-columns: minmax(0, 1fr); }
+      .showcase { padding: 18px; }
+      .delivery-panel, .mentor-panel { padding: 18px; }
+      .showcase-art { aspect-ratio: 1 / 1; }
+      .identity-strip { align-items: flex-start; }
     }
   `],
 })
