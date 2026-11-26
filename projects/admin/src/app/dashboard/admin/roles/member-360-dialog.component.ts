@@ -50,7 +50,7 @@ const num = (v: unknown): number => {
           <p class="name">{{ p.identity.name }} <span class="muted">@{{ p.identity.username ?? '—' }}</span></p>
           <div class="row"><mat-icon>mail</mat-icon><span>{{ p.identity.email ?? '—' }}</span></div>
           <div class="row"><mat-icon>call</mat-icon><span>{{ p.identity.phone ?? '—' }}</span></div>
-          <div class="row"><mat-icon>location_on</mat-icon><span>{{ p.identity.state ?? '—' }} · joined {{ p.identity.createdAt | date:'mediumDate' }}</span></div>
+          <div class="row"><mat-icon>location_on</mat-icon><span>{{ p.identity.state ?? '—' }} · joined {{ p.identity.createdAt | date:'MMM d, y, h:mm a' }}</span></div>
           <div class="row"><mat-icon>badge</mat-icon><span>{{ p.identity.role }}@if (p.upline) { · upline {{ p.upline.name }}}@if (p.identity.suspended) { · suspended: {{ p.identity.suspendReason || 'no reason' }}}</span></div>
         </div>
         <div class="panel">
