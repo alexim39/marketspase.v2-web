@@ -17,7 +17,7 @@ import { PresenceService, PresenceStatus } from '../../../../core/presence/prese
 import { API_BASE_URL } from '../../../../core/config/api-tokens';
 import { AvatarComponent } from '../../../../_common/avatar.component';
 import { NetworkService } from '../network.service';
-import { NetworkChain, NetworkNode, NetworkRoot, NetworkTreeMeta } from '../network.models';
+import { NetworkChain, NetworkNode, NetworkTreeMeta } from '../network.models';
 
 const FALLBACK_PLAN: CompensationPlan = {
   rates: [
@@ -69,12 +69,40 @@ interface MobileNode {
         <a mat-stroked-button routerLink="/dashboard/mentorship/partners/my-partners"><mat-icon>groups</mat-icon> Partners</a>
       </div>
 
-      @if (systemRoot(); as root) {
-        <div class="system-root-banner" role="note">
-          <span class="root-mark" aria-hidden="true">{{ root.name.slice(0, 1) }}</span>
-          <div class="root-copy">
-            <strong>{{ root.name }} root</strong>
-            <span>Structural root · non-earning. Every partner connects here.</span>
+      @if (immediateUpline(); as up) {
+        <div class="upline-card" role="note">
+          <async-avatar
+            [photo]="avatarUrl(up.profileImage)"
+            [name]="names(up)"
+            size="sm"
+            [presence]="presenceOf(up.id)" />
+          <div class="upline-copy">
+            <span class="eyebrow">{{ isSelf() ? 'Your upline' : 'Member upline' }}</span>
+            <strong>{{ names(up) }}</strong>
+            <span>&#64;{{ up.username }} &middot; {{ up.commissionRank }}</span>
+            <span class="upline-meta">
+              Earns {{ depthLabel(up.commissionDepth) }} &middot;
+              {{ up.childCount }} direct partner{{ up.childCount === 1 ? '' : 's' }}
+            </span>
+          </div>
+          <div class="upline-actions">
+            <a mat-icon-button [routerLink]="['/dashboard/network/view', up.id]" aria-label="Open 360 view">
+              <mat-icon>person_search</mat-icon>
+            </a>
+            <a mat-icon-button
+              [routerLink]="['/dashboard/messages']"
+              [queryParams]="{ chat: up.id, chatName: names(up) }"
+              aria-label="Chat with upline">
+              <mat-icon>chat</mat-icon>
+            </a>
+          </div>
+        </div>
+      } @else if (uplineReady()) {
+        <div class="upline-card upline-card--empty" role="note">
+          <span class="upline-mark" aria-hidden="true">?</span>
+          <div class="upline-copy">
+            <strong>No upline yet</strong>
+            <span>You joined without a sponsor. Fair allocation places you with a campaign mentor after activation.</span>
           </div>
         </div>
       }
@@ -220,8 +248,15 @@ interface MobileNode {
     .subtitle { margin: 0; color: var(--ms-text-muted); line-height: 1.5; }
     .view-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
     .view-switch a { min-height: 44px; }
-    .system-root-banner { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); background: var(--ms-surface); }
-    .root-mark { flex: none; width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: var(--ms-primary); color: #fff; font-weight: 800; }
+    .upline-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--ms-primary) 28%, var(--ms-line)); border-radius: var(--ms-radius-lg); background: linear-gradient(120deg, color-mix(in srgb, var(--ms-primary-soft) 70%, var(--ms-surface)), var(--ms-surface)); }
+    .upline-copy { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 1px; }
+    .upline-copy strong { font-size: 0.92rem; }
+    .upline-copy span { color: var(--ms-text-muted); font-size: 0.72rem; line-height: 1.35; }
+    .upline-meta { font-size: 0.68rem !important; }
+    .upline-actions { display: flex; align-items: center; gap: 2px; flex: none; }
+    .upline-actions a { min-height: 44px; }
+    .upline-mark { flex: none; width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: var(--ms-primary); color: #fff; font-weight: 800; }
+    .upline-card--empty { border-style: dashed; background: var(--ms-surface); }
     .root-copy { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
     .root-copy strong { font-size: 0.86rem; }
     .root-copy span { color: var(--ms-text-muted); font-size: 0.72rem; line-height: 1.35; }
@@ -283,7 +318,11 @@ export class NetworkTreeMobileComponent implements OnInit {
   protected readonly tree = signal<NetworkNode | null>(null);
   protected readonly meta = signal<NetworkTreeMeta | null>(null);
   protected readonly upline = signal<NetworkNode[]>([]);
-  protected readonly systemRoot = signal<NetworkRoot | null>(null);
+  protected readonly uplineReady = signal(false);
+  protected readonly immediateUpline = computed<NetworkNode | null>(() => {
+    const chain = this.upline();
+    return chain.length > 0 ? chain[chain.length - 1] : null;
+  });
   protected readonly rootId = signal<string | null>(null);
   protected readonly depth = signal(5);
   protected readonly plan = signal<CompensationPlan | null>(null);
@@ -357,7 +396,6 @@ export class NetworkTreeMobileComponent implements OnInit {
         next: (res) => {
           this.tree.set(res.data.tree);
           this.meta.set(res.data.meta);
-          this.systemRoot.set(res.data.systemRoot ?? null);
           this.loading.set(false);
           this.refreshPresence(res.data.tree);
         },
@@ -366,11 +404,21 @@ export class NetworkTreeMobileComponent implements OnInit {
           this.loading.set(false);
         },
       });
+    this.uplineReady.set(false);
     this.network.upline(root, 'all' as NetworkChain)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res) => this.upline.set([...(res.data.chain ?? [])].reverse()),
-        error: () => this.upline.set([]),
+        next: (res) => {
+          const chain = [...(res.data.chain ?? [])].reverse();
+          this.upline.set(chain);
+          this.uplineReady.set(true);
+          const immediate = chain[chain.length - 1];
+          if (immediate) this.refreshPresenceIds([immediate.id]);
+        },
+        error: () => {
+          this.upline.set([]);
+          this.uplineReady.set(true);
+        },
       });
   }
 
@@ -434,6 +482,13 @@ export class NetworkTreeMobileComponent implements OnInit {
       ids.push(node.id);
       for (const child of node.children ?? []) queue.push(child);
     }
+    this.presence.lookup(ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((map) => this.presenceMap.update((current) => ({ ...current, ...map })));
+  }
+
+  private refreshPresenceIds(ids: string[]): void {
+    if (ids.length === 0) return;
     this.presence.lookup(ids)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((map) => this.presenceMap.update((current) => ({ ...current, ...map })));

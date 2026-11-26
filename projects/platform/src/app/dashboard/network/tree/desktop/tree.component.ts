@@ -19,7 +19,7 @@ import { API_BASE_URL } from '../../../../core/config/api-tokens';
 import { NetworkService } from '../network.service';
 import { AvatarComponent } from '../../../../_common/avatar.component';
 import {
-  NetworkChain, NetworkNode, NetworkRoot, NetworkTreeMeta, PositionedNode, TreeEdge,
+  NetworkChain, NetworkNode, NetworkTreeMeta, PositionedNode, TreeEdge,
 } from '../network.models';
 
 const NODE_W = 168;
@@ -95,14 +95,38 @@ const FALLBACK_PLAN: CompensationPlan = {
         </mat-button-toggle-group>
       </div>
 
-      @if (systemRoot(); as root) {
-        <div class="system-root-banner" role="note">
-          <span class="root-mark" aria-hidden="true">{{ root.name.slice(0, 1) }}</span>
-          <div class="root-copy">
-            <strong>{{ root.name }} root</strong>
-            <span>Structural root · non-earning · every partner and team connects here.</span>
+      @if (immediateUpline(); as up) {
+        <div class="upline-card" role="note">
+          <async-avatar
+            [photo]="avatarUrl(up.profileImage)"
+            [name]="names(up)"
+            size="md"
+            [presence]="presenceOf(up.id)" />
+          <div class="upline-copy">
+            <span class="eyebrow">{{ isSelf() ? 'Your upline' : 'Member upline' }}</span>
+            <strong>{{ names(up) }}</strong>
+            <span>
+              &#64;{{ up.username }} &middot; {{ up.commissionRank }} &middot;
+              earns {{ depthLabel(up.commissionDepth) }}
+            </span>
+            <span class="upline-meta">
+              {{ relationLabel(up) }} &middot; {{ up.childCount }} direct partner{{ up.childCount === 1 ? '' : 's' }}
+            </span>
           </div>
-          <span class="root-pill">System</span>
+          <div class="upline-actions">
+            <a mat-stroked-button [routerLink]="['/dashboard/network/view', up.id]">360 view</a>
+            <a mat-button
+              [routerLink]="['/dashboard/messages']"
+              [queryParams]="{ chat: up.id, chatName: names(up) }">Chat</a>
+          </div>
+        </div>
+      } @else if (uplineReady()) {
+        <div class="upline-card upline-card--empty" role="note">
+          <span class="upline-mark" aria-hidden="true">?</span>
+          <div class="upline-copy">
+            <strong>No upline yet</strong>
+            <span>You joined without a sponsor. Fair allocation places you with a campaign mentor after activation.</span>
+          </div>
         </div>
       }
 
@@ -403,16 +427,22 @@ const FALLBACK_PLAN: CompensationPlan = {
     .plan-summary strong { font-size: 1.05em; }
     .eyebrow { margin: 0; color: var(--ms-primary-strong); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
     .upline { display: flex; align-items: center; gap: 0.25em; flex-wrap: wrap; background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: 8px; padding: 0.4em 0.8em; }
-    .system-root-banner {
+    .upline-card {
       display: flex;
       align-items: center;
-      gap: 0.7em;
-      padding: 0.7em 0.9em;
+      gap: 0.85em;
+      flex-wrap: wrap;
+      padding: 0.85em 1em;
       border: 1px solid color-mix(in srgb, var(--ms-primary) 28%, var(--ms-line));
       border-radius: 12px;
-      background: linear-gradient(120deg, color-mix(in srgb, var(--ms-primary-soft) 78%, var(--ms-surface)), var(--ms-surface));
+      background: linear-gradient(120deg, color-mix(in srgb, var(--ms-primary-soft) 70%, var(--ms-surface)), var(--ms-surface));
     }
-    .root-mark {
+    .upline-copy { display: flex; flex-direction: column; gap: 0.1em; min-width: 0; flex: 1; }
+    .upline-copy strong { font-size: 0.95em; }
+    .upline-copy span { color: var(--ms-text-muted); font-size: 0.78em; line-height: 1.35; }
+    .upline-meta { font-size: 0.74em !important; }
+    .upline-actions { display: flex; align-items: center; gap: 0.25em; flex-wrap: wrap; }
+    .upline-mark {
       flex: none;
       display: grid;
       place-items: center;
@@ -423,21 +453,7 @@ const FALLBACK_PLAN: CompensationPlan = {
       color: #fff;
       font-weight: 800;
     }
-    .root-copy { display: flex; flex-direction: column; gap: 0.05em; min-width: 0; flex: 1; }
-    .root-copy strong { font-size: 0.9em; }
-    .root-copy span { color: var(--ms-text-muted); font-size: 0.78em; line-height: 1.35; }
-    .root-pill {
-      flex: none;
-      padding: 2px 9px;
-      border-radius: 999px;
-      background: var(--ms-surface);
-      border: 1px solid var(--ms-line);
-      color: var(--ms-text-muted);
-      font-size: 0.7em;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
+    .upline-card--empty { border-style: dashed; background: var(--ms-surface); }
     .upline .sep { color: var(--ms-text-muted); }
     .upline-label { color: var(--ms-text-muted); font-size: 0.78em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-right: 0.25em; }
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
@@ -517,7 +533,11 @@ export class NetworkTreeDesktopComponent implements OnInit {
   protected readonly tree = signal<NetworkNode | null>(null);
   protected readonly meta = signal<NetworkTreeMeta | null>(null);
   protected readonly upline = signal<NetworkNode[]>([]);
-  protected readonly systemRoot = signal<NetworkRoot | null>(null);
+  protected readonly uplineReady = signal(false);
+  protected readonly immediateUpline = computed<NetworkNode | null>(() => {
+    const chain = this.upline();
+    return chain.length > 0 ? chain[chain.length - 1] : null;
+  });
   protected readonly rootId = signal<string | null>(null);
   protected readonly depth = signal(5);
   protected readonly chain = signal<NetworkChain>('all');
@@ -757,7 +777,6 @@ export class NetworkTreeDesktopComponent implements OnInit {
         next: (res) => {
           this.tree.set(res.data.tree);
           this.meta.set(res.data.meta);
-          this.systemRoot.set(res.data.systemRoot ?? null);
           this.collapsed.set(new Set());
           this.selectedId.set(null);
           this.matchIdx.set(0);
@@ -772,12 +791,22 @@ export class NetworkTreeDesktopComponent implements OnInit {
           this.loading.set(false);
         },
       });
+    this.uplineReady.set(false);
     this.network
       .upline(root, this.chain())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res) => this.upline.set([...(res.data.chain ?? [])].reverse()),
-        error: () => this.upline.set([]),
+        next: (res) => {
+          const chain = [...(res.data.chain ?? [])].reverse();
+          this.upline.set(chain);
+          this.uplineReady.set(true);
+          const immediate = chain[chain.length - 1];
+          if (immediate) this.refreshPresenceIds([immediate.id]);
+        },
+        error: () => {
+          this.upline.set([]);
+          this.uplineReady.set(true);
+        },
       });
   }
 
@@ -903,8 +932,8 @@ export class NetworkTreeDesktopComponent implements OnInit {
     return this.network.displayName(node);
   }
 
-  protected relationLabel(node: PositionedNode): string {
-    if (node.depth === 0) return 'Root';
+  protected relationLabel(node: PositionedNode | NetworkNode): string {
+    if ('depth' in node && node.depth === 0) return 'Root';
     return node.relationType === 'placement' ? 'Campaign placement' : 'Referral';
   }
 
@@ -970,6 +999,14 @@ export class NetworkTreeDesktopComponent implements OnInit {
       .lookup(ids)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((map) => this.presenceMap.set({ ...this.presenceMap(), ...map }));
+  }
+
+  private refreshPresenceIds(ids: string[]): void {
+    if (ids.length === 0) return;
+    this.presence
+      .lookup(ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((map) => this.presenceMap.update((current) => ({ ...current, ...map })));
   }
 
   protected presenceOf(id: string | null | undefined): PresenceStatus {
