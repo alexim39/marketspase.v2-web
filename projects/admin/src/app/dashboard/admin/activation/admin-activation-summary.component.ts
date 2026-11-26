@@ -68,18 +68,18 @@ import type { AdminActivationSummary } from '../../../core/onboarding/onboarding
               <div class="aging-grid">
                 <span>
                   <small>Essential</small>
-                  <strong>{{ data.plans.essential.orders }}</strong>
-                  <small>₦{{ data.plans.essential.revenue | number }}</small>
+                  <strong>{{ data.plans?.essential?.orders ?? 0 }}</strong>
+                  <small>₦{{ (data.plans?.essential?.revenue ?? 0) | number }}</small>
                 </span>
                 <span>
                   <small>Signature</small>
-                  <strong>{{ data.plans.signature.orders }}</strong>
-                  <small>₦{{ data.plans.signature.revenue | number }}</small>
+                  <strong>{{ data.plans?.signature?.orders ?? 0 }}</strong>
+                  <small>₦{{ (data.plans?.signature?.revenue ?? 0) | number }}</small>
                 </span>
                 <span>
                   <small>Upgrades</small>
-                  <strong>{{ data.plans.upgrades.orders }}</strong>
-                  <small>₦{{ data.plans.upgrades.revenue | number }}</small>
+                  <strong>{{ data.plans?.upgrades?.orders ?? 0 }}</strong>
+                  <small>₦{{ (data.plans?.upgrades?.revenue ?? 0) | number }}</small>
                 </span>
               </div>
             </div>
