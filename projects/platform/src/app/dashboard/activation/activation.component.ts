@@ -293,8 +293,7 @@ import { States } from '../../_common/services/countries';
           </section>
 
           @if (product(); as p) {
-            <div class="activation-layout">
-              <div class="main-column">
+            <div class="activation-stack">
                 <section class="panel showcase" aria-labelledby="showcase-title">
                   <div class="showcase-head">
                     <div>
@@ -361,7 +360,8 @@ import { States } from '../../_common/services/countries';
                   </div>
                 </section>
 
-                <section class="panel delivery-panel" aria-labelledby="delivery-title">
+                <section class="panel checkout-card">
+                  <div class="checkout-section" aria-labelledby="delivery-title">
                   <div class="panel-head">
                     <div>
                       <p class="eyebrow">Step 3</p>
@@ -428,9 +428,9 @@ import { States } from '../../_common/services/countries';
                   </form>
 
                   <p class="muted small">This delivery address is saved back to your profile and used for shipping.</p>
-                </section>
+                  </div>
 
-                <section class="panel mentor-panel" aria-labelledby="mentor-title">
+                  <div class="checkout-section" aria-labelledby="mentor-title">
                   <div class="panel-head">
                     <div>
                       <p class="eyebrow">Step 4</p>
@@ -456,11 +456,9 @@ import { States } from '../../_common/services/countries';
                       <p class="muted small">No direct mentor outreach will be made. You can change this later if you want support.</p>
                     }
                   </div>
-                </section>
-              </div>
+                  </div>
 
-              <aside class="checkout-column">
-                <section class="panel checkout-card" aria-labelledby="checkout-title">
+                  <div class="checkout-section payment-section" aria-labelledby="checkout-title">
                   <div class="panel-head">
                     <div>
                       <p class="eyebrow">Payment</p>
@@ -501,6 +499,25 @@ import { States } from '../../_common/services/countries';
                     </div>
                   }
 
+                  <ul class="pay-checklist" aria-label="Activation requirements">
+                    <li [class.done]="kycSubmitted()">
+                      <mat-icon>{{ kycSubmitted() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                      Identity verified
+                    </li>
+                    <li [class.done]="shippingForm.valid">
+                      <mat-icon>{{ shippingForm.valid ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                      Delivery details complete
+                    </li>
+                    <li [class.done]="mentorReady()">
+                      <mat-icon>{{ mentorReady() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                      Mentor contact ready
+                    </li>
+                    <li [class.done]="walletReady()">
+                      <mat-icon>{{ walletReady() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                      Wallet funded with ₦{{ p.price | number: '1.0-0' }}
+                    </li>
+                  </ul>
+
                   <button
                     mat-flat-button
                     color="primary"
@@ -515,8 +532,8 @@ import { States } from '../../_common/services/countries';
                     }
                   </button>
                   <p class="muted small centre">Retrying a failed response never charges you twice.</p>
+                  </div>
                 </section>
-              </aside>
             </div>
           } @else {
             <div class="panel">
@@ -582,34 +599,37 @@ import { States } from '../../_common/services/countries';
     .hero-copy h2 { margin: 6px 0 8px; font-size: clamp(1.25rem, 2vw, 1.6rem); letter-spacing: -0.02em; line-height: 1.2; }
     .hero-copy .lede { max-width: 640px; margin: 0; line-height: 1.6; }
     .activation-hero .stepper { margin: 0; }
-    .activation-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.7fr); gap: 24px; align-items: start; margin-top: 8px; }
-    .main-column { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
-    .checkout-column { position: sticky; top: 96px; min-width: 0; max-height: calc(100vh - 120px); overflow-y: auto; }
+    .activation-stack { display: flex; flex-direction: column; gap: 24px; margin-top: 8px; }
     .identity-strip { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 16px 0; flex-wrap: wrap; }
     .identity-main { display: flex; align-items: center; gap: 14px; min-width: 0; }
     .identity-main h3 { margin: 0 0 2px; font-size: 1rem; }
     .identity-main p { margin: 0; }
-    .showcase { padding: 24px; }
-    .showcase-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
+    .showcase { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); grid-template-areas: "gallery head" "gallery desc" "gallery benefits" "gallery assurance"; gap: 16px 28px; align-items: start; padding: 24px; }
+    .showcase-head { grid-area: head; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
     .showcase-head h3 { margin: 4px 0 0; font-size: 1.2rem; }
-    .showcase-gallery { display: flex; flex-direction: column; gap: 12px; }
+    .showcase-gallery { grid-area: gallery; display: flex; flex-direction: column; gap: 12px; }
     .showcase-art { position: relative; width: 100%; aspect-ratio: 4 / 5; max-height: 600px; padding: 0; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); overflow: hidden; background: linear-gradient(160deg, #f8f7ff, #ece9ff 58%, #e1dcff); cursor: zoom-in; }
     .showcase-art img { width: 100%; height: 100%; object-fit: contain; padding: 8px; transition: transform 0.25s ease; }
     .showcase-art.is-zooming img { transform: scale(1.7); }
     .image-count { position: absolute; right: 12px; bottom: 12px; padding: 4px 9px; border-radius: 999px; background: rgba(9, 9, 11, 0.6); color: #fff; font-size: 0.75rem; }
-    .showcase-desc { margin: 16px 0 0; line-height: 1.6; color: var(--ms-text-muted); }
-    .benefit-list { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; }
+    .showcase-desc { grid-area: desc; margin: 0; line-height: 1.6; color: var(--ms-text-muted); }
+    .benefit-list { grid-area: benefits; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; }
     .benefit-list li { display: flex; align-items: flex-start; gap: 8px; font-size: 0.875rem; line-height: 1.45; }
     .benefit-list mat-icon { color: var(--ms-success); font-size: 18px; width: 18px; height: 18px; flex: none; margin-top: 1px; }
-    .assurance-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--ms-line); color: var(--ms-text-muted); font-size: 0.8rem; }
+    .assurance-row { grid-area: assurance; display: flex; gap: 16px; flex-wrap: wrap; margin-top: 0; padding-top: 16px; border-top: 1px solid var(--ms-line); color: var(--ms-text-muted); font-size: 0.8rem; }
     .assurance-row span { display: inline-flex; align-items: center; gap: 6px; }
     .assurance-row mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--ms-primary-strong); }
-    .delivery-panel, .mentor-panel { padding: 24px; }
-    .checkout-card { display: flex; flex-direction: column; gap: 16px; }
+    .checkout-card { display: flex; flex-direction: column; gap: 0; padding: 0; }
+    .checkout-section { padding: 24px; display: flex; flex-direction: column; gap: 16px; border-bottom: 1px solid var(--ms-line); }
+    .checkout-section:last-child { border-bottom: 0; }
     .order-summary { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--ms-line); border-radius: 12px; background: var(--ms-canvas); }
     .summary-row { display: flex; justify-content: space-between; gap: 12px; font-size: 0.875rem; }
     .summary-row span { color: var(--ms-text-muted); }
     .summary-row.total { padding-top: 8px; border-top: 1px solid var(--ms-line); font-size: 1rem; }
+    .pay-checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .pay-checklist li { display: flex; align-items: center; gap: 8px; color: var(--ms-text-muted); font-size: 0.82rem; }
+    .pay-checklist li mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    .pay-checklist li.done { color: var(--ms-success); }
     .bonus-note { margin: 0 0 16px; }
     .upgrade-card { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 0 0 24px; padding: 24px; border: 1px solid var(--ms-primary); border-radius: var(--ms-radius-xl); background: var(--ms-primary-soft); }
     .upgrade-card h3 { margin: 4px 0 6px; }
@@ -765,9 +785,7 @@ import { States } from '../../_common/services/countries';
     }
     @media (max-width: 1100px) {
       .activation-hero { grid-template-columns: minmax(0, 1fr); }
-      .activation-layout { grid-template-columns: minmax(0, 1fr); }
-      .checkout-column { position: static; order: 2; max-height: none; overflow: visible; }
-      .main-column { order: 1; }
+      .showcase { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "gallery" "desc" "benefits" "assurance"; gap: 16px; }
     }
     @media (max-width: 720px) {
       .activation-page { padding: 16px; }
@@ -775,7 +793,7 @@ import { States } from '../../_common/services/countries';
       .plan-thumb { width: 64px; height: 82px; }
       .benefit-list { grid-template-columns: minmax(0, 1fr); }
       .showcase { padding: 18px; }
-      .delivery-panel, .mentor-panel { padding: 18px; }
+      .checkout-section { padding: 18px; }
       .showcase-art { aspect-ratio: 1 / 1; }
       .identity-strip { align-items: flex-start; }
     }
@@ -1102,13 +1120,17 @@ export class ActivationComponent implements OnInit {
     });
   }
 
-  protected canPay(): boolean {
+  protected mentorReady(): boolean {
     const mentor = this.mentorForm.getRawValue();
-    const mentorReady = !['email', 'whatsapp', 'phone'].includes(mentor.preference)
-      || (mentor.consent && (mentor.preference === 'email' ? !!this.partner()?.email : !!this.partner()?.phone));
+    if (!['email', 'whatsapp', 'phone'].includes(mentor.preference)) return true;
+    if (!mentor.consent) return false;
+    return mentor.preference === 'email' ? !!this.partner()?.email : !!this.partner()?.phone;
+  }
+
+  protected canPay(): boolean {
     return this.kycSubmitted()
       && this.shippingForm.valid
-      && mentorReady
+      && this.mentorReady()
       && this.walletReady()
       && !this.isPartner();
   }
