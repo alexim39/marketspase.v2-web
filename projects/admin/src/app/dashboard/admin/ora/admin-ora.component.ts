@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, HostListener, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -212,7 +212,8 @@ import {
       }
 
       @if (detail(); as view) {
-        <section class="detail-card" role="region" aria-label="Ora conversation detail">
+        <div class="detail-overlay" (click)="close()" aria-hidden="true"></div>
+        <section class="detail-card" role="dialog" aria-modal="true" aria-label="Ora conversation detail">
           <header class="detail-head">
             <div class="detail-user">
               <async-avatar [photo]="view.conversation.partner?.profileImage" [name]="view.conversation.partner?.name || 'Unknown user'" size="md" />
@@ -352,24 +353,48 @@ import {
     .muted { color: var(--ms-text-muted); font-size: 0.78rem; }
     .pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
     .empty { padding: 20px; color: var(--ms-text-muted); text-align: center; }
-    .detail-card { padding: 18px; border: 1px solid var(--ms-primary); border-radius: var(--ms-radius-lg); background: var(--ms-surface); display: flex; flex-direction: column; gap: 14px; }
-    .detail-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .detail-overlay { position: fixed; inset: 0; z-index: 90; background: rgba(9, 9, 11, 0.48); backdrop-filter: blur(2px); }
+    .detail-card {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 100;
+      width: min(1040px, 94vw);
+      padding: 18px;
+      border: 0;
+      border-left: 1px solid var(--ms-primary);
+      border-radius: 0;
+      background: var(--ms-surface);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: -24px 0 64px rgba(9, 9, 11, 0.18);
+      animation: detail-in 0.18s ease;
+      overflow: hidden;
+    }
+    @keyframes detail-in {
+      from { transform: translateX(24px); opacity: 0.4; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .detail-head { flex: none; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
     .detail-user { display: flex; align-items: center; gap: 12px; }
     .detail-user h2 { margin: 0; }
     .detail-user p { margin: 2px 0; }
     .detail-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-    .detail-meta { display: flex; gap: 8px 16px; flex-wrap: wrap; padding: 8px 10px; border-radius: 8px; background: var(--ms-canvas); color: var(--ms-text-muted); font-size: 0.78rem; }
+    .detail-meta { flex: none; display: flex; gap: 8px 16px; flex-wrap: wrap; padding: 8px 10px; border-radius: 8px; background: var(--ms-canvas); color: var(--ms-text-muted); font-size: 0.78rem; }
     .alert-text { color: var(--ms-warning); font-weight: 700; }
-    .detail-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr); gap: 16px; align-items: start; }
+    .detail-grid { display: grid; flex: 1; min-height: 0; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr); gap: 16px; align-items: stretch; }
     h3 { margin: 0 0 8px; font-size: 0.95rem; }
-    .transcript { display: flex; flex-direction: column; gap: 8px; max-height: 620px; overflow-y: auto; padding-right: 4px; }
+    .transcript-panel { display: flex; flex-direction: column; min-height: 0; }
+    .transcript { display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; overflow-y: auto; padding-right: 4px; }
     .message { max-width: 88%; padding: 9px 11px; border-radius: 12px; background: var(--ms-canvas); border: 1px solid var(--ms-line); }
     .message--user { align-self: flex-end; background: var(--ms-primary-soft); }
     .message--ora { align-self: flex-start; }
     .message-role { display: block; font-size: 0.66rem; font-weight: 800; text-transform: uppercase; color: var(--ms-text-muted); margin-bottom: 3px; }
     .message p { margin: 0; white-space: pre-wrap; line-height: 1.5; }
     .message-time { display: block; margin-top: 4px; color: var(--ms-text-muted); font-size: 0.66rem; }
-    .side-panel { display: flex; flex-direction: column; gap: 12px; }
+    .side-panel { display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto; padding-right: 4px; }
     .side-block { padding: 12px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-md); background: var(--ms-canvas); }
     .action-row, .event-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--ms-line); }
     .action-row:first-of-type, .event-row:first-of-type { border-top: none; }
@@ -377,8 +402,11 @@ import {
     .admin-note { margin: 8px 0 0; padding-top: 8px; border-top: 1px solid var(--ms-line); font-size: 0.78rem; line-height: 1.45; }
     .error { color: var(--ms-error); }
     @media (max-width: 900px) {
-      .detail-grid { grid-template-columns: minmax(0, 1fr); }
-      .transcript { max-height: 480px; }
+      .detail-card { width: 100vw; padding: 14px; overflow-y: auto; }
+      .detail-grid { grid-template-columns: minmax(0, 1fr); flex: none; overflow: visible; }
+      .transcript-panel { min-height: auto; }
+      .transcript { max-height: none; overflow: visible; }
+      .side-panel { overflow: visible; }
     }
     @media (max-width: 600px) {
       .page-head, .toolbar-card { flex-direction: column; align-items: stretch; }
@@ -419,9 +447,26 @@ export class AdminOraComponent implements OnInit {
     this.query().trim() !== '' || this.accountState() !== '' || this.flagged() !== 'all'
     || this.hidden() !== 'all' || this.from() !== '' || this.to() !== '');
 
+  constructor() {
+    this.destroyRef.onDestroy(() => this.unlockScroll());
+  }
+
   ngOnInit(): void {
     this.loadOverview();
     this.reload();
+  }
+
+  @HostListener('document:keydown.escape')
+  protected onEscape(): void {
+    if (this.detail()) this.close();
+  }
+
+  private lockScroll(): void {
+    if (typeof document !== 'undefined') document.body.style.overflow = 'hidden';
+  }
+
+  private unlockScroll(): void {
+    if (typeof document !== 'undefined') document.body.style.overflow = '';
   }
 
   protected refreshAll(): void {
@@ -485,6 +530,7 @@ export class AdminOraComponent implements OnInit {
         this.detail.set(res.data ?? null);
         this.note.set('');
         this.actionError.set(null);
+        this.lockScroll();
       },
       error: (err: ApiError) => this.actionError.set(userError(err)),
     });
@@ -494,6 +540,7 @@ export class AdminOraComponent implements OnInit {
     this.detail.set(null);
     this.note.set('');
     this.actionError.set(null);
+    this.unlockScroll();
   }
 
   protected toggleFlag(view: AdminOraDetail): void {
