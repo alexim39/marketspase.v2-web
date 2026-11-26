@@ -16,7 +16,7 @@ import { JoinLandingFacade } from '../state/join-landing.facade';
           <p class="mkt-eyebrow">Your online business opportunity · Without the chase</p>
           <h1>Start a real online business <span class="mkt-accent">without chasing anyone.</span></h1>
           <p class="mkt-lede">
-            Start for <strong>₦38,000</strong> — no chasing. Ora plans your day; you approve the next move.
+            Start from <strong>₦12,500</strong> — no chasing. Ora plans your day; you approve the next move.
           </p>
           <div class="mkt-actions">
             <a mat-flat-button color="primary" [routerLink]="['/partner/signup']" [queryParams]="signupParams()">

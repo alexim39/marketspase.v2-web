@@ -77,6 +77,11 @@ type Tab = 'orders' | 'kyc';
             <button type="button" [class.active]="orderStatus() === filter.value" (click)="setOrderStatus(filter.value)">{{ filter.label }}</button>
           }
         </div>
+        <div class="filters">
+          @for (filter of tierFilters; track filter.value) {
+            <button type="button" [class.active]="orderTier() === filter.value" (click)="setOrderTier(filter.value)">{{ filter.label }}</button>
+          }
+        </div>
 
         <div class="dp-card">
           @if (ordersLoading()) { <mat-progress-bar mode="indeterminate" aria-label="Loading" /> }
@@ -85,12 +90,16 @@ type Tab = 'orders' | 'kyc';
           } @else {
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Member</th><th>Order</th><th>Amount</th><th>Status</th><th>Placed</th><th></th></tr></thead>
+                <thead><tr><th>Member</th><th>Order</th><th>Plan</th><th>Amount</th><th>Status</th><th>Placed</th><th></th></tr></thead>
                 <tbody>
                   @for (order of orders(); track order.id) {
                     <tr>
                       <td><strong>{{ order.partner.name }}</strong></td>
                       <td><span class="mono">{{ order.orderNumber }}</span><small>{{ order.productName }}</small><small>{{ order.shipping.fullName }} · {{ order.shipping.phone }}</small><small>{{ order.shipping.street }}, {{ order.shipping.city }}, {{ order.shipping.state }}</small></td>
+                      <td>
+                        <span class="chip" [class.done]="order.tier === 'signature'">{{ planLabel(order.tier) }}</span>
+                        <small>{{ kindLabel(order.kind) }}</small>
+                      </td>
                       <td class="money">₦{{ order.amount | number: '1.0-0' }}</td>
                       <td><span class="chip" [class.paid]="order.status === 'Paid'" [class.done]="order.status === 'Fulfilled'" [class.refunded]="order.status === 'Refunded'">{{ order.status }}</span></td>
                       <td>{{ order.activatedAt | date: 'mediumDate' }}</td>
@@ -113,9 +122,17 @@ type Tab = 'orders' | 'kyc';
         @if (refundTarget(); as target) {
           <div class="dp-card action-panel">
             <div>
-              <p class="eyebrow">Refund activation</p>
+              <p class="eyebrow">Refund order</p>
               <h3>{{ target.orderNumber }} · {{ target.partner.name }}</h3>
-              <p class="muted">This credits ₦{{ target.amount | number: '1.0-0' }} back to the member wallet, returns the account to member status, and cancels the queue entry.</p>
+              <p class="muted">
+                @if (target.kind === 'upgrade') {
+                  This credits ₦{{ target.amount | number: '1.0-0' }} back to the wallet and returns the
+                  account to the Essential plan. The original activation stays active.
+                } @else {
+                  This credits ₦{{ target.amount | number: '1.0-0' }} back to the member wallet, returns the
+                  account to member status, and cancels the queue entry.
+                }
+              </p>
             </div>
             <mat-form-field appearance="outline">
               <mat-label>Refund reason</mat-label>
@@ -250,6 +267,7 @@ export class AdminActivationComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected readonly busyId = signal<string | null>(null);
   protected readonly orderStatus = signal('');
+  protected readonly orderTier = signal('');
   protected readonly kycStatus = signal('pending');
   protected readonly refundTarget = signal<AdminActivationOrder | null>(null);
   protected readonly refundReason = signal('');
@@ -261,6 +279,12 @@ export class AdminActivationComponent implements OnInit {
     { label: 'Fulfilled', value: 'Fulfilled' },
     { label: 'Refunded', value: 'Refunded' },
     { label: 'All', value: '' },
+  ];
+
+  protected readonly tierFilters = [
+    { label: 'All plans', value: '' },
+    { label: 'Essential', value: 'essential' },
+    { label: 'Signature', value: 'signature' },
   ];
 
   protected readonly kycFilters = [
@@ -283,6 +307,19 @@ export class AdminActivationComponent implements OnInit {
   protected setOrderStatus(status: string): void {
     this.orderStatus.set(status);
     this.loadOrders();
+  }
+
+  protected setOrderTier(tier: string): void {
+    this.orderTier.set(tier);
+    this.loadOrders();
+  }
+
+  protected planLabel(tier: string | undefined): string {
+    return tier === 'essential' ? 'Essential' : 'Signature';
+  }
+
+  protected kindLabel(kind: string | undefined): string {
+    return kind === 'upgrade' ? 'Upgrade' : 'Activation';
   }
 
   protected setKycStatus(status: string): void {
@@ -340,7 +377,7 @@ export class AdminActivationComponent implements OnInit {
     this.error.set(null);
     this.onboarding.refundOrder(target.id, reason).pipe(finalize(() => this.busyId.set(null))).subscribe({
       next: () => {
-        this.snack.open('Activation refunded and wallet credited', 'Close', { duration: 4000 });
+        this.snack.open('Order refunded and wallet credited', 'Close', { duration: 4000 });
         this.cancelRefund();
         this.loadOrders();
         this.loadKyc();
@@ -416,7 +453,10 @@ export class AdminActivationComponent implements OnInit {
 
   private loadOrders(): void {
     this.ordersLoading.set(true);
-    this.onboarding.adminOrders({ status: this.orderStatus() || undefined }).pipe(
+    this.onboarding.adminOrders({
+      status: this.orderStatus() || undefined,
+      tier: this.orderTier() || undefined,
+    }).pipe(
       finalize(() => {
         this.ordersLoading.set(false);
         this.loading.set(false);

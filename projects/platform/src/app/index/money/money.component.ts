@@ -46,7 +46,7 @@ import { RouterModule } from '@angular/router';
           <article class="mkt-card mkt-card--brand">
             <h3>What it costs</h3>
             <p><strong>Free</strong> to create an account, meet Ora and explore.</p>
-            <p><strong>₦38,000</strong> activation product — the MarketSpase Signature Clothing Set, shipped to you.</p>
+            <p><strong>From ₦12,500</strong> activation product — the Essential Clothing Set, or ₦38,000 for the Signature Clothing Set. Both ship to you.</p>
             <p>Resale stock is optional. Store sales carry a 2% service fee plus payment processing.</p>
             <p class="mkt-fine">
               Sign-up alone, recruiting alone, training alone, campaign spend and deposits do not pay.

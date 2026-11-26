@@ -5,6 +5,8 @@ export type KycStatus = 'not_started' | 'pending' | 'verified' | 'rejected';
 export type IdType = 'nin' | 'drivers_license' | 'passport' | 'voters_card';
 export type ActivationOrderStatus = 'Paid' | 'Fulfilled' | 'Refunded' | 'Cancelled';
 export type MentorContactPreference = 'in_app' | 'email' | 'whatsapp' | 'phone' | 'prefer_not_now';
+export type ActivationTier = 'essential' | 'signature';
+export type ActivationOrderKind = 'activation' | 'upgrade';
 
 export interface OnboardingPartner {
   id: string;
@@ -14,7 +16,12 @@ export interface OnboardingPartner {
   email: string;
   phone: string;
   balance: number;
+  bonusBalance?: number;
+  /** Cash available for activation; bonus credit unlocks after activation. */
+  withdrawableBalance?: number;
   accountState: AccountState;
+  activationTier?: ActivationTier;
+  upgradedAt?: string | null;
   kycStatus: KycStatus;
   activatedAt: string | null;
   createdAt?: string | null;
@@ -30,14 +37,37 @@ export interface OnboardingPartner {
   } | null;
 }
 
+export interface StarterProductImage {
+  url: string;
+  alt: string;
+}
+
 export interface StarterProduct {
   id: string;
   sku: string;
+  tier: ActivationTier;
   name: string;
   description: string;
   price: number;
   currency: string;
   imageUrl: string;
+  images: StarterProductImage[];
+  upgradeCredit: number;
+}
+
+export interface UpgradeQuote {
+  eligible: boolean;
+  price: number | null;
+  credit: number;
+  handlingFee: number;
+  signaturePrice: number | null;
+  reason:
+    | 'no_partner'
+    | 'not_activated'
+    | 'already_signature'
+    | 'no_activation_order'
+    | 'unavailable'
+    | null;
 }
 
 export interface KycSubmission {
@@ -68,6 +98,8 @@ export interface ActivationOrder {
   orderNumber: string;
   productName: string;
   sku: string;
+  tier: ActivationTier;
+  kind: ActivationOrderKind;
   amount: number;
   currency: string;
   status: ActivationOrderStatus;
@@ -93,6 +125,7 @@ export interface ActivationOrder {
 export interface OnboardingStatus {
   partner: OnboardingPartner;
   activationOrder: ActivationOrder | null;
+  upgrade: UpgradeQuote;
   kyc: KycSubmission | null;
   queue: ActivationQueue | null;
   sponsor?: { id: string; name: string; username: string } | null;
@@ -147,6 +180,21 @@ export interface KycEnvelope extends ApiEnvelope<KycSubmission> {
 
 export interface CreateActivationOrderEnvelope extends ApiEnvelope<CreateActivationOrderResult> {
   data: CreateActivationOrderResult;
+}
+
+export interface CreateUpgradeOrderInput {
+  shipping: ShippingInput;
+  idempotencyKey: string;
+}
+
+export interface CreateUpgradeOrderResult {
+  order: ActivationOrder;
+  partner?: OnboardingPartner;
+  repeated: boolean;
+}
+
+export interface CreateUpgradeOrderEnvelope extends ApiEnvelope<CreateUpgradeOrderResult> {
+  data: CreateUpgradeOrderResult;
 }
 
 export interface ActivationOrdersEnvelope extends ApiEnvelope<ActivationOrder[]> {

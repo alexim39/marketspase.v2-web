@@ -31,7 +31,7 @@ import { HomeFacade } from '../state/home.facade';
           <mat-icon>verified_user</mat-icon>
           <div>
             <strong>Your partner account is not activated yet</strong>
-            <p>Complete the identity step and activate with the MarketSpase starter product to unlock campaign allocation and commissions.</p>
+            <p>Complete the identity step and activate with the Essential or Signature plan to unlock campaign allocation and commissions.</p>
           </div>
           <a mat-flat-button color="primary" routerLink="/dashboard/activate">Activate now</a>
         </div>

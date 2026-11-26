@@ -24,7 +24,7 @@ import { environment } from '../../../environments/environment';
         </article>
         <article>
           <h2>I want to open a store</h2>
-          <p>Activate a MarketSpase partner account, buy resale stock and publish your own storefront.</p>
+          <p>Activate a MarketSpase partner account from ₦12,500, buy resale stock and publish your own storefront.</p>
           <a [href]="platformUrl + '/partner/signup'">Become a partner</a>
         </article>
         <article>

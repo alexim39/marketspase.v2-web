@@ -21,7 +21,7 @@ template: `
         <a class="mkt-desktop-action" mat-stroked-button routerLink="/how-it-works" (click)="scrollToTop()">See how it works</a>
         <a class="mkt-mobile-action" mat-stroked-button routerLink="/partner/signin" (click)="scrollToTop()">Sign in</a>
       </div>
-      <p class="mkt-fine">Create your account free. Activate for ₦38,000 with a real product. No cold calls. No scripts.</p>
+      <p class="mkt-fine">Create your account free. Activate from ₦12,500 with a real product. No cold calls. No scripts.</p>
       <div class="mkt-hero-proof" aria-label="What you get with MarketSpase">
         <span><mat-icon aria-hidden="true">do_not_disturb_on</mat-icon> No chasing or cold calls</span>
         <span><mat-icon aria-hidden="true">auto_awesome</mat-icon> Ora prepares, you approve</span>

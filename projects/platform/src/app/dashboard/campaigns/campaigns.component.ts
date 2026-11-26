@@ -91,7 +91,7 @@ type CampaignTab = 'studio' | 'campaigns' | 'roi' | 'placement';
               <h2>Activation and identity step are required</h2>
               <p class="muted">
                 @if (partner()?.accountState !== 'partner') {
-                  Activate your partner account with the starter product before funding growth campaigns.
+                  Activate your partner account with an activation plan before funding growth campaigns.
                 } @else {
                   Complete the identity step in activation to unlock campaign funding.
                 }
