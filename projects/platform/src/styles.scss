@@ -4,3 +4,22 @@
 @use '../../shared/styles/base';
 @use '../../shared/styles/platform';
 @use '../../shared/styles/marketing';
+
+/* Withdrawal dialog panel: wide two-column on desktop, full-screen on mobile. */
+.withdraw-dialog-panel .mat-mdc-dialog-container {
+  padding: 0;
+  border-radius: var(--ms-radius-2xl);
+}
+
+@media (max-width: 720px) {
+  .withdraw-dialog-panel {
+    max-width: 100vw !important;
+    width: 100vw !important;
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+  .withdraw-dialog-panel .mat-mdc-dialog-container {
+    border-radius: 0;
+    max-height: 100dvh;
+  }
+}
