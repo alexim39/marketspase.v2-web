@@ -14,11 +14,13 @@ export class CustomerLeadsFacade {
 
   readonly statuses = STATUSES;
   readonly loading = signal(true);
+  readonly loadingMore = signal(false);
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
   readonly notice = signal<string | null>(null);
   readonly rows = signal<StoreCustomerLead[]>([]);
   readonly total = signal(0);
+  readonly statusCounts = signal<Record<string, number>>({});
   readonly summary = signal<{
     totalLeads: number; repeatCustomers: number; paidOrders: number; revenue: number; newThisMonth: number;
     segments?: { new: number; repeat: number; dormant: number; loyal: number };
@@ -54,6 +56,12 @@ export class CustomerLeadsFacade {
         this.rows.set(res.data ?? []);
         this.total.set(res.meta?.total ?? 0);
         this.summary.set(res.meta?.summary ?? null);
+        this.statusCounts.set(res.meta?.statusCounts ?? {});
+        const selectedId = this.selected()?.id;
+        if (selectedId) {
+          const fresh = (res.data ?? []).find((row) => row.id === selectedId);
+          if (fresh) this.selected.set(fresh);
+        }
         this.loading.set(false);
       },
       error: (err: ApiError) => {
@@ -61,6 +69,41 @@ export class CustomerLeadsFacade {
         this.loading.set(false);
       },
     });
+  }
+
+  loadMore(): void {
+    if (this.loading() || this.loadingMore() || !this.hasNext()) return;
+    this.loadingMore.set(true);
+    this.error.set(null);
+    const nextPage = this.pageIndex() + 1;
+    this.store.customerLeads({
+      q: this.query().trim(),
+      status: this.status() || undefined,
+      segment: this.segment(),
+      limit: this.pageSize,
+      skip: nextPage * this.pageSize,
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (res) => {
+        this.rows.update((rows) => [...rows, ...(res.data ?? [])]);
+        this.total.set(res.meta?.total ?? this.total());
+        this.summary.set(res.meta?.summary ?? this.summary());
+        this.statusCounts.set(res.meta?.statusCounts ?? this.statusCounts());
+        this.pageIndex.set(nextPage);
+        this.loadingMore.set(false);
+      },
+      error: (err: ApiError) => {
+        this.error.set(userError(err));
+        this.loadingMore.set(false);
+      },
+    });
+  }
+
+  resetFilters(): void {
+    this.query.set('');
+    this.status.set('');
+    this.segment.set('all');
+    this.pageIndex.set(0);
+    this.load();
   }
 
   onSearch(value: string): void {
@@ -116,6 +159,7 @@ export class CustomerLeadsFacade {
         const fresh = res.data;
         this.rows.update((rows) => rows.map((row) => (row.id === fresh.id ? fresh : row)));
         this.selected.set(fresh);
+        this.load();
       },
       error: (err: ApiError) => {
         this.saving.set(false);
