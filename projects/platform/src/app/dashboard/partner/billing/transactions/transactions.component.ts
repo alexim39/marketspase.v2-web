@@ -1,80 +1,190 @@
-import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';  
-import { MatInputModule } from '@angular/material/input';  
-import { MatFormFieldModule } from '@angular/material/form-field';  
-import { FormsModule } from '@angular/forms';  
-import { MatButtonModule } from '@angular/material/button';  
-import { MatIconModule } from '@angular/material/icon';  
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';  
-import { CommonModule } from '@angular/common';  
-import { TransactionInterface } from '../paystack.service';  
-import { MatDialog } from '@angular/material/dialog';  
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';  
-import {MatTabsModule} from '@angular/material/tabs';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  computed,
+  signal,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatTableModule } from '@angular/material/table';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
+import { TransactionInterface } from '../paystack.service';
 
-/**  
- * @title Billing  
- */  
+interface TransactionRow {
+  reference?: string;
+  date?: string | Date;
+  amount?: number;
+  bonusAmount?: number;
+  paymentMethod?: string;
+  transactionType?: string;
+  status?: string;
+  paymentStatus?: boolean;
+}
+
+/**
+ * Transaction history with a desktop table and a mobile card timeline.
+ * The same search and page state drive both presentations.
+ */
 @Component({
-    selector: 'async-transactions',
-    styleUrls: ['transactions.component.scss'],
-    templateUrl: 'transactions.component.html',
-    providers: [],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [
-        FormsModule,
-        CommonModule,
-        MatPaginatorModule,
-        MatFormFieldModule,
-        MatTableModule,
-        MatInputModule,
-        MatIconModule,
-        MatButtonModule,
-        MatTabsModule
-    ]
-})  
-export class TransactionsComponent implements OnInit, AfterViewInit {  
-  @Input() partner!: PartnerInterface;  
-  @Input() transactions!: TransactionInterface;  
-  readonly dialog = inject(MatDialog);  
+  selector: 'async-transactions',
+  styleUrls: ['transactions.component.scss'],
+  templateUrl: 'transactions.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatTableModule,
+  ],
+})
+export class TransactionsComponent implements OnInit, OnChanges {
+  @Input() partner!: PartnerInterface;
+  @Input() transactions!: TransactionInterface;
 
-  filterText: string = '';  
-  displayedColumns: string[] = ['transactionId', 'dateOfPayment', 'amount', 'paymentMethod', 'paymentStatus', 'transactionType', 'action'];  
-  dataSource = new MatTableDataSource<any>([]);  
-  isEmptyRecord = false;  
+  protected readonly displayedColumns = [
+    'transactionId',
+    'dateOfPayment',
+    'amount',
+    'paymentStatus',
+    'action',
+  ];
+  protected readonly pageSize = 10;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;  
+  protected readonly rows = signal<TransactionRow[]>([]);
+  protected readonly query = signal('');
+  protected readonly page = signal(0);
 
-  constructor(
-    
-  ) {}  
+  protected readonly filtered = computed(() => {
+    const needle = this.query().trim().toLowerCase();
+    const all = this.rows();
+    if (!needle) return all;
+    return all.filter((row) => [
+      row.reference,
+      row.paymentMethod,
+      row.transactionType,
+      row.status,
+      String(row.amount ?? ''),
+      row.date ? new Date(row.date).toISOString() : '',
+    ].some((value) => String(value ?? '').toLowerCase().includes(needle)));
+  });
 
-  ngOnInit() {  
+  protected readonly pageCount = computed(() => (
+    Math.max(1, Math.ceil(this.filtered().length / this.pageSize))
+  ));
 
-    if (this.transactions && this.transactions.data) {
+  protected readonly paged = computed(() => {
+    const page = Math.min(this.page(), this.pageCount() - 1);
+    const start = page * this.pageSize;
+    return this.filtered().slice(start, start + this.pageSize);
+  });
 
-      // Ensure that the data is an array and sort it  
-      this.dataSource.data = this.transactions.data.sort((a, b) => {  
-        return new Date(b.date).getTime() - new Date(a.date).getTime();  
-      });  
+  protected readonly rangeStart = computed(() => (
+    this.filtered().length === 0 ? 0 : Math.min(this.page(), this.pageCount() - 1) * this.pageSize + 1
+  ));
 
-      // Check if there are no records  
-      this.isEmptyRecord = this.transactions.data.length === 0;  
+  protected readonly rangeEnd = computed(() => (
+    Math.min(
+      (Math.min(this.page(), this.pageCount() - 1) + 1) * this.pageSize,
+      this.filtered().length,
+    )
+  ));
 
-    } else {  
-      this.isEmptyRecord = true; // Set to true if no transactions are available  
-    }  
-  }  
-
-  applyFilter() {  
-    const filterValue = this.filterText.trim().toLowerCase();  
-    this.dataSource.filter = filterValue;  
-  }  
-
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
+  ngOnInit(): void {
+    this.loadRows();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['transactions']) this.loadRows();
+  }
 
-  
+  private loadRows(): void {
+    const data = (this.transactions?.data ?? []) as TransactionRow[];
+    this.rows.set(
+      data
+        .slice()
+        .sort((a, b) => new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime()),
+    );
+    this.page.set(0);
+  }
+
+  protected onFilter(value: string): void {
+    this.query.set(value);
+    this.page.set(0);
+  }
+
+  protected prevPage(): void {
+    this.page.update((page) => Math.max(0, page - 1));
+  }
+
+  protected nextPage(): void {
+    this.page.update((page) => Math.min(this.pageCount() - 1, page + 1));
+  }
+
+  protected isCredit(row: TransactionRow): boolean {
+    return String(row.transactionType ?? '').toLowerCase() === 'credit';
+  }
+
+  protected isDebit(row: TransactionRow): boolean {
+    return String(row.transactionType ?? '').toLowerCase() === 'debit';
+  }
+
+  protected iconFor(row: TransactionRow): string {
+    if (this.isCredit(row)) return 'south_west';
+    if (this.isDebit(row)) return 'north_east';
+    return 'swap_horiz';
+  }
+
+  protected titleFor(row: TransactionRow): string {
+    const method = String(row.paymentMethod ?? '').trim();
+    return method || String(row.transactionType ?? '').trim() || 'Wallet transaction';
+  }
+
+  protected statusLabel(row: TransactionRow): string {
+    const status = String(row.status ?? '').trim();
+    if (status) return status;
+    return row.paymentStatus ? 'Completed' : 'Pending';
+  }
+
+  protected statusClass(row: TransactionRow): string {
+    const status = this.statusLabel(row).toLowerCase();
+    if (['completed', 'success', 'paid', 'released'].includes(status)) return 'is-success';
+    if (['pending', 'processing', 'queued', 'scheduled'].includes(status)) return 'is-pending';
+    if (['rejected', 'failed', 'reversed', 'cancelled', 'voided'].includes(status)) return 'is-error';
+    return 'is-neutral';
+  }
+
+  protected amountPrefix(row: TransactionRow): string {
+    if (this.isCredit(row)) return '+';
+    if (this.isDebit(row)) return '−';
+    return '';
+  }
+
+  protected download(row: TransactionRow): void {
+    if (typeof document === 'undefined') return;
+    const lines = [
+      'MarketSpase transaction receipt',
+      `Reference,${row.reference ?? ''}`,
+      `Date,${row.date ? new Date(row.date).toISOString() : ''}`,
+      `Type,${row.transactionType ?? ''}`,
+      `Method,${row.paymentMethod ?? ''}`,
+      `Amount,${Number(row.amount ?? 0).toFixed(2)}`,
+      `Status,${this.statusLabel(row)}`,
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `marketspase-${row.reference ?? 'transaction'}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
 }

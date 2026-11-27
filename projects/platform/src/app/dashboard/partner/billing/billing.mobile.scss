@@ -1,5 +1,17 @@
 /* Extra small devices (phones, 600px and down) */
-@media only screen and (max-width: 600px) {}
+@media only screen and (max-width: 600px) {
+  .activity-card {
+    padding: 16px;
+  }
+
+  .activity-head {
+    margin-bottom: 12px;
+  }
+
+  .activity-head .muted {
+    display: none;
+  }
+}
 
 
 /* iPads/tablet (portrait and landscape) */
