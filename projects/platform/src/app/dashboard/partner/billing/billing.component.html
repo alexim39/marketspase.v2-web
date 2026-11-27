@@ -39,6 +39,46 @@
     <span><mat-icon>undo</mat-icon> Refunded if payout fails</span>
   </div>
 
+  <section class="saved-accounts-card" aria-labelledby="saved-accounts-title">
+    <div class="saved-head">
+      <div>
+        <p class="eyebrow">Payout accounts</p>
+        <h2 id="saved-accounts-title">Saved accounts</h2>
+        <p class="muted">Save up to {{ accountsMax() }} accounts and choose one next time you withdraw.</p>
+      </div>
+      <span class="count-pill">{{ savedAccounts().length }}/{{ accountsMax() }}</span>
+    </div>
+
+    @if (savedAccounts().length > 0) {
+      <ul class="saved-list">
+        @for (account of savedAccounts(); track account.id) {
+          <li>
+            <span class="account-icon"><mat-icon>account_balance</mat-icon></span>
+            <div class="account-copy">
+              <strong>{{ account.accountName }}</strong>
+              <span>{{ account.bankName }} · •••• {{ account.accountLast4 }}</span>
+            </div>
+            <button
+              mat-icon-button
+              type="button"
+              (click)="removeSavedAccount(account)"
+              [disabled]="removingAccountId() === account.id"
+              [attr.aria-label]="'Remove ' + account.bankName + ' account ending ' + account.accountLast4">
+              <mat-icon>{{ removingAccountId() === account.id ? 'hourglass_top' : 'delete_outline' }}</mat-icon>
+            </button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="saved-empty">No saved payout accounts yet. Save one during your next withdrawal.</p>
+    }
+
+    <button mat-stroked-button type="button" (click)="withdrawFund()">
+      <mat-icon>add</mat-icon>
+      {{ savedAccounts().length ? 'Withdraw or add an account' : 'Withdraw and save an account' }}
+    </button>
+  </section>
+
   <section class="activity-card">
     <div class="activity-head">
       <div>

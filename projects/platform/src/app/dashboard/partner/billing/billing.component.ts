@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';  
+import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy, signal } from '@angular/core';  
 import { MatInputModule } from '@angular/material/input';  
 import { MatFormFieldModule } from '@angular/material/form-field';  
 import { FormsModule } from '@angular/forms';  
@@ -7,13 +7,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';  
 import { CommonModule } from '@angular/common';  
 import { RouterModule } from '@angular/router';
-import { PaystackService, TransactionInterface, WithdrawalResult } from './paystack.service';  
+import { PaystackService, SavedWithdrawalAccount, TransactionInterface, WithdrawalResult } from './paystack.service';  
 import { PartnerInterface } from '../../../_common/services/partner.service';  
 import { MatDialog } from '@angular/material/dialog';  
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';  
 import { BillingWithdrawComponent } from './billing-withdraw.component';
 import {MatTabsModule} from '@angular/material/tabs';
 import { TransactionsComponent } from './transactions/transactions.component';
+import { UiFeedbackService } from '../../../core/ui/ui-feedback.service';
+import { userError } from '../../../core/http/api-error';
 
 /**  
  * @title Billing  
@@ -42,9 +44,13 @@ export class BillingComponent implements OnInit, AfterViewInit {
   @Input() partner!: PartnerInterface;  
   @Input() transactions!: TransactionInterface;  
   readonly dialog = inject(MatDialog);  
+  private readonly ui = inject(UiFeedbackService);
 
   currentBalance!: number | undefined; // Initial withdrawable balance
   bonusBalance = 0;
+  protected readonly savedAccounts = signal<SavedWithdrawalAccount[]>([]);
+  protected readonly accountsMax = signal(5);
+  protected readonly removingAccountId = signal<string | null>(null);
   filterText: string = '';  
   displayedColumns: string[] = ['transactionId', 'dateOfPayment', 'amount', 'paymentMethod', 'paymentStatus', 'transactionType', 'action'];  
   dataSource = new MatTableDataSource<any>([]);  
@@ -60,6 +66,7 @@ export class BillingComponent implements OnInit, AfterViewInit {
       ? Math.max(0, Number(this.partner.withdrawableBalance
         ?? (Number(this.partner.balance ?? 0) - this.bonusBalance)))
       : 0;
+    this.loadSavedAccounts();
 
    /*  if (this.transactions && this.transactions.data) {
 
@@ -85,13 +92,51 @@ export class BillingComponent implements OnInit, AfterViewInit {
     //this.dataSource.paginator = this.paginator;
   }
 
+  protected loadSavedAccounts(): void {
+    this.paystackService.savedWithdrawalAccounts().subscribe({
+      next: ({ accounts, max }) => {
+        this.savedAccounts.set(Array.isArray(accounts) ? accounts : []);
+        this.accountsMax.set(Math.max(1, Number(max) || 5));
+      },
+      error: () => { /* saved accounts are optional; the page still works */ },
+    });
+  }
+
+  protected async removeSavedAccount(account: SavedWithdrawalAccount): Promise<void> {
+    if (this.removingAccountId()) return;
+    const confirmed = await this.ui.confirm({
+      title: 'Remove saved account?',
+      message: `${account.bankName} •••• ${account.accountLast4} will be removed. You can add it again during a future withdrawal.`,
+      confirmText: 'Remove account',
+      tone: 'warning',
+      icon: 'delete_outline',
+    });
+    if (!confirmed) return;
+
+    this.removingAccountId.set(account.id);
+    this.paystackService.deleteSavedWithdrawalAccount(account.id).subscribe({
+      next: () => {
+        this.savedAccounts.update((rows) => rows.filter((row) => row.id !== account.id));
+        this.removingAccountId.set(null);
+        this.ui.success('Saved account removed');
+      },
+      error: (err) => {
+        this.removingAccountId.set(null);
+        this.ui.error(userError(err));
+      },
+    });
+  }
+
   withdrawFund(): void {
     const dialogRef = this.dialog.open<BillingWithdrawComponent, PartnerInterface, WithdrawalResult>(BillingWithdrawComponent, {
       data: this.partner,
-      width: '600px',
+      width: '1040px',
+      maxWidth: '96vw',
+      panelClass: 'withdraw-dialog-panel',
     });
 
     dialogRef.afterClosed().subscribe((result) => {
+      this.loadSavedAccounts();
       if (!result) return;
       if (typeof result.withdrawableBalance === 'number') {
         this.currentBalance = result.withdrawableBalance;

@@ -27,6 +27,7 @@ export interface ResolvedAccount {
 }
 
 export interface SavedWithdrawalAccount {
+  id: string;
   bankCode: string;
   bankName: string;
   accountName: string;
@@ -38,6 +39,11 @@ export interface SavedWithdrawalAccount {
 export interface SavedWithdrawalAccountResult {
   saved: boolean;
   account: SavedWithdrawalAccount | null;
+}
+
+export interface SavedWithdrawalAccountsResult {
+  accounts: SavedWithdrawalAccount[];
+  max: number;
 }
 
 export interface WithdrawalRequest {
@@ -64,6 +70,12 @@ export interface WithdrawalResult {
   payoutMode?: 'automatic' | 'manual';
   transferStatus?: string | null;
   transferCode?: string | null;
+  savedAccount?: {
+    saved: boolean;
+    reason?: 'LIMIT_REACHED' | 'SAVE_FAILED';
+    accountId?: string | null;
+    created?: boolean;
+  } | null;
 }
 
 @Injectable({
@@ -147,6 +159,24 @@ export class PaystackService {
     return this.http
       .get<{ data: SavedWithdrawalAccountResult }>(
         this.apiURL + '/v1/billing/withdrawal-account',
+        { withCredentials: true },
+      )
+      .pipe(map((res) => res.data), catchError(this.handleError));
+  }
+
+  savedWithdrawalAccounts(): Observable<SavedWithdrawalAccountsResult> {
+    return this.http
+      .get<{ data: SavedWithdrawalAccountsResult }>(
+        this.apiURL + '/v1/billing/withdrawal-accounts',
+        { withCredentials: true },
+      )
+      .pipe(map((res) => res.data), catchError(this.handleError));
+  }
+
+  deleteSavedWithdrawalAccount(id: string): Observable<{ removed: boolean }> {
+    return this.http
+      .delete<{ data: { removed: boolean } }>(
+        this.apiURL + `/v1/billing/withdrawal-accounts/${encodeURIComponent(id)}`,
         { withCredentials: true },
       )
       .pipe(map((res) => res.data), catchError(this.handleError));
