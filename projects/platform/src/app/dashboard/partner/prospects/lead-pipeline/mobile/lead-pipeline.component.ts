@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatTableModule } from '@angular/material/table';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
@@ -20,7 +20,7 @@ import { PipelineFunnelComponent } from '../funnel/pipeline-funnel.component';
   selector: 'async-lead-pipeline-mobile',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTableModule, MatChipsModule, MatButtonModule, MatIconModule,
+    MatMenuModule, MatChipsModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatPaginatorModule, MatTooltipModule,
     MatSnackBarModule, EmptyStateComponent, ErrorStateComponent, PageSkeletonComponent, RouterModule, DatePipe,
     PipelineFunnelComponent,
@@ -114,15 +114,23 @@ import { PipelineFunnelComponent } from '../funnel/pipeline-funnel.component';
           </div>
           <div class="signup-list">
             @for (member of signupRows(); track member.id) {
-              <div class="signup-row">
+              <article class="signup-card">
                 <span class="signup-avatar">{{ memberInitial(member) }}</span>
                 <div class="signup-copy">
                   <strong>{{ member.name }} {{ member.surname }}</strong>
-                  <span class="muted">&#64;{{ member.username }} · joined {{ member.joinedAt | date:'mediumDate' }}</span>
+                  <span class="signup-handle">&#64;{{ member.username }}</span>
+                  <span class="signup-meta">
+                    <mat-icon aria-hidden="true">schedule</mat-icon>
+                    Joined {{ member.joinedAt | date:'MMM d, y' }}
+                  </span>
                 </div>
-                <span class="signup-stage">Signed up</span>
-                <a mat-button [routerLink]="['/dashboard/mentorship/partners/my-partners/detail', member.id]">Open dossier</a>
-              </div>
+                <div class="signup-actions">
+                  <span class="signup-stage">Signed up</span>
+                  <a mat-stroked-button [routerLink]="['/dashboard/mentorship/partners/my-partners/detail', member.id]">
+                    Open dossier
+                  </a>
+                </div>
+              </article>
             }
           </div>
         </div>
@@ -181,93 +189,112 @@ import { PipelineFunnelComponent } from '../funnel/pipeline-funnel.component';
       }
 
       @if (filtered().length > 0) {
-        <div class="table-wrap">
-          <table mat-table [dataSource]="filtered()" class="mat-elevation-z2">
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let lead" class="name-cell" data-label="Prospect"><a [routerLink]="['../detail', lead.id]" class="name-link">{{ names(lead) }}</a>
-                @if (lead.convertedPartnerId) {
-                  <span class="joined-badge" title="This converted lead signed up under you">
-                    <mat-icon>verified</mat-icon><span>Joined your team</span>
+        <div class="lead-cards">
+          @for (lead of filtered(); track lead.id) {
+            <article class="lead-card" [class.is-converted]="isConverted(lead)">
+              <header class="lead-head">
+                <span class="lead-avatar">{{ initial(lead) }}</span>
+                <div class="lead-identity">
+                  <a class="lead-name" [routerLink]="['../detail', lead.id]">{{ names(lead) }}</a>
+                  <span class="lead-contact">
+                    <span><mat-icon aria-hidden="true">call</mat-icon>{{ lead.prospectPhone }}</span>
+                    @if (lead.prospectEmail) {
+                      <span class="lead-email"><mat-icon aria-hidden="true">mail</mat-icon>{{ lead.prospectEmail }}</span>
+                    }
                   </span>
-                }
-              </td>
-            </ng-container>
-            <ng-container matColumnDef="contact">
-              <th mat-header-cell *matHeaderCellDef>Contact</th>
-              <td mat-cell *matCellDef="let lead" data-label="Contact">
-                <div>{{ lead.prospectPhone }}</div>
-                <div class="muted">{{ lead.prospectEmail || '—' }}</div>
-              </td>
-            </ng-container>
-            <ng-container matColumnDef="stage">
-              <th mat-header-cell *matHeaderCellDef>Stage</th>
-              <td mat-cell *matCellDef="let lead" data-label="Stage">
+                </div>
                 <span class="dp-status {{ stageTone(lead) }}">{{ stageLabel(lead) }}</span>
+              </header>
+
+              <div class="lead-meta">
+                <span class="lead-interest"><mat-icon aria-hidden="true">local_fire_department</mat-icon>{{ interest(lead) }}</span>
                 @if (stuckOf(lead); as stuck) {
-                  <div class="stuck-badge" title="No movement for {{ stuckDuration(stuck.daysInStage) }} (threshold {{ stuck.limit }}d)">
-                    ⚠ stuck {{ stuckDuration(stuck.daysInStage) }}
-                  </div>
+                  <span class="stuck-badge"><mat-icon aria-hidden="true">schedule</mat-icon>Stuck {{ stuckDuration(stuck.daysInStage) }}</span>
                 }
-              </td>
-            </ng-container>
-            <ng-container matColumnDef="interest">
-              <th mat-header-cell *matHeaderCellDef>Interest</th>
-              <td mat-cell *matCellDef="let lead" class="interest-cell" data-label="Interest">{{ interest(lead) }}</td>
-            </ng-container>
-            <ng-container matColumnDef="action">
-              <th mat-header-cell *matHeaderCellDef>Action</th>
-              <td mat-cell *matCellDef="let lead" class="action-cell" data-label="Actions">
+                @if (lead.convertedPartnerId) {
+                  <span class="joined-badge"><mat-icon aria-hidden="true">verified</mat-icon>Joined your team</span>
+                }
+              </div>
+
+              <div class="lead-actions">
                 @if (nextOf(lead); as next) {
-                  <button mat-button (click)="advance(lead, next)" [disabled]="actingId() === lead.id">
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    type="button"
+                    class="lead-advance"
+                    (click)="advance(lead, next)"
+                    [disabled]="actingId() === lead.id">
                     Advance to {{ next }}
                   </button>
                 }
-                <a mat-icon-button [routerLink]="['../edit', lead.id]" title="Edit {{ names(lead) }}" aria-label="Edit {{ names(lead) }}">
-                  <mat-icon>edit</mat-icon>
+                <a mat-stroked-button [routerLink]="['/dashboard/prospects/detail', lead.id]">Work contact</a>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matMenuTriggerFor]="leadMenu"
+                  [attr.aria-label]="'More actions for ' + names(lead)">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+              </div>
+
+              @if (isConverted(lead) && !lead.convertedPartnerId) {
+                <div class="lead-converted">
+                  <span>Converted. Share their signup link so they join your team.</span>
+                  <button mat-stroked-button type="button" (click)="copyConversionLink(lead.id)">
+                    <mat-icon>link</mat-icon> Copy link
+                  </button>
+                  <button mat-button type="button" (click)="shareConversionOnWhatsApp(lead)">
+                    <mat-icon>chat</mat-icon> WhatsApp
+                  </button>
+                </div>
+              }
+
+              @if (confirmId() === lead.id) {
+                <div class="confirm-strip">
+                  <span>Convert {{ names(lead) }} and issue an enrollment code?</span>
+                  <button mat-flat-button color="primary" type="button" (click)="convert(lead)" [disabled]="actingId() === lead.id">
+                    Confirm convert
+                  </button>
+                  <button mat-button type="button" (click)="confirmId.set(null)">Cancel</button>
+                </div>
+              }
+
+              @if (deleteConfirmId() === lead.id) {
+                <div class="confirm-strip danger">
+                  <span>Delete {{ names(lead) }} from your pipeline?</span>
+                  <button mat-button color="warn" type="button" (click)="remove(lead)" [disabled]="actingId() === lead.id">
+                    Delete lead
+                  </button>
+                  <button mat-button type="button" (click)="deleteConfirmId.set(null)">Cancel</button>
+                </div>
+              }
+
+              <mat-menu #leadMenu="matMenu">
+                <a mat-menu-item [routerLink]="['../edit', lead.id]">
+                  <mat-icon>edit</mat-icon>Edit lead
                 </a>
-                @if (deleteConfirmId() === lead.id) {
-                  <button mat-button color="warn" (click)="remove(lead)" [disabled]="actingId() === lead.id">Delete?</button>
-                  <button mat-button (click)="deleteConfirmId.set(null)">Cancel</button>
-                } @else {
-                  <button mat-icon-button (click)="deleteConfirmId.set(lead.id)" title="Delete {{ names(lead) }}" aria-label="Delete {{ names(lead) }}">
-                    <mat-icon>delete</mat-icon>
+                @if (canConvert(lead)) {
+                  <button mat-menu-item type="button" (click)="confirmId.set(lead.id)">
+                    <mat-icon>how_to_reg</mat-icon>Convert lead
                   </button>
                 }
-                <a mat-button [routerLink]="['/dashboard/prospects/detail', lead.id]" title="Work {{ names(lead) }} - status, outreach and history in one place">Work contact</a>
-                @if (canConvert(lead)) {
-                  @if (confirmId() === lead.id) {
-                    <button mat-flat-button color="primary" (click)="convert(lead)" [disabled]="actingId() === lead.id">
-                      Confirm convert?
-                    </button>
-                    <button mat-button (click)="confirmId.set(null)">Cancel</button>
-                  } @else {
-                    <button
-                      mat-flat-button
-                      color="accent"
-                      matTooltip="Issue an enrollment code for this prospect"
-                      (click)="confirmId.set(lead.id)"
-                    >Convert</button>
-                  }
+                @if (isConverted(lead) && !lead.convertedPartnerId) {
+                  <button mat-menu-item type="button" (click)="copyConversionLink(lead.id)">
+                    <mat-icon>link</mat-icon>Copy signup link
+                  </button>
+                  <button mat-menu-item type="button" (click)="shareConversionOnWhatsApp(lead)">
+                    <mat-icon>chat</mat-icon>Share on WhatsApp
+                  </button>
                 }
-                @if (isConverted(lead)) {
-                  @if (lead.convertedPartnerId) {
-                    <span class="joined-badge"><mat-icon>verified</mat-icon> Joined your team</span>
-                  } @else {
-                    <button mat-stroked-button type="button" (click)="copyConversionLink(lead.id)">
-                      <mat-icon>link</mat-icon> Copy signup link
-                    </button>
-                    <button mat-button type="button" (click)="shareConversionOnWhatsApp(lead)">
-                      <mat-icon>chat</mat-icon> WhatsApp
-                    </button>
-                  }
-                }
-              </td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-          </table>
+                <button mat-menu-item type="button" (click)="deleteConfirmId.set(lead.id)">
+                  <mat-icon>delete</mat-icon>Delete lead
+                </button>
+              </mat-menu>
+            </article>
+          }
         </div>
+
         <mat-paginator
           [length]="total()"
           [pageSize]="pageSize()"
@@ -324,12 +351,17 @@ import { PipelineFunnelComponent } from '../funnel/pipeline-funnel.component';
     .signup-head h3 { margin: 0.15em 0 0.25em; }
     .signup-head p { margin: 0; }
     .signup-count { min-width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-weight: 800; }
-    .signup-list { display: flex; flex-direction: column; }
-    .signup-row { display: flex; align-items: center; gap: 0.7em; padding: 0.6em 0; border-top: 1px solid var(--ms-line); flex-wrap: wrap; }
-    .signup-avatar { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--ms-surface-3); font-weight: 800; color: var(--ms-primary-strong); }
-    .signup-copy { display: flex; flex-direction: column; gap: 0.05em; min-width: 0; flex: 1; }
+    .signup-list { display: flex; flex-direction: column; gap: 0.65em; }
+    .signup-card { display: flex; align-items: flex-start; gap: 0.7em; padding: 0.8em; border: 1px solid var(--ms-line); border-radius: 12px; background: var(--ms-surface); flex-wrap: wrap; }
+    .signup-avatar { width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--ms-primary-soft); font-weight: 800; color: var(--ms-primary-strong); }
+    .signup-copy { display: flex; flex-direction: column; gap: 0.15em; min-width: 0; flex: 1; }
     .signup-copy strong { text-transform: capitalize; }
+    .signup-handle { color: var(--ms-text-muted); font-size: 0.78em; }
+    .signup-meta { display: inline-flex; align-items: center; gap: 4px; color: var(--ms-text-muted); font-size: 0.72em; }
+    .signup-meta mat-icon { font-size: 13px; width: 13px; height: 13px; }
+    .signup-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 0.35em; flex: none; }
     .signup-stage { border-radius: 999px; padding: 3px 9px; font-size: 0.72em; font-weight: 700; background: var(--ms-primary-soft); color: var(--ms-primary-strong); }
+    .signup-actions a { min-height: 40px; }
     .stage-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75em; }
     .stage-card {
       display: flex; flex-direction: column; align-items: center; gap: 0.15em;
@@ -358,20 +390,37 @@ import { PipelineFunnelComponent } from '../funnel/pipeline-funnel.component';
     .file-pick input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     .notice { color: var(--ms-success); }
     .skip-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25em; font-size: 0.9em; }
-    .table-wrap { overflow-x: auto; border-radius: 8px; }
-    table { width: 100%; }
-    .name-cell { font-weight: 600; text-transform: capitalize; }
-    .name-link { text-decoration: none; color: inherit; }
-    .name-link:hover { color: var(--ms-primary-strong); }
-    .camp-badge { display: inline-flex; align-items: center; gap: 0.25em; margin-top: 0.3em; padding: 0.1em 0.6em; border: 1px solid var(--ms-primary); border-radius: 999px; color: var(--ms-primary-strong); font-size: 0.75em; font-weight: 600; text-decoration: none; max-width: 100%; }
-    .camp-badge mat-icon { font-size: 15px; height: 15px; width: 15px; }
-    .camp-badge span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .camp-badge:hover { background: var(--ms-primary-soft); }
-    .joined-badge { display: inline-flex; align-items: center; gap: 0.25em; margin-top: 0.3em; padding: 0.12em 0.6em; border-radius: 999px; background: var(--ms-success-soft); color: var(--ms-success); font-size: 0.75em; font-weight: 700; }
-    .joined-badge mat-icon { width: 15px; height: 15px; font-size: 15px; }
-    .stuck-badge { color: var(--ms-error); font-size: 0.85em; font-weight: 600; margin-top: 0.25em; }
+    .lead-cards { display: flex; flex-direction: column; gap: 0.85em; }
+    .lead-card { display: flex; flex-direction: column; gap: 0.7em; padding: 0.95em; border: 1px solid var(--ms-line); border-radius: 14px; background: var(--ms-surface); box-shadow: 0 6px 18px rgba(20, 18, 43, 0.05); }
+    .lead-card.is-converted { border-color: color-mix(in srgb, var(--ms-success) 32%, var(--ms-line)); }
+    .lead-head { display: flex; align-items: flex-start; gap: 0.7em; }
+    .lead-avatar { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-weight: 800; }
+    .lead-identity { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.2em; }
+    .lead-name { font-weight: 700; color: var(--ms-text); text-decoration: none; text-transform: capitalize; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lead-name:hover { color: var(--ms-primary-strong); }
+    .lead-contact { display: flex; flex-direction: column; gap: 0.15em; color: var(--ms-text-muted); font-size: 0.78em; }
+    .lead-contact > span { display: inline-flex; align-items: center; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lead-contact mat-icon { font-size: 14px; width: 14px; height: 14px; flex: none; margin-right: 4px; }
+    .lead-head .dp-status { flex: none; align-self: flex-start; }
+    .lead-meta { display: flex; flex-wrap: wrap; gap: 0.4em 0.65em; align-items: center; }
+    .lead-interest { display: inline-flex; align-items: center; gap: 4px; padding: 0.2em 0.6em; border-radius: 999px; background: var(--ms-canvas); color: var(--ms-text-muted); font-size: 0.75em; text-transform: capitalize; }
+    .lead-interest mat-icon { font-size: 14px; width: 14px; height: 14px; color: var(--ms-warning); }
+    .lead-actions { display: flex; align-items: center; gap: 0.5em; flex-wrap: wrap; }
+    .lead-actions .lead-advance { flex: 1 1 100%; min-height: 44px; }
+    .lead-actions > a { min-height: 44px; }
+    .lead-actions > button[mat-icon-button] { margin-left: auto; }
+    .lead-converted { display: flex; align-items: center; gap: 0.5em; flex-wrap: wrap; padding: 0.6em 0.7em; border-radius: 10px; background: var(--ms-success-soft); color: var(--ms-success); font-size: 0.8em; }
+    .lead-converted > span { flex: 1 1 100%; line-height: 1.4; }
+    .lead-converted button { min-height: 40px; }
+    .confirm-strip { display: flex; align-items: center; gap: 0.5em; flex-wrap: wrap; padding: 0.6em 0.7em; border-radius: 10px; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-size: 0.8em; }
+    .confirm-strip > span { flex: 1 1 100%; font-weight: 600; line-height: 1.4; }
+    .confirm-strip.danger { background: var(--ms-error-soft); color: var(--ms-error); }
+    .confirm-strip button { min-height: 40px; }
+    .joined-badge { display: inline-flex; align-items: center; gap: 0.25em; padding: 0.2em 0.6em; border-radius: 999px; background: var(--ms-success-soft); color: var(--ms-success); font-size: 0.75em; font-weight: 700; }
+    .joined-badge mat-icon { width: 14px; height: 14px; font-size: 14px; }
+    .stuck-badge { display: inline-flex; align-items: center; gap: 4px; padding: 0.2em 0.6em; border-radius: 999px; background: var(--ms-error-soft); color: var(--ms-error); font-size: 0.75em; font-weight: 700; }
+    .stuck-badge mat-icon { font-size: 14px; width: 14px; height: 14px; }
     .muted { color: var(--ms-text-muted); font-size: 0.85em; }
-    .interest-cell { text-transform: capitalize; }
     .error { color: var(--ms-error); display: flex; align-items: center; gap: 0.5em; }
     .total { margin: 0; }
     @media only screen and (max-width: 900px) {
@@ -379,7 +428,6 @@ import { PipelineFunnelComponent } from '../funnel/pipeline-funnel.component';
       .hero-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     }
     @media only screen and (max-width: 600px) {
-      /* Paginator controls overflow 360px viewports — page-size stays 50. */
       .mat-mdc-paginator-page-size { display: none; }
       .ms-head-actions { width: 100%; }
       .pipeline-hero { padding: 1em; }
@@ -393,28 +441,11 @@ import { PipelineFunnelComponent } from '../funnel/pipeline-funnel.component';
       .converted-actions { width: 100%; }
       .converted-actions button { flex: 1; }
       .stage-cards { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.5em; }
-      /* Mobile card layout: rows become labeled cards, no sideways scroll. */
-      .table-wrap { overflow-x: visible; }
-      .mat-mdc-table thead { display: none; }
-      .mat-mdc-table tbody { display: flex; flex-direction: column; gap: 0.75em; background: transparent; }
-      .mat-mdc-table tr.mat-row {
-        display: block; background: var(--ms-surface);
-        border: 1px solid var(--ms-line); border-radius: 10px; padding: 0.25em 0;
-      }
-      .mat-mdc-table td.mat-cell {
-        display: flex; align-items: center; gap: 0.75em;
-        border-bottom: 1px solid var(--ms-line); padding: 0.6em 0.9em;
-      }
-      .mat-mdc-table td.mat-cell:last-child { border-bottom: none; }
-      .mat-mdc-table td.mat-cell::before {
-        content: attr(data-label); flex: none; width: 6em;
-        color: var(--ms-text-muted); font-size: 0.75em; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 0.05em;
-      }
-      .mat-mdc-table td.mat-cell:not([data-label])::before { display: none; }
-      .mat-mdc-table td.action-cell { flex-wrap: wrap; row-gap: 0.5em; }
-      .mat-mdc-table td.action-cell .mat-mdc-button,
-      .mat-mdc-table td.action-cell .mat-mdc-flat-button { flex: 1 1 100%; }
+      .lead-card { padding: 0.85em; }
+      .lead-head { flex-wrap: wrap; }
+      .lead-head .dp-status { margin-left: 3.2em; }
+      .signup-card { padding: 0.7em; }
+      .signup-actions { width: 100%; flex-direction: row; align-items: center; justify-content: space-between; }
     }
   `],
 })
@@ -453,6 +484,10 @@ export class LeadPipelineMobileComponent implements OnInit {
   protected toggleStageFilter(stage: Parameters<LeadPipelineFacade['toggleStageFilter']>[0]): void { this.facade.toggleStageFilter(stage); }
   protected stuckOf(lead: Parameters<LeadPipelineFacade['stuckOf']>[0]) { return this.facade.stuckOf(lead); }
   protected names(lead: Parameters<LeadPipelineFacade['names']>[0]): string { return this.facade.names(lead); }
+  protected initial(lead: Parameters<LeadPipelineFacade['names']>[0]): string {
+    const name = this.facade.names(lead).trim();
+    return name ? name.charAt(0).toUpperCase() : '?';
+  }
   protected stageTone(lead: Parameters<LeadPipelineFacade['stageTone']>[0]): string { return this.facade.stageTone(lead); }
   protected stageLabel(lead: Parameters<LeadPipelineFacade['stageLabel']>[0]): string { return this.facade.stageLabel(lead); }
   protected interest(lead: Parameters<LeadPipelineFacade['interest']>[0]): string { return this.facade.interest(lead); }
