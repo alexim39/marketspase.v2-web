@@ -1,54 +1,127 @@
-@if (!isEmptyRecord) {
-  <div class="search">
-    <mat-form-field appearance="outline">
-      <mat-label>Filter transaction by transaction ID</mat-label>
-      <input matInput type="search" name="campaignFilter" [(ngModel)]="filterText" (input)="applyFilter()">
+@if (rows().length === 0) {
+  <div class="tx-empty">
+    <mat-icon aria-hidden="true">receipt_long</mat-icon>
+    <h3>No transactions yet</h3>
+    <p>Your deposits, withdrawals and commissions will appear here.</p>
+  </div>
+} @else {
+  <div class="tx-toolbar">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tx-search">
+      <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+      <mat-label>Search transactions</mat-label>
+      <input
+        matInput
+        type="search"
+        [value]="query()"
+        (input)="onFilter($any($event.target).value)"
+        placeholder="Reference, type, status or amount" />
     </mat-form-field>
+    <span class="tx-count">{{ filtered().length }} transaction{{ filtered().length === 1 ? '' : 's' }}</span>
   </div>
-  <div class="table">
-    <table mat-table [dataSource]="dataSource">
-      <ng-container matColumnDef="transactionId">
-        <th mat-header-cell *matHeaderCellDef> Transaction ID </th>
-        <td mat-cell *matCellDef="let element"> {{element.reference}} </td>
-      </ng-container>
-      <ng-container matColumnDef="dateOfPayment">
-        <th mat-header-cell *matHeaderCellDef> Date </th>
-        <td mat-cell *matCellDef="let element"> {{element.date | date}} </td>
-      </ng-container>
-      <ng-container matColumnDef="amount">
-        <th mat-header-cell *matHeaderCellDef> Amount </th>
-        <td mat-cell *matCellDef="let element"> {{element.amount | currency:'₦':'symbol':'1.2-2'}} </td>
-      </ng-container>
-      <ng-container matColumnDef="paymentMethod">
-        <th mat-header-cell *matHeaderCellDef> Platform </th>
-        <td mat-cell *matCellDef="let element"> {{element.paymentMethod}} </td>
-      </ng-container>
-      <ng-container matColumnDef="paymentStatus">
-        <th mat-header-cell *matHeaderCellDef> Status </th>
-        <td mat-cell *matCellDef="let element"> {{element.status.toUpperCase()}} </td>
-      </ng-container>
-      <ng-container matColumnDef="transactionType">
-        <th mat-header-cell *matHeaderCellDef> Type </th>
-        <td mat-cell *matCellDef="let element"> {{element.transactionType}} </td>
-      </ng-container>
-      <ng-container matColumnDef="action">
-        <th mat-header-cell *matHeaderCellDef> Action </th>
-        <td mat-cell *matCellDef="let element"> <mat-icon title="Download">download</mat-icon></td>
-      </ng-container>
-      <!-- Apply conditional class based on the status -->
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-          [ngClass]="{
-            'rejected': row.status === 'Rejected',
-            'pending': row.status === 'Pending',
-            'completed': row.status === 'Completed',
-            'success': row.status === 'success'
-          }"></tr>  
-    </table>
-    <mat-paginator [pageSizeOptions]="[10, 20, 30, 60, 100]" showFirstLastButtons></mat-paginator>
-  </div>
-}
 
-@if (isEmptyRecord) {
-  <p class="no-campaign">No transaction available yet</p>
+  @if (filtered().length === 0) {
+    <div class="tx-empty tx-empty--filter">
+      <mat-icon aria-hidden="true">search_off</mat-icon>
+      <h3>No matches</h3>
+      <p>Try a different reference, type or amount.</p>
+      <button mat-stroked-button type="button" (click)="onFilter('')">Clear search</button>
+    </div>
+  } @else {
+    <div class="tx-table">
+      <table mat-table [dataSource]="paged()">
+        <ng-container matColumnDef="transactionId">
+          <th mat-header-cell *matHeaderCellDef>Transaction</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="tx-cell-main">
+              <span class="tx-dot" [class.credit]="isCredit(row)" [class.debit]="isDebit(row)">
+                <mat-icon aria-hidden="true">{{ iconFor(row) }}</mat-icon>
+              </span>
+              <div>
+                <strong>{{ titleFor(row) }}</strong>
+                <small>{{ row.reference }}</small>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="dateOfPayment">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let row">{{ row.date | date:'MMM d, y · h:mm a' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Amount</th>
+          <td mat-cell *matCellDef="let row" class="tx-amount" [class.credit]="isCredit(row)" [class.debit]="isDebit(row)">
+            {{ amountPrefix(row) }}{{ row.amount | currency:'₦':'symbol':'1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="paymentStatus">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="tx-status" [ngClass]="statusClass(row)">{{ statusLabel(row) }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row">
+            <button mat-icon-button type="button" (click)="download(row)" aria-label="Download receipt">
+              <mat-icon aria-hidden="true">download</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+
+    <div class="tx-cards">
+      @for (row of paged(); track $index) {
+        <article class="tx-card">
+          <span class="tx-card-icon" [class.credit]="isCredit(row)" [class.debit]="isDebit(row)">
+            <mat-icon aria-hidden="true">{{ iconFor(row) }}</mat-icon>
+          </span>
+          <div class="tx-card-main">
+            <div class="tx-card-top">
+              <strong>{{ titleFor(row) }}</strong>
+              <span class="tx-card-amount" [class.credit]="isCredit(row)" [class.debit]="isDebit(row)">
+                {{ amountPrefix(row) }}{{ row.amount | currency:'₦':'symbol':'1.2-2' }}
+              </span>
+            </div>
+            <span class="tx-card-ref">{{ row.reference }}</span>
+            <div class="tx-card-meta">
+              <span><mat-icon aria-hidden="true">schedule</mat-icon>{{ row.date | date:'MMM d, y · h:mm a' }}</span>
+              <span class="tx-status" [ngClass]="statusClass(row)">{{ statusLabel(row) }}</span>
+            </div>
+            <div class="tx-card-foot">
+              <span class="tx-card-method">{{ row.paymentMethod || 'Wallet' }}</span>
+              <button mat-icon-button type="button" (click)="download(row)" aria-label="Download receipt">
+                <mat-icon aria-hidden="true">download</mat-icon>
+              </button>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+
+    <div class="tx-pager">
+      <span>Showing {{ rangeStart() }}–{{ rangeEnd() }} of {{ filtered().length }}</span>
+      <div>
+        <button mat-icon-button type="button" (click)="prevPage()" [disabled]="page() === 0" aria-label="Previous page">
+          <mat-icon aria-hidden="true">chevron_left</mat-icon>
+        </button>
+        <span>{{ page() + 1 }} / {{ pageCount() }}</span>
+        <button
+          mat-icon-button
+          type="button"
+          (click)="nextPage()"
+          [disabled]="page() >= pageCount() - 1"
+          aria-label="Next page">
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+  }
 }
