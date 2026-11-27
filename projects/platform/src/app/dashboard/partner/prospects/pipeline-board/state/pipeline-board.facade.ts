@@ -128,6 +128,7 @@ export class PipelineBoardFacade {
       .subscribe({
         next: () => {
           this.actingId.set(null);
+          this.snack.open(`${this.names(lead)} moved to ${STAGE_META[stage].label}`, 'Close', { duration: 2600 });
           this.reload();
         },
         error: (err: ApiError) => {
