@@ -1,0 +1,589 @@
+@if (profile(); as p) {
+  <section class="profile-mobile">
+    @if (view() === 'home') {
+      <div class="setup-screen">
+        <div class="setup-top">
+          <a class="icon-btn" routerLink="/dashboard" aria-label="Back to dashboard">
+            <mat-icon aria-hidden="true">arrow_back</mat-icon>
+          </a>
+          <p class="eyebrow">Account · Profile setup</p>
+          <button class="icon-btn" type="button" (click)="showHelp()" aria-label="About profile setup">
+            <mat-icon aria-hidden="true">help</mat-icon>
+          </button>
+        </div>
+
+        <h1 tabindex="-1">My profile</h1>
+        <p class="lede">
+          Finish your identity once — it follows you into invitations, community and team views.
+        </p>
+
+        <section class="id-card" aria-label="Profile identity">
+          <div class="id-row">
+            <button
+              class="avatar-btn"
+              type="button"
+              (click)="triggerPhoto()"
+              [disabled]="photoBusy()"
+              [attr.aria-busy]="photoBusy()"
+              aria-label="Change profile photo">
+              @if (photoPreview(); as src) {
+                <img class="avatar-img" [src]="src" alt="" />
+              } @else {
+                <span class="avatar-initial" aria-hidden="true">{{ initial() }}</span>
+              }
+              <span class="camera-badge" aria-hidden="true">
+                <mat-icon [class.spin]="photoBusy()">{{ photoBusy() ? 'progress_activity' : 'photo_camera' }}</mat-icon>
+              </span>
+            </button>
+            <input
+              #photoInput
+              hidden
+              type="file"
+              accept="image/*"
+              (change)="onPhotoSelected($event)"
+              aria-label="Choose profile photo" />
+
+            <div class="id-copy">
+              <h2>{{ p.name || 'Your' }} {{ p.surname }}</h2>
+              <p class="id-handle">&#64;{{ p.username || 'choose-a-username' }}</p>
+              <span
+                class="badge"
+                [class.badge--ok]="p.kycStatus === 'verified'"
+                [class.badge--warn]="p.kycStatus === 'pending'"
+                [class.badge--bad]="p.kycStatus === 'rejected'">
+                <mat-icon aria-hidden="true">verified_user</mat-icon>
+                {{ kycLabel(p.kycStatus) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="id-progress" role="status">
+            <div class="progress-copy">
+              <span>{{ completion().percent }}% complete</span>
+              @if (completion().missing.length) {
+                <span>{{ completion().missing.length }} item{{ completion().missing.length === 1 ? '' : 's' }} left</span>
+              } @else {
+                <span>All details saved</span>
+              }
+            </div>
+            <div class="progress-bar">
+              <span class="progress-fill" [style.width.%]="completion().percent"></span>
+            </div>
+          </div>
+
+          <div class="id-actions">
+            <button class="id-btn id-btn--primary" type="button" (click)="openNext()">
+              <mat-icon aria-hidden="true">{{ completion().missing.length ? 'bolt' : 'edit' }}</mat-icon>
+              {{ completion().missing.length ? 'Finish setup' : 'Review details' }}
+            </button>
+            @if (publicPageUrl(); as url) {
+              <a class="id-btn id-btn--ghost" [href]="url" target="_blank" rel="noopener">
+                <mat-icon aria-hidden="true">open_in_new</mat-icon>
+                Public page
+              </a>
+            }
+          </div>
+        </section>
+
+        <section class="card setup-card" aria-labelledby="setup-checklist-title">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">Setup checklist</p>
+              <h2 id="setup-checklist-title">Finish your profile</h2>
+            </div>
+            <span class="count-pill">{{ completion().done }}/{{ completion().total }}</span>
+          </div>
+
+          @if (completion().missing.length) {
+            <div class="check-list">
+              @for (item of completion().missing; track item.key) {
+                <button type="button" class="check-row" (click)="openMissing(item)">
+                  <span class="check-icon" aria-hidden="true"><mat-icon>radio_button_unchecked</mat-icon></span>
+                  <span class="check-copy">
+                    <strong>{{ item.label }}</strong>
+                    <small>{{ item.required ? 'Required to unlock your profile' : 'Recommended' }}</small>
+                  </span>
+                  <span class="check-action">Add <mat-icon aria-hidden="true">chevron_right</mat-icon></span>
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="check-success">
+              <mat-icon aria-hidden="true">check_circle</mat-icon>
+              <p><strong>Everything is complete.</strong> Your profile is ready for invitations, community and team views.</p>
+            </div>
+          }
+        </section>
+
+        <section class="card section-list" aria-label="Profile sections">
+          <button type="button" class="section-row" (click)="openView('personal')">
+            <span class="section-icon" aria-hidden="true"><mat-icon>person</mat-icon></span>
+            <span class="section-copy">
+              <strong>Personal details <em class="req">Required</em></strong>
+              <small>{{ personalSummary() }}</small>
+            </span>
+            <span class="section-end">
+              @if (personalComplete()) { <mat-icon class="ok" aria-hidden="true">check_circle</mat-icon> }
+              <mat-icon aria-hidden="true">chevron_right</mat-icon>
+            </span>
+          </button>
+
+          <button type="button" class="section-row" (click)="openView('profession')">
+            <span class="section-icon" aria-hidden="true"><mat-icon>work</mat-icon></span>
+            <span class="section-copy">
+              <strong>Profession</strong>
+              <small>{{ professionSummary() }}</small>
+            </span>
+            <span class="section-end">
+              @if (professionComplete()) { <mat-icon class="ok" aria-hidden="true">check_circle</mat-icon> }
+              <mat-icon aria-hidden="true">chevron_right</mat-icon>
+            </span>
+          </button>
+
+          <button type="button" class="section-row" (click)="openView('mentor')">
+            <span class="section-icon" aria-hidden="true"><mat-icon>support_agent</mat-icon></span>
+            <span class="section-copy">
+              <strong>Mentor contact</strong>
+              <small>{{ mentorSummary() }}</small>
+            </span>
+            <span class="section-end"><mat-icon aria-hidden="true">chevron_right</mat-icon></span>
+          </button>
+
+          <button type="button" class="section-row" (click)="openView('security')">
+            <span class="section-icon" aria-hidden="true"><mat-icon>lock</mat-icon></span>
+            <span class="section-copy">
+              <strong>Account &amp; security</strong>
+              <small>{{ securitySummary() }}</small>
+            </span>
+            <span class="section-end"><mat-icon aria-hidden="true">chevron_right</mat-icon></span>
+          </button>
+        </section>
+
+        <section class="card public-card" aria-labelledby="public-page-title">
+          <div class="public-head">
+            <span class="section-icon" aria-hidden="true"><mat-icon>link</mat-icon></span>
+            <div>
+              <h2 id="public-page-title">Public lead page</h2>
+              <p>The shareable page prospects see. <strong>{{ p.visits ?? 0 }} views</strong></p>
+            </div>
+          </div>
+
+          @if (publicPageUrl(); as url) {
+            <p class="public-url">{{ shortUrl(url) }}</p>
+            <div class="public-actions">
+              <a class="line-btn" [href]="url" target="_blank" rel="noopener">
+                <mat-icon aria-hidden="true">open_in_new</mat-icon>
+                Open page
+              </a>
+              <button class="line-btn" type="button" (click)="copyPublicLink()">
+                <mat-icon aria-hidden="true">content_copy</mat-icon>
+                Copy link
+              </button>
+            </div>
+          } @else {
+            <p class="muted">Set a username in Account &amp; security to activate your public page.</p>
+          }
+        </section>
+
+        <section class="card link-list" aria-label="More profile settings">
+          <a class="link-row" routerLink="/dashboard/settings/verification">
+            <span class="section-icon" aria-hidden="true"><mat-icon>verified_user</mat-icon></span>
+            <span class="section-copy">
+              <strong>Verification &amp; KYC</strong>
+              <small>{{ kycLabel(p.kycStatus) }}</small>
+            </span>
+            <mat-icon class="chev" aria-hidden="true">chevron_right</mat-icon>
+          </a>
+          <a class="link-row" routerLink="/dashboard/notifications/preferences">
+            <span class="section-icon" aria-hidden="true"><mat-icon>notifications</mat-icon></span>
+            <span class="section-copy">
+              <strong>Notification preferences</strong>
+              <small>Email, SMS and in-app alerts</small>
+            </span>
+            <mat-icon class="chev" aria-hidden="true">chevron_right</mat-icon>
+          </a>
+        </section>
+      </div>
+    } @else {
+      <div class="setup-screen">
+        <div class="setup-top">
+          <button class="icon-btn" type="button" (click)="goHome()" aria-label="Back to profile overview">
+            <mat-icon aria-hidden="true">arrow_back</mat-icon>
+          </button>
+          <p class="eyebrow">{{ section()?.eyebrow }}</p>
+          <span class="top-spacer" aria-hidden="true"></span>
+        </div>
+
+        @if (section(); as s) {
+          <h1 tabindex="-1">{{ s.title }}</h1>
+          <p class="lede">{{ s.lede }}</p>
+        }
+
+        @if (view() === 'personal') {
+          <form class="form-stack" [formGroup]="personalForm" (ngSubmit)="savePersonal()">
+            <div class="card form-card">
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field-label">First name <em class="is-required">Required</em></span>
+                  <input formControlName="name" autocomplete="given-name" placeholder="Your first name" />
+                  @if (showError(personalForm, 'name')) { <span class="field-error">Enter your first name.</span> }
+                </label>
+
+                <label class="field">
+                  <span class="field-label">Surname <em class="is-required">Required</em></span>
+                  <input formControlName="surname" autocomplete="family-name" placeholder="Your surname" />
+                  @if (showError(personalForm, 'surname')) { <span class="field-error">Enter your surname.</span> }
+                </label>
+
+                <label class="field">
+                  <span class="field-label">Email address <em class="is-required">Required</em></span>
+                  <input type="email" formControlName="email" autocomplete="email" inputmode="email" placeholder="you@example.com" />
+                  @if (showError(personalForm, 'email')) { <span class="field-error">Enter a valid email address.</span> }
+                </label>
+
+                <label class="field">
+                  <span class="field-label">Phone number <em class="is-required">Required</em></span>
+                  <input type="tel" formControlName="phone" autocomplete="tel" inputmode="tel" placeholder="0803 000 0000" />
+                  @if (showError(personalForm, 'phone')) { <span class="field-error">Enter a valid phone number.</span> }
+                </label>
+
+                <label class="field">
+                  <span class="field-label">Date of birth <em>Optional</em></span>
+                  <input type="date" formControlName="dobDatePicker" [max]="todayIso" />
+                </label>
+              </div>
+            </div>
+
+            <section class="sub-card" formGroupName="address">
+              <div class="sub-head">
+                <mat-icon aria-hidden="true">local_shipping</mat-icon>
+                <div>
+                  <strong>Activation delivery address</strong>
+                  <p>This address is used to ship your activation product. Keep it current.</p>
+                </div>
+              </div>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field-label">Street <em class="is-required">Required</em></span>
+                  <input formControlName="street" autocomplete="street-address" placeholder="Street and number" />
+                  @if (showError(personalForm, 'address.street')) { <span class="field-error">Street is required.</span> }
+                </label>
+
+                <label class="field">
+                  <span class="field-label">City <em class="is-required">Required</em></span>
+                  <input formControlName="city" autocomplete="address-level2" placeholder="City" />
+                  @if (showError(personalForm, 'address.city')) { <span class="field-error">City is required.</span> }
+                </label>
+
+                <label class="field">
+                  <span class="field-label">Country <em class="is-required">Required</em></span>
+                  <select formControlName="country" (change)="onCountryChange($any($event.target).value)">
+                    @for (country of countries; track country) {
+                      <option [value]="country">{{ country }}</option>
+                    }
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span class="field-label">{{ isNigeria ? 'State of residence' : 'State / region' }} <em class="is-required">Required</em></span>
+                  @if (isNigeria) {
+                    <select formControlName="state">
+                      <option value="" disabled>Select state</option>
+                      @for (state of states; track state) {
+                        <option [value]="state">{{ state }}</option>
+                      }
+                    </select>
+                  } @else {
+                    <input formControlName="state" autocomplete="address-level1" placeholder="Enter your state or region" />
+                  }
+                  @if (showError(personalForm, 'address.state')) { <span class="field-error">State is required.</span> }
+                </label>
+              </div>
+            </section>
+
+            <div class="card form-card">
+              <label class="field">
+                <span class="field-label">Short bio <em>Optional</em></span>
+                <textarea
+                  formControlName="bio"
+                  rows="4"
+                  maxlength="280"
+                  placeholder="Tell your team and prospects what you do and how you help."></textarea>
+                <span class="field-hint">{{ bioLength() }}/280 characters · A short introduction for your public page and team view.</span>
+              </label>
+            </div>
+
+            <div class="save-dock">
+              <button type="submit" class="save-btn" [disabled]="saving() === 'personal'">
+                <mat-icon [class.spin]="saving() === 'personal'" aria-hidden="true">
+                  {{ saving() === 'personal' ? 'progress_activity' : 'check' }}
+                </mat-icon>
+                {{ saving() === 'personal' ? 'Saving…' : 'Save personal details' }}
+              </button>
+            </div>
+          </form>
+        }
+
+        @if (view() === 'profession') {
+          <form class="form-stack" [formGroup]="professionalForm" (ngSubmit)="saveProfession()">
+            <div class="card form-card">
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field-label">Job title <em class="is-required">Required</em></span>
+                  <input formControlName="jobTitle" maxlength="50" placeholder="What you do" />
+                  @if (showError(professionalForm, 'jobTitle')) { <span class="field-error">This is required.</span> }
+                </label>
+
+                <label class="field">
+                  <span class="field-label">Educational background <em class="is-required">Required</em></span>
+                  <select formControlName="educationBackground">
+                    <option value="" disabled>Select education</option>
+                    @for (education of educationOptions; track education) {
+                      <option [value]="education">{{ education }}</option>
+                    }
+                  </select>
+                  @if (showError(professionalForm, 'educationBackground')) { <span class="field-error">This is required.</span> }
+                </label>
+              </div>
+            </div>
+
+            <div class="card form-card">
+              <div class="tag-field">
+                <span class="field-label">Hobbies <em class="is-required">Required</em></span>
+                @if (hobbyTags().length) {
+                  <div class="tag-list">
+                    @for (tag of hobbyTags(); track tag) {
+                      <span class="tag">
+                        {{ tag }}
+                        <button type="button" (click)="removeTag('hobby', tag)" [attr.aria-label]="'Remove ' + tag">
+                          <mat-icon aria-hidden="true">close</mat-icon>
+                        </button>
+                      </span>
+                    }
+                  </div>
+                }
+                <div class="tag-entry">
+                  <input
+                    #hobbyInput
+                    type="text"
+                    placeholder="Add a hobby"
+                    [disabled]="tagLimitReached('hobby')"
+                    (keydown.enter)="addTag('hobby', hobbyInput, $event)" />
+                  <button
+                    type="button"
+                    class="tag-add"
+                    (click)="addTag('hobby', hobbyInput)"
+                    [disabled]="tagLimitReached('hobby')"
+                    aria-label="Add hobby">
+                    <mat-icon aria-hidden="true">add</mat-icon>
+                  </button>
+                </div>
+                <span class="field-hint">Up to {{ maxProfileTags }} — press Enter or tap +.</span>
+                @if (showError(professionalForm, 'hobby')) { <span class="field-error">Add at least one hobby.</span> }
+              </div>
+
+              <div class="tag-field">
+                <span class="field-label">Skills <em class="is-required">Required</em></span>
+                @if (skillTags().length) {
+                  <div class="tag-list">
+                    @for (tag of skillTags(); track tag) {
+                      <span class="tag">
+                        {{ tag }}
+                        <button type="button" (click)="removeTag('skill', tag)" [attr.aria-label]="'Remove ' + tag">
+                          <mat-icon aria-hidden="true">close</mat-icon>
+                        </button>
+                      </span>
+                    }
+                  </div>
+                }
+                <div class="tag-entry">
+                  <input
+                    #skillInput
+                    type="text"
+                    placeholder="Add a skill"
+                    [disabled]="tagLimitReached('skill')"
+                    (keydown.enter)="addTag('skill', skillInput, $event)" />
+                  <button
+                    type="button"
+                    class="tag-add"
+                    (click)="addTag('skill', skillInput)"
+                    [disabled]="tagLimitReached('skill')"
+                    aria-label="Add skill">
+                    <mat-icon aria-hidden="true">add</mat-icon>
+                  </button>
+                </div>
+                <span class="field-hint">Up to {{ maxProfileTags }} — press Enter or tap +.</span>
+                @if (showError(professionalForm, 'skill')) { <span class="field-error">Add at least one skill.</span> }
+              </div>
+            </div>
+
+            <div class="save-dock">
+              <button type="submit" class="save-btn" [disabled]="saving() === 'profession'">
+                <mat-icon [class.spin]="saving() === 'profession'" aria-hidden="true">
+                  {{ saving() === 'profession' ? 'progress_activity' : 'check' }}
+                </mat-icon>
+                {{ saving() === 'profession' ? 'Saving…' : 'Save profession' }}
+              </button>
+            </div>
+          </form>
+        }
+
+        @if (view() === 'mentor') {
+          <form class="form-stack" [formGroup]="mentorForm" (ngSubmit)="saveMentor()">
+            <p class="muted">
+              Your phone and email stay private unless you choose Email, WhatsApp or Phone and agree to share that channel.
+            </p>
+
+            <div class="choice-list" role="radiogroup" aria-label="Mentor contact preference">
+              @for (option of mentorOptions; track option.value) {
+                <label class="choice" [class.is-selected]="mentorForm.get('preference')?.value === option.value">
+                  <input type="radio" formControlName="preference" [value]="option.value" />
+                  <span class="choice-icon" aria-hidden="true"><mat-icon>{{ option.icon }}</mat-icon></span>
+                  <span class="choice-copy">
+                    <strong>{{ option.title }}</strong>
+                    <small>{{ option.note }}</small>
+                  </span>
+                  <mat-icon class="choice-check" aria-hidden="true">check_circle</mat-icon>
+                </label>
+              }
+            </div>
+
+            @if (requiresMentorConsent()) {
+              <label class="consent">
+                <input type="checkbox" formControlName="consent" />
+                <span>I agree my direct mentor can use this channel to contact me about my onboarding.</span>
+              </label>
+            }
+
+            @if (mentorForm.get('preference')?.value === 'prefer_not_now') {
+              <p class="muted">No direct mentor outreach will be made.</p>
+            }
+
+            <div class="save-dock">
+              <button type="submit" class="save-btn" [disabled]="saving() === 'mentor'">
+                <mat-icon [class.spin]="saving() === 'mentor'" aria-hidden="true">
+                  {{ saving() === 'mentor' ? 'progress_activity' : 'check' }}
+                </mat-icon>
+                {{ saving() === 'mentor' ? 'Saving…' : 'Save preference' }}
+              </button>
+            </div>
+          </form>
+        }
+
+        @if (view() === 'security') {
+          <div class="form-stack">
+            <div class="card form-card">
+              <div class="sub-head">
+                <mat-icon aria-hidden="true">alternate_email</mat-icon>
+                <div>
+                  <strong>Public identity</strong>
+                  <p>Your username becomes the link you share with prospects.</p>
+                </div>
+              </div>
+
+              <form [formGroup]="usernameForm" (ngSubmit)="saveUsername()" class="field-grid">
+                <label class="field">
+                  <span class="field-label">Username <em class="is-required">Required</em></span>
+                  <input formControlName="username" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="your-name" />
+                  @if (showError(usernameForm, 'username')) { <span class="field-error">Enter a username.</span> }
+                </label>
+
+                <div class="hint-row">
+                  <span class="field-hint">This becomes your shareable lead page link.</span>
+                  <button type="button" class="text-btn" (click)="showUsernameHelp()">Username tips</button>
+                </div>
+
+                @if (publicPageUrl(); as url) {
+                  <div class="url-box">
+                    <span class="url-label">Your public link</span>
+                    <span class="url-value">{{ shortUrl(url) }}</span>
+                    <div class="url-actions">
+                      <a class="line-btn" [href]="url" target="_blank" rel="noopener">
+                        <mat-icon aria-hidden="true">open_in_new</mat-icon> Open
+                      </a>
+                      <button class="line-btn" type="button" (click)="copyPublicLink()">
+                        <mat-icon aria-hidden="true">content_copy</mat-icon> Copy
+                      </button>
+                    </div>
+                  </div>
+                }
+
+                <button type="submit" class="wide-btn" [disabled]="saving() === 'username'">
+                  <mat-icon [class.spin]="saving() === 'username'" aria-hidden="true">
+                    {{ saving() === 'username' ? 'progress_activity' : 'check' }}
+                  </mat-icon>
+                  {{ saving() === 'username' ? 'Saving…' : 'Save username' }}
+                </button>
+              </form>
+            </div>
+
+            <div class="card form-card">
+              <div class="sub-head">
+                <mat-icon aria-hidden="true">lock</mat-icon>
+                <div>
+                  <strong>Change password</strong>
+                  <p>Use at least 8 characters.</p>
+                </div>
+              </div>
+
+              <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" class="field-grid">
+                <label class="field">
+                  <span class="field-label">Current password</span>
+                  <span class="input-wrap">
+                    <input
+                      [type]="hideCurrent() ? 'password' : 'text'"
+                      formControlName="currentPassword"
+                      autocomplete="current-password" />
+                    <button
+                      type="button"
+                      class="eye-btn"
+                      (click)="hideCurrent.set(!hideCurrent())"
+                      [attr.aria-label]="hideCurrent() ? 'Show current password' : 'Hide current password'">
+                      <mat-icon aria-hidden="true">{{ hideCurrent() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                  </span>
+                  @if (showError(passwordForm, 'currentPassword')) {
+                    <span class="field-error">Use at least 8 characters.</span>
+                  }
+                </label>
+
+                <label class="field">
+                  <span class="field-label">New password</span>
+                  <span class="input-wrap">
+                    <input
+                      [type]="hideNew() ? 'password' : 'text'"
+                      formControlName="newPassword"
+                      autocomplete="new-password" />
+                    <button
+                      type="button"
+                      class="eye-btn"
+                      (click)="hideNew.set(!hideNew())"
+                      [attr.aria-label]="hideNew() ? 'Show new password' : 'Hide new password'">
+                      <mat-icon aria-hidden="true">{{ hideNew() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                  </span>
+                  @if (showError(passwordForm, 'newPassword')) {
+                    <span class="field-error">Use at least 8 characters.</span>
+                  }
+                </label>
+
+                <button type="submit" class="wide-btn" [disabled]="saving() === 'password'">
+                  <mat-icon [class.spin]="saving() === 'password'" aria-hidden="true">
+                    {{ saving() === 'password' ? 'progress_activity' : 'lock_reset' }}
+                  </mat-icon>
+                  {{ saving() === 'password' ? 'Changing…' : 'Change password' }}
+                </button>
+              </form>
+            </div>
+
+            <div class="danger-zone">
+              <p class="eyebrow">Danger zone</p>
+              <async-delete-account />
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+}
