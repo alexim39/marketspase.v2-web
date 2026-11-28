@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe, CurrencyPipe } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DeviceService } from '@marketspase/shared/core/ui/device.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -33,10 +35,469 @@ const RECIPIENT_PAGE_SIZE = 50;
   selector: 'async-sms-center',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CurrencyPipe, DatePipe, FormsModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule,
+    A11yModule, CurrencyPipe, DatePipe, FormsModule, MatButtonModule, MatCheckboxModule, MatFormFieldModule,
     MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatSnackBarModule, RouterModule,
   ],
   template: `
+    @if (device.isMobileView()) {
+      <section class="sms-mobile">
+        <header class="sms-hero">
+          <div class="sms-hero-top">
+            <a class="mob-icon-btn" routerLink="/dashboard/messages" aria-label="Back to messages">
+              <mat-icon aria-hidden="true">arrow_back</mat-icon>
+            </a>
+            <span class="eyebrow">Direct outreach</span>
+          </div>
+          <h1>SMS Center</h1>
+          <p class="sms-lede">Reach a prospect, customer or teammate with a personal text. Ora drafts from their activity; you review and send.</p>
+          <a class="sms-wallet" routerLink="/dashboard/wallet/deposit">
+            <span class="sms-wallet-icon"><mat-icon aria-hidden="true">account_balance_wallet</mat-icon></span>
+            <span class="sms-wallet-copy">
+              <span>Available SMS credit</span>
+              <strong>{{ walletBalance() | currency:'NGN':'symbol-narrow':'1.0-2' }}</strong>
+              <small>₦{{ pricePerPage }}/page · tap to top up</small>
+            </span>
+            <mat-icon class="sms-wallet-arrow" aria-hidden="true">arrow_forward</mat-icon>
+          </a>
+        </header>
+
+        <nav class="sms-tabs" aria-label="SMS sections">
+          @for (item of tabs; track item.key) {
+            <button
+              type="button"
+              [class.is-active]="tab() === item.key"
+              [attr.aria-pressed]="tab() === item.key"
+              (click)="openMobileSmsTab(item.key)">
+              <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+              <span>{{ item.label }}</span>
+            </button>
+          }
+        </nav>
+
+        @if (notice(); as note) {
+          <div class="sms-toast" role="status">
+            <mat-icon aria-hidden="true">check_circle</mat-icon>
+            <span>{{ note }}</span>
+            <button type="button" (click)="notice.set(null)" aria-label="Dismiss message"><mat-icon>close</mat-icon></button>
+          </div>
+        }
+
+        @if (tab() === 'compose') {
+          <section class="sms-stepbar" aria-label="Compose progress">
+            @for (step of mobileSteps; track step.step; let last = $last) {
+              <button
+                type="button"
+                class="sms-progress-step"
+                [class.is-active]="mobileStep() === step.step"
+                [class.is-done]="mobileStep() > step.step"
+                [disabled]="!canOpenMobileStep(step.step)"
+                [attr.aria-current]="mobileStep() === step.step ? 'step' : null"
+                (click)="setMobileStep(step.step)">
+                <span class="sms-progress-dot">
+                  @if (mobileStep() > step.step) {
+                    <mat-icon aria-hidden="true">check</mat-icon>
+                  } @else {
+                    {{ step.step }}
+                  }
+                </span>
+                <span class="sms-progress-label">{{ step.label }}</span>
+              </button>
+              @if (!last) {
+                <span class="sms-progress-line" [class.is-done]="mobileStep() > step.step" aria-hidden="true"></span>
+              }
+            }
+          </section>
+
+          @if (mobileStep() === 1) {
+            <section class="sms-card">
+              <div class="sms-card-head">
+                <div><p class="eyebrow">Step 1</p><h2>Choose recipients</h2></div>
+                <span class="sms-count">{{ selected().length }} selected</span>
+              </div>
+
+              <div class="type-toggle" role="group" aria-label="Recipient type">
+                <button type="button" class="sms-type-btn" [class.active]="recipientType() === 'prospects'" [attr.aria-pressed]="recipientType() === 'prospects'" (click)="setType('prospects')">Prospects</button>
+                <button type="button" class="sms-type-btn" [class.active]="recipientType() === 'partners'" [attr.aria-pressed]="recipientType() === 'partners'" (click)="setType('partners')">Partners</button>
+                <button type="button" class="sms-type-btn" [class.active]="recipientType() === 'customer_leads'" [attr.aria-pressed]="recipientType() === 'customer_leads'" (click)="setType('customer_leads')">Customers</button>
+              </div>
+
+              <label class="mob-search sms-search">
+                <mat-icon aria-hidden="true">search</mat-icon>
+                <input
+                  type="search"
+                  [value]="query()"
+                  (input)="onSearch($any($event.target).value)"
+                  placeholder="Search recipients"
+                  aria-label="Search recipients" />
+                @if (query()) {
+                  <button type="button" class="mob-search-clear" (click)="query.set(''); onSearch('')" aria-label="Clear search"><mat-icon>close</mat-icon></button>
+                }
+              </label>
+
+              @if (loadingRecipients()) {
+                <mat-progress-bar mode="indeterminate" aria-label="Loading recipients" />
+              }
+              @if (error(); as err) {
+                <p class="mob-error" role="alert">{{ err }} <button type="button" (click)="loadRecipients()">Retry</button></p>
+              }
+
+              <p class="sms-results-meta" role="status">Showing {{ recipients().length }} of {{ recipientTotal() }} {{ typeNoun() }}</p>
+
+              <div class="sms-recipient-list" role="list">
+                @for (item of visibleRecipients(); track item.type + item.id) {
+                  <button
+                    type="button"
+                    class="sms-recipient"
+                    role="listitem"
+                    [class.is-selected]="isSelected(item)"
+                    [class.is-disabled]="!item.eligible"
+                    [disabled]="!item.eligible"
+                    (click)="toggleRecipient(item, !isSelected(item))">
+                    <span class="sms-check" [class.is-checked]="isSelected(item)" aria-hidden="true">
+                      <mat-icon>{{ isSelected(item) ? 'check' : 'circle' }}</mat-icon>
+                    </span>
+                    <span class="sms-recipient-copy">
+                      <strong>{{ item.name }}</strong>
+                      <span>{{ item.phoneMasked }}@if (item.username) { · &#64;{{ item.username }}}</span>
+                      @if (!item.eligible) { <em>{{ item.reason }}</em> }
+                    </span>
+                    <span class="type-pill">{{ typeLabel(item.type) }}</span>
+                  </button>
+                } @empty {
+                  <p class="mob-hint sms-list-empty">No {{ typeNoun() }} found.</p>
+                }
+              </div>
+
+              @if (recipientHasMore()) {
+                <button type="button" class="mob-secondary-btn sms-load-more" (click)="loadMore()" [disabled]="loadingMore()">
+                  {{ loadingMore() ? 'Loading…' : 'Load more' }}
+                </button>
+              }
+
+              @if (selected().length > 0) {
+                <div class="sms-selected" aria-label="Selected recipients">
+                  <div class="sms-chip-row">
+                    @for (item of selected(); track item.id) {
+                      <button type="button" class="sms-chip" (click)="toggleRecipient(item, false)">
+                        {{ item.name }} <mat-icon aria-hidden="true">close</mat-icon>
+                      </button>
+                    }
+                  </div>
+                  <button type="button" class="mob-text-btn" (click)="clearSelection()">Clear all</button>
+                </div>
+              }
+
+              <div class="sms-step-actions">
+                <span class="mob-hint">{{ selected().length === 0 ? 'Select at least one contact' : selected().length + ' recipient' + (selected().length === 1 ? '' : 's') }}</span>
+                <button type="button" class="mob-primary-btn" [disabled]="selected().length === 0" (click)="setMobileStep(2)">Continue</button>
+              </div>
+            </section>
+          } @else if (mobileStep() === 2) {
+            <section class="sms-card">
+              <div class="sms-card-head">
+                <div><p class="eyebrow">Step 2</p><h2>Write your message</h2></div>
+                <span class="sms-count">{{ selected().length }} to send</span>
+              </div>
+
+              @if (suggestLoading()) {
+                <p class="mob-hint">Ora is reading the latest activity…</p>
+              }
+              @if (suggestions().length > 0) {
+                <div class="sms-suggestions" aria-label="Ora message suggestions">
+                  <p class="sms-suggest-label"><mat-icon aria-hidden="true">auto_awesome</mat-icon> Ora suggests, based on {{ suggestionName() }}’s activity</p>
+                  @for (s of suggestions(); track s.body) {
+                    <button type="button" class="sms-suggestion" (click)="useSuggestion(s)">
+                      <strong>{{ s.label }}</strong>
+                      <span>{{ s.body }}</span>
+                    </button>
+                  }
+                </div>
+              }
+
+              <label class="sms-field">
+                <span>Message</span>
+                <textarea
+                  rows="5"
+                  maxlength="459"
+                  [value]="body()"
+                  (input)="onBody($any($event.target).value)"
+                  placeholder="Write a short, personal message…"></textarea>
+                <small>{{ body().length }}/459</small>
+              </label>
+
+              <div class="sms-tokens">
+                <span>Insert</span>
+                @for (token of tokens; track token) {
+                  <button type="button" (click)="insertToken(token)">{{ token }}</button>
+                }
+              </div>
+
+              @if (templates().length > 0) {
+                <div class="sms-template-block">
+                  <div class="sms-template-head">
+                    <span class="mob-hint">Quick templates</span>
+                    <button type="button" class="mob-text-btn" (click)="openMobileSmsTab('templates')">Manage</button>
+                  </div>
+                  <div class="sms-template-scroll">
+                    @for (t of templates(); track t.id) {
+                      <button type="button" class="sms-template-pill" (click)="applyTemplate(t)">{{ t.name }}</button>
+                    }
+                  </div>
+                </div>
+              }
+
+              <label class="sms-switch-row">
+                <input type="checkbox" [checked]="scheduleEnabled()" (change)="scheduleEnabled.set($any($event.target).checked)" />
+                <span>Schedule for later</span>
+              </label>
+              @if (scheduleEnabled()) {
+                <label class="sms-field">
+                  <span>Send at</span>
+                  <input type="datetime-local" [value]="scheduledAt()" (input)="scheduledAt.set($any($event.target).value)" aria-label="Schedule date and time" />
+                </label>
+              }
+
+              <div class="sms-meta-grid">
+                <div><span>Pages</span><strong>{{ pages() }}</strong></div>
+                <div><span>Recipients</span><strong>{{ selected().length }}</strong></div>
+                <div><span>Estimated</span><strong>{{ estimatedCost() | currency:'NGN':'symbol-narrow':'1.0-2' }}</strong></div>
+              </div>
+
+              @if (quoteLoading()) { <p class="mob-hint">Checking the final price…</p> }
+              @if (quoteError(); as err) {
+                <p class="mob-error" role="alert">Price check failed: {{ err }} <button type="button" (click)="refreshQuote()">Retry</button></p>
+              }
+
+              <div class="sms-step-actions">
+                <button type="button" class="mob-text-btn" (click)="setMobileStep(1)">Back</button>
+                <button type="button" class="mob-primary-btn" [disabled]="body().trim().length < 3 || selected().length === 0" (click)="setMobileStep(3)">Review</button>
+              </div>
+            </section>
+          } @else {
+            <section class="sms-card">
+              <div class="sms-card-head">
+                <div><p class="eyebrow">Step 3</p><h2>Review and send</h2></div>
+                <span class="sms-count">{{ scheduleEnabled() ? 'Scheduled' : 'Now' }}</span>
+              </div>
+
+              <div class="sms-review-grid">
+                <div><span>Recipients</span><strong>{{ selected().length }}</strong></div>
+                <div><span>Pages</span><strong>{{ pages() }}</strong></div>
+                <div><span>Total charge</span><strong>{{ estimatedCost() | currency:'NGN':'symbol-narrow':'1.0-2' }}</strong></div>
+                <div><span>Wallet after</span><strong>{{ (walletBalance() - estimatedCost()) | currency:'NGN':'symbol-narrow':'1.0-2' }}</strong></div>
+              </div>
+
+              @if (scheduleEnabled()) {
+                <p class="sms-review-note"><mat-icon aria-hidden="true">schedule</mat-icon> Scheduled for {{ scheduledAt() ? (scheduledAt() | date:'medium') : 'a date you still need to choose' }}.</p>
+              }
+
+              @if (quoteLoading()) {
+                <p class="mob-hint">Confirming the final price…</p>
+              }
+
+              @if (overBudget()) {
+                <div class="sms-warning" role="alert">
+                  <mat-icon aria-hidden="true">account_balance_wallet</mat-icon>
+                  <span>Your wallet is short by {{ shortfall() | currency:'NGN':'symbol-narrow':'1.0-2' }}.</span>
+                  <a routerLink="/dashboard/wallet/deposit">Top up</a>
+                </div>
+              }
+
+              @if (scheduleInvalid()) {
+                <div class="sms-warning" role="alert">
+                  <mat-icon aria-hidden="true">schedule</mat-icon>
+                  <span>Choose a future date and time to schedule this SMS.</span>
+                </div>
+              }
+
+              @if (ineligible().length > 0) {
+                <div class="sms-ineligible" role="status">
+                  <strong>{{ ineligible().length }} contact{{ ineligible().length === 1 ? '' : 's' }} will be skipped</strong>
+                  <ul>
+                    @for (row of ineligible(); track row.type + row.id) {
+                      <li><span>{{ row.name }}</span><small>{{ row.reason }}</small></li>
+                    }
+                  </ul>
+                </div>
+              }
+
+              @if (previews().length > 0) {
+                <details class="sms-previews">
+                  <summary>Preview as sent <span>{{ previews().length }}</span></summary>
+                  @for (p of previews(); track p.name + p.phoneMasked) {
+                    <article>
+                      <strong>{{ p.name }} · {{ p.phoneMasked }}</strong>
+                      <p>{{ p.body }}</p>
+                    </article>
+                  }
+                </details>
+              }
+
+              @if (sendError(); as err) {
+                <p class="mob-error" role="alert">{{ err }}</p>
+              }
+
+              <div class="sms-step-actions">
+                <button type="button" class="mob-text-btn" (click)="setMobileStep(2)">Back</button>
+                <button type="button" class="mob-primary-btn" [disabled]="!canSend()" (click)="send()">
+                  <mat-icon aria-hidden="true">{{ sending() ? 'more_horiz' : (scheduleEnabled() ? 'schedule_send' : 'send') }}</mat-icon>
+                  {{ sending() ? 'Sending…' : (scheduleEnabled() ? 'Schedule SMS' : 'Send SMS') }}
+                </button>
+              </div>
+            </section>
+          }
+        } @else if (tab() === 'history') {
+          <section class="sms-card">
+            <div class="sms-card-head">
+              <div><p class="eyebrow">Delivery</p><h2>SMS history</h2></div>
+              <button type="button" class="mob-icon-btn" (click)="loadHistory()" [disabled]="historyLoading()" aria-label="Refresh SMS history"><mat-icon>refresh</mat-icon></button>
+            </div>
+            @if (historyLoading()) { <mat-progress-bar mode="indeterminate" aria-label="Loading SMS history" /> }
+            @if (historyError(); as err) { <p class="mob-error" role="alert">{{ err }}</p> }
+            <div class="sms-history-list">
+              @for (row of history(); track row.id) {
+                <article class="sms-history-card">
+                  <div class="sms-history-top">
+                    <span class="status status--{{ row.status }}">{{ statusLabel(row.status) }}</span>
+                    <time>{{ row.createdAt | date: 'mediumDate' }}</time>
+                  </div>
+                  <p>{{ row.body }}</p>
+                  <div class="sms-history-meta">
+                    <span>{{ row.recipientCount }} recipient{{ row.recipientCount === 1 ? '' : 's' }} · {{ row.pages }} page{{ row.pages === 1 ? '' : 's' }}</span>
+                    <strong>{{ row.totalCost | currency:'NGN':'symbol-narrow':'1.0-2' }}</strong>
+                  </div>
+                  @if (row.refundedAmount > 0) {
+                    <span class="sms-refund">{{ row.refundedAmount | currency:'NGN':'symbol-narrow':'1.0-2' }} refunded</span>
+                  }
+                  <button type="button" class="mob-text-btn" (click)="openCampaign(row.id)">View details</button>
+                </article>
+              } @empty {
+                <div class="sms-empty">
+                  <mat-icon aria-hidden="true">history</mat-icon>
+                  <strong>No SMS campaigns yet</strong>
+                  <p>Your first sent or scheduled SMS will appear here.</p>
+                </div>
+              }
+            </div>
+          </section>
+        } @else if (tab() === 'templates') {
+          <section class="sms-card">
+            <div class="sms-card-head">
+              <div><p class="eyebrow">Reusable words</p><h2>SMS templates</h2></div>
+              <span class="sms-count">{{ templates().length }}</span>
+            </div>
+            <div class="sms-template-list">
+              @for (t of templates(); track t.id) {
+                <article class="sms-template-card">
+                  <div class="sms-template-top">
+                    <strong>{{ t.name }}</strong>
+                    @if (t.system) { <span class="type-pill">System</span> }
+                  </div>
+                  <p>{{ t.body }}</p>
+                  <div class="sms-template-actions">
+                    <button type="button" class="mob-text-btn" (click)="useMobileTemplate(t)">Use</button>
+                    @if (!t.system) {
+                      <button type="button" class="sms-delete-btn" (click)="deleteTemplate(t)">Delete</button>
+                    }
+                  </div>
+                </article>
+              } @empty {
+                <p class="mob-hint">No templates yet. Create one below.</p>
+              }
+            </div>
+
+            <div class="sms-create-template">
+              <h3>Create a template</h3>
+              <label class="sms-field">
+                <span>Template name</span>
+                <input [value]="templateName()" (input)="templateName.set($any($event.target).value)" maxlength="80" placeholder="e.g. Friendly follow-up" />
+              </label>
+              <label class="sms-field">
+                <span>Message</span>
+                <textarea rows="3" maxlength="459" [value]="templateBody()" (input)="templateBody.set($any($event.target).value)" placeholder="Write the reusable message…"></textarea>
+              </label>
+              <button type="button" class="mob-primary-btn mob-primary-btn--full" [disabled]="templateName().trim().length < 2 || templateBody().trim().length < 3" (click)="createTemplate()">Save template</button>
+            </div>
+          </section>
+        } @else {
+          <section class="sms-card">
+            <div class="sms-card-head">
+              <div><p class="eyebrow">Respect the no</p><h2>SMS opt-outs</h2></div>
+              <span class="sms-count">{{ optouts().length }}</span>
+            </div>
+            <p class="mob-hint">Numbers here are excluded from every SMS campaign automatically.</p>
+
+            <div class="sms-optout-form">
+              <label class="sms-field">
+                <span>Phone number</span>
+                <input type="tel" [value]="optoutPhone()" (input)="optoutPhone.set($any($event.target).value)" placeholder="0803 123 4567" />
+              </label>
+              <label class="sms-field">
+                <span>Reason <em>optional</em></span>
+                <input [value]="optoutReason()" (input)="optoutReason.set($any($event.target).value)" maxlength="200" placeholder="Why they opted out" />
+              </label>
+              <button type="button" class="mob-primary-btn mob-primary-btn--full" [disabled]="optoutPhone().trim().length < 7" (click)="addOptout()">Add opt-out</button>
+            </div>
+
+            <div class="sms-optout-list">
+              @for (row of optouts(); track row.id) {
+                <div class="sms-optout-row">
+                  <span><strong>{{ row.maskedPhone }}</strong><small>{{ row.reason }} · {{ row.createdAt | date:'mediumDate' }}</small></span>
+                  <button type="button" class="sms-delete-btn" (click)="removeOptout(row)">Remove</button>
+                </div>
+              } @empty {
+                <div class="sms-empty">
+                  <mat-icon aria-hidden="true">block</mat-icon>
+                  <strong>No opt-outs yet</strong>
+                  <p>Numbers you add will be protected from future campaigns.</p>
+                </div>
+              }
+            </div>
+          </section>
+        }
+
+        @if (activeCampaign(); as campaign) {
+          <div class="mob-backdrop" (click)="activeCampaign.set(null)" aria-hidden="true"></div>
+          <section class="mob-sheet sms-detail-sheet" role="dialog" aria-modal="true" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" (keydown.escape)="activeCampaign.set(null)" aria-labelledby="sms-detail-title">
+            <span class="mob-sheet-handle" aria-hidden="true"></span>
+            <header class="mob-sheet-head">
+              <div>
+                <p class="eyebrow">Campaign detail</p>
+                <h2 id="sms-detail-title">{{ statusLabel(campaign.status) }} SMS</h2>
+              </div>
+              <button type="button" class="mob-icon-btn" (click)="activeCampaign.set(null)" aria-label="Close campaign details"><mat-icon>close</mat-icon></button>
+            </header>
+            <div class="sms-detail-summary">
+              <div><span>Sent</span><strong>{{ campaign.sentCount }}/{{ campaign.recipientCount }}</strong></div>
+              <div><span>Charge</span><strong>{{ campaign.totalCost | currency:'NGN':'symbol-narrow':'1.0-2' }}</strong></div>
+            </div>
+            <p class="sms-detail-body">{{ campaign.body }}</p>
+            <p class="mob-hint">{{ campaign.createdAt | date:'medium' }}</p>
+
+            <h3 class="mob-sheet-subtitle">Recipients</h3>
+            <div class="sms-delivery-list">
+              @for (r of campaign.recipients; track r.id) {
+                <div class="sms-delivery-row">
+                  <span class="sms-delivery-copy"><strong>{{ r.name }}</strong><small>{{ r.phoneMasked }}</small></span>
+                  <span class="status status--{{ r.status }}">{{ r.status }}</span>
+                </div>
+              }
+            </div>
+
+            @if (campaign.status === 'scheduled' || campaign.status === 'failed' || campaign.status === 'partial') {
+              <div class="mob-sheet-actions">
+                @if (campaign.status === 'scheduled') {
+                  <button type="button" class="mob-secondary-btn" (click)="cancelCampaign(campaign)">Cancel &amp; refund</button>
+                }
+                @if (campaign.status === 'failed' || campaign.status === 'partial') {
+                  <button type="button" class="mob-primary-btn" (click)="retryCampaign(campaign)">Retry failed</button>
+                }
+              </div>
+            }
+          </section>
+        }
+      </section>
+    } @else {
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
         <a routerLink="/dashboard">Dashboard</a> &gt;
@@ -342,6 +803,7 @@ const RECIPIENT_PAGE_SIZE = 50;
         </section>
       }
     </section>
+    }
   `,
   styles: [`
     .sms-page { display: flex; flex-direction: column; gap: 16px; padding-bottom: 24px; }
@@ -472,6 +934,7 @@ export class SmsCenterComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly snack = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly device = inject(DeviceService);
 
   protected readonly tabs: Array<{ key: Tab; label: string; icon: string }> = [
     { key: 'compose', label: 'Compose', icon: 'edit' },
@@ -482,6 +945,12 @@ export class SmsCenterComponent implements OnInit {
   protected readonly tokens = ['{{first_name}}', '{{my_name}}', '{{lead_page}}', '{{store_link}}'];
   protected readonly pricePerPage = PRICE_PER_PAGE;
   protected readonly tab = signal<Tab>('compose');
+  protected readonly mobileStep = signal<1 | 2 | 3>(1);
+  protected readonly mobileSteps: Array<{ step: 1 | 2 | 3; label: string }> = [
+    { step: 1, label: 'Recipients' },
+    { step: 2, label: 'Message' },
+    { step: 3, label: 'Review' },
+  ];
   protected readonly recipientType = signal<RecipientType>('prospects');
   protected readonly query = signal('');
   protected readonly recipients = signal<SmsRecipientItem[]>([]);
@@ -578,11 +1047,35 @@ export class SmsCenterComponent implements OnInit {
     if (tab === 'optouts') this.loadOptouts();
   }
 
+  protected openMobileSmsTab(tab: Tab): void {
+    if (tab === 'compose' && this.tab() !== 'compose') this.mobileStep.set(1);
+    this.setTab(tab);
+  }
+
+  protected canOpenMobileStep(step: 1 | 2 | 3): boolean {
+    if (step === 1) return true;
+    if (this.selected().length === 0) return false;
+    if (step === 2) return true;
+    return this.body().trim().length >= 3;
+  }
+
+  protected setMobileStep(step: 1 | 2 | 3): void {
+    if (!this.canOpenMobileStep(step)) return;
+    if (step === 3) this.refreshQuote();
+    this.mobileStep.set(step);
+  }
+
+  protected useMobileTemplate(template: SmsTemplate): void {
+    this.useTemplateAndCompose(template);
+    this.mobileStep.set(this.selected().length > 0 ? 2 : 1);
+  }
+
   protected setType(type: RecipientType): void {
     if (this.recipientType() === type) return;
     this.recipientType.set(type);
     this.selected.set([]);
     this.suggestions.set([]);
+    this.mobileStep.set(1);
     this.query.set('');
     this.lastQuery = '';
     if (this.searchTimer) {
@@ -701,6 +1194,7 @@ export class SmsCenterComponent implements OnInit {
   protected clearSelection(): void {
     this.selected.set([]);
     this.suggestions.set([]);
+    this.mobileStep.set(1);
     this.scheduleQuote();
   }
 
@@ -842,6 +1336,7 @@ export class SmsCenterComponent implements OnInit {
         this.quote.set(null);
         this.quoteError.set(null);
         this.quoteRequest += 1;
+        this.mobileStep.set(1);
         this.loadHistory();
         this.walletBalance.update((value) => value - Number(res.data?.totalCost ?? 0));
         this.snack.open(
