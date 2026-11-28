@@ -7,7 +7,7 @@ export const CommunityRoutes: Routes = [
   {
     path: '',
     component: CommunityHubIndexComponent,
-    title: 'Community - Talk, meet and message',
+    title: 'Community - Feed, events and messages',
   },
   {
     path: 'feed',
