@@ -2020,6 +2020,1283 @@ body:has(.messages-mobile .mob-backdrop) .ora-fab {
   }
 }
 
+/* ── Native mobile SMS Center ───────────────────────────────────────────── */
+.sms-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding-bottom: 28px;
+}
+
+.sms-mobile .eyebrow {
+  margin: 0;
+  color: var(--ms-primary-strong);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.sms-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 13px 14px 14px;
+  border: 1px solid color-mix(in srgb, var(--ms-primary) 18%, var(--ms-line));
+  border-radius: 20px;
+  background:
+    radial-gradient(130% 110% at 100% 0%, color-mix(in srgb, var(--ms-primary) 18%, transparent), transparent 60%),
+    linear-gradient(145deg, color-mix(in srgb, var(--ms-primary-soft) 76%, var(--ms-surface)), var(--ms-surface) 68%);
+  box-sizing: border-box;
+}
+
+.sms-hero-top {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: -4px -6px 0;
+}
+
+.sms-hero-top .mob-icon-btn {
+  color: var(--ms-text);
+}
+
+.sms-hero h1 {
+  margin: 0;
+  color: var(--ms-text);
+  font-family: var(--ms-font-display);
+  font-size: clamp(1.8rem, 7vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+}
+
+.sms-lede {
+  max-width: 36em;
+  margin: 0;
+  color: var(--ms-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.48;
+}
+
+.sms-wallet {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 72px;
+  margin-top: 4px;
+  padding: 11px 12px;
+  border-radius: 16px;
+  background:
+    radial-gradient(120% 160% at 100% 0%, rgba(129, 140, 248, 0.4), transparent 58%),
+    linear-gradient(135deg, #19152e 0%, #2a2247 58%, #3b2e5d 100%);
+  box-shadow: 0 10px 26px rgba(16, 12, 35, 0.18);
+  color: var(--ms-ink-text);
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.sms-wallet:active {
+  transform: scale(0.992);
+}
+
+.sms-wallet-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #c7d2fe;
+}
+
+.sms-wallet-icon mat-icon {
+  font-size: 21px;
+  width: 21px;
+  height: 21px;
+}
+
+.sms-wallet-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.sms-wallet-copy > span {
+  color: #c7d2fe;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sms-wallet-copy strong {
+  overflow: hidden;
+  color: #f8f7ff;
+  font-family: var(--ms-font-display);
+  font-size: 1.32rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sms-wallet-copy small {
+  color: rgba(246, 244, 255, 0.62);
+  font-size: 0.64rem;
+  line-height: 1.35;
+}
+
+.sms-wallet-arrow {
+  flex: none;
+  color: rgba(246, 244, 255, 0.56);
+}
+
+.sms-tabs {
+  position: sticky;
+  top: calc(var(--ms-mobile-appbar-height) + var(--ms-safe-top));
+  z-index: 8;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 3px;
+  padding: 4px;
+  border: 1px solid var(--ms-line);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--ms-canvas) 92%, transparent);
+  backdrop-filter: blur(14px) saturate(150%);
+  box-sizing: border-box;
+}
+
+.sms-tabs button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  min-height: 54px;
+  padding: 5px 2px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ms-text-muted);
+  font: inherit;
+  font-size: 0.62rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sms-tabs button mat-icon {
+  font-size: 19px;
+  width: 19px;
+  height: 19px;
+}
+
+.sms-tabs button.is-active {
+  background: var(--ms-surface);
+  color: var(--ms-primary-strong);
+  box-shadow: var(--ms-shadow-sm);
+}
+
+.sms-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 13px;
+  background: var(--ms-success-soft);
+  color: var(--ms-success);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.sms-toast > span {
+  flex: 1;
+}
+
+.sms-toast > button {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: currentColor;
+  cursor: pointer;
+}
+
+.sms-toast mat-icon {
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+}
+
+/* ── 3-step compose progress ───────────────────────────────────────────── */
+.sms-stepbar {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--ms-line);
+  border-radius: 14px;
+  background: var(--ms-surface);
+  box-sizing: border-box;
+}
+
+.sms-progress-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+  padding: 5px 7px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ms-text-muted);
+  font: inherit;
+  font-size: 0.65rem;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sms-progress-step:disabled {
+  cursor: default;
+  opacity: 0.58;
+}
+
+.sms-progress-step.is-active {
+  background: var(--ms-primary-soft);
+  color: var(--ms-primary-strong);
+}
+
+.sms-progress-step.is-done {
+  color: var(--ms-success);
+}
+
+.sms-progress-dot {
+  display: inline-grid;
+  width: 23px;
+  height: 23px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ms-surface-3);
+  color: var(--ms-text-muted);
+  font-size: 0.6rem;
+  font-weight: 800;
+}
+
+.sms-progress-step.is-active .sms-progress-dot {
+  background: var(--ms-primary);
+  color: var(--ms-ink-text);
+}
+
+.sms-progress-step.is-done .sms-progress-dot {
+  background: var(--ms-success-soft);
+  color: var(--ms-success);
+}
+
+.sms-progress-dot mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.sms-progress-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sms-progress-line {
+  display: none;
+}
+
+/* ── Cards / recipients / composer ────────────────────────────────────── */
+.sms-card {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--ms-line);
+  border-radius: 18px;
+  background: var(--ms-surface);
+  box-shadow: var(--ms-shadow-sm);
+  box-sizing: border-box;
+}
+
+.sms-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sms-card-head h2 {
+  margin: 2px 0 0;
+  color: var(--ms-text);
+  font-family: var(--ms-font-display);
+  font-size: 1.06rem;
+  letter-spacing: -0.025em;
+}
+
+.sms-card-head .mob-icon-btn {
+  width: 36px;
+  height: 36px;
+}
+
+.sms-card-head .mob-icon-btn mat-icon {
+  font-size: 19px;
+  width: 19px;
+  height: 19px;
+}
+
+.sms-count {
+  display: inline-grid;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--ms-primary-soft);
+  color: var(--ms-primary-strong);
+  font-size: 0.61rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.sms-mobile .type-toggle {
+  font-size: 0.72rem;
+}
+
+.sms-search {
+  margin-top: 1px;
+  background: var(--ms-canvas);
+}
+
+.sms-results-meta {
+  margin: 0;
+  color: var(--ms-text-muted);
+  font-size: 0.66rem;
+}
+
+.sms-recipient-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 370px;
+  overflow-y: auto;
+  border: 1px solid var(--ms-line);
+  border-radius: 13px;
+  background: var(--ms-surface);
+  overscroll-behavior: contain;
+}
+
+.sms-recipient {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 58px;
+  padding: 8px 10px;
+  border: 0;
+  border-top: 1px solid var(--ms-line);
+  background: transparent;
+  color: var(--ms-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sms-recipient:first-child {
+  border-top: 0;
+}
+
+.sms-recipient.is-selected {
+  background: color-mix(in srgb, var(--ms-primary-soft) 42%, var(--ms-surface));
+}
+
+.sms-recipient.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.sms-check {
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  place-items: center;
+  border: 1.5px solid var(--ms-line-strong);
+  border-radius: 50%;
+  background: var(--ms-surface);
+  color: var(--ms-text-muted);
+}
+
+.sms-check mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  opacity: 0.45;
+}
+
+.sms-check.is-checked {
+  border-color: var(--ms-primary);
+  background: var(--ms-primary);
+  color: var(--ms-ink-text);
+}
+
+.sms-check.is-checked mat-icon {
+  opacity: 1;
+}
+
+.sms-recipient-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.sms-recipient-copy strong {
+  overflow: hidden;
+  font-size: 0.79rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sms-recipient-copy span {
+  overflow: hidden;
+  color: var(--ms-text-muted);
+  font-size: 0.65rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sms-recipient-copy em {
+  overflow: hidden;
+  color: var(--ms-warning);
+  font-size: 0.61rem;
+  font-style: normal;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sms-list-empty {
+  padding: 14px 12px;
+}
+
+.sms-load-more {
+  width: 100%;
+  margin-top: 2px;
+}
+
+.sms-selected {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  padding-top: 2px;
+}
+
+.sms-chip-row {
+  display: flex;
+  flex: 1;
+  gap: 4px;
+  flex-wrap: wrap;
+  max-height: 96px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.sms-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 100%;
+  min-height: 30px;
+  padding: 0 7px;
+  border: 1px solid var(--ms-line);
+  border-radius: 999px;
+  background: var(--ms-canvas);
+  color: var(--ms-text);
+  font: inherit;
+  font-size: 0.66rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.sms-chip mat-icon {
+  flex: none;
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+}
+
+.sms-step-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 3px;
+  padding-top: 10px;
+  border-top: 1px solid var(--ms-line);
+}
+
+.sms-step-actions .mob-hint {
+  flex: 1;
+  min-width: 120px;
+}
+
+.sms-step-actions .mob-primary-btn {
+  margin-top: 0;
+}
+
+.sms-step-actions .mob-primary-btn mat-icon {
+  margin-right: 3px;
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+}
+
+.sms-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 9px;
+  border: 1px solid color-mix(in srgb, var(--ms-primary) 38%, var(--ms-line));
+  border-radius: 13px;
+  background: var(--ms-primary-soft);
+}
+
+.sms-suggest-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 1px;
+  color: var(--ms-primary-strong);
+  font-size: 0.65rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.sms-suggest-label mat-icon {
+  flex: none;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.sms-suggestion {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 9px;
+  border: 1px solid var(--ms-line);
+  border-radius: 10px;
+  background: var(--ms-surface);
+  color: var(--ms-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sms-suggestion strong {
+  color: var(--ms-primary-strong);
+  font-size: 0.7rem;
+}
+
+.sms-suggestion span {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--ms-text-muted);
+  font-size: 0.69rem;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.sms-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sms-field > span {
+  color: var(--ms-text-muted);
+  font-size: 0.65rem;
+  font-weight: 750;
+}
+
+.sms-field > span em {
+  font-style: normal;
+  font-weight: 500;
+}
+
+.sms-field input,
+.sms-field textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid var(--ms-line);
+  border-radius: 11px;
+  background: var(--ms-canvas);
+  color: var(--ms-text);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.45;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.sms-field textarea {
+  resize: vertical;
+}
+
+.sms-field input:focus,
+.sms-field textarea:focus {
+  border-color: var(--ms-primary);
+}
+
+.sms-field small {
+  align-self: flex-end;
+  color: var(--ms-text-muted);
+  font-size: 0.61rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sms-tokens {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.sms-tokens > span {
+  color: var(--ms-text-muted);
+  font-size: 0.63rem;
+  font-weight: 700;
+}
+
+.sms-tokens button {
+  min-height: 29px;
+  padding: 0 6px;
+  border: 1px solid var(--ms-line);
+  border-radius: 7px;
+  background: var(--ms-canvas);
+  color: var(--ms-primary-strong);
+  font: inherit;
+  font-size: 0.61rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sms-template-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sms-template-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sms-template-scroll {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.sms-template-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.sms-template-pill {
+  flex: none;
+  max-width: 220px;
+  min-height: 34px;
+  padding: 0 10px;
+  overflow: hidden;
+  border: 1px solid var(--ms-line);
+  border-radius: 999px;
+  background: var(--ms-canvas);
+  color: var(--ms-text-soft);
+  font: inherit;
+  font-size: 0.67rem;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sms-switch-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  color: var(--ms-text);
+  font-size: 0.74rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.sms-switch-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ms-primary);
+}
+
+.sms-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.sms-meta-grid > div,
+.sms-review-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  padding: 8px 9px;
+  border: 1px solid var(--ms-line);
+  border-radius: 10px;
+  background: var(--ms-canvas);
+}
+
+.sms-meta-grid span,
+.sms-review-grid span {
+  color: var(--ms-text-muted);
+  font-size: 0.58rem;
+  font-weight: 750;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.sms-meta-grid strong,
+.sms-review-grid strong {
+  overflow: hidden;
+  font-family: var(--ms-font-display);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sms-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.sms-review-grid strong {
+  font-size: 1.04rem;
+}
+
+.sms-review-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--ms-info-soft);
+  color: var(--ms-info);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.sms-review-note mat-icon {
+  flex: none;
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.sms-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: var(--ms-warning-soft);
+  color: var(--ms-warning);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.sms-warning mat-icon {
+  flex: none;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.sms-warning span {
+  flex: 1;
+  min-width: 130px;
+}
+
+.sms-warning a {
+  color: var(--ms-warning);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+.sms-ineligible {
+  padding: 9px 10px;
+  border: 1px solid color-mix(in srgb, var(--ms-warning) 40%, var(--ms-line));
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--ms-warning-soft) 55%, var(--ms-surface));
+}
+
+.sms-ineligible strong {
+  color: var(--ms-warning);
+  font-size: 0.7rem;
+}
+
+.sms-ineligible ul {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.sms-ineligible li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 0;
+  border-top: 1px solid var(--ms-line);
+  font-size: 0.67rem;
+}
+
+.sms-ineligible li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sms-ineligible li small {
+  flex: none;
+  color: var(--ms-text-muted);
+  text-align: right;
+}
+
+.sms-previews {
+  padding: 8px 10px;
+  border: 1px dashed var(--ms-line-strong);
+  border-radius: 11px;
+  background: var(--ms-canvas);
+}
+
+.sms-previews summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--ms-primary-strong);
+  font-size: 0.69rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.sms-previews summary span {
+  display: inline-grid;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--ms-primary-soft);
+  font-size: 0.59rem;
+}
+
+.sms-previews article {
+  padding-top: 7px;
+  margin-top: 7px;
+  border-top: 1px solid var(--ms-line);
+}
+
+.sms-previews article strong {
+  display: block;
+  color: var(--ms-text-muted);
+  font-size: 0.62rem;
+}
+
+.sms-previews article p {
+  margin: 2px 0 0;
+  font-size: 0.73rem;
+  line-height: 1.45;
+}
+
+/* ── History / templates / opt-outs ───────────────────────────────────── */
+.sms-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sms-history-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 11px;
+  border: 1px solid var(--ms-line);
+  border-radius: 13px;
+  background: var(--ms-canvas);
+}
+
+.sms-history-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sms-history-top time {
+  color: var(--ms-text-muted);
+  font-size: 0.61rem;
+}
+
+.sms-history-card > p {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  color: var(--ms-text);
+  font-size: 0.76rem;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.sms-history-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--ms-text-muted);
+  font-size: 0.64rem;
+}
+
+.sms-history-meta strong {
+  color: var(--ms-text);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sms-refund {
+  color: var(--ms-success);
+  font-size: 0.63rem;
+  font-weight: 700;
+}
+
+.sms-history-card .mob-text-btn {
+  align-self: flex-start;
+  min-height: 32px;
+  padding: 0;
+}
+
+.sms-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 26px 16px;
+  color: var(--ms-text-muted);
+  text-align: center;
+}
+
+.sms-empty mat-icon {
+  font-size: 34px;
+  width: 34px;
+  height: 34px;
+  color: var(--ms-primary-strong);
+  opacity: 0.75;
+}
+
+.sms-empty strong {
+  color: var(--ms-text);
+  font-size: 0.82rem;
+}
+
+.sms-empty p {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.sms-template-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sms-template-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 11px;
+  border: 1px solid var(--ms-line);
+  border-radius: 13px;
+  background: var(--ms-canvas);
+}
+
+.sms-template-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sms-template-top strong {
+  font-size: 0.78rem;
+}
+
+.sms-template-card > p {
+  margin: 0;
+  color: var(--ms-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.sms-template-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sms-template-actions .mob-text-btn {
+  min-height: 32px;
+  padding: 0;
+}
+
+.sms-delete-btn {
+  min-height: 32px;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: var(--ms-error);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sms-create-template {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 4px;
+  padding-top: 11px;
+  border-top: 1px solid var(--ms-line);
+}
+
+.sms-create-template h3 {
+  margin: 0;
+  color: var(--ms-text);
+  font-family: var(--ms-font-display);
+  font-size: 0.88rem;
+}
+
+.sms-optout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid var(--ms-line);
+  border-radius: 13px;
+  background: var(--ms-canvas);
+}
+
+.sms-optout-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--ms-line);
+}
+
+.sms-optout-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--ms-line);
+}
+
+.sms-optout-row > span {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.sms-optout-row strong {
+  font-size: 0.76rem;
+}
+
+.sms-optout-row small {
+  overflow: hidden;
+  color: var(--ms-text-muted);
+  font-size: 0.64rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sms-optout-row .sms-delete-btn {
+  flex: none;
+}
+
+/* ── Campaign detail sheet ────────────────────────────────────────────── */
+.sms-detail-sheet {
+  padding-bottom: calc(18px + var(--ms-safe-bottom));
+}
+
+.sms-detail-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.sms-detail-summary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 9px;
+  border: 1px solid var(--ms-line);
+  border-radius: 10px;
+  background: var(--ms-canvas);
+}
+
+.sms-detail-summary span {
+  color: var(--ms-text-muted);
+  font-size: 0.58rem;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.sms-detail-summary strong {
+  font-size: 0.86rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sms-detail-body {
+  margin: 8px 0 2px;
+  color: var(--ms-text);
+  font-size: 0.76rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.sms-delivery-list {
+  overflow: hidden;
+  border: 1px solid var(--ms-line);
+  border-radius: 12px;
+}
+
+.sms-delivery-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 7px 9px;
+  border-top: 1px solid var(--ms-line);
+}
+
+.sms-delivery-row:first-child {
+  border-top: 0;
+}
+
+.sms-delivery-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.sms-delivery-copy strong {
+  overflow: hidden;
+  font-size: 0.74rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sms-delivery-copy small {
+  color: var(--ms-text-muted);
+  font-size: 0.63rem;
+}
+
+.sms-delivery-row .status {
+  flex: none;
+}
+
+body:has(.sms-mobile) .ora-fab {
+  display: none;
+}
+
+body:has(.sms-mobile .mob-backdrop) {
+  overflow: hidden;
+}
+
+@media (max-width: 359.98px) {
+  .sms-progress-step {
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 4px 2px;
+    text-align: center;
+  }
+
+  .sms-progress-label {
+    font-size: 0.6rem;
+  }
+
+  .sms-wallet-copy strong {
+    font-size: 1.2rem;
+  }
+
+  .sms-tabs button {
+    font-size: 0.58rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sms-mobile .mob-primary-btn,
+  .sms-wallet,
+  .sms-detail-sheet {
+    animation: none;
+    transition: none;
+  }
+
+  .sms-wallet:active {
+    transform: none;
+  }
+}
+
 /* Shared connectivity toast: keep the bottom-edge placement clear of the
  * platform's mobile dashboard navigation when that nav is present. Public
  * pages and admin have no bottom nav and use the component's 12px fallback. */
