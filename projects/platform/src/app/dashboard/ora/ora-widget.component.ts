@@ -6,11 +6,12 @@ import { OraChatComponent } from './ora-chat.component';
 /**
  * @title Ora — floating AI mentor.
  *
- * Bottom-right FAB + panel (full sheet on phones), shell-level so it
- * floats over every dashboard page. The conversation surface itself is
- * `OraChatComponent` (shared with the full Ora page); this wrapper only
- * owns open state, so context boots lazily on first open — zero cost for
- * members who never chat. OnPush + signals.
+ * Bottom-right FAB + panel (full sheet on phones). The shell mounts it on
+ * every desktop page, but on mobile only on Home so it cannot cover
+ * composers, sticky actions or bottom-sheet controls. The conversation
+ * surface itself is `OraChatComponent` (shared with the full Ora page);
+ * this wrapper only owns open state, so context boots lazily on first
+ * open — zero cost for members who never chat. OnPush + signals.
  */
 @Component({
   selector: 'async-ora-widget',
