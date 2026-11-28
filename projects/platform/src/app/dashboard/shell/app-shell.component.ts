@@ -66,6 +66,14 @@ export class AppShellComponent {
   protected readonly openKeys = new Set<string>();
   protected readonly collapsed = signal(false);
   protected readonly pageTitle = signal('Home');
+  private readonly currentUrl = signal('');
+  /**
+   * Mobile pages are app-like: the floating Ora bubble must not cover
+   * composers, sticky actions or bottom sheets. Keep it on Home only.
+   * Desktop retains the universal floating widget.
+   */
+  protected readonly showOraWidget = computed(() =>
+    !this.device.isMobileView() || this.isDashboardHome(this.currentUrl()));
 
   partner!: PartnerInterface;
 
@@ -84,9 +92,12 @@ export class AppShellComponent {
   constructor(
     private router: Router,
     private partnerService: PartnerService,
-  ) {}
+  ) {
+    this.currentUrl.set(this.router.url);
+  }
 
   ngOnInit(): void {
+    this.currentUrl.set(this.router.url);
     this.pageTitle.set(this.titleFor(this.router.url));
     this.revealActiveRoute(this.router.url);
     this.router.events
@@ -95,6 +106,7 @@ export class AppShellComponent {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((event) => {
+        this.currentUrl.set(event.urlAfterRedirects);
         this.pageTitle.set(this.titleFor(event.urlAfterRedirects));
         this.revealActiveRoute(event.urlAfterRedirects);
       });
@@ -114,6 +126,11 @@ export class AppShellComponent {
     this.startPresenceHeartbeat();
     this.bindSearchShortcut();
     this.refreshRemindersBadge();
+  }
+
+  private isDashboardHome(url: string): boolean {
+    const path = String(url ?? '').split('?')[0].split('#')[0].replace(/\/+$/, '');
+    return path === '/dashboard';
   }
 
   toggleGroup(key: string): void {

@@ -148,4 +148,6 @@
   </mat-sidenav-content>
 </mat-sidenav-container>
 
-<async-ora-widget />
+@if (showOraWidget()) {
+  <async-ora-widget />
+}
