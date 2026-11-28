@@ -12,6 +12,8 @@ export interface Tutorial {
   youtubeId: string;
   area: TutorialArea;
   order: number;
+  /** Unique partner views recorded through the app. */
+  viewCount: number;
   active: boolean;
 }
 
@@ -29,6 +31,23 @@ export interface TutorialListEnvelope extends ApiEnvelope<TutorialList> {
   data: TutorialList;
 }
 
+export interface TutorialViewEnvelope extends ApiEnvelope<{ viewCount: number; counted: boolean }> {
+  data: { viewCount: number; counted: boolean };
+}
+
+/** Compact audience language shared by desktop and mobile. */
+export function tutorialViewsLabel(count: number | null | undefined): string {
+  const value = Math.max(0, Math.floor(Number(count ?? 0) || 0));
+  if (value === 0) return 'No views';
+  if (value === 1) return '1 view';
+  if (value < 1000) return `${value} views`;
+  const compact = (scaled: number): number =>
+    Number(scaled.toFixed(scaled < 10 ? 1 : 0));
+  const thousands = compact(value / 1000);
+  if (thousands < 1000) return `${thousands}K views`;
+  return `${compact(value / 1_000_000)}M views`;
+}
+
 /** Platform how-to library → backend `/v1/tutorials`. Fully typed. */
 @Injectable({ providedIn: 'root' })
 export class TutorialService {
@@ -36,6 +55,11 @@ export class TutorialService {
 
   list(): Observable<TutorialListEnvelope> {
     return this.api.get<TutorialListEnvelope>('v1/tutorials');
+  }
+
+  /** Record a play. The server counts one unique view per partner. */
+  recordView(id: string): Observable<TutorialViewEnvelope> {
+    return this.api.post<TutorialViewEnvelope>(`v1/tutorials/${encodeURIComponent(id)}/view`, {});
   }
 
   /** Admin desk. */

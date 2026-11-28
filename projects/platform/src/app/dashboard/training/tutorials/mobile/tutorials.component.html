@@ -1,0 +1,176 @@
+<section class="tutorials-mobile">
+  <header class="tut-head">
+    <div class="tut-top">
+      <a class="tut-icon-btn" routerLink="/dashboard/training" aria-label="Back to Academy">
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      </a>
+      <p class="eyebrow">Training · How-to library</p>
+      <button
+        type="button"
+        class="tut-icon-btn"
+        [class.is-busy]="loading()"
+        [disabled]="loading()"
+        (click)="reload()"
+        aria-label="Refresh tutorials">
+        <mat-icon aria-hidden="true">refresh</mat-icon>
+      </button>
+    </div>
+    <h1>Tutorials</h1>
+    <p class="tut-lede">Short walkthroughs for every part of the app. Watch any video, in any order — nothing is locked.</p>
+
+    <div class="tut-hero-actions">
+      <button type="button" class="tut-start-btn" (click)="startFirst()" [disabled]="videos().length === 0">
+        <mat-icon aria-hidden="true">play_arrow</mat-icon>
+        Start with the basics
+      </button>
+      <span class="tut-free-pill"><mat-icon aria-hidden="true">bolt</mat-icon> Free browsing</span>
+    </div>
+
+    @if (!loading()) {
+      <div class="tut-stats" aria-label="Tutorial library summary">
+        <div><strong>{{ videos().length }}</strong><span>Videos</span></div>
+        <div><strong>{{ areas().length }}</strong><span>App areas</span></div>
+        <div><strong>{{ totalViews() | number }}</strong><span>Total views</span></div>
+      </div>
+    }
+  </header>
+
+  @if (loading()) {
+    <async-page-skeleton layout="cards" [rows]="4" label="tutorials" [showHeader]="false" />
+  } @else if (error(); as err) {
+    <div class="tut-state" role="alert">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <strong>Could not load the tutorials</strong>
+      <p>{{ err }}</p>
+      <button type="button" class="tut-primary-btn" (click)="reload()">Try again</button>
+    </div>
+  } @else if (videos().length === 0) {
+    <div class="tut-state">
+      <mat-icon aria-hidden="true">video_library</mat-icon>
+      <strong>No tutorials yet</strong>
+      <p>Short how-to videos will appear here as they are published.</p>
+      <a class="tut-primary-btn" routerLink="/dashboard/training">Back to Academy</a>
+    </div>
+  } @else {
+    <div class="tut-controls">
+      <label class="tut-search">
+        <mat-icon aria-hidden="true">search</mat-icon>
+        <input
+          type="search"
+          [value]="query()"
+          (input)="onSearch($event)"
+          placeholder="Search tutorials"
+          aria-label="Search tutorials" />
+        @if (query()) {
+          <button type="button" class="tut-search-clear" (click)="clearSearch()" aria-label="Clear search">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </label>
+
+      <div class="tut-chips" role="group" aria-label="Filter tutorials by app area">
+        <button type="button" class="tut-chip" [class.is-active]="areaFilter() === 'All'" (click)="setArea('All')">
+          All <span>{{ videos().length }}</span>
+        </button>
+        @for (area of areas(); track area.area) {
+          <button type="button" class="tut-chip" [class.is-active]="areaFilter() === area.area" (click)="setArea(area.area)">
+            {{ area.area }} <span>{{ area.count }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (filtered().length === 0 || !selected()) {
+      <div class="tut-state tut-state--inline">
+        <mat-icon aria-hidden="true">search_off</mat-icon>
+        <strong>No tutorials match this view</strong>
+        <p>Try a different search or clear the filters.</p>
+        <button type="button" class="tut-primary-btn" (click)="resetFilters()">Clear filters</button>
+      </div>
+    } @else {
+      @if (selected(); as video) {
+        <section class="tut-stage" #playerAnchor aria-label="Featured tutorial">
+          <div class="tut-media">
+            @if (playing()) {
+              <iframe
+                [src]="embedUrl(video.youtubeId)"
+                [title]="video.title"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            } @else {
+              <button type="button" class="tut-poster" (click)="playSelected()" [attr.aria-label]="'Play ' + video.title">
+                <img [src]="thumbUrl(video.youtubeId)" [alt]="video.title" />
+                <span class="tut-poster-scrim"></span>
+                <span class="tut-play-orb"><mat-icon aria-hidden="true">play_arrow</mat-icon></span>
+                <span class="tut-media-views"><mat-icon aria-hidden="true">visibility</mat-icon>{{ viewsLabel(video) }}</span>
+              </button>
+            }
+          </div>
+
+          <div class="tut-stage-body">
+            <div class="tut-stage-meta">
+              <span class="tut-area-pill">{{ video.area }}</span>
+              <span class="tut-views"><mat-icon aria-hidden="true">visibility</mat-icon>{{ viewsLabel(video) }}</span>
+              <span class="tut-stage-state">{{ playing() ? 'Now playing' : 'Featured tutorial' }}</span>
+            </div>
+            <h2>{{ video.title }}</h2>
+            @if (video.description) {
+              <p>{{ video.description }}</p>
+            } @else {
+              <p>Watch this quick walkthrough, then try it in the app. Move on whenever you are ready.</p>
+            }
+
+            <div class="tut-stage-actions">
+              <button type="button" class="tut-nav-btn" (click)="previousVideo()" [disabled]="filtered().length < 2" aria-label="Previous tutorial">
+                <mat-icon aria-hidden="true">arrow_back</mat-icon>
+              </button>
+              <button type="button" class="tut-nav-btn" (click)="nextVideo()" [disabled]="filtered().length < 2" aria-label="Next tutorial">
+                <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+              </button>
+              <a class="tut-watch-link" [href]="youtubeUrl(video.youtubeId)" target="_blank" rel="noopener">
+                Watch on YouTube <mat-icon aria-hidden="true">open_in_new</mat-icon>
+              </a>
+            </div>
+          </div>
+        </section>
+      }
+
+      <section class="tut-library" aria-labelledby="tut-library-title">
+        <div class="tut-section-head">
+          <div><p class="eyebrow">Library</p><h2 id="tut-library-title">All tutorials</h2></div>
+          <span class="tut-count">{{ filtered().length }}</span>
+        </div>
+
+        <div class="tut-list">
+          @for (video of filtered(); track video.id; let i = $index) {
+            <button
+              type="button"
+              class="tut-row"
+              [class.is-active]="selected()?.id === video.id"
+              [attr.aria-current]="selected()?.id === video.id ? 'true' : null"
+              (click)="selectVideo(video)">
+              <span class="tut-thumb">
+                <img [src]="thumbUrl(video.youtubeId)" alt="" loading="lazy" />
+                <span class="tut-thumb-play"><mat-icon aria-hidden="true">play_arrow</mat-icon></span>
+              </span>
+              <span class="tut-row-copy">
+                <span class="tut-row-area">{{ video.area }}</span>
+                <strong>{{ video.title }}</strong>
+                <span class="tut-row-views"><mat-icon aria-hidden="true">visibility</mat-icon>{{ viewsLabel(video) }}</span>
+              </span>
+              <span class="tut-row-index">{{ i + 1 }}</span>
+            </button>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  <p class="sr-only" aria-live="polite">
+    @if (selected(); as video) {
+      Now featuring {{ video.title }}
+    }
+  </p>
+</section>
