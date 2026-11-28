@@ -23,7 +23,7 @@ export interface PartnerInterface {
   bio?: string;
   address: Address;
   visits?: number;
-  dobDatePicker?: Date;
+  dobDatePicker?: Date | string;
   balance?: number;
   bonusBalance?: number;
   withdrawableBalance?: number;

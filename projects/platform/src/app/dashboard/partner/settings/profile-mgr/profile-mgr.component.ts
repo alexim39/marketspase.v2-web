@@ -33,34 +33,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { userError } from '../../../../core/http/api-error';
 import { MentorHandoffService } from '../../../../core/mentor-handoff/mentor-handoff.service';
 import { MentorHandoffPreference } from '../../../../core/mentor-handoff/mentor-handoff.models';
+import { MAX_PROFILE_TAGS, normalizeProfileTags } from './profile-tags';
 
 interface MeterItem {
   label: string;
   done: boolean;
   required: boolean;
 }
-
-const MAX_PROFILE_TAGS = 10;
-const MAX_PROFILE_TAG_LENGTH = 40;
-
-/** Accept legacy strings and arrays; trim, dedupe, cap for the API contract. */
-const normalizeProfileTags = (value: unknown): string[] => {
-  const raw = Array.isArray(value) ? value : String(value ?? '').split(',');
-  const seen = new Set<string>();
-  const tags: string[] = [];
-  for (const entry of raw) {
-    for (const part of String(entry ?? '').split(',')) {
-      const tag = part.replace(/\s+/g, ' ').trim().slice(0, MAX_PROFILE_TAG_LENGTH);
-      if (!tag) continue;
-      const key = tag.toLowerCase();
-      if (seen.has(key)) continue;
-      seen.add(key);
-      tags.push(tag);
-      if (tags.length >= MAX_PROFILE_TAGS) return tags;
-    }
-  }
-  return tags;
-};
 
 /**
  * @title profile manager — completion-driven account page.
