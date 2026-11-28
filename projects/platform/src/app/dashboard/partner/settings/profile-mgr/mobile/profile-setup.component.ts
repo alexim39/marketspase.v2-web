@@ -9,12 +9,23 @@ import {
   inject,
   signal,
   viewChild,
+  WritableSignal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { ProfileService } from '../../../profile/profile.service';
@@ -44,7 +55,6 @@ interface ChecklistItem {
 
 interface MentorOption {
   value: MentorHandoffPreference;
-  icon: string;
   title: string;
   note: string;
 }
@@ -64,11 +74,11 @@ const EDUCATION_OPTIONS = [
 ];
 
 const MENTOR_OPTIONS: MentorOption[] = [
-  { value: 'in_app', icon: 'chat_bubble', title: 'In-app chat', note: 'Keep every conversation inside MarketSpase.' },
-  { value: 'email', icon: 'mail', title: 'Email', note: 'Share your email with your direct mentor.' },
-  { value: 'whatsapp', icon: 'forum', title: 'WhatsApp', note: 'Let your mentor message your phone on WhatsApp.' },
-  { value: 'phone', icon: 'call', title: 'Phone call', note: 'Allow a direct call during onboarding.' },
-  { value: 'prefer_not_now', icon: 'do_not_disturb_on', title: 'Prefer not now', note: 'Pause all direct mentor outreach.' },
+  { value: 'in_app', title: 'In-app chat', note: 'Keep every conversation inside MarketSpase.' },
+  { value: 'email', title: 'Email', note: 'Share your email with your direct mentor.' },
+  { value: 'whatsapp', title: 'WhatsApp', note: 'Let your mentor message your phone on WhatsApp.' },
+  { value: 'phone', title: 'Phone call', note: 'Allow a direct call during onboarding.' },
+  { value: 'prefer_not_now', title: 'Prefer not now', note: 'Pause all direct mentor outreach.' },
 ];
 
 /**
@@ -76,15 +86,29 @@ const MENTOR_OPTIONS: MentorOption[] = [
  *
  * A two-level setup experience rather than a squeezed desktop page: a profile
  * overview with completion checklist and section list, and focused editors
- * with native controls and a fixed save dock. Desktop keeps its own layout.
+ * built from the same Material controls as the rest of the app. Desktop keeps
+ * its own layout.
  */
 @Component({
   selector: 'async-profile-setup-mobile',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeleteAccountComponent, MatIconModule, ReactiveFormsModule, RouterModule],
+  imports: [
+    DeleteAccountComponent,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatRadioModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+    RouterModule,
+  ],
   templateUrl: './profile-setup.component.html',
   styleUrls: ['./profile-setup.component.scss'],
-  providers: [ProfileService],
+  providers: [ProfileService, provideNativeDateAdapter()],
 })
 export class MobileProfileSetupComponent implements OnInit {
   private readonly profileService = inject(ProfileService);
@@ -113,7 +137,8 @@ export class MobileProfileSetupComponent implements OnInit {
   protected readonly educationOptions = EDUCATION_OPTIONS;
   protected readonly countries = Countries;
   protected readonly states = States;
-  protected readonly todayIso = new Date().toISOString().slice(0, 10);
+  protected readonly today = new Date();
+  protected readonly chipSeparatorKeys = [ENTER, COMMA];
   protected isNigeria = true;
 
   protected personalForm!: FormGroup;
@@ -194,7 +219,7 @@ export class MobileProfileSetupComponent implements OnInit {
       surname: new FormControl(p.surname ?? '', Validators.required),
       email: new FormControl(p.email ?? '', [Validators.required, Validators.email]),
       phone: new FormControl(p.phone ?? '', [Validators.required, Validators.pattern(/^[0-9+\s()-]{7,20}$/)]),
-      dobDatePicker: new FormControl(this.toIsoDate(p.dobDatePicker)),
+      dobDatePicker: new FormControl<Date | null>(this.toDate(p.dobDatePicker)),
       bio: new FormControl(p.bio ?? ''),
       address: new FormGroup({
         street: new FormControl(p.address?.street ?? '', Validators.required),
@@ -230,13 +255,29 @@ export class MobileProfileSetupComponent implements OnInit {
     });
   }
 
-  private toIsoDate(value: unknown): string {
-    if (!value) return '';
-    if (value instanceof Date && !Number.isNaN(value.getTime())) {
-      return value.toISOString().slice(0, 10);
-    }
-    const match = String(value).match(/^\d{4}-\d{2}-\d{2}/);
-    return match ? match[0] : '';
+  private toDate(value: unknown): Date | null {
+    if (!value) return null;
+    if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
+    const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return null;
+    const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  private dateToIso(value: unknown): string {
+    const date = value instanceof Date ? value : this.toDate(value);
+    if (!date || Number.isNaN(date.getTime())) return '';
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${date.getFullYear()}-${month}-${day}`;
+  }
+
+  protected get hobbyControl(): FormControl<string[]> {
+    return this.professionalForm.get('hobby') as FormControl<string[]>;
+  }
+
+  protected get skillControl(): FormControl<string[]> {
+    return this.professionalForm.get('skill') as FormControl<string[]>;
   }
 
   protected initial(): string {
@@ -445,40 +486,65 @@ export class MobileProfileSetupComponent implements OnInit {
     return ['email', 'whatsapp', 'phone'].includes(this.mentorForm.value.preference);
   }
 
-  protected addTag(kind: 'hobby' | 'skill', input: HTMLInputElement, event?: Event): void {
-    event?.preventDefault();
-    if (!input.value.trim() || !this.professionalForm) return;
-    const target = kind === 'hobby' ? this.hobbyTags : this.skillTags;
-    const control = this.professionalForm.get(kind);
+  protected addHobby(event: MatChipInputEvent): void {
+    this.addProfileTags(event, this.hobbyTags, this.hobbyControl);
+  }
+
+  protected removeHobby(tag: string): void {
+    this.removeProfileTag(tag, this.hobbyTags, this.hobbyControl);
+  }
+
+  protected addSkill(event: MatChipInputEvent): void {
+    this.addProfileTags(event, this.skillTags, this.skillControl);
+  }
+
+  protected removeSkill(tag: string): void {
+    this.removeProfileTag(tag, this.skillTags, this.skillControl);
+  }
+
+  private addProfileTags(
+    event: MatChipInputEvent,
+    target: WritableSignal<string[]>,
+    control: FormControl<string[]>,
+  ): void {
+    const values = normalizeProfileTags(event.value);
+    event.chipInput?.clear();
+    if (values.length === 0) return;
     const next = [...target()];
-    for (const value of normalizeProfileTags(input.value)) {
+    for (const value of values) {
       if (next.length >= MAX_PROFILE_TAGS) break;
       if (next.some((tag) => tag.toLowerCase() === value.toLowerCase())) continue;
       next.push(value);
     }
     target.set(next);
-    control?.setValue(next);
-    control?.markAsTouched();
-    input.value = '';
+    control.setValue(next);
+    control.markAsTouched();
   }
 
-  protected removeTag(kind: 'hobby' | 'skill', tag: string): void {
-    const target = kind === 'hobby' ? this.hobbyTags : this.skillTags;
-    const control = this.professionalForm?.get(kind);
+  private removeProfileTag(tag: string, target: WritableSignal<string[]>, control: FormControl<string[]>): void {
     const next = target().filter((item) => item !== tag);
     target.set(next);
-    control?.setValue(next);
-    control?.markAsTouched();
-  }
-
-  protected tagLimitReached(kind: 'hobby' | 'skill'): boolean {
-    const list = kind === 'hobby' ? this.hobbyTags() : this.skillTags();
-    return list.length >= MAX_PROFILE_TAGS;
+    control.setValue(next);
+    control.markAsTouched();
   }
 
   protected showError(form: FormGroup, path: string): boolean {
     const control = form?.get(path);
     return !!control && control.invalid && (control.touched || control.dirty);
+  }
+
+  protected saveCurrent(): void {
+    switch (this.view()) {
+      case 'personal':
+        this.savePersonal();
+        break;
+      case 'profession':
+        this.saveProfession();
+        break;
+      case 'mentor':
+        this.saveMentor();
+        break;
+    }
   }
 
   protected savePersonal(): void {
@@ -490,10 +556,11 @@ export class MobileProfileSetupComponent implements OnInit {
       return;
     }
     const value = this.personalForm.getRawValue();
+    const dobIso = this.dateToIso(value.dobDatePicker);
     this.saving.set('personal');
     this.profileService.profileUpdate({
       ...value,
-      dobDatePicker: value.dobDatePicker || null,
+      dobDatePicker: dobIso || null,
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -506,7 +573,7 @@ export class MobileProfileSetupComponent implements OnInit {
             phone: String(value.phone ?? ''),
             bio: String(value.bio ?? ''),
             address: value.address,
-            dobDatePicker: value.dobDatePicker || undefined,
+            dobDatePicker: dobIso || undefined,
           });
           this.ui.success('Personal details saved.');
           this.goHome();
@@ -647,7 +714,7 @@ export class MobileProfileSetupComponent implements OnInit {
   private scrollToFirstError(): void {
     if (typeof document === 'undefined') return;
     setTimeout(() => {
-      const error = document.querySelector<HTMLElement>('.field-error');
+      const error = document.querySelector<HTMLElement>('mat-error');
       error?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 0);
   }
