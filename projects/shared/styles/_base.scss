@@ -669,3 +669,10 @@ mat-chip[style] .mdc-evolution-chip__text-label {
   background: var(--ms-surface);
   overflow: hidden;
 }
+/* Notification detail sheet (mobile): same native bottom-sheet shell. */
+.ms-notification-sheet-panel .mat-mdc-bottom-sheet-container {
+  padding: 0;
+  border-radius: 22px 22px 0 0;
+  background: var(--ms-surface);
+  overflow: hidden;
+}
