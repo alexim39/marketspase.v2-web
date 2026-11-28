@@ -1,0 +1,264 @@
+<section class="community-mobile">
+  <header class="hub-hero">
+    <div class="hero-top">
+      <a mat-icon-button class="hero-back" routerLink="/dashboard" aria-label="Back to dashboard">
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      </a>
+      <span class="hero-kicker">Your circle</span>
+      <button
+        mat-icon-button
+        class="refresh-btn"
+        type="button"
+        [class.is-busy]="loading()"
+        [disabled]="loading()"
+        (click)="reload()"
+        aria-label="Refresh community overview">
+        <mat-icon aria-hidden="true">refresh</mat-icon>
+      </button>
+    </div>
+
+    <div class="hero-title">
+      <h1>Community</h1>
+      <p>Team wins, gatherings and conversations — all in one place.</p>
+    </div>
+
+    @if (!loaded()) {
+      <div class="presence-card presence-skeleton" aria-hidden="true">
+        <span class="sk-avatars"><span class="sk-avatar"></span><span class="sk-avatar"></span><span class="sk-avatar"></span></span>
+        <span class="sk-lines"><span></span><span></span></span>
+      </div>
+    } @else {
+      <a
+        class="presence-card"
+        routerLink="/dashboard/messages"
+        [attr.aria-label]="presenceHeadline() + '. Open team messages.'">
+        <span class="presence-stack" aria-hidden="true">
+          @for (person of heroPeople(); track person.id) {
+            <async-avatar [photo]="person.photo" [name]="person.name" size="sm" [presence]="presenceOf(person.id)" />
+          }
+          @if (people().length === 0) {
+            <span class="presence-empty"><mat-icon>groups</mat-icon></span>
+          }
+        </span>
+        <span class="presence-copy">
+          <span class="presence-line">
+            <span class="live-dot" [class.is-live]="onlineCount() > 0" aria-hidden="true"></span>
+            {{ pulseLabel() }}
+          </span>
+          <strong>{{ presenceHeadline() }}</strong>
+          <small>{{ presenceDetail() }}</small>
+        </span>
+        <mat-icon class="presence-chev" aria-hidden="true">chevron_right</mat-icon>
+      </a>
+    }
+  </header>
+
+  @if (!loaded()) {
+    <async-page-skeleton layout="cards" [rows]="3" label="community" [showHeader]="false" />
+  } @else {
+    @if (error(); as err) {
+      <div class="error-card" role="alert">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        <div>
+          <strong>Could not refresh your circle</strong>
+          <p>{{ err }}</p>
+        </div>
+        <button mat-stroked-button type="button" (click)="reload()">Retry</button>
+      </div>
+    }
+
+    <nav class="quick-grid" aria-label="Community shortcuts">
+      <a class="quick-card" routerLink="/dashboard/messages">
+        <span class="quick-icon is-primary"><mat-icon aria-hidden="true">forum</mat-icon></span>
+        <span class="quick-copy">
+          <strong>Messages</strong>
+          <span>{{ unread() > 0 ? unread() + ' unread' : 'Team inbox' }}</span>
+        </span>
+        @if (unread() > 0) {
+          <span class="quick-badge" [attr.aria-label]="unread() + ' unread messages'">{{ unread() }}</span>
+        }
+      </a>
+
+      <a class="quick-card" routerLink="/dashboard/community/events">
+        <span class="quick-icon is-info"><mat-icon aria-hidden="true">event</mat-icon></span>
+        <span class="quick-copy">
+          <strong>Events</strong>
+          <span>{{ upcomingEvents().length > 0 ? upcomingEvents().length + ' upcoming' : 'Plan & RSVP' }}</span>
+        </span>
+      </a>
+
+      <a class="quick-card" routerLink="/dashboard/community/feed">
+        <span class="quick-icon is-success"><mat-icon aria-hidden="true">dynamic_feed</mat-icon></span>
+        <span class="quick-copy">
+          <strong>Team feed</strong>
+          <span>{{ posts().length > 0 ? posts().length + ' recent' : 'Wins & updates' }}</span>
+        </span>
+      </a>
+
+      <a class="quick-card" routerLink="/dashboard/ora">
+        <span class="quick-icon is-highlight"><mat-icon aria-hidden="true">smart_toy</mat-icon></span>
+        <span class="quick-copy">
+          <strong>Ask Ora</strong>
+          <span>AI coach</span>
+        </span>
+      </a>
+    </nav>
+
+    <section class="hub-section" aria-labelledby="community-feed-title">
+      <div class="section-head">
+        <div>
+          <p class="section-eyebrow">Conversation</p>
+          <h2 id="community-feed-title">Team feed</h2>
+        </div>
+        <a class="section-link" routerLink="/dashboard/community/feed">See all <mat-icon aria-hidden="true">chevron_right</mat-icon></a>
+      </div>
+
+      @if (posts().length === 0) {
+        <div class="empty-card">
+          <span class="empty-icon"><mat-icon aria-hidden="true">forum</mat-icon></span>
+          <h3>Quiet here for now</h3>
+          <p>Be the first to share a win, a lesson or a question with your team.</p>
+          <a mat-flat-button color="primary" routerLink="/dashboard/community/feed">Open the feed</a>
+        </div>
+      } @else {
+        <div class="feed-stack">
+          @for (post of posts(); track post.id) {
+            <a
+              class="feed-card"
+              routerLink="/dashboard/community/feed"
+              [attr.aria-label]="'Open team feed: ' + (post.title || post.author?.name || 'team update')">
+              <div class="feed-head">
+                <async-avatar
+                  [photo]="post.author?.profileImage"
+                  [name]="post.author?.name ?? 'Teammate'"
+                  size="sm"
+                  [presence]="presenceOf(post.authorId)" />
+                <span class="feed-author">
+                  <strong>{{ post.author?.name ?? 'Teammate' }}</strong>
+                  <span>{{ timeAgo(post.createdAt) }}</span>
+                </span>
+                <span class="kind-chip" [attr.data-kind]="post.kind">
+                  <mat-icon aria-hidden="true">{{ kindIcon(post.kind) }}</mat-icon>
+                  {{ kindLabel(post.kind) }}
+                </span>
+              </div>
+
+              @if (post.title) {
+                <strong class="feed-title">{{ post.title }}</strong>
+              }
+              <p class="feed-body">{{ preview(post.body, 160) }}</p>
+
+              <div class="feed-foot">
+                <span><mat-icon aria-hidden="true">favorite</mat-icon>{{ post.likeCount }}</span>
+                <span><mat-icon aria-hidden="true">chat_bubble</mat-icon>{{ post.commentCount }}</span>
+                <span class="feed-open">Open <mat-icon aria-hidden="true">arrow_forward</mat-icon></span>
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="hub-section" aria-labelledby="community-events-title">
+      <div class="section-head">
+        <div>
+          <p class="section-eyebrow">Calendar</p>
+          <h2 id="community-events-title">Upcoming events</h2>
+        </div>
+        <a class="section-link" routerLink="/dashboard/community/events">See all <mat-icon aria-hidden="true">chevron_right</mat-icon></a>
+      </div>
+
+      @if (upcomingEvents().length === 0) {
+        <div class="empty-card">
+          <span class="empty-icon"><mat-icon aria-hidden="true">event_available</mat-icon></span>
+          <h3>No gatherings yet</h3>
+          <p>Training, meetups and team moments will appear here.</p>
+          <a mat-stroked-button routerLink="/dashboard/community/events">Browse events</a>
+        </div>
+      } @else {
+        <div class="event-rail">
+          @for (event of upcomingEvents(); track event.id) {
+            <a class="event-card" routerLink="/dashboard/community/events" [attr.aria-label]="'Open event: ' + event.title">
+              <div class="event-top">
+                <span class="date-tile">
+                  <span>{{ event.startsAt | date: 'MMM' }}</span>
+                  <strong>{{ event.startsAt | date: 'd' }}</strong>
+                </span>
+                <span class="event-when">
+                  <span>{{ event.startsAt | date: 'EEE · h:mm a' }}</span>
+                  <small><mat-icon aria-hidden="true">place</mat-icon>{{ event.location || 'Online' }}</small>
+                </span>
+                <span class="scope-pill">{{ scopeLabel(event.scope) }}</span>
+              </div>
+
+              <strong class="event-title">{{ event.title }}</strong>
+
+              <div class="event-foot">
+                @if (event.author) {
+                  <async-avatar
+                    [photo]="event.author.profileImage"
+                    [name]="event.author.name"
+                    size="xs"
+                    [presence]="presenceOf(event.authorId)" />
+                }
+                <span>{{ event.rsvps.going }} going</span>
+                <span class="event-open">RSVP <mat-icon aria-hidden="true">arrow_forward</mat-icon></span>
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="hub-section" aria-labelledby="community-messages-title">
+      <div class="section-head">
+        <div>
+          <p class="section-eyebrow">Inbox</p>
+          <div class="section-title-row">
+            <h2 id="community-messages-title">Messages</h2>
+            @if (unread() > 0) {
+              <span class="new-pill">{{ unread() }} unread</span>
+            }
+          </div>
+        </div>
+        <a class="section-link" routerLink="/dashboard/messages">Open inbox <mat-icon aria-hidden="true">chevron_right</mat-icon></a>
+      </div>
+
+      @if (recentMessages().length === 0) {
+        <div class="empty-card">
+          <span class="empty-icon"><mat-icon aria-hidden="true">chat_bubble</mat-icon></span>
+          <h3>Start the conversation</h3>
+          <p>Message a teammate directly. Presence shows who is around right now.</p>
+          <a mat-flat-button color="primary" routerLink="/dashboard/messages">Open messages</a>
+        </div>
+      } @else {
+        <div class="message-list">
+          @for (message of recentMessages(); track message.id) {
+            <a
+              class="message-row"
+              [class.is-unread]="!message.readAt"
+              routerLink="/dashboard/messages"
+              [queryParams]="message.kind === 'direct' ? { chat: message.senderId, chatName: senderName(message) } : {}">
+              <async-avatar
+                [photo]="photoFor(message.senderId)"
+                [name]="senderName(message)"
+                size="sm"
+                [presence]="presenceOf(message.senderId)" />
+              <span class="message-main">
+                <span class="message-top">
+                  <strong>{{ senderName(message) }}</strong>
+                  <time>{{ timeAgo(message.createdAt) }}</time>
+                </span>
+                <span class="message-snippet">{{ preview(message.body, 84) }}</span>
+              </span>
+              @if (!message.readAt) {
+                <span class="unread-dot" role="img" aria-label="Unread message"></span>
+              }
+              <mat-icon class="row-chev" aria-hidden="true">chevron_right</mat-icon>
+            </a>
+          }
+        </div>
+      }
+    </section>
+  }
+</section>
