@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { A11yModule } from '@angular/cdk/a11y';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { DeviceService } from '@marketspase/shared/core/ui/device.service';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
 import { forkJoin, interval, fromEvent, Observable } from 'rxjs';
 import { MessageService } from '../../../core/messaging/message.service';
@@ -52,11 +54,734 @@ const TYPING_CLEAR_MS = 3500;
   selector: 'async-messages',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    AvatarComponent, DatePipe, MatButtonModule, MatButtonToggleModule, MatChipsModule,
+    A11yModule, AvatarComponent, DatePipe, MatButtonModule, MatButtonToggleModule, MatChipsModule,
     MatDialogModule, MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule,
     PageSkeletonComponent, ReactiveFormsModule, RouterModule,
   ],
   template: `
+    @if (device.isMobileView()) {
+      <section class="messages-mobile">
+        @if (openThreadId(); as peerId) {
+          <section class="mob-thread" aria-label="Conversation">
+            <header class="mob-thread-head">
+              <button type="button" class="mob-icon-btn" (click)="openThreadId.set(null)" aria-label="Back to messages">
+                <mat-icon aria-hidden="true">arrow_back</mat-icon>
+              </button>
+              <async-avatar
+                [name]="openThreadName()?.name ?? 'Teammate'"
+                [photo]="photoOf(peerId)"
+                size="sm"
+                [presence]="avatarPresence(peerId)" />
+              <span class="mob-peer-copy">
+                <strong>{{ openThreadName()?.name ?? 'Teammate' }}</strong>
+                <small>@if (typingFrom()[peerId]) { typing… } @else { {{ peerStatus(peerId) }} }</small>
+              </span>
+            </header>
+
+            <div class="mob-thread-scroll" #threadScroll>
+              @if (threadDays().length > 0) {
+                <span class="mob-thread-fill" aria-hidden="true"></span>
+              }
+              @if (threadLoadingMore()) {
+                <span class="mob-thread-notice"><mat-icon aria-hidden="true">sync</mat-icon> Loading earlier messages…</span>
+              } @else if (threadHasMore() && !threadLoading()) {
+                <button type="button" class="mob-load-older" (click)="loadOlderThread()">Load earlier messages</button>
+              }
+              @if (threadLoading()) {
+                <mat-progress-bar mode="indeterminate" aria-label="Loading conversation" />
+              }
+              @if (threadError(); as err) {
+                <p class="mob-error" role="alert">{{ err }} <button type="button" (click)="openChat(peerId)">Retry</button></p>
+              }
+              @for (day of threadDays(); track day.key) {
+                @if (day.label) {
+                  <div class="mob-day" aria-hidden="true"><span>{{ day.label }}</span></div>
+                }
+                @for (m of day.msgs; track m.clientId ?? m.id) {
+                  <div class="mob-message" [class.is-mine]="m.senderId === myId()">
+                    <div class="mob-bubble" [class.is-mine]="m.senderId === myId()" [class.is-pending]="m.pending" [class.is-failed]="m.failed">
+                      <p>{{ m.body }}</p>
+                      <span class="mob-bubble-meta">
+                        <span>{{ m.createdAt | date: 'shortTime' }}</span>
+                        @if (m.senderId === myId()) {
+                          @if (m.pending) {
+                            <mat-icon aria-label="Sending">schedule</mat-icon>
+                          } @else if (m.failed) {
+                            <button type="button" class="mob-retry" (click)="retryTemp(m.clientId!)" aria-label="Retry send">
+                              <mat-icon>error_outline</mat-icon>
+                            </button>
+                          } @else {
+                            <mat-icon [class.mob-read]="!!m.readAt" [attr.aria-label]="m.readAt ? 'Read' : 'Delivered'">done_all</mat-icon>
+                          }
+                        }
+                      </span>
+                    </div>
+                  </div>
+                }
+              }
+              @if (!threadLoading() && threadDays().length === 0 && !threadError()) {
+                <div class="mob-chat-empty">
+                  <mat-icon aria-hidden="true">waving_hand</mat-icon>
+                  <strong>Start the conversation</strong>
+                  <p>Say hello to {{ openThreadName()?.name ?? 'your teammate' }}.</p>
+                </div>
+              }
+              @if (threadSendError(); as err) {
+                <p class="mob-send-error" role="alert">{{ err }}</p>
+              }
+              @if (typingFrom()[peerId]) {
+                <div class="mob-typing-bubble" aria-live="polite" aria-label="Typing">
+                  <span></span><span></span><span></span>
+                </div>
+              }
+            </div>
+
+            <div class="mob-composer">
+              <textarea
+                rows="1"
+                [value]="replyDraft()"
+                (input)="onDraftInput($any($event.target).value)"
+                (keydown.enter)="onComposerKey($any($event))"
+                (blur)="typingStop()"
+                maxlength="2000"
+                enterkeyhint="send"
+                [attr.aria-label]="'Message ' + (openThreadName()?.name ?? 'teammate')"
+                placeholder="Message…"></textarea>
+              <button type="button" class="mob-send" (click)="sendThreadReply()" [disabled]="!replyDraft().trim() || threadSending()" aria-label="Send message">
+                <mat-icon aria-hidden="true">{{ threadSending() ? 'more_horiz' : 'send' }}</mat-icon>
+              </button>
+            </div>
+          </section>
+        } @else if (openGroupId()) {
+          <section class="mob-thread" aria-label="Group conversation">
+            <header class="mob-thread-head">
+              <button type="button" class="mob-icon-btn" (click)="closeGroupChat()" aria-label="Back to groups">
+                <mat-icon aria-hidden="true">arrow_back</mat-icon>
+              </button>
+              @if (openGroup(); as grp) {
+                <async-avatar [name]="grp.name" [photo]="grp.photo ?? null" size="sm" />
+                <span class="mob-peer-copy">
+                  <strong>{{ grp.name }}</strong>
+                  <small>{{ grp.members.length }} member{{ grp.members.length === 1 ? '' : 's' }}{{ grp.muted ? ' · Muted' : '' }}</small>
+                </span>
+                <button type="button" class="mob-icon-btn" (click)="toggleMuteGroup()" [attr.aria-label]="grp.muted ? 'Unmute group' : 'Mute group'">
+                  <mat-icon aria-hidden="true">{{ grp.muted ? 'notifications_off' : 'notifications' }}</mat-icon>
+                </button>
+                <button type="button" class="mob-icon-btn" (click)="toggleGroupPanel(true)" aria-label="Group info">
+                  <mat-icon aria-hidden="true">info</mat-icon>
+                </button>
+              } @else {
+                <span class="mob-peer-copy"><strong>Group</strong><small>Loading…</small></span>
+              }
+            </header>
+
+            @if (groupError(); as err) {
+              <p class="mob-error" role="alert">{{ err }} <button type="button" (click)="openGroupChat(openGroupId()!)">Retry</button></p>
+            }
+
+            @if (openGroup(); as grp) {
+              @if (grp.pinnedMessage; as pinned) {
+                <div class="mob-pinned" role="note">
+                  <mat-icon aria-hidden="true">push_pin</mat-icon>
+                  <span>{{ senderNameOf(pinned.senderId, pinned.senderLabel) }}: {{ snippet(pinned.body) }}</span>
+                  @if (isGroupAdmin()) {
+                    <button type="button" class="mob-icon-btn" (click)="unpinMessage()" aria-label="Unpin message"><mat-icon>close</mat-icon></button>
+                  }
+                </div>
+              }
+
+              <div class="mob-thread-scroll" #groupScroll>
+                @if (groupDays().length > 0) {
+                  <span class="mob-thread-fill" aria-hidden="true"></span>
+                }
+                @if (groupLoadingMore()) {
+                  <span class="mob-thread-notice"><mat-icon aria-hidden="true">sync</mat-icon> Loading earlier messages…</span>
+                } @else if (groupHasMore() && !groupLoading()) {
+                  <button type="button" class="mob-load-older" (click)="loadOlderGroupMessages()">Load earlier messages</button>
+                }
+                @if (groupLoading()) {
+                  <mat-progress-bar mode="indeterminate" aria-label="Loading group conversation" />
+                }
+                @for (day of groupDays(); track day.key) {
+                  @if (day.label) {
+                    <div class="mob-day" aria-hidden="true"><span>{{ day.label }}</span></div>
+                  }
+                  @for (m of day.msgs; track m.clientId ?? m.id) {
+                    <div class="mob-message" [class.is-mine]="m.senderId === myId()">
+                      <div class="mob-bubble" [class.is-mine]="m.senderId === myId()" [class.is-pending]="m.pending" [class.is-failed]="m.failed">
+                        @if (m.senderId !== myId()) {
+                          <span class="mob-bubble-sender">
+                            {{ senderNameOf(m.senderId, m.senderLabel) }}
+                            @if (memberRoleOf(m.senderId) === 'admin') { <span class="mob-admin">admin</span> }
+                          </span>
+                        }
+                        @if (m.attachments?.length) {
+                          <span class="mob-attach-grid">
+                            @for (a of m.attachments!; track a.url) {
+                              @if (a.mime.startsWith('image/')) {
+                                <a [href]="a.url" target="_blank" rel="noopener"><img [src]="a.url" alt="Shared photo" loading="lazy" /></a>
+                              } @else {
+                                <video [src]="a.url" controls preload="metadata"></video>
+                              }
+                            }
+                          </span>
+                        }
+                        @if (m.body?.trim()) { <p>{{ m.body }}</p> }
+                        @if (m.editedAt) { <span class="mob-edited">(edited)</span> }
+                        <span class="mob-bubble-meta">
+                          <span>{{ m.createdAt | date: 'shortTime' }}</span>
+                          @if (m.senderId === myId()) {
+                            @if (m.pending) {
+                              <mat-icon aria-label="Sending">schedule</mat-icon>
+                            } @else if (m.failed) {
+                              <button type="button" class="mob-retry" (click)="retryGroupTemp(m.clientId!)" aria-label="Retry send"><mat-icon>error_outline</mat-icon></button>
+                            } @else {
+                              <mat-icon [class.mob-read]="isSeenByAll(m)" [attr.aria-label]="seenTitle(m)">done_all</mat-icon>
+                            }
+                          }
+                        </span>
+                      </div>
+                    </div>
+                  }
+                }
+                @if (!groupLoading() && groupDays().length === 0) {
+                  <div class="mob-chat-empty">
+                    <mat-icon aria-hidden="true">groups</mat-icon>
+                    <strong>Start the group conversation</strong>
+                    <p>Say hello to {{ grp.members.length }} member{{ grp.members.length === 1 ? '' : 's' }}.</p>
+                  </div>
+                }
+                @if (groupSendError(); as err) {
+                  <p class="mob-send-error" role="alert">{{ err }}</p>
+                }
+                @if (groupTypingText(); as typingText) {
+                  <div class="mob-typing-bar" aria-live="polite">
+                    <span class="mob-typing-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+                    {{ typingText }}
+                  </div>
+                }
+              </div>
+
+              <div class="mob-composer mob-composer--group">
+                @if (groupFiles().length > 0 || groupUploading()) {
+                  <div class="mob-attach-preview" aria-label="Attachments to send">
+                    @for (f of groupFiles(); track f.url; let i = $index) {
+                      <span class="mob-attach-thumb">
+                        @if (f.mime.startsWith('image/')) {
+                          <img [src]="f.url" [alt]="f.name" />
+                        } @else {
+                          <mat-icon aria-hidden="true">movie</mat-icon>
+                        }
+                        <button type="button" class="mob-attach-remove" (click)="removeGroupFile(i)" aria-label="Remove attachment"><mat-icon>close</mat-icon></button>
+                      </span>
+                    }
+                    @if (groupUploading()) {
+                      <mat-progress-bar mode="indeterminate" class="mob-attach-progress" aria-label="Uploading attachment" />
+                    }
+                  </div>
+                }
+                <input #mobileGroupFile hidden type="file" multiple accept="image/*,video/*"
+                  (change)="onGroupFilesSelected($any($event.target).files); $any($event.target).value = ''"
+                  aria-label="Attach photos or videos" />
+                <button type="button" class="mob-attach-btn" (click)="mobileGroupFile.click()" [disabled]="groupFiles().length >= 4 || groupUploading()" aria-label="Attach photos or videos">
+                  <mat-icon aria-hidden="true">attach_file</mat-icon>
+                </button>
+                <textarea
+                  rows="1"
+                  [value]="groupDraft()"
+                  (input)="onGroupDraftInput($any($event.target).value)"
+                  (keydown.enter)="onGroupComposerKey($any($event))"
+                  (blur)="groupTypingStop()"
+                  maxlength="2000"
+                  enterkeyhint="send"
+                  [attr.aria-label]="'Message ' + grp.name"
+                  placeholder="Message group…"></textarea>
+                <button type="button" class="mob-send" (click)="sendGroupReply()" [disabled]="(!groupDraft().trim() && groupFiles().length === 0) || groupSending() || groupUploading()" aria-label="Send message">
+                  <mat-icon aria-hidden="true">{{ groupSending() ? 'more_horiz' : 'send' }}</mat-icon>
+                </button>
+              </div>
+            } @else {
+              @if (groupLoading()) {
+                <div class="mob-thread-loading"><mat-progress-bar mode="indeterminate" aria-label="Loading group" /></div>
+              }
+            }
+          </section>
+        } @else {
+          <header class="mob-msg-head">
+            <div class="mob-head-row">
+              <div>
+                <p class="eyebrow">Communication</p>
+                <h1>Messages</h1>
+              </div>
+              <div class="mob-head-actions">
+                <button type="button" class="mob-icon-btn" (click)="startingChat.set(true)" aria-label="Start a new chat"><mat-icon aria-hidden="true">edit_square</mat-icon></button>
+                <a class="mob-icon-btn" routerLink="/dashboard/messages/sms" aria-label="SMS center"><mat-icon aria-hidden="true">sms</mat-icon></a>
+                <button type="button" class="mob-icon-btn" [class.is-busy]="loading()" [disabled]="loading()" (click)="reload()" aria-label="Refresh messages"><mat-icon aria-hidden="true">refresh</mat-icon></button>
+              </div>
+            </div>
+            <p class="mob-subline">
+              <span class="mob-conn" [class.is-live]="chat.connected()"><span class="mob-conn-dot" aria-hidden="true"></span>{{ chat.connected() ? 'Live chat' : 'Sync mode — messages still deliver' }}</span>
+              @if (totalUnread() > 0) { <span class="mob-unread-pill">{{ totalUnread() }} unread</span> }
+            </p>
+          </header>
+
+          <div class="mob-controls">
+            <nav class="mob-tabs" aria-label="Message sections">
+              <button type="button" [class.is-active]="view() === 'chats'" [attr.aria-pressed]="view() === 'chats'" (click)="openMobileTab('chats')">
+                Chats @if (directUnread() > 0) { <span>{{ directUnread() }}</span> }
+              </button>
+              <button type="button" [class.is-active]="view() === 'groups'" [attr.aria-pressed]="view() === 'groups'" (click)="openMobileTab('groups')">
+                Groups @if (groupUnreadTotal() > 0) { <span>{{ groupUnreadTotal() }}</span> }
+              </button>
+              <button type="button" [class.is-active]="view() === 'channels'" [attr.aria-pressed]="view() === 'channels'" (click)="openMobileTab('channels')">
+                Channels @if (channelUnread() > 0) { <span>{{ channelUnread() }}</span> }
+              </button>
+            </nav>
+
+            <div class="mob-search-row">
+              <label class="mob-search">
+                <mat-icon aria-hidden="true">search</mat-icon>
+                <input
+                  type="search"
+                  [value]="view() === 'groups' ? groupFilter() : searchQuery()"
+                  (input)="onMobileSearch($any($event.target).value)"
+                  [placeholder]="view() === 'groups' ? 'Search groups…' : view() === 'channels' ? 'Search announcements…' : 'Search chats…'"
+                  aria-label="Search messages" />
+                @if (view() === 'groups' ? groupFilter() : searchQuery()) {
+                  <button type="button" class="mob-search-clear" (click)="clearMobileSearch()" aria-label="Clear search"><mat-icon>close</mat-icon></button>
+                }
+              </label>
+              @if (view() === 'groups') {
+                <button type="button" class="mob-square-btn" (click)="creatingGroup.set(true)" aria-label="Create a group"><mat-icon>group_add</mat-icon></button>
+              } @else if (view() === 'channels') {
+                <button type="button" class="mob-square-btn" (click)="openMobileAnnouncement()" aria-label="New announcement"><mat-icon>campaign</mat-icon></button>
+              }
+            </div>
+          </div>
+
+          @if (loading()) {
+            <async-page-skeleton layout="inbox" [rows]="6" label="messages" [showHeader]="false" />
+          } @else {
+            @if (error(); as err) {
+              <div class="mob-error-card" role="alert">
+                <mat-icon aria-hidden="true">error_outline</mat-icon>
+                <span>{{ err }}</span>
+                <button type="button" (click)="reload()">Retry</button>
+              </div>
+            }
+
+            @if (view() === 'chats') {
+              @if (conversations().length === 0) {
+                <div class="mob-empty">
+                  <span class="mob-empty-icon"><mat-icon aria-hidden="true">forum</mat-icon></span>
+                  <strong>{{ searchQuery() ? 'No matching chats' : 'No conversations yet' }}</strong>
+                  <p>{{ searchQuery() ? 'Try a different name or clear the search.' : 'Start a chat with a teammate or your upline.' }}</p>
+                  <button type="button" class="mob-primary-btn" (click)="startingChat.set(true)">Start a chat</button>
+                </div>
+              } @else {
+                <div class="mob-list" role="list">
+                  @for (c of conversations(); track c.id) {
+                    <button type="button" class="mob-chat-row" [class.is-unread]="c.unread > 0" (click)="openMobileChat(c.id, c.name)">
+                      <async-avatar [name]="c.name" [photo]="c.photo" size="md" [presence]="avatarPresence(c.id)" />
+                      <span class="mob-row-copy">
+                        <span class="mob-row-top">
+                          <strong>{{ c.name }}</strong>
+                          <time>{{ listStamp(lastAt(c.messages)) }}</time>
+                        </span>
+                        <span class="mob-row-sub">
+                          @if (typingFrom()[c.id]) {
+                            <em class="mob-typing-text">typing…</em>
+                          } @else {
+                            <span class="mob-snippet">{{ mobilePreview(c.messages) }}</span>
+                          }
+                          @if (c.unread > 0) {
+                            <span class="mob-row-badge" [attr.aria-label]="c.unread + ' unread'">{{ c.unread }}</span>
+                          }
+                        </span>
+                      </span>
+                    </button>
+                  }
+                </div>
+              }
+            } @else if (view() === 'groups') {
+              @if (groupError(); as err) {
+                <p class="mob-error" role="alert">{{ err }} <button type="button" (click)="loadGroups()">Retry</button></p>
+              }
+              @if (groupsLoading()) {
+                <mat-progress-bar mode="indeterminate" aria-label="Loading groups" />
+              }
+              @if (filteredGroups().length === 0 && !groupsLoading()) {
+                <div class="mob-empty">
+                  <span class="mob-empty-icon"><mat-icon aria-hidden="true">groups</mat-icon></span>
+                  <strong>{{ groups().length === 0 ? 'No groups yet' : 'No matching groups' }}</strong>
+                  <p>{{ groups().length === 0 ? 'Create a group or discover one to join.' : 'Try a different group name.' }}</p>
+                  @if (groups().length === 0) {
+                    <button type="button" class="mob-primary-btn" (click)="creatingGroup.set(true)">Create a group</button>
+                  }
+                </div>
+              } @else {
+                <div class="mob-list" role="list">
+                  @for (g of filteredGroups(); track g.id) {
+                    <button type="button" class="mob-chat-row" [class.is-unread]="(g.unread ?? 0) > 0" (click)="openMobileGroup(g.id)">
+                      <async-avatar [name]="g.name" [photo]="g.photo ?? null" size="md" />
+                      <span class="mob-row-copy">
+                        <span class="mob-row-top">
+                          <strong>{{ g.name }}</strong>
+                          <time>{{ listStamp(groupLastAt(g)) }}</time>
+                        </span>
+                        <span class="mob-row-sub">
+                          <span class="mob-snippet">
+                            @if (g.rankGroup) { <span class="mob-official">Official</span> }
+                            {{ groupSnippet(g) }}
+                          </span>
+                          @if (g.muted) { <mat-icon class="mob-muted" aria-label="Muted">notifications_off</mat-icon> }
+                          @if ((g.unread ?? 0) > 0) {
+                            <span class="mob-row-badge" [attr.aria-label]="g.unread + ' unread'">{{ g.unread }}</span>
+                          }
+                        </span>
+                      </span>
+                    </button>
+                  }
+                </div>
+              }
+
+              <section class="mob-discovery" aria-labelledby="mob-discover-title">
+                <div class="mob-section-head">
+                  <div>
+                    <p class="eyebrow">Discover</p>
+                    <h2 id="mob-discover-title">Find a group</h2>
+                  </div>
+                </div>
+                <label class="mob-search">
+                  <mat-icon aria-hidden="true">travel_explore</mat-icon>
+                  <input type="search" [value]="groupSearch()" (input)="onGroupSearch($any($event.target).value)" placeholder="Search public groups…" aria-label="Discover groups" />
+                </label>
+                @if (groupSearching()) {
+                  <p class="mob-hint" role="status">Searching groups…</p>
+                }
+                @if (groupHits().length > 0) {
+                  <div class="mob-list mob-list--nested">
+                    @for (h of groupHits(); track h.id) {
+                      <div class="mob-discover-row">
+                        <async-avatar [name]="h.name" [photo]="h.photo ?? null" size="sm" />
+                        <span class="mob-row-copy">
+                          <strong>{{ h.name }}</strong>
+                          <span class="mob-hint">{{ h.memberCount ?? 0 }} members · {{ h.joinPolicy === 'open' ? 'Open' : 'Approval' }}</span>
+                        </span>
+                        <button type="button" class="mob-text-btn" (click)="joinGroup(h.id)" [disabled]="groupActionBusy() === h.id">
+                          {{ groupActionBusy() === h.id ? '…' : 'Join' }}
+                        </button>
+                      </div>
+                    }
+                  </div>
+                } @else if (groupSearch().trim().length >= 2 && !groupSearching()) {
+                  <p class="mob-hint">No groups found for that search.</p>
+                }
+                @if (groupNotice(); as note) {
+                  <p class="mob-notice" role="status">{{ note }}</p>
+                }
+              </section>
+            } @else {
+              @if (broadcasts().length === 0 && sentBroadcasts().length === 0) {
+                <div class="mob-empty">
+                  <span class="mob-empty-icon"><mat-icon aria-hidden="true">campaign</mat-icon></span>
+                  <strong>No announcements yet</strong>
+                  <p>Team messages, recognitions and broadcasts will appear here.</p>
+                  <button type="button" class="mob-primary-btn" (click)="openMobileAnnouncement()">New announcement</button>
+                </div>
+              } @else {
+                @if (broadcasts().length > 0) {
+                  <section class="mob-channel-section" aria-labelledby="mob-inbox-title">
+                    <div class="mob-section-head">
+                      <div><p class="eyebrow">Inbox</p><h2 id="mob-inbox-title">Announcements &amp; team</h2></div>
+                      <span class="mob-count">{{ broadcasts().length }}</span>
+                    </div>
+                    <div class="mob-channel-list">
+                      @for (msg of broadcasts(); track msg.id) {
+                        <article class="mob-channel-card" [class.is-unread]="!msg.readAt" [attr.data-kind]="msg.kind">
+                          <div class="mob-channel-head">
+                            <async-avatar [name]="msg.sender?.name ?? 'Teammate'" [photo]="photoOf(msg.senderId)" size="sm" [presence]="avatarPresence(msg.senderId)" />
+                            <span class="mob-row-copy">
+                              <strong>{{ msg.sender?.name ?? 'Teammate' }}</strong>
+                              <span class="mob-hint">{{ kindLabel(msg) }} · {{ msg.createdAt | date: 'short' }}</span>
+                            </span>
+                            @if (!msg.readAt) { <span class="mob-unread-dot" role="img" aria-label="Unread"></span> }
+                          </div>
+                          @if (msg.title) { <strong class="mob-channel-title">{{ msg.title }}</strong> }
+                          <p>{{ msg.body }}</p>
+                          <div class="mob-channel-actions">
+                            @if (!msg.readAt) {
+                              <button type="button" class="mob-text-btn" (click)="open(msg)">Mark read</button>
+                            }
+                            @if (canReply(msg)) {
+                              <button type="button" class="mob-text-btn" (click)="reply(msg)">Reply</button>
+                            }
+                          </div>
+                        </article>
+                      }
+                    </div>
+                  </section>
+                }
+
+                @if (sentBroadcasts().length > 0) {
+                  <section class="mob-channel-section" aria-labelledby="mob-sent-title">
+                    <div class="mob-section-head">
+                      <div><p class="eyebrow">Outbox</p><h2 id="mob-sent-title">Sent</h2></div>
+                      <span class="mob-count">{{ sentBroadcasts().length }}</span>
+                    </div>
+                    <div class="mob-channel-list">
+                      @for (msg of sentBroadcasts(); track msg.id) {
+                        <article class="mob-channel-card is-sent" [attr.data-kind]="msg.kind">
+                          <div class="mob-channel-head">
+                            <span class="mob-sent-icon"><mat-icon aria-hidden="true">send</mat-icon></span>
+                            <span class="mob-row-copy">
+                              <strong>To {{ msg.recipient?.name ?? 'teammate' }}</strong>
+                              <span class="mob-hint">{{ kindLabel(msg) }} · {{ msg.createdAt | date: 'short' }}</span>
+                            </span>
+                          </div>
+                          @if (msg.title) { <strong class="mob-channel-title">{{ msg.title }}</strong> }
+                          <p>{{ msg.body }}</p>
+                        </article>
+                      }
+                    </div>
+                  </section>
+                }
+              }
+
+              @if (sentNotice(); as notice) {
+                <p class="mob-notice" role="status">{{ notice }}</p>
+              }
+            }
+          }
+        }
+
+        @if (startingChat()) {
+          <div class="mob-backdrop" (click)="startingChat.set(false)" aria-hidden="true"></div>
+          <section class="mob-sheet" role="dialog" aria-modal="true" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" aria-labelledby="mob-new-chat-title" (keydown.escape)="startingChat.set(false)">
+            <span class="mob-sheet-handle" aria-hidden="true"></span>
+            <header class="mob-sheet-head">
+              <div><p class="eyebrow">New conversation</p><h2 id="mob-new-chat-title">Start a chat</h2></div>
+              <button type="button" class="mob-icon-btn" (click)="startingChat.set(false)" aria-label="Close new chat"><mat-icon>close</mat-icon></button>
+            </header>
+            <label class="mob-search mob-search--sheet">
+              <mat-icon aria-hidden="true">search</mat-icon>
+              <input type="search" [value]="peopleQuery()" (input)="onPeopleSearch($any($event.target).value)" placeholder="Search by name or username" aria-label="Search people" />
+            </label>
+            @if (peopleLoading()) {
+              <p class="mob-hint" role="status">Finding people…</p>
+            }
+            @if (people().length > 0) {
+              <div class="mob-sheet-list">
+                @for (p of people(); track p.id) {
+                  <button type="button" class="mob-person-row" (click)="startChat(p.id); startingChat.set(false)">
+                    <async-avatar [name]="p.name" [photo]="p.photo ?? null" size="sm" [presence]="avatarPresence(p.id)" />
+                    <span class="mob-row-copy"><strong>{{ p.name }}</strong><span class="mob-hint">@{{ p.username }}</span></span>
+                    <mat-icon class="mob-person-arrow" aria-hidden="true">chat</mat-icon>
+                  </button>
+                }
+              </div>
+            }
+            <h3 class="mob-sheet-subtitle">Your contacts</h3>
+            <div class="mob-sheet-list">
+              @for (c of contacts(); track c.id) {
+                <button type="button" class="mob-person-row" (click)="startChat(c.id); startingChat.set(false)">
+                  <async-avatar [name]="c.name" [photo]="c.photo" size="sm" [presence]="avatarPresence(c.id)" />
+                  <span class="mob-row-copy"><strong>{{ c.name }}</strong><span class="mob-hint">@{{ c.username }} · {{ c.relation }}</span></span>
+                  <mat-icon class="mob-person-arrow" aria-hidden="true">chat</mat-icon>
+                </button>
+              } @empty {
+                <p class="mob-hint">No contacts yet. Search for a teammate above.</p>
+              }
+            </div>
+          </section>
+        }
+
+        @if (creatingGroup()) {
+          <div class="mob-backdrop" (click)="creatingGroup.set(false)" aria-hidden="true"></div>
+          <section class="mob-sheet" role="dialog" aria-modal="true" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" aria-labelledby="mob-create-group-title" (keydown.escape)="creatingGroup.set(false)">
+            <span class="mob-sheet-handle" aria-hidden="true"></span>
+            <header class="mob-sheet-head">
+              <div><p class="eyebrow">Groups</p><h2 id="mob-create-group-title">Create a group</h2></div>
+              <button type="button" class="mob-icon-btn" (click)="creatingGroup.set(false)" aria-label="Close create group"><mat-icon>close</mat-icon></button>
+            </header>
+            <div class="mob-sheet-form">
+              <label class="mob-field">
+                <span>Group name</span>
+                <input [value]="groupName()" (input)="groupName.set($any($event.target).value)" maxlength="80" placeholder="e.g. Lagos hustlers" />
+              </label>
+              <label class="mob-field">
+                <span>What is it about? <em>optional</em></span>
+                <input [value]="groupDescription()" (input)="groupDescription.set($any($event.target).value)" maxlength="500" placeholder="A short description" />
+              </label>
+              <div class="mob-choice-row" role="group" aria-label="Who can join">
+                <button type="button" [class.is-active]="groupPolicy() === 'approval'" (click)="groupPolicy.set('approval')">
+                  <strong>Approval</strong><small>Admins review requests</small>
+                </button>
+                <button type="button" [class.is-active]="groupPolicy() === 'open'" (click)="groupPolicy.set('open')">
+                  <strong>Open</strong><small>Anyone can join</small>
+                </button>
+              </div>
+              @if (groupFormError(); as err) {
+                <p class="mob-form-error" role="alert">{{ err }}</p>
+              }
+              <button type="button" class="mob-primary-btn mob-primary-btn--full" (click)="createGroup()" [disabled]="groupCreating() || groupName().trim().length < 2">
+                {{ groupCreating() ? 'Creating…' : 'Create group' }}
+              </button>
+            </div>
+          </section>
+        }
+
+        @if (showCompose()) {
+          <div class="mob-backdrop" (click)="toggleCompose()" aria-hidden="true"></div>
+          <section class="mob-sheet" role="dialog" aria-modal="true" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" aria-labelledby="mob-compose-title" (keydown.escape)="toggleCompose()">
+            <span class="mob-sheet-handle" aria-hidden="true"></span>
+            <header class="mob-sheet-head">
+              <div><p class="eyebrow">New message</p><h2 id="mob-compose-title">{{ composeKind() === 'direct' ? 'Send a message' : 'Create an announcement' }}</h2></div>
+              <button type="button" class="mob-icon-btn" (click)="toggleCompose()" aria-label="Close composer"><mat-icon>close</mat-icon></button>
+            </header>
+            <form class="mob-sheet-form" [formGroup]="form" (ngSubmit)="send()">
+              <div class="mob-kind-row" role="group" aria-label="Message type">
+                <button type="button" [class.is-active]="composeKind() === 'direct'" (click)="setKind('direct')">Direct</button>
+                <button type="button" [class.is-active]="composeKind() === 'announcement'" (click)="setKind('announcement')">Announcement</button>
+                @if (teamId()) {
+                  <button type="button" [class.is-active]="composeKind() === 'team'" (click)="setKind('team')">Team</button>
+                }
+              </div>
+              @if (composeKind() === 'team' && teamName()) {
+                <p class="mob-hint">To every member of {{ teamName() }}.</p>
+              }
+              @if (composeKind() === 'direct') {
+                <label class="mob-field">
+                  <span>To</span>
+                  <select formControlName="to">
+                    <option value="">Choose a teammate</option>
+                    @for (c of contacts(); track c.id) {
+                      <option [value]="c.id">{{ c.name }} ({{ c.username }}) · {{ c.relation }}{{ presenceSuffix(c.id) }}</option>
+                    }
+                  </select>
+                </label>
+              } @else {
+                <label class="mob-field">
+                  <span>Title</span>
+                  <input formControlName="title" maxlength="120" placeholder="e.g. Team call tonight" />
+                </label>
+                @if (composeKind() !== 'team') {
+                  <label class="mob-field">
+                    <span>Audience</span>
+                    <select formControlName="scope">
+                      <option value="direct">Direct team</option>
+                      <option value="all">Entire downline (broadcast)</option>
+                    </select>
+                  </label>
+                }
+              }
+              @if (replyingTo(); as reply) {
+                <div class="mob-reply-context">
+                  <span class="mob-hint">Replying to {{ reply.sender?.name ?? 'teammate' }}</span>
+                  <blockquote>{{ snippet(reply.body) }}</blockquote>
+                </div>
+              }
+              <label class="mob-field">
+                <span>Message</span>
+                <textarea formControlName="body" rows="4" maxlength="2000" placeholder="Write your message…"></textarea>
+              </label>
+              @if (sendError(); as err) {
+                <p class="mob-form-error" role="alert">{{ err }}</p>
+              }
+              @if (sentNotice(); as notice) {
+                <p class="mob-notice" role="status">{{ notice }}</p>
+              }
+              <div class="mob-sheet-actions">
+                <button type="button" class="mob-text-btn" (click)="toggleCompose()">Cancel</button>
+                <button type="submit" class="mob-primary-btn" [disabled]="form.invalid || sending()">
+                  {{ sending() ? 'Sending…' : (composeKind() === 'direct' ? 'Send' : 'Announce') }}
+                </button>
+              </div>
+            </form>
+          </section>
+        }
+
+        @if (showGroupPanel() && openGroup(); as grp) {
+          <div class="mob-backdrop" (click)="closeMobileGroupInfo()" aria-hidden="true"></div>
+          <section class="mob-sheet" role="dialog" aria-modal="true" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" aria-labelledby="mob-group-info-title" (keydown.escape)="closeMobileGroupInfo()">
+            <span class="mob-sheet-handle" aria-hidden="true"></span>
+            <header class="mob-sheet-head">
+              <div><p class="eyebrow">Group info</p><h2 id="mob-group-info-title">{{ grp.name }}</h2></div>
+              <button type="button" class="mob-icon-btn" (click)="closeMobileGroupInfo()" aria-label="Close group info"><mat-icon>close</mat-icon></button>
+            </header>
+            <div class="mob-group-identity">
+              <async-avatar [name]="grp.name" [photo]="grp.photo ?? null" size="md" />
+              <span>
+                <strong>{{ grp.name }}</strong>
+                <span class="mob-hint">{{ grp.members.length }} member{{ grp.members.length === 1 ? '' : 's' }}{{ grp.rankGroup ? ' · Official level group' : '' }}</span>
+                @if (grp.description) { <p>{{ grp.description }}</p> }
+              </span>
+            </div>
+            <h3 class="mob-sheet-subtitle">Members</h3>
+            <div class="mob-sheet-list">
+              @for (m of grp.members; track m.id) {
+                @if (m.id === myId()) {
+                  <div class="mob-person-row is-me">
+                    <async-avatar [name]="m.name" [photo]="m.photo ?? null" size="sm" />
+                    <span class="mob-row-copy"><strong>{{ m.name }} (you)</strong><span class="mob-hint">{{ m.role === 'admin' ? 'Admin' : 'Member' }}</span></span>
+                  </div>
+                } @else {
+                  <button type="button" class="mob-person-row" (click)="openMobileChat(m.id, m.name)">
+                    <async-avatar [name]="m.name" [photo]="m.photo ?? null" size="sm" />
+                    <span class="mob-row-copy"><strong>{{ m.name }}</strong><span class="mob-hint">{{ m.role === 'admin' ? 'Admin' : 'Member' }}</span></span>
+                    <mat-icon class="mob-person-arrow" aria-hidden="true">chat</mat-icon>
+                  </button>
+                }
+              }
+            </div>
+            <div class="mob-group-actions">
+              <button type="button" class="mob-secondary-btn" (click)="toggleMuteGroup()" [disabled]="!!groupActionBusy()">
+                {{ grp.muted ? 'Unmute notifications' : 'Mute notifications' }}
+              </button>
+              <button type="button" class="mob-secondary-btn is-warn" (click)="mobileGroupConfirm.set('leave')">Leave group</button>
+              @if (isGroupCreator() || isGroupAdmin()) {
+                <button type="button" class="mob-secondary-btn is-danger" (click)="mobileGroupConfirm.set('delete')">Delete group</button>
+              }
+            </div>
+            @if (mobileGroupConfirm(); as confirm) {
+              <div class="mob-confirm" role="alert">
+                <strong>{{ confirm === 'leave' ? 'Leave this group?' : 'Delete this group?' }}</strong>
+                <p>{{ confirm === 'leave' ? 'You will stop receiving its messages.' : 'This removes the group for every member.' }}</p>
+                <div>
+                  <button type="button" class="mob-danger-btn" (click)="confirm === 'leave' ? leaveGroup() : deleteGroup()" [disabled]="!!groupActionBusy()">
+                    {{ confirm === 'leave' ? 'Leave' : 'Delete' }}
+                  </button>
+                  <button type="button" class="mob-text-btn" (click)="mobileGroupConfirm.set(null)">Cancel</button>
+                </div>
+              </div>
+            }
+          </section>
+        }
+
+        @if (groupInvite(); as inv) {
+          <div class="mob-backdrop" (click)="dismissInvite()" aria-hidden="true"></div>
+          <section class="mob-sheet" role="dialog" aria-modal="true" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" aria-labelledby="mob-invite-title" (keydown.escape)="dismissInvite()">
+            <span class="mob-sheet-handle" aria-hidden="true"></span>
+            <header class="mob-sheet-head">
+              <div><p class="eyebrow">Invitation</p><h2 id="mob-invite-title">{{ inv.name }}</h2></div>
+              <button type="button" class="mob-icon-btn" (click)="dismissInvite()" aria-label="Dismiss invitation"><mat-icon>close</mat-icon></button>
+            </header>
+            <div class="mob-group-identity">
+              <async-avatar [name]="inv.name" [photo]="inv.photo ?? null" size="md" />
+              <span>
+                <strong>{{ inv.name }}</strong>
+                <span class="mob-hint">{{ inv.memberCount ?? 0 }} members · {{ inv.joinPolicy === 'open' ? 'Open group' : 'Approval required' }}</span>
+                @if (inv.description) { <p>{{ inv.description }}</p> }
+              </span>
+            </div>
+            <div class="mob-sheet-actions">
+              <button type="button" class="mob-text-btn" (click)="dismissInvite()">Not now</button>
+              <button type="button" class="mob-primary-btn" (click)="joinInvite()">Join group</button>
+            </div>
+          </section>
+        }
+      </section>
+    } @else {
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
         <a routerLink="/dashboard">Dashboard</a> &gt;
@@ -971,6 +1696,7 @@ const TYPING_CLEAR_MS = 3500;
         </div>
       }
     </section>
+    }
   `,
   styles: [`
     .breadcrumb-wrapper { margin-bottom: 1em; }
@@ -985,6 +1711,7 @@ export class MessagesComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly presence = inject(PresenceService);
   private readonly route = inject(ActivatedRoute);
+  protected readonly device = inject(DeviceService);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
@@ -1320,6 +2047,62 @@ export class MessagesComponent implements OnInit {
   protected readonly groupUnreadTotal = computed(() =>
     this.groups().reduce((sum, g) => sum + (g.unread ?? 0), 0));
   protected readonly totalUnread = computed(() => this.unread() + this.groupUnreadTotal());
+  /** Mobile tab badges stay scoped to their section. */
+  protected readonly directUnread = computed(() =>
+    this.inbox().filter((m) => m.kind === 'direct' && !m.readAt).length);
+  protected readonly channelUnread = computed(() =>
+    this.inbox().filter((m) => m.kind !== 'direct' && !m.readAt).length);
+  protected readonly mobileGroupConfirm = signal<'leave' | 'delete' | null>(null);
+
+  protected openMobileTab(tab: 'chats' | 'groups' | 'channels'): void {
+    this.typingStop();
+    this.openThreadId.set(null);
+    this.closeGroupChat();
+    this.searchQuery.set('');
+    this.groupFilter.set('');
+    this.switchView(tab);
+  }
+
+  protected openMobileChat(id: string, name = ''): void {
+    if (this.openGroupId()) this.closeGroupChat();
+    this.startingChat.set(false);
+    this.openChat(id, name);
+  }
+
+  protected openMobileGroup(id: string): void {
+    this.typingStop();
+    this.openThreadId.set(null);
+    this.openGroupChat(id);
+  }
+
+  protected openMobileAnnouncement(): void {
+    this.composeKind.set('announcement');
+    this.sendError.set(null);
+    this.sentNotice.set(null);
+    this.showCompose.set(true);
+  }
+
+  protected onMobileSearch(value: string): void {
+    if (this.view() === 'groups') this.groupFilter.set(value);
+    else this.searchQuery.set(value);
+  }
+
+  protected clearMobileSearch(): void {
+    if (this.view() === 'groups') this.groupFilter.set('');
+    else this.searchQuery.set('');
+  }
+
+  protected mobilePreview(messages: Message[]): string {
+    const last = messages[messages.length - 1];
+    if (!last) return '';
+    const prefix = String(last.senderId) === this.myId() ? 'You: ' : '';
+    return this.snippet(`${prefix}${last.title ? last.title + ' — ' : ''}${last.body ?? ''}`, 110);
+  }
+
+  protected closeMobileGroupInfo(): void {
+    this.mobileGroupConfirm.set(null);
+    this.toggleGroupPanel(false);
+  }
 
   protected toggleCompose(): void {
     this.showCompose.set(!this.showCompose());
@@ -1967,6 +2750,9 @@ export class MessagesComponent implements OnInit {
   protected openGroupChat(groupId: string): void {
     this.groupSearch.set('');
     this.groupHits.set([]);
+    this.groups.update((rows) => rows.map((group) => (
+      String(group.id) === String(groupId) ? { ...group, unread: 0 } : group
+    )));
     this.openGroupId.set(groupId);
     this.openGroup.set(null);
     this.groupMsgs.set([]);
@@ -2891,6 +3677,7 @@ export class MessagesComponent implements OnInit {
 
   protected toggleGroupPanel(force?: boolean): void {
     const next = force ?? !this.showGroupPanel();
+    this.mobileGroupConfirm.set(null);
     this.showGroupPanel.set(next);
     if (next && this.groupPanel() === 'members' && this.isGroupAdmin()) this.loadBans();
   }
