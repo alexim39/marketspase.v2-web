@@ -1,0 +1,307 @@
+<a class="skip-link" href="#tutorial-library">Skip to tutorial library</a>
+
+<section class="tutorials-page">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <mat-icon aria-hidden="true">chevron_right</mat-icon>
+    <a routerLink="/dashboard/training">Academy</a>
+    <mat-icon aria-hidden="true">chevron_right</mat-icon>
+    <span aria-current="page">Tutorials</span>
+  </nav>
+
+  <header class="page-head">
+    <div class="head-copy">
+      <p class="eyebrow"><mat-icon aria-hidden="true">play_circle</mat-icon> Platform tutorials</p>
+      <h1>Tutorials</h1>
+      <p class="lede">
+        Short, practical walkthroughs for every part of MarketSpase. Watch in any order —
+        nothing is locked, so you can jump straight to the screen you need.
+      </p>
+      @if (!loading() && !error() && videos().length > 0) {
+        <div class="head-meta" aria-label="Library summary">
+          <span><strong>{{ videos().length }}</strong> {{ videos().length === 1 ? 'video' : 'videos' }}</span>
+          <span class="dot-sep"></span>
+          <span><strong>{{ areas().length }}</strong> {{ areas().length === 1 ? 'area' : 'areas' }}</span>
+          <span class="dot-sep"></span>
+          <span class="meta-views"><mat-icon aria-hidden="true">visibility</mat-icon>{{ totalViewsLabel() }}</span>
+          <span class="free-badge"><mat-icon aria-hidden="true">bolt</mat-icon>Free browsing</span>
+        </div>
+      }
+    </div>
+
+    <div class="head-actions">
+      <a class="btn btn--ghost" routerLink="/dashboard/training">
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+        Academy
+      </a>
+      <button
+        type="button"
+        class="btn btn--ghost btn--icon"
+        (click)="reload()"
+        [disabled]="loading()"
+        aria-label="Refresh tutorials"
+        title="Refresh tutorials">
+        <mat-icon aria-hidden="true" [class.spin]="loading()">refresh</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="btn btn--primary"
+        (click)="startFirst()"
+        [disabled]="loading() || videos().length === 0">
+        <mat-icon aria-hidden="true">play_arrow</mat-icon>
+        Start with the basics
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <async-page-skeleton layout="cards" [rows]="3" label="tutorials" [showHeader]="false" />
+  } @else if (error(); as err) {
+    <div class="state-card" role="alert">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <h2>We could not load the tutorials</h2>
+      <p>{{ err }}</p>
+      <div class="state-actions">
+        <button type="button" class="btn btn--primary" (click)="reload()">Try again</button>
+        <a class="btn btn--ghost" routerLink="/dashboard/training">Back to Academy</a>
+      </div>
+    </div>
+  } @else if (videos().length === 0) {
+    <div class="state-card">
+      <mat-icon aria-hidden="true">video_library</mat-icon>
+      <h2>No tutorials yet</h2>
+      <p>Short how-to videos will appear here as they are published. Check back soon.</p>
+      <div class="state-actions">
+        <a class="btn btn--primary" routerLink="/dashboard/training">Explore the Academy</a>
+      </div>
+    </div>
+  } @else {
+    <section class="workbar" aria-label="Search, filter and sort tutorials">
+      <label class="search-box">
+        <mat-icon aria-hidden="true">search</mat-icon>
+        <input
+          #searchInput
+          type="search"
+          [value]="query()"
+          (input)="onSearch($event)"
+          placeholder="Search tutorials"
+          aria-label="Search tutorials" />
+        @if (query()) {
+          <button type="button" class="search-clear" (click)="clearSearch()" aria-label="Clear search">
+            <mat-icon aria-hidden="true">close</mat-icon>
+          </button>
+        } @else {
+          <kbd class="search-kbd" aria-hidden="true">/</kbd>
+        }
+      </label>
+
+      <div class="area-tabs" role="group" aria-label="Filter by app area">
+        <button
+          type="button"
+          class="area-tab"
+          [class.is-active]="areaFilter() === 'All'"
+          [attr.aria-pressed]="areaFilter() === 'All'"
+          (click)="setArea('All')">
+          All <span>{{ videos().length }}</span>
+        </button>
+        @for (area of areas(); track area.area) {
+          <button
+            type="button"
+            class="area-tab"
+            [class.is-active]="areaFilter() === area.area"
+            [attr.aria-pressed]="areaFilter() === area.area"
+            (click)="setArea(area.area)">
+            {{ area.area }} <span>{{ area.count }}</span>
+          </button>
+        }
+      </div>
+
+      <label class="sort-control">
+        <mat-icon aria-hidden="true">sort</mat-icon>
+        <select [value]="sortMode()" (change)="onSort($event)" aria-label="Sort tutorials">
+          <option value="recommended">Recommended</option>
+          <option value="views">Most viewed</option>
+          <option value="title">A–Z</option>
+        </select>
+        <mat-icon aria-hidden="true">expand_more</mat-icon>
+      </label>
+    </section>
+
+    @if (filtered().length === 0) {
+      <div class="state-card">
+        <mat-icon aria-hidden="true">search_off</mat-icon>
+        <h2>No tutorials match this view</h2>
+        <p>Try a different search or area — or clear the filters to see the full library.</p>
+        <div class="state-actions">
+          <button type="button" class="btn btn--ghost" (click)="resetFilters()">Clear filters</button>
+        </div>
+      </div>
+    } @else {
+      <div class="workspace">
+        <section class="stage" aria-label="Featured tutorial">
+          @if (selected(); as video) {
+            <article class="stage-card">
+              <div class="stage-media">
+                @if (playing()) {
+                  <iframe
+                    [src]="embedUrl(video.youtubeId)"
+                    [title]="video.title"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen
+                    referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                } @else {
+                  <button
+                    type="button"
+                    class="poster"
+                    (click)="playSelected()"
+                    [attr.aria-label]="'Play ' + video.title">
+                    <img
+                      [src]="heroThumbUrl(video.youtubeId)"
+                      alt=""
+                      (error)="onHeroThumbError($event)" />
+                    <span class="poster-scrim"></span>
+                    <span class="play-orb"><mat-icon aria-hidden="true">play_arrow</mat-icon></span>
+                  </button>
+                }
+
+                <div class="media-topline" aria-hidden="true">
+                  <span class="area-pill">{{ video.area }}</span>
+                  <span class="play-state" [class.is-live]="playing()">
+                    <span class="pulse"></span>
+                    {{ playing() ? 'Playing' : 'Ready' }}
+                  </span>
+                </div>
+
+                @if (!playing()) {
+                  <div class="media-footline" aria-hidden="true">
+                    <span>Tutorial {{ selectedIndex() + 1 }} of {{ filtered().length }}</span>
+                    <span>Free browsing</span>
+                  </div>
+                }
+              </div>
+
+              <div class="stage-body">
+                <div class="stage-heading">
+                  <div class="stage-meta">
+                    <span class="meta-views"><mat-icon aria-hidden="true">visibility</mat-icon>{{ viewsLabel(video) }}</span>
+                    <span class="dot-sep"></span>
+                    <span>{{ playing() ? 'Now playing' : 'Featured tutorial' }}</span>
+                    <span class="dot-sep"></span>
+                    <span>No watch gate</span>
+                  </div>
+                  <div class="stage-util">
+                    <a
+                      class="mini-btn"
+                      [href]="youtubeUrl(video.youtubeId)"
+                      target="_blank"
+                      rel="noopener"
+                      aria-label="Watch on YouTube"
+                      title="Watch on YouTube">
+                      <mat-icon aria-hidden="true">open_in_new</mat-icon>
+                    </a>
+                    <button
+                      type="button"
+                      class="mini-btn"
+                      (click)="copyLink()"
+                      [attr.aria-label]="copied() ? 'YouTube link copied' : 'Copy YouTube link'"
+                      [title]="copied() ? 'Link copied' : 'Copy YouTube link'">
+                      <mat-icon aria-hidden="true">{{ copied() ? 'check' : 'link' }}</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <h2>{{ video.title }}</h2>
+                @if (video.description) {
+                  <p>{{ video.description }}</p>
+                } @else {
+                  <p>Watch this quick walkthrough, then try it in the app. Move on whenever you are ready.</p>
+                }
+
+                <div class="stage-actions">
+                  <div class="action-group">
+                    <button
+                      type="button"
+                      class="btn btn--ghost btn--icon"
+                      (click)="previousVideo()"
+                      [disabled]="filtered().length < 2"
+                      aria-label="Previous tutorial"
+                      title="Previous tutorial (K)">
+                      <mat-icon aria-hidden="true">skip_previous</mat-icon>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn--primary"
+                      (click)="nextVideo()"
+                      [disabled]="filtered().length < 2"
+                      title="Next tutorial (J)">
+                      Next tutorial
+                      <mat-icon aria-hidden="true">skip_next</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          }
+        </section>
+
+        <aside class="queue" id="tutorial-library" aria-label="Tutorial playlist">
+          <header class="queue-head">
+            <div>
+              <p class="eyebrow">Playlist</p>
+              <h2>Up next</h2>
+            </div>
+            <span class="queue-count">{{ filtered().length }}</span>
+          </header>
+          <p class="queue-hint">Pick any video — nothing is locked.</p>
+
+          <div class="queue-list" #queueList>
+            @for (video of filtered(); track video.id; let i = $index) {
+              <button
+                type="button"
+                class="queue-item"
+                [class.is-active]="selected()?.id === video.id"
+                [attr.aria-current]="selected()?.id === video.id ? 'true' : null"
+                (click)="selectVideo(video)">
+                <span class="queue-thumb">
+                  <img [src]="thumbUrl(video.youtubeId)" alt="" loading="lazy" />
+                  <span class="queue-thumb-play"><mat-icon aria-hidden="true">play_arrow</mat-icon></span>
+                </span>
+                <span class="queue-copy">
+                  <span class="queue-kicker">
+                    {{ video.area }}
+                    <span class="dot-sep"></span>
+                    {{ viewsLabel(video) }}
+                  </span>
+                  <strong>{{ video.title }}</strong>
+                  <span class="queue-sub">
+                    {{ selected()?.id === video.id ? (playing() ? 'Now playing' : 'Selected') : 'Tutorial ' + (i + 1) }}
+                  </span>
+                </span>
+                <span class="queue-end">
+                  @if (selected()?.id === video.id && playing()) {
+                    <span class="equalizer" aria-hidden="true"><i></i><i></i><i></i></span>
+                  } @else {
+                    <span class="queue-num">{{ i + 1 }}</span>
+                  }
+                </span>
+              </button>
+            }
+          </div>
+
+          <footer class="queue-foot">
+            <span><kbd>/</kbd> search</span>
+            <span><kbd>J</kbd><kbd>K</kbd> move</span>
+            <span class="foot-note">{{ filtered().length }} of {{ videos().length }}</span>
+          </footer>
+        </aside>
+      </div>
+    }
+  }
+</section>
+
+<p class="sr-only" aria-live="polite">
+  @if (selected(); as video) {
+    Now featuring {{ video.title }}
+  }
+</p>
