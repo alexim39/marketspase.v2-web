@@ -1,0 +1,226 @@
+<section class="progress-mobile">
+  <header class="prog-head">
+    <div class="prog-topline">
+      <a class="prog-icon-btn" routerLink="/dashboard" aria-label="Back to dashboard">
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      </a>
+      <p class="eyebrow">Journey · 4 ranks</p>
+      <button
+        type="button"
+        class="prog-icon-btn"
+        [class.is-busy]="loading()"
+        [disabled]="loading()"
+        (click)="reload()"
+        aria-label="Refresh my progress">
+        <mat-icon aria-hidden="true">refresh</mat-icon>
+      </button>
+    </div>
+    <h1>My progress</h1>
+    <p class="prog-lede">Four ranks, one path. Training and team gates move you forward automatically.</p>
+  </header>
+
+  @if (loading()) {
+    <async-page-skeleton layout="dashboard" [rows]="3" label="your progress" [showHeader]="false" />
+  } @else {
+    @if (error(); as err) {
+      <div class="prog-error" role="alert">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        <span>{{ err }}</span>
+        <button type="button" (click)="reload()">Retry</button>
+      </div>
+    }
+
+    @if (journey() || !error()) {
+      @if (promoted(); as promo) {
+        <div class="prog-promo" role="status">
+          <span class="prog-promo-icon"><mat-icon aria-hidden="true">workspace_premium</mat-icon></span>
+          <div>
+            <p class="eyebrow">Promotion recorded</p>
+            <strong>{{ promo.from }} → {{ promo.to }}</strong>
+            <span>Your new rank and commission depth are reflected below.</span>
+          </div>
+        </div>
+      }
+
+      <section class="rank-hero" aria-label="Current rank and journey completion">
+        <div class="rank-hero-main">
+          <p class="eyebrow">Current rank</p>
+          <div class="rank-name">
+            <span class="rank-emblem"><mat-icon aria-hidden="true">military_tech</mat-icon></span>
+            <div>
+              <h2>{{ currentRank() }}</h2>
+              <span>{{ currentDefinition().tagline }}</span>
+            </div>
+          </div>
+          <p class="rank-commission">{{ currentDefinition().commission }}</p>
+        </div>
+        <div class="rank-ring" [style.background]="rings()" role="img" [attr.aria-label]="journeyPercent() + '% of the journey complete'">
+          <span><strong>{{ journeyPercent() }}%</strong><small>journey</small></span>
+        </div>
+        <div class="rank-hero-foot">
+          <span>Rank {{ rankIndex() + 1 }} of {{ ranks.length }}</span>
+          <span>{{ nextRank() ? 'Next · ' + nextRank()?.label : 'Top rank reached' }}</span>
+        </div>
+      </section>
+
+      <section class="prog-stats" aria-label="Progress summary">
+        <div><strong>{{ trainingCount() }}/{{ training().length }}</strong><span>Training</span></div>
+        <div><strong>{{ missing().length }}</strong><span>Open gates</span></div>
+        <div><strong>{{ signals().activeDownline }}</strong><span>Active team</span></div>
+      </section>
+
+      @if (forecast(); as f) {
+        <section class="prog-momentum" [class.is-stalled]="f.stalled" aria-label="Journey momentum">
+          <span class="momentum-icon"><mat-icon aria-hidden="true">{{ f.stalled ? 'pause_circle' : 'trending_up' }}</mat-icon></span>
+          <div>
+            <p class="eyebrow">Momentum</p>
+            <strong>{{ f.label }}</strong>
+            @if (f.etaDate) {
+              <p>Projected {{ f.etaDate | date:'mediumDate' }} at your current pace.</p>
+            } @else if (f.weeksOut != null) {
+              <p>About {{ f.weeksOut }} week{{ f.weeksOut === 1 ? '' : 's' }} at your current pace.</p>
+            } @else {
+              <p>{{ f.basis }}</p>
+            }
+          </div>
+        </section>
+      }
+
+      <section class="prog-section" aria-labelledby="prog-ladder-title">
+        <div class="prog-section-head">
+          <div><p class="eyebrow">Roadmap</p><h2 id="prog-ladder-title">Rank ladder</h2></div>
+          <span class="prog-count">{{ ranks.length }} ranks</span>
+        </div>
+
+        <div class="rank-timeline">
+          @for (r of ranks; track r.rank; let i = $index; let last = $last) {
+            <div
+              class="rank-step"
+              [class.is-done]="i < rankIndex()"
+              [class.is-current]="i === rankIndex()"
+              [attr.aria-current]="i === rankIndex() ? 'step' : null">
+              <div class="rank-rail">
+                <span class="rank-dot">
+                  @if (i < rankIndex()) {
+                    <mat-icon aria-hidden="true">check</mat-icon>
+                  } @else {
+                    {{ i + 1 }}
+                  }
+                </span>
+                @if (!last) { <span class="rank-line" aria-hidden="true"></span> }
+              </div>
+              <div class="rank-body">
+                <div class="rank-body-top">
+                  <strong>{{ r.label }}</strong>
+                  @if (i < rankIndex()) {
+                    <span class="rank-pill is-done">Complete</span>
+                  } @else if (i === rankIndex()) {
+                    <span class="rank-pill is-current">Current</span>
+                  }
+                </div>
+                <span class="rank-tagline">{{ r.tagline }} · {{ r.commission }}</span>
+                @if (i === rankIndex()) {
+                  @if (nextRank(); as next) {
+                    <span class="rank-next">{{ journeyPercent() }}% journey complete · next gate: {{ next.label }}</span>
+                  }
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      @if (nextRank(); as next) {
+        <section class="prog-card gate-card" aria-labelledby="prog-gate-title">
+          <div class="prog-section-head">
+            <div><p class="eyebrow">Next gate</p><h2 id="prog-gate-title">{{ next.label }}</h2></div>
+            <span class="prog-count">{{ missing().length }} open</span>
+          </div>
+
+          @if (missing().length > 0) {
+            <p class="prog-muted">Everything still open for {{ next.label }} is below. Complete it and the system promotes you automatically.</p>
+            <ul class="gate-list">
+              @for (item of missing(); track item.key) {
+                <li>
+                  <span class="gate-icon"><mat-icon aria-hidden="true">arrow_forward</mat-icon></span>
+                  <span class="gate-copy"><strong>{{ item.label }}</strong><small>{{ item.action }}</small></span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="gate-clear">
+              <mat-icon aria-hidden="true">verified</mat-icon>
+              <p>Every gate is met. Promotion to {{ next.label }} will be recorded automatically.</p>
+            </div>
+          }
+
+          <div class="gate-actions">
+            <a routerLink="/dashboard/training">Academy</a>
+            <a routerLink="/dashboard/team">Team</a>
+            <a routerLink="/dashboard/goals">Goals</a>
+          </div>
+        </section>
+      } @else {
+        <section class="prog-card gate-card">
+          <div class="prog-section-head">
+            <div><p class="eyebrow">Top rank</p><h2>Ambassador</h2></div>
+            <mat-icon class="top-icon" aria-hidden="true">workspace_premium</mat-icon>
+          </div>
+          <p class="prog-muted">You are at the top rank. Keep leading and developing the next generation.</p>
+        </section>
+      }
+
+      <section class="prog-card" aria-labelledby="prog-training-title">
+        <div class="prog-section-head">
+          <div><p class="eyebrow">Automatic record</p><h2 id="prog-training-title">Training</h2></div>
+          <span class="prog-count">{{ trainingCount() }}/{{ training().length }}</span>
+        </div>
+
+        <div class="training-bar" aria-hidden="true"><span [style.width.%]="trainingPercent()"></span></div>
+
+        <ul class="training-list">
+          @for (t of training(); track t.key) {
+            <li [class.is-done]="trainingDone(t.key)">
+              <span class="training-icon">
+                <mat-icon aria-hidden="true">{{ trainingDone(t.key) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              </span>
+              <span class="training-copy">
+                <strong>{{ t.label }}</strong>
+                <small>
+                  @if (trainingDone(t.key)) {
+                    Recorded {{ trainingDate(t.key) | date:'mediumDate' }}
+                  } @else {
+                    Not completed yet
+                  }
+                </small>
+              </span>
+              @if (!trainingDone(t.key) && t.courseId) {
+                <a class="training-link" [routerLink]="['/dashboard/training/courses', t.courseId]">Open</a>
+              } @else if (!trainingDone(t.key)) {
+                <span class="training-soon">Soon</span>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+
+      <section class="prog-card signals-card" aria-labelledby="prog-signals-title">
+        <div class="prog-section-head">
+          <div><p class="eyebrow">Live team</p><h2 id="prog-signals-title">Team signals</h2></div>
+          <span class="signal-state" [class.is-ok]="signals().maintenanceOk">
+            {{ signals().maintenanceOk ? 'Maintained' : 'Needs activity' }}
+          </span>
+        </div>
+
+        <div class="signal-grid">
+          <div><strong>{{ signals().recruits }}</strong><span>Direct recruits</span></div>
+          <div><strong>{{ signals().activeDownline }}</strong><span>Active downline</span></div>
+        </div>
+
+        <p class="prog-muted">These signals support your next gate alongside training. Journey rank is automatic; commission depth is assigned separately by the compensation team.</p>
+      </section>
+
+      <p class="prog-footnote">Journey rank updates automatically as training certificates and team gates are confirmed.</p>
+    }
+  }
+</section>
