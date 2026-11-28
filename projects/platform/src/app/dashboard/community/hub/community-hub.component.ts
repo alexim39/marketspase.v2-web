@@ -3,291 +3,329 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  PLATFORM_ID,
+  computed,
   inject,
   signal,
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { catchError, finalize, forkJoin, interval, of } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { PageSkeletonComponent } from '@marketspase/shared/ui/page-skeleton/page-skeleton.component';
+import { AvatarComponent } from '../../../_common/avatar.component';
 import { CommunityService } from '../../../core/community/community.service';
-import { FeedPost } from '../../../core/community/community.models';
+import { FeedPost, POST_KIND_LABELS, PostKind } from '../../../core/community/community.models';
 import { EventService } from '../../../core/events/event.service';
 import { CommunityEvent } from '../../../core/events/event.models';
 import { MessageService } from '../../../core/messaging/message.service';
-import { Message } from '../../../core/messaging/message.models';
+import { Contact, Message } from '../../../core/messaging/message.models';
+import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { ApiError, userError } from '../../../core/http/api-error';
+import { CommunityFeedCardComponent } from './desktop/feed-card.component';
+import { CommunityLiveCircleCardComponent, LiveCirclePerson } from './desktop/live-circle-card.component';
 
-/** Community hub — latest feed, upcoming events and unread messages. */
+type FeedFilterKey = 'all' | PostKind;
+
+interface FeedFilter {
+  key: FeedFilterKey;
+  label: string;
+  count: number;
+}
+
+interface HubPerson {
+  id: string;
+  name: string;
+  photo: string | null;
+}
+
+const FEED_KIND_ORDER: PostKind[] = ['recognition', 'announcement', 'training', 'event', 'standard'];
+
+/**
+ * Community hub — desktop workspace.
+ *
+ * A live presence header, team-wide stats and a two-pane workspace keep the
+ * latest feed alongside people, upcoming events and recent messages. The feed
+ * can be filtered and searched locally; every other action hands off to the
+ * dedicated feed, events or messages screen.
+ */
 @Component({
   selector: 'async-community-hub',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AvatarComponent,
+    CommunityFeedCardComponent,
+    CommunityLiveCircleCardComponent,
     DatePipe,
     MatButtonModule,
     MatIconModule,
     PageSkeletonComponent,
     RouterModule,
   ],
-  template: `
-    <section class="community-page">
-      <header class="page-head">
-        <div>
-          <p class="eyebrow">Community · Belonging and momentum</p>
-          <h1>Talk, meet and message</h1>
-          <p class="muted">Team updates, events and private messages in one place.</p>
-        </div>
-        <div class="head-actions">
-          <a mat-flat-button color="primary" routerLink="/dashboard/community/feed">Open feed</a>
-          <a mat-stroked-button routerLink="/dashboard/messages">Messages</a>
-        </div>
-      </header>
-
-      @if (loading()) {
-        <async-page-skeleton layout="cards" [rows]="4" label="community" [showHeader]="false" />
-      }
-
-      @if (error(); as err) {
-        <div class="alert" role="alert">
-          <mat-icon>error_outline</mat-icon>
-          <p>{{ err }}</p>
-          <button mat-button type="button" (click)="reload()">Retry</button>
-        </div>
-      }
-
-      <div class="metrics">
-        <div class="metric">
-          <span>Unread messages</span>
-          <strong>{{ unread() }}</strong>
-          <a routerLink="/dashboard/messages">Open inbox</a>
-        </div>
-        <div class="metric">
-          <span>Upcoming events</span>
-          <strong>{{ upcomingEvents().length }}</strong>
-          <a routerLink="/dashboard/community/events">View events</a>
-        </div>
-        <div class="metric">
-          <span>Latest posts</span>
-          <strong>{{ posts().length }}</strong>
-          <a routerLink="/dashboard/community/feed">Read feed</a>
-        </div>
-        <div class="metric metric--accent">
-          <span>Ask Ora</span>
-          <strong class="metric-text">AI coach</strong>
-          <a routerLink="/dashboard/ora">Start a chat</a>
-        </div>
-      </div>
-
-      <div class="columns">
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <p class="eyebrow">Feed</p>
-              <h2>Latest from the team</h2>
-            </div>
-            <a mat-button routerLink="/dashboard/community/feed">See all</a>
-          </div>
-
-          @if (posts().length === 0) {
-            <div class="empty">
-              <mat-icon>forum</mat-icon>
-              <p>Quiet here. Be the first to share an update or recognition.</p>
-              <a mat-flat-button color="primary" routerLink="/dashboard/community/feed">Open feed</a>
-            </div>
-          } @else {
-            <ul class="post-list">
-              @for (post of posts(); track post.id) {
-                <li>
-                  <div class="post-avatar">{{ initials(post.author?.name) }}</div>
-                  <div class="post-main">
-                    <div class="post-top">
-                      <strong>{{ post.author?.name ?? 'Teammate' }}</strong>
-                      <span class="muted">{{ post.createdAt | date: 'mediumDate' }}</span>
-                    </div>
-                    @if (post.title) { <strong class="post-title">{{ post.title }}</strong> }
-                    <p class="muted">{{ preview(post.body) }}</p>
-                    <span class="post-meta">{{ post.likeCount }} likes · {{ post.commentCount }} comments</span>
-                  </div>
-                </li>
-              }
-            </ul>
-          }
-        </div>
-
-        <aside class="side">
-          <div class="panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">Calendar</p>
-                <h2>Upcoming events</h2>
-              </div>
-              <a mat-button routerLink="/dashboard/community/events">All</a>
-            </div>
-            @if (upcomingEvents().length === 0) {
-              <p class="muted empty-line">No upcoming events yet. Check back soon.</p>
-            } @else {
-              <ul class="event-list">
-                @for (event of upcomingEvents(); track event.id) {
-                  <li>
-                    <div class="event-date">
-                      <span>{{ event.startsAt | date: 'MMM' }}</span>
-                      <strong>{{ event.startsAt | date: 'd' }}</strong>
-                    </div>
-                    <div class="event-main">
-                      <strong>{{ event.title }}</strong>
-                      <span class="muted">{{ event.startsAt | date: 'shortTime' }} · {{ event.location || 'Online' }}</span>
-                      <span class="muted">{{ event.rsvps.going }} going</span>
-                    </div>
-                  </li>
-                }
-              </ul>
-            }
-          </div>
-
-          <div class="panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">Inbox</p>
-                <h2>Recent messages</h2>
-              </div>
-              <a mat-button routerLink="/dashboard/messages">Open</a>
-            </div>
-            @if (recentMessages().length === 0) {
-              <p class="muted empty-line">No messages yet. Start a conversation with a teammate.</p>
-            } @else {
-              <ul class="message-list">
-                @for (message of recentMessages(); track message.id) {
-                  <li>
-                    <div class="msg-avatar">{{ initials(message.sender?.name) }}</div>
-                    <div class="message-main">
-                      <strong>{{ message.sender?.name ?? 'Teammate' }}</strong>
-                      <span class="muted">{{ preview(message.body) }}</span>
-                    </div>
-                    <span class="msg-date muted">{{ message.createdAt | date: 'shortTime' }}</span>
-                  </li>
-                }
-              </ul>
-            }
-          </div>
-
-          <div class="panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">Shortcuts</p>
-                <h2>Jump in</h2>
-              </div>
-            </div>
-            <div class="quick-grid">
-              <a routerLink="/dashboard/community/feed"><mat-icon>dynamic_feed</mat-icon><span>Team feed</span></a>
-              <a routerLink="/dashboard/community/events"><mat-icon>event</mat-icon><span>Events</span></a>
-              <a routerLink="/dashboard/messages"><mat-icon>chat</mat-icon><span>Messages</span></a>
-              <a routerLink="/dashboard/ora"><mat-icon>smart_toy</mat-icon><span>Ask Ora</span></a>
-            </div>
-          </div>
-        </aside>
-      </div>
-    </section>
-  `,
-  styles: [`
-    .community-page { max-width: 1180px; margin: 0 auto; padding: 24px 0 48px; display: flex; flex-direction: column; gap: 16px; }
-    .page-head { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
-    .page-head h1 { margin: 4px 0 8px; font-size: clamp(1.7rem, 3vw, 2.4rem); line-height: 1.1; letter-spacing: -0.03em; }
-    .page-head p { margin: 0; line-height: 1.55; max-width: 620px; }
-    .head-actions { display: flex; gap: 8px; flex-wrap: wrap; flex: none; }
-    .eyebrow { margin: 0; color: var(--ms-primary-strong); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
-    .muted { color: var(--ms-text-muted); }
-    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
-    .metric { background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-md); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; }
-    .metric > span:first-child { color: var(--ms-text-muted); font-size: 0.72em; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
-    .metric strong { font-size: 1.6em; font-variant-numeric: tabular-nums; line-height: 1.15; }
-    .metric a { font-size: 0.8em; font-weight: 700; color: var(--ms-primary-strong); text-decoration: none; margin-top: 2px; }
-    .metric a:hover { text-decoration: underline; }
-    .metric-text { font-size: 1.15em; padding-top: 0.3em; }
-    .metric--accent { border-left: 4px solid var(--ms-primary); }
-    .columns { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr); gap: 16px; align-items: start; }
-    .side { display: flex; flex-direction: column; gap: 16px; }
-    .panel { background: var(--ms-surface); border: 1px solid var(--ms-line); border-radius: var(--ms-radius-lg); padding: 18px; box-shadow: var(--ms-shadow-sm); }
-    .panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
-    .panel-head h2 { margin: 4px 0 0; font-size: 1.15rem; }
-    .post-list, .event-list, .message-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-    .post-list li, .event-list li, .message-list li { display: flex; gap: 10px; padding: 12px 2px; border-top: 1px solid var(--ms-line); }
-    .post-list li:first-child, .event-list li:first-child, .message-list li:first-child { border-top: none; }
-    .post-avatar, .msg-avatar { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 50%; display: grid; place-items: center; background: var(--ms-primary-soft); color: var(--ms-primary-strong); font-weight: 800; font-size: 0.85em; }
-    .post-main, .event-main, .message-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-    .post-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-    .post-main p { margin: 0; font-size: 0.88em; line-height: 1.45; }
-    .post-title { font-size: 0.95em; }
-    .post-meta { font-size: 0.75em; color: var(--ms-text-muted); }
-    .event-date { width: 46px; flex: 0 0 46px; display: flex; flex-direction: column; align-items: center; border-radius: var(--ms-radius-sm); background: var(--ms-primary-soft); color: var(--ms-primary-strong); padding: 4px 0; height: fit-content; }
-    .event-date span { font-size: 0.68em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; }
-    .event-date strong { font-size: 1.15em; line-height: 1; }
-    .event-main span { font-size: 0.78em; }
-    .msg-date { flex: none; font-size: 0.72em; }
-    .empty { display: grid; place-items: center; gap: 8px; padding: 30px 16px; color: var(--ms-text-muted); text-align: center; }
-    .empty mat-icon { font-size: 38px; width: 38px; height: 38px; }
-    .empty p { margin: 0; line-height: 1.5; }
-    .empty-line { margin: 0; font-size: 0.9em; }
-    .quick-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-    .quick-grid a { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px; border: 1px solid var(--ms-line); border-radius: var(--ms-radius-md); color: var(--ms-text); text-decoration: none; font-size: 0.85em; font-weight: 600; min-height: 74px; }
-    .quick-grid a:hover { background: var(--ms-primary-soft); }
-    .quick-grid mat-icon { color: var(--ms-primary-strong); }
-    .alert { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-radius: var(--ms-radius-md); background: var(--ms-error-soft); color: var(--ms-error); }
-    .alert p { margin: 0; flex: 1; line-height: 1.5; }
-    @media (max-width: 900px) {
-      .page-head { flex-direction: column; }
-      .columns { grid-template-columns: 1fr; }
-    }
-  `],
+  templateUrl: './community-hub.component.html',
+  styleUrls: ['./community-hub.component.scss'],
 })
 export class CommunityHubComponent implements OnInit {
   private readonly community = inject(CommunityService);
   private readonly events = inject(EventService);
   private readonly messages = inject(MessageService);
+  private readonly presence = inject(PresenceService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly platformId = inject(PLATFORM_ID);
 
   protected readonly loading = signal(true);
+  protected readonly loaded = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly posts = signal<FeedPost[]>([]);
   protected readonly upcomingEvents = signal<CommunityEvent[]>([]);
   protected readonly recentMessages = signal<Message[]>([]);
+  protected readonly contacts = signal<Contact[]>([]);
   protected readonly unread = signal(0);
+  protected readonly presenceMap = signal<Record<string, string | null>>({});
+  protected readonly kindFilter = signal<FeedFilterKey>('all');
+  protected readonly feedSearch = signal('');
+  /** Recomputes relative presence as minutes pass, even without a request. */
+  private readonly clock = signal(0);
+
+  protected readonly people = computed<HubPerson[]>(() => {
+    this.clock();
+    const contactById = new Map(this.contacts().map((contact) => [String(contact.id), contact]));
+    const people = new Map<string, HubPerson>();
+    const add = (id: string | null | undefined, name: string | null | undefined, photo: string | null | undefined): void => {
+      const key = String(id ?? '').trim();
+      if (!key) return;
+      const contact = contactById.get(key);
+      const existing = people.get(key);
+      const displayName = (contact?.name ?? name ?? '').trim() || 'Teammate';
+      const displayPhoto = contact?.photo ?? photo ?? null;
+      if (!existing) {
+        people.set(key, { id: key, name: displayName, photo: displayPhoto });
+      } else if (!existing.photo && displayPhoto) {
+        existing.photo = displayPhoto;
+      }
+    };
+
+    for (const contact of this.contacts()) add(contact.id, contact.name, contact.photo);
+    for (const post of this.posts()) add(post.authorId, post.author?.name, post.author?.profileImage);
+    for (const event of this.upcomingEvents()) add(event.authorId, event.author?.name, event.author?.profileImage);
+    for (const message of this.recentMessages()) add(message.senderId, message.sender?.name, null);
+
+    const rank = (person: HubPerson): number => {
+      const status = this.presenceOf(person.id);
+      return status === 'online' ? 0 : status === 'recent' ? 1 : 2;
+    };
+    return [...people.values()].sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
+  });
+
+  protected readonly heroPeople = computed(() => this.people().slice(0, 3));
+  protected readonly heroPeopleView = computed<LiveCirclePerson[]>(() => this.heroPeople().map((person) => ({
+    ...person,
+    presence: this.presenceOf(person.id),
+  })));
+  protected readonly circlePeople = computed(() => this.people().slice(0, 6));
+  protected readonly onlineCount = computed(() => this.people().filter((person) => this.presenceOf(person.id) === 'online').length);
+  protected readonly recentCount = computed(() => this.people().filter((person) => this.presenceOf(person.id) === 'recent').length);
+
+  protected readonly pulseLabel = computed(() => {
+    if (this.onlineCount() > 0) return 'Live now';
+    if (this.recentCount() > 0) return 'Around lately';
+    return 'Team pulse';
+  });
+
+  protected readonly presenceHeadline = computed(() => {
+    const online = this.people().filter((person) => this.presenceOf(person.id) === 'online');
+    if (online.length === 1) return `${online[0].name} is online now`;
+    if (online.length > 1) return `${online[0].name} and ${online.length - 1} other${online.length > 2 ? 's' : ''} are online`;
+    const recent = this.people().filter((person) => this.presenceOf(person.id) === 'recent');
+    if (recent.length === 1) return `${recent[0].name} was active recently`;
+    if (recent.length > 1) return `${recent[0].name} and ${recent.length - 1} other${recent.length > 2 ? 's' : ''} were around`;
+    if (this.people().length > 0) return 'Your circle is quiet';
+    return 'Build your circle';
+  });
+
+  protected readonly presenceDetail = computed(() => {
+    const count = this.people().length;
+    if (this.onlineCount() > 0) return `${this.onlineCount()} online · ${count} in your circle`;
+    if (this.recentCount() > 0) return `${this.recentCount()} recently active · ${count} in your circle`;
+    if (count > 0) return `${count} teammate${count === 1 ? '' : 's'} · say hello`;
+    return 'Follow teammates and start a conversation';
+  });
+
+  protected readonly feedFilters = computed<FeedFilter[]>(() => {
+    const posts = this.posts();
+    const filters: FeedFilter[] = [{ key: 'all', label: 'All posts', count: posts.length }];
+    for (const kind of FEED_KIND_ORDER) {
+      const count = posts.filter((post) => post.kind === kind).length;
+      if (count > 0) filters.push({ key: kind, label: POST_KIND_LABELS[kind], count });
+    }
+    return filters;
+  });
+
+  protected readonly filteredPosts = computed<FeedPost[]>(() => {
+    const active = this.kindFilter();
+    const query = this.feedSearch().trim().toLowerCase();
+    return this.posts().filter((post) => {
+      if (active !== 'all' && post.kind !== active) return false;
+      if (!query) return true;
+      const haystack = [post.title, post.body, post.author?.name, post.author?.username]
+        .join(' ')
+        .toLowerCase();
+      return haystack.includes(query);
+    });
+  });
+
+  protected readonly feedCountLabel = computed(() => {
+    const total = this.posts().length;
+    const visible = this.filteredPosts().length;
+    if (this.kindFilter() !== 'all' || this.feedSearch().trim()) return `${visible} of ${total} posts`;
+    return `${total} post${total === 1 ? '' : 's'}`;
+  });
 
   ngOnInit(): void {
     this.reload();
-  }
-
-  protected preview(body: string): string {
-    const text = String(body ?? '').replace(/\s+/g, ' ').trim();
-    return text.length > 120 ? `${text.slice(0, 119)}…` : text;
-  }
-
-  protected initials(name: string | undefined): string {
-    return String(name ?? '').split(/\s+/).filter(Boolean).slice(0, 2)
-      .map((part) => part[0]?.toUpperCase()).join('') || 'M';
+    if (!isPlatformBrowser(this.platformId)) return;
+    interval(60_000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.clock.update((value) => value + 1);
+        this.refreshPresence();
+      });
   }
 
   protected reload(): void {
     this.loading.set(true);
     this.error.set(null);
     forkJoin({
-      feed: this.community.feed(undefined, 5).pipe(catchError(() => of(null))),
-      events: this.events.upcoming(3).pipe(catchError(() => of(null))),
+      feed: this.community.feed(undefined, 8).pipe(catchError(() => of(null))),
+      upcoming: this.events.upcoming(4).pipe(catchError(() => of(null))),
       unread: this.messages.unreadCount().pipe(catchError(() => of(null))),
-      inbox: this.messages.inbox(3).pipe(catchError(() => of(null))),
+      inbox: this.messages.inbox(4).pipe(catchError(() => of(null))),
+      contacts: this.messages.contacts().pipe(catchError(() => of(null))),
     }).pipe(
       takeUntilDestroyed(this.destroyRef),
-      finalize(() => this.loading.set(false)),
+      finalize(() => {
+        this.loading.set(false);
+        this.loaded.set(true);
+      }),
     ).subscribe({
-      next: ({ feed, events, unread, inbox }) => {
+      next: ({ feed, upcoming, unread, inbox, contacts }) => {
         this.posts.set(feed?.data?.items ?? []);
-        this.upcomingEvents.set(events?.data?.items ?? []);
+        this.upcomingEvents.set(upcoming?.data?.items ?? []);
         this.unread.set(unread?.data?.unread ?? 0);
         this.recentMessages.set(inbox?.data ?? []);
+        this.contacts.set(contacts?.data ?? []);
+        this.refreshPresence();
       },
       error: (err: ApiError) => this.error.set(userError(err)),
     });
+  }
+
+  /** Bulk presence for every teammate already on screen. */
+  private refreshPresence(): void {
+    const ids = [
+      ...this.contacts().map((contact) => contact.id),
+      ...this.posts().map((post) => post.authorId),
+      ...this.upcomingEvents().map((event) => event.authorId),
+      ...this.recentMessages().map((message) => message.senderId),
+    ];
+    if (ids.length === 0) return;
+    this.presence.lookup(ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((map) => {
+        this.presenceMap.update((current) => ({ ...current, ...map }));
+        this.clock.update((value) => value + 1);
+      });
+  }
+
+  protected presenceOf(id: string | null | undefined): PresenceStatus {
+    this.clock();
+    if (!id) return null;
+    return this.presence.statusOf(this.presenceMap()[String(id)] ?? null);
+  }
+
+  protected personStatus(id: string): string {
+    const status = this.presenceOf(id);
+    if (status === 'online') return 'Online now';
+    if (status === 'recent') return 'Active recently';
+    return 'Offline';
+  }
+
+  protected setKindFilter(key: FeedFilterKey): void {
+    this.kindFilter.set(key);
+  }
+
+  protected onFeedSearch(value: string): void {
+    this.feedSearch.set(value);
+  }
+
+  protected clearFeedSearch(): void {
+    this.feedSearch.set('');
+  }
+
+  protected clearFeedFilters(): void {
+    this.kindFilter.set('all');
+    this.feedSearch.set('');
+  }
+
+  protected timeAgo(iso: string | null | undefined): string {
+    const time = iso ? new Date(iso).getTime() : NaN;
+    if (!Number.isFinite(time)) return '';
+    const minutes = Math.max(0, Math.round((Date.now() - time) / 60_000));
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return `${days}d ago`;
+    return new Date(iso as string).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  protected preview(body: string | null | undefined, limit = 180): string {
+    const text = String(body ?? '').replace(/\s+/g, ' ').trim();
+    return text.length > limit ? `${text.slice(0, limit - 1).trimEnd()}…` : text;
+  }
+
+  protected senderName(message: Message): string {
+    const contact = this.contacts().find((row) => String(row.id) === String(message.senderId));
+    return message.sender?.name ?? contact?.name ?? 'Teammate';
+  }
+
+  protected photoFor(id: string | null | undefined): string | null {
+    const key = String(id ?? '');
+    if (!key) return null;
+    return this.contacts().find((row) => String(row.id) === key)?.photo
+      ?? this.posts().find((post) => String(post.authorId) === key)?.author?.profileImage
+      ?? this.upcomingEvents().find((event) => String(event.authorId) === key)?.author?.profileImage
+      ?? null;
+  }
+
+  protected messageQuery(message: Message): Record<string, string> | null {
+    if (message.kind !== 'direct') return null;
+    return { chat: message.senderId, chatName: this.senderName(message) };
+  }
+
+  protected kindLabel(kind: PostKind): string {
+    return POST_KIND_LABELS[kind] ?? kind;
+  }
+
+  protected kindIcon(kind: PostKind): string {
+    switch (kind) {
+      case 'recognition': return 'workspace_premium';
+      case 'announcement': return 'campaign';
+      case 'training': return 'school';
+      case 'event': return 'event';
+      default: return 'forum';
+    }
+  }
+
+  protected scopeLabel(scope: FeedPost['scope']): string {
+    switch (scope) {
+      case 'team': return 'My team';
+      case 'leadership': return 'Leaders';
+      default: return 'Everyone';
+    }
   }
 }
