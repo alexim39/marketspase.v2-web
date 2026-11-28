@@ -20,6 +20,7 @@ import {
   TutorialArea,
   TutorialGroup,
   TutorialService,
+  tutorialViewsLabel,
 } from '../../../core/tutorials/tutorial.service';
 import { ApiError, userError } from '../../../core/http/api-error';
 
@@ -215,6 +216,8 @@ type AreaFilter = 'All' | TutorialArea;
                     <div class="featured-meta">
                       <span>Tutorial {{ selectedIndex() + 1 }} of {{ filtered().length }}</span>
                       <span class="dot-sep"></span>
+                      <span class="featured-views"><mat-icon aria-hidden="true">visibility</mat-icon>{{ viewsLabel(video) }}</span>
+                      <span class="dot-sep"></span>
                       <span>Free browsing</span>
                     </div>
                     <h2>{{ video.title }}</h2>
@@ -287,6 +290,7 @@ type AreaFilter = 'All' | TutorialArea;
                     <span class="rail-copy">
                       <small>{{ video.area }}</small>
                       <strong>{{ video.title }}</strong>
+                      <span class="rail-views"><mat-icon aria-hidden="true">visibility</mat-icon>{{ viewsLabel(video) }}</span>
                     </span>
                     <span class="rail-number">{{ i + 1 }}</span>
                   </button>
@@ -800,6 +804,24 @@ type AreaFilter = 'All' | TutorialArea;
         border-radius: 50%;
         background: var(--ms-line-strong);
       }
+      .featured-views,
+      .rail-views {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        font-variant-numeric: tabular-nums;
+      }
+      .rail-views {
+        color: var(--ms-text-muted);
+        font-size: 0.62rem;
+        font-weight: 600;
+      }
+      .featured-views mat-icon,
+      .rail-views mat-icon {
+        font-size: 12px;
+        width: 12px;
+        height: 12px;
+      }
       .featured-body h2 {
         margin: 0;
         font-size: clamp(1.35rem, 2.4vw, 1.9rem);
@@ -1207,6 +1229,8 @@ export class TutorialsComponent implements OnInit {
   protected readonly areaFilter = signal<AreaFilter>('All');
   protected readonly selectedId = signal<string | null>(null);
   protected readonly playing = signal(false);
+  /** Session guard; the server also enforces one unique view per partner. */
+  private readonly viewsTracked = new Set<string>();
 
   protected readonly videos = computed(() => this.groups().flatMap((group) => group.items));
   protected readonly areas = computed(() =>
@@ -1286,16 +1310,20 @@ export class TutorialsComponent implements OnInit {
     this.areaFilter.set(startVideos.length > 0 ? 'Start' : 'All');
     this.selectedId.set(first.id);
     this.playing.set(true);
+    this.recordView(first);
     this.revealOnMobile();
   }
 
   protected playSelected(): void {
+    const video = this.selected();
     this.playing.set(true);
+    if (video) this.recordView(video);
   }
 
   protected selectVideo(video: Tutorial): void {
     this.selectedId.set(video.id);
     this.playing.set(true);
+    this.recordView(video);
     this.revealOnMobile();
   }
 
@@ -1325,6 +1353,30 @@ export class TutorialsComponent implements OnInit {
 
   protected youtubeUrl(youtubeId: string): string {
     return `https://www.youtube.com/watch?v=${encodeURIComponent(youtubeId)}`;
+  }
+
+  protected viewsLabel(video: Tutorial): string {
+    return tutorialViewsLabel(video.viewCount);
+  }
+
+  private recordView(video: Tutorial): void {
+    if (this.viewsTracked.has(video.id)) return;
+    this.viewsTracked.add(video.id);
+    this.tutorials.recordView(video.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => this.applyViewCount(video.id, response.data?.viewCount),
+        error: () => { /* Playback must never depend on analytics. */ },
+      });
+  }
+
+  private applyViewCount(videoId: string, count: number | undefined): void {
+    if (typeof count !== 'number') return;
+    const viewCount = Math.max(0, Math.floor(count));
+    this.groups.update((groups) => groups.map((group) => ({
+      ...group,
+      items: group.items.map((video) => (video.id === videoId ? { ...video, viewCount } : video)),
+    })));
   }
 
   private syncSelection(): void {

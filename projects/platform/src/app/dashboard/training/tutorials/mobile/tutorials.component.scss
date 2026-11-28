@@ -1,0 +1,780 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.tutorials-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding-bottom: 28px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--ms-primary-strong);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── Header ────────────────────────────────────────────────────────────── */
+.tut-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 2px 0;
+}
+
+.tut-top {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0 -6px;
+}
+
+.tut-top .eyebrow {
+  flex: 1;
+  min-width: 0;
+}
+
+.tut-icon-btn {
+  display: inline-grid;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ms-text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tut-icon-btn:hover,
+.tut-icon-btn:active {
+  background: var(--ms-surface-3);
+}
+
+.tut-icon-btn mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.tut-icon-btn.is-busy mat-icon {
+  animation: tut-spin 0.9s linear infinite;
+}
+
+.tut-head h1 {
+  margin: 0;
+  color: var(--ms-text);
+  font-family: var(--ms-font-display);
+  font-size: clamp(1.85rem, 7vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+}
+
+.tut-lede {
+  max-width: 36em;
+  margin: 0;
+  color: var(--ms-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.48;
+}
+
+.tut-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.tut-start-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ms-primary);
+  color: var(--ms-ink-text);
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.tut-start-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tut-start-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.tut-free-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 32px;
+  padding: 0 9px;
+  border: 1px solid var(--ms-line);
+  border-radius: 999px;
+  background: var(--ms-surface);
+  color: var(--ms-text-muted);
+  font-size: 0.65rem;
+  font-weight: 650;
+}
+
+.tut-free-pill mat-icon {
+  color: var(--ms-primary-strong);
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.tut-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.tut-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--ms-line);
+  border-radius: 12px;
+  background: var(--ms-surface);
+  box-shadow: var(--ms-shadow-sm);
+}
+
+.tut-stats strong {
+  overflow: hidden;
+  color: var(--ms-text);
+  font-family: var(--ms-font-display);
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tut-stats span {
+  color: var(--ms-text-muted);
+  font-size: 0.61rem;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+/* ── Controls ──────────────────────────────────────────────────────────── */
+.tut-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  position: sticky;
+  top: calc(var(--ms-mobile-appbar-height) + var(--ms-safe-top));
+  z-index: 8;
+  padding: 4px 0 6px;
+  background: var(--ms-canvas);
+  border-bottom: 1px solid color-mix(in srgb, var(--ms-line) 70%, transparent);
+}
+
+.tut-search {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 9px 0 12px;
+  border: 1px solid var(--ms-line);
+  border-radius: 999px;
+  background: var(--ms-surface);
+}
+
+.tut-search:focus-within {
+  border-color: var(--ms-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ms-primary) 13%, transparent);
+}
+
+.tut-search > mat-icon {
+  flex: none;
+  color: var(--ms-text-muted);
+  font-size: 19px;
+  width: 19px;
+  height: 19px;
+}
+
+.tut-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ms-text);
+  font: inherit;
+  font-size: 16px;
+}
+
+.tut-search input::placeholder {
+  color: var(--ms-text-muted);
+  font-size: 0.78rem;
+}
+
+.tut-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.tut-search-clear {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ms-surface-3);
+  color: var(--ms-text-muted);
+  cursor: pointer;
+}
+
+.tut-search-clear mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.tut-chips {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  padding: 1px 0 2px;
+  scrollbar-width: none;
+}
+
+.tut-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.tut-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--ms-line);
+  border-radius: 999px;
+  background: var(--ms-surface);
+  color: var(--ms-text-muted);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 650;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tut-chip.is-active {
+  border-color: var(--ms-primary);
+  background: var(--ms-primary);
+  color: var(--ms-ink-text);
+}
+
+.tut-chip > span {
+  display: inline-grid;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--ms-canvas);
+  color: var(--ms-text-muted);
+  font-size: 0.58rem;
+  font-weight: 800;
+}
+
+.tut-chip.is-active > span {
+  background: color-mix(in srgb, var(--ms-surface) 25%, transparent);
+  color: var(--ms-ink-text);
+}
+
+/* ── Featured stage ────────────────────────────────────────────────────── */
+.tut-stage {
+  overflow: hidden;
+  border: 1px solid var(--ms-line);
+  border-radius: 18px;
+  background: var(--ms-surface);
+  box-shadow: var(--ms-shadow-sm);
+  scroll-margin-top: calc(var(--ms-mobile-appbar-height) + var(--ms-safe-top) + 10px);
+}
+
+.tut-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #08080d;
+}
+
+.tut-media iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+}
+
+.tut-poster {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: #08080d;
+  cursor: pointer;
+}
+
+.tut-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.tut-poster-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(8, 8, 13, 0.08) 25%, rgba(8, 8, 13, 0.72) 100%),
+    radial-gradient(circle at 50% 45%, rgba(102, 126, 234, 0.24), transparent 36%);
+}
+
+.tut-play-orb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  background: rgba(102, 126, 234, 0.88);
+  box-shadow: 0 10px 28px rgba(8, 8, 13, 0.48);
+  color: #fff;
+  transform: translate(-50%, -50%);
+}
+
+.tut-play-orb mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.tut-media-views {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 7px;
+  border-radius: 7px;
+  background: rgba(8, 8, 13, 0.76);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  backdrop-filter: blur(6px);
+}
+
+.tut-media-views mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.tut-stage-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 13px 13px;
+}
+
+.tut-stage-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.tut-area-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--ms-primary-soft);
+  color: var(--ms-primary-strong);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.tut-views,
+.tut-stage-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--ms-text-muted);
+  font-size: 0.63rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tut-views mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.tut-stage-state {
+  margin-left: auto;
+  color: var(--ms-primary-strong);
+  font-weight: 700;
+}
+
+.tut-stage-body h2 {
+  margin: 0;
+  color: var(--ms-text);
+  font-family: var(--ms-font-display);
+  font-size: 1.08rem;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+.tut-stage-body p {
+  margin: 0;
+  color: var(--ms-text-muted);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.tut-stage-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  padding-top: 3px;
+}
+
+.tut-nav-btn {
+  display: inline-grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid var(--ms-line);
+  border-radius: 50%;
+  background: var(--ms-surface);
+  color: var(--ms-text);
+  cursor: pointer;
+}
+
+.tut-nav-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tut-nav-btn mat-icon {
+  font-size: 19px;
+  width: 19px;
+  height: 19px;
+}
+
+.tut-watch-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 40px;
+  margin-left: auto;
+  padding: 0 4px;
+  color: var(--ms-primary-strong);
+  font-size: 0.68rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.tut-watch-link mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+/* ── Library ───────────────────────────────────────────────────────────── */
+.tut-library {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.tut-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px;
+}
+
+.tut-section-head h2 {
+  margin: 2px 0 0;
+  color: var(--ms-text);
+  font-family: var(--ms-font-display);
+  font-size: 1.02rem;
+  letter-spacing: -0.025em;
+}
+
+.tut-count {
+  display: inline-grid;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--ms-primary-soft);
+  color: var(--ms-primary-strong);
+  font-size: 0.6rem;
+  font-weight: 800;
+}
+
+.tut-list {
+  overflow: hidden;
+  border: 1px solid var(--ms-line);
+  border-radius: 16px;
+  background: var(--ms-surface);
+  box-shadow: var(--ms-shadow-sm);
+}
+
+.tut-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 78px;
+  padding: 8px 10px;
+  border: 0;
+  border-top: 1px solid var(--ms-line);
+  background: transparent;
+  color: var(--ms-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tut-row:first-child {
+  border-top: 0;
+}
+
+.tut-row.is-active {
+  background: color-mix(in srgb, var(--ms-primary-soft) 48%, var(--ms-surface));
+}
+
+.tut-row:active {
+  background: var(--ms-surface-3);
+}
+
+.tut-thumb {
+  position: relative;
+  width: 112px;
+  aspect-ratio: 16 / 9;
+  flex: none;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #08080d;
+}
+
+.tut-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.tut-thumb-play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 8, 13, 0.18);
+}
+
+.tut-thumb-play mat-icon {
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+}
+
+.tut-row-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.tut-row-area {
+  color: var(--ms-primary-strong);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.tut-row-copy strong {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 0.79rem;
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.tut-row-views {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--ms-text-muted);
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tut-row-views mat-icon {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+}
+
+.tut-row-index {
+  flex: none;
+  color: var(--ms-text-muted);
+  font-family: var(--ms-font-mono);
+  font-size: 0.63rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tut-row.is-active .tut-row-index {
+  color: var(--ms-primary-strong);
+}
+
+/* ── States ────────────────────────────────────────────────────────────── */
+.tut-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 34px 20px;
+  border: 1px dashed var(--ms-line-strong);
+  border-radius: 16px;
+  background: var(--ms-surface);
+  text-align: center;
+}
+
+.tut-state mat-icon {
+  font-size: 38px;
+  width: 38px;
+  height: 38px;
+  color: var(--ms-text-muted);
+  opacity: 0.75;
+}
+
+.tut-state strong {
+  font-size: 0.9rem;
+}
+
+.tut-state p {
+  max-width: 32em;
+  margin: 0;
+  color: var(--ms-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.tut-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  margin-top: 3px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ms-primary);
+  color: var(--ms-ink-text);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 750;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tut-state--inline {
+  padding: 24px 18px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes tut-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 359.98px) {
+  .tut-thumb {
+    width: 92px;
+  }
+
+  .tut-stats strong {
+    font-size: 1.05rem;
+  }
+
+  .tut-row {
+    gap: 7px;
+    padding: 7px 8px;
+  }
+
+  .tut-row-copy strong {
+    font-size: 0.75rem;
+  }
+
+  .tut-watch-link {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tut-icon-btn.is-busy mat-icon {
+    animation: none;
+  }
+}
